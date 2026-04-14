@@ -70,6 +70,9 @@ def remind_evening():
 def checkin_after_evening():
     send("How was tonight? What'd Bruno have you drilling?")
 
+def water_late_night():
+    send("Yo it's late — you still drinking water or nah?")
+
 def water_morning():
     send("You sipping on that water yet? Start early 💧")
 
@@ -180,6 +183,7 @@ scheduler.add_job(remind_evening,       'cron', day_of_week='mon,tue,thu', hour=
 scheduler.add_job(checkin_after_evening,'cron', day_of_week='mon,tue,thu', hour=21, minute=5)
 
 # Water reminders — every day
+scheduler.add_job(water_late_night,'cron', hour=1,  minute=39)
 scheduler.add_job(water_morning,   'cron', hour=9,  minute=0)
 scheduler.add_job(water_afternoon, 'cron', hour=13, minute=30)
 scheduler.add_job(water_evening,   'cron', hour=19, minute=0)
