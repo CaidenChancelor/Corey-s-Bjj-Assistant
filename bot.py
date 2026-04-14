@@ -45,7 +45,7 @@ def ask_claude(user_msg):
     if len(chat_history) > 20:
         chat_history.pop(0)
     response = claude.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-haiku-4-5-20251001",
         max_tokens=150,
         system=SYSTEM_PROMPT,
         messages=chat_history
