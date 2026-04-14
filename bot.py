@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from flask import Flask, request
 from twilio.rest import Client
@@ -23,13 +23,39 @@ state = {
     "last_question": None,   # what we're waiting on
     "drilling_time": None,   # 7 or 8
     "stretch_time": None,    # 11 or 12
+    "awaiting_reply": False, # follow-up tracking
 }
 
 # ── SEND ──────────────────────────────────────────────────────────────────────
 
-def send(msg):
+FOLLOWUPS = [
+    "You good? I ain't hear back from you",
+    "Hello?? Don't leave me on read lol",
+    "Bro I know you saw that 😂 answer me",
+    "Ight I'll ask again later since you're ghosting me",
+]
+followup_index = 0
+
+def send(msg, followup=True):
     client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
     logging.info(f"SENT: {msg}")
+    if followup:
+        # Schedule a follow-up in 5 min if no reply
+        state["awaiting_reply"] = True
+        run_at = datetime.now(TZ) + timedelta(minutes=5)
+        scheduler.add_job(send_followup, 'date', run_date=run_at,
+                          id='followup', replace_existing=True)
+
+def send_followup():
+    global followup_index
+    if state.get("awaiting_reply"):
+        send(FOLLOWUPS[followup_index % len(FOLLOWUPS)], followup=False)
+        followup_index += 1
+        # Schedule another follow-up in 5 more minutes
+        state["awaiting_reply"] = True
+        run_at = datetime.now(TZ) + timedelta(minutes=5)
+        scheduler.add_job(send_followup, 'date', run_date=run_at,
+                          id='followup', replace_existing=True)
 
 # ── SCHEDULED MESSAGES ────────────────────────────────────────────────────────
 
@@ -88,6 +114,14 @@ def water_evening():
 def webhook():
     body = request.form.get('Body', '').strip().lower()
     resp = MessagingResponse()
+
+    # User replied — cancel any pending follow-up
+    state["awaiting_reply"] = False
+    try:
+        scheduler.remove_job('followup')
+    except Exception:
+        pass
+
     last_q = state.get("last_question")
 
     if last_q == "drilling_time":
