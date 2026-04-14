@@ -139,6 +139,24 @@ def webhook():
     # If no active question, just acknowledge
     return str(resp)
 
+# ── TRIGGER (for testing) ─────────────────────────────────────────────────────
+
+@app.route('/trigger/<action>', methods=['GET'])
+def trigger(action):
+    actions = {
+        "drilling": ask_drilling_time,
+        "stretch": ask_stretch_time,
+        "water": water_morning,
+        "sc": remind_sc,
+        "private": remind_private,
+        "evening": remind_evening,
+    }
+    fn = actions.get(action)
+    if fn:
+        fn()
+        return f"Triggered: {action}", 200
+    return f"Unknown action: {action}. Options: {', '.join(actions.keys())}", 400
+
 # ── SCHEDULER ─────────────────────────────────────────────────────────────────
 
 scheduler = BackgroundScheduler(timezone=TZ)
