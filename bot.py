@@ -5,6 +5,7 @@ from flask import Flask, request
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from apscheduler.schedulers.background import BackgroundScheduler
+import anthropic
 import logging
 
 app = Flask(__name__)
@@ -21,7 +22,37 @@ PARTNERS = {
 }
 
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
+ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY')
+claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
 TZ = pytz.timezone('America/New_York')
+
+# Chat history for conversational context
+chat_history = []
+
+SYSTEM_PROMPT = """You are Corey's personal BJJ training assistant texting him on WhatsApp. You talk like a real friend — casual, supportive, sometimes funny. Keep messages SHORT (1-3 sentences max, this is texting not email).
+
+You know Corey's full schedule:
+- Mon/Wed/Fri: Drilling (7-8 or 8-9 AM), S&C with Roy (10-11 AM), Private with Bruno Malfacine (2-4 PM)
+- Mon/Tue/Thu: Evening class with Bruno (7:45-9 PM)
+- Tue/Thu: Stretch Zone (11-12 or 12-1 PM), Private with Bruno (2-4 PM), Competition Class with Bruno (7:45-9 PM)
+- Every day: Drink a gallon of water
+
+You care about his training, recovery, hydration, and mindset. You're like a coach/homie hybrid. Don't be robotic. Use slang naturally. You can use emojis but don't overdo it."""
+
+def ask_claude(user_msg):
+    chat_history.append({"role": "user", "content": user_msg})
+    # Keep last 20 messages for context
+    if len(chat_history) > 20:
+        chat_history.pop(0)
+    response = claude.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=150,
+        system=SYSTEM_PROMPT,
+        messages=chat_history
+    )
+    reply = response.content[0].text
+    chat_history.append({"role": "assistant", "content": reply})
+    return reply
 
 # Conversation state (in-memory, resets on redeploy — fine for now)
 state = {
@@ -217,7 +248,12 @@ def webhook():
         else:
             resp.message("Just say 11 or 12")
 
-    # If no active question, just acknowledge
+    else:
+        # No structured question pending — use Claude for conversation
+        raw_body = request.form.get('Body', '').strip()
+        reply = ask_claude(raw_body)
+        resp.message(reply)
+
     return str(resp)
 
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
