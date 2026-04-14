@@ -22,8 +22,8 @@ PARTNERS = {
 }
 
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
-ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY')
-claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
+ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 TZ = pytz.timezone('America/New_York')
 
 # Chat history for conversational context
@@ -40,6 +40,8 @@ You know Corey's full schedule:
 You care about his training, recovery, hydration, and mindset. You're like a coach/homie hybrid. Don't be robotic. Use slang naturally. You can use emojis but don't overdo it."""
 
 def ask_claude(user_msg):
+    if not claude:
+        return "Bot brain offline — API key missing"
     chat_history.append({"role": "user", "content": user_msg})
     # Keep last 20 messages for context
     if len(chat_history) > 20:
@@ -250,9 +252,13 @@ def webhook():
 
     else:
         # No structured question pending — use Claude for conversation
-        raw_body = request.form.get('Body', '').strip()
-        reply = ask_claude(raw_body)
-        resp.message(reply)
+        try:
+            raw_body = request.form.get('Body', '').strip()
+            reply = ask_claude(raw_body)
+            resp.message(reply)
+        except Exception as e:
+            logging.error(f"Claude error: {e}")
+            resp.message("Yo my bad, brain glitched for a sec. Say that again?")
 
     return str(resp)
 
