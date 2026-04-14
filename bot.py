@@ -15,6 +15,11 @@ AUTH_TOKEN  = os.environ.get('TWILIO_AUTH_TOKEN')
 FROM_NUMBER = 'whatsapp:+14155238886'  # Twilio sandbox
 MY_NUMBER   = 'whatsapp:+13054601000'
 
+# Drilling partners
+PARTNERS = {
+    "God-Killer": "whatsapp:+19544173000",
+}
+
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 TZ = pytz.timezone('America/New_York')
 
@@ -24,6 +29,8 @@ state = {
     "drilling_time": None,   # 7 or 8
     "stretch_time": None,    # 11 or 12
     "awaiting_reply": False, # follow-up tracking
+    "partner_pending": None, # waiting on partner reply
+    "replying_to": None,     # which partner Corey is responding to
 }
 
 # ── SEND ──────────────────────────────────────────────────────────────────────
@@ -35,6 +42,10 @@ FOLLOWUPS = [
     "Ight I'll ask again later since you're ghosting me",
 ]
 followup_index = 0
+
+def send_to(number, msg):
+    client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
+    logging.info(f"SENT to {number}: {msg}")
 
 def send(msg, followup=True):
     client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
@@ -96,6 +107,14 @@ def remind_evening():
 def checkin_after_evening():
     send("How was tonight? What'd Bruno have you drilling?")
 
+# ── PARTNER MESSAGES ──────────────────────────────────────────────────────────
+
+def ask_partner_drilling():
+    for name, number in PARTNERS.items():
+        send_to(number, f"Hey what's up {name}! How you doing big man? Just wanted to confirm for drilling tomorrow — is it from 7 to 8 or 8 to 9?")
+        state["partner_pending"] = name
+    logging.info("Asked partners about drilling")
+
 def water_late_night():
     send("Yo it's late — you still drinking water or nah?")
 
@@ -113,9 +132,24 @@ def water_evening():
 @app.route('/webhook', methods=['POST'])
 def webhook():
     body = request.form.get('Body', '').strip().lower()
+    sender = request.form.get('From', '')
     resp = MessagingResponse()
 
-    # User replied — cancel any pending follow-up
+    # Check if message is from a partner — relay to Corey
+    partner_name = None
+    for name, number in PARTNERS.items():
+        if sender == number:
+            partner_name = name
+            break
+
+    if partner_name:
+        # Forward partner's reply to Corey
+        send(f"{partner_name} said: \"{request.form.get('Body', '').strip()}\"\n\nWhat do you want me to reply?", followup=False)
+        state["last_question"] = "partner_reply"
+        state["replying_to"] = partner_name
+        return str(resp)
+
+    # It's from Corey — cancel any pending follow-up
     state["awaiting_reply"] = False
     try:
         scheduler.remove_job('followup')
@@ -123,6 +157,16 @@ def webhook():
         pass
 
     last_q = state.get("last_question")
+
+    # If Corey is replying to a partner message
+    if last_q == "partner_reply":
+        partner = state.get("replying_to")
+        if partner and partner in PARTNERS:
+            send_to(PARTNERS[partner], request.form.get('Body', '').strip())
+            resp.message(f"Sent to {partner} 👊")
+        state["last_question"] = None
+        state["replying_to"] = None
+        return str(resp)
 
     if last_q == "drilling_time":
         if "7" in body:
@@ -187,6 +231,7 @@ def trigger(action):
         "sc": remind_sc,
         "private": remind_private,
         "evening": remind_evening,
+        "partner": ask_partner_drilling,
     }
     fn = actions.get(action)
     if fn:
@@ -215,6 +260,9 @@ scheduler.add_job(checkin_after_private,'cron', day_of_week='mon-fri', hour=16, 
 # Evening class — Mon, Tue, Thu
 scheduler.add_job(remind_evening,       'cron', day_of_week='mon,tue,thu', hour=19, minute=30)
 scheduler.add_job(checkin_after_evening,'cron', day_of_week='mon,tue,thu', hour=21, minute=5)
+
+# Ask partners about drilling (Sun–Thu at 7 PM, for next morning)
+scheduler.add_job(ask_partner_drilling, 'cron', day_of_week='sun-thu', hour=19, minute=0)
 
 # Water reminders — every day
 scheduler.add_job(water_late_night,'cron', hour=1,  minute=39)
