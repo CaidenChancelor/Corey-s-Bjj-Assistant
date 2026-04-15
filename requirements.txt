@@ -4,3 +4,4 @@ apscheduler
 pytz
 gunicorn
 anthropic
+requests

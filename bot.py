@@ -1,4 +1,6 @@
 import os
+import base64
+import requests as req
 from datetime import datetime, timedelta
 import pytz
 from flask import Flask, request
@@ -25,6 +27,7 @@ client = Client(ACCOUNT_SID, AUTH_TOKEN)
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 CLAUDE_MODEL = "claude-sonnet-4-5"
+WATER_GOAL_L = 3.0
 TZ = pytz.timezone('America/New_York')
 
 # Chat history for conversational context
@@ -92,6 +95,8 @@ state = {
     "replying_to": None,     # which partner Corey is responding to
     "followup_index": 0,     # how many follow-ups have fired
     "followup_delays": [],   # cadence for current follow-up chain
+    "water_today": 0.0,      # liters consumed today
+    "water_date": None,      # "YYYY-MM-DD" — resets daily
 }
 
 # Schedule follow-ups: every 15 min, 3 times
@@ -99,6 +104,46 @@ FOLLOWUP_DELAYS_MIN  = [15, 30, 45]
 # Water follow-ups: every 5 min, 2 times
 WATER_FOLLOWUP_DELAYS = [5, 10]
 
+
+# ── WATER TRACKING ────────────────────────────────────────────────────────────
+
+def check_and_reset_water():
+    today = datetime.now(TZ).strftime("%Y-%m-%d")
+    if state["water_date"] != today:
+        state["water_today"] = 0.0
+        state["water_date"] = today
+
+def estimate_water_from_image(image_bytes, content_type):
+    if not claude:
+        return None
+    b64 = base64.b64encode(image_bytes).decode("utf-8")
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=10,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {"type": "base64", "media_type": content_type, "data": b64}
+                    },
+                    {
+                        "type": "text",
+                        "text": (
+                            "This is a photo of a water bottle. Estimate how many liters of water "
+                            "the person has CONSUMED/FINISHED from it. "
+                            "Empty bottle = 1.0L consumed. Half empty = 0.5L consumed. "
+                            "Reply with ONLY a decimal number like 0.5 or 1.0. Nothing else."
+                        )
+                    }
+                ]
+            }]
+        )
+        return float(response.content[0].text.strip())
+    except Exception as e:
+        logging.error(f"Water vision error: {e}")
+        return None
 
 # ── SEND ──────────────────────────────────────────────────────────────────────
 
@@ -215,6 +260,24 @@ def webhook():
     body = raw_body.lower()
     sender = request.form.get('From', '')
     resp = MessagingResponse()
+
+    # Handle photo from Corey — water intake tracking
+    if int(request.form.get('NumMedia', 0)) > 0 and sender == MY_NUMBER:
+        media_url     = request.form.get('MediaUrl0')
+        content_type  = request.form.get('MediaContentType0', 'image/jpeg')
+        image_resp    = req.get(media_url, auth=(ACCOUNT_SID, AUTH_TOKEN))
+        liters        = estimate_water_from_image(image_resp.content, content_type)
+        if liters is not None:
+            check_and_reset_water()
+            state["water_today"] = round(state["water_today"] + liters, 2)
+            remaining = round(WATER_GOAL_L - state["water_today"], 2)
+            if remaining <= 0:
+                resp.message(f"LET'S GO!! You hit your {WATER_GOAL_L}L goal today 🎉💧")
+            else:
+                resp.message(f"+{liters}L logged 💧 You've had {state['water_today']}L today — {remaining}L to go")
+        else:
+            resp.message("Couldn't read that — just text me how many liters (e.g. '1' or '0.5')")
+        return str(resp)
 
     # Check if message is from a partner — relay to Corey
     partner_name = None
