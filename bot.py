@@ -253,8 +253,16 @@ def send(msg, followup=False, delays=None):
         scheduler.add_job(send_followup, 'date', run_date=run_at,
                           id='followup', replace_existing=True)
 
+def water_progress():
+    check_and_reset_water()
+    had = state["water_today"]
+    left = round(WATER_GOAL_L - had, 2)
+    if left <= 0:
+        return f"You already hit your 3L today 💧🎉"
+    return f"You've had {had}L today — {left}L to go 💧"
+
 def send_water(msg):
-    send(msg, followup=True, delays=WATER_FOLLOWUP_DELAYS)
+    send(f"{msg} {water_progress()}", followup=True, delays=WATER_FOLLOWUP_DELAYS)
 
 def send_followup():
     if not state.get("awaiting_reply"):
@@ -342,16 +350,16 @@ def ask_partner_drilling():
     logging.info("Asked partners about drilling")
 
 def water_late_night():
-    send_water("Yo it's late — you still drinking water or nah?")
+    send_water("Yo it's late — still drinking?")
 
 def water_morning():
-    send_water("You sipping on that water yet? Start early 💧")
+    send_water("Start sipping early —")
 
 def water_afternoon():
-    send_water("Mid-day check — how's that gallon looking?")
+    send_water("Mid-day check —")
 
 def water_evening():
-    send_water("Almost end of day — you hit that gallon?")
+    send_water("Almost end of day —")
 
 # ── WEBHOOK (incoming replies from you) ───────────────────────────────────────
 
@@ -419,7 +427,7 @@ def webhook():
             state["drilling_time"] = 7
             state["last_question"] = None
             resp.message("Bet — drilling at 7. I'll check in after 🔥")
-            send_water("And start sipping that water now 💧")
+            send_water("Start sipping now —")
             run_at = datetime.now(TZ).replace(hour=8, minute=5, second=0, microsecond=0)
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
@@ -428,7 +436,7 @@ def webhook():
             state["drilling_time"] = 8
             state["last_question"] = None
             resp.message("Bet — drilling at 8. Got you 👊")
-            send_water("And start sipping that water now 💧")
+            send_water("Start sipping now —")
             run_at = datetime.now(TZ).replace(hour=9, minute=5, second=0, microsecond=0)
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
