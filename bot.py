@@ -13,8 +13,8 @@ logging.basicConfig(level=logging.INFO)
 
 ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
 AUTH_TOKEN  = os.environ.get('TWILIO_AUTH_TOKEN')
-FROM_NUMBER = 'whatsapp:+14155238886'  # Twilio sandbox
-MY_NUMBER   = 'whatsapp:+13054601000'
+FROM_NUMBER = os.environ.get('FROM_NUMBER', 'whatsapp:+13052502213')
+MY_NUMBER   = os.environ.get('MY_NUMBER',   'whatsapp:+13054601000')
 
 # Drilling partners
 PARTNERS = {
@@ -24,6 +24,7 @@ PARTNERS = {
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
+CLAUDE_MODEL = "claude-sonnet-4-5"
 TZ = pytz.timezone('America/New_York')
 
 # Chat history for conversational context
@@ -46,15 +47,40 @@ def ask_claude(user_msg):
     # Keep last 20 messages for context
     if len(chat_history) > 20:
         chat_history.pop(0)
-    response = claude.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=150,
-        system=SYSTEM_PROMPT,
-        messages=chat_history
-    )
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=300,
+            system=SYSTEM_PROMPT,
+            messages=chat_history,
+        )
+    except Exception as e:
+        chat_history.pop()  # roll back user message on failure
+        logging.error(f"Claude API error: {e}")
+        return "Yo my bad, brain glitched for a sec. Say that again?"
     reply = response.content[0].text
     chat_history.append({"role": "assistant", "content": reply})
     return reply
+
+def claude_is_skip(user_msg, question_context):
+    """Ask Claude to judge if Corey is skipping the training session. Returns True/False."""
+    if not claude:
+        return False
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=10,
+            system="You are a classifier. Reply with ONLY 'YES' or 'NO', nothing else.",
+            messages=[{
+                "role": "user",
+                "content": f"Corey was asked: \"{question_context}\"\nCorey replied: \"{user_msg}\"\n\nIs Corey saying he is NOT going to train / is skipping / not attending? Reply YES or NO only."
+            }]
+        )
+        answer = response.content[0].text.strip().upper()
+        return answer.startswith("YES")
+    except Exception as e:
+        logging.error(f"Claude skip-check error: {e}")
+        return False
 
 # Conversation state (in-memory, resets on redeploy — fine for now)
 state = {
@@ -64,7 +90,12 @@ state = {
     "awaiting_reply": False, # follow-up tracking
     "partner_pending": None, # waiting on partner reply
     "replying_to": None,     # which partner Corey is responding to
+    "followup_index": 0,     # how many follow-ups have fired
 }
+
+# Follow-up cadence — 3 reminders at 15, 30, 60 min then stop
+FOLLOWUP_DELAYS_MIN = [15, 30, 60]
+
 
 # ── SEND ──────────────────────────────────────────────────────────────────────
 
@@ -72,46 +103,51 @@ FOLLOWUPS = [
     "You good? I ain't hear back from you",
     "Hello?? Don't leave me on read lol",
     "Bro I know you saw that 😂 answer me",
-    "Ight I'll ask again later since you're ghosting me",
 ]
-followup_index = 0
 
 def send_to(number, msg):
     client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
     logging.info(f"SENT to {number}: {msg}")
 
-def send(msg, followup=True):
+def send(msg, followup=False):
     client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
     logging.info(f"SENT: {msg}")
     if followup:
-        # Schedule a follow-up in 5 min if no reply
         state["awaiting_reply"] = True
-        run_at = datetime.now(TZ) + timedelta(minutes=5)
+        state["followup_index"] = 0
+        run_at = datetime.now(TZ) + timedelta(minutes=FOLLOWUP_DELAYS_MIN[0])
         scheduler.add_job(send_followup, 'date', run_date=run_at,
                           id='followup', replace_existing=True)
 
 def send_followup():
-    global followup_index
-    if state.get("awaiting_reply"):
-        send(FOLLOWUPS[followup_index % len(FOLLOWUPS)], followup=False)
-        followup_index += 1
-        # Schedule another follow-up in 5 more minutes
-        state["awaiting_reply"] = True
-        run_at = datetime.now(TZ) + timedelta(minutes=5)
+    if not state.get("awaiting_reply"):
+        return
+    idx = state["followup_index"]
+    if idx >= len(FOLLOWUPS):
+        state["awaiting_reply"] = False
+        return
+    send(FOLLOWUPS[idx], followup=False)
+    state["followup_index"] = idx + 1
+    # Schedule next reminder if we haven't hit the cap
+    next_idx = state["followup_index"]
+    if next_idx < len(FOLLOWUP_DELAYS_MIN):
+        run_at = datetime.now(TZ) + timedelta(minutes=FOLLOWUP_DELAYS_MIN[next_idx])
         scheduler.add_job(send_followup, 'date', run_date=run_at,
                           id='followup', replace_existing=True)
+    else:
+        state["awaiting_reply"] = False
 
 # ── SCHEDULED MESSAGES ────────────────────────────────────────────────────────
 
 def ask_drilling_time():
     state["drilling_time"] = None
     state["last_question"] = "drilling_time"
-    send("Yo what time you drilling this morning — 7 or 8?")
+    send("Yo what time you drilling this morning — 7 or 8?", followup=True)
 
 def ask_stretch_time():
     state["stretch_time"] = None
     state["last_question"] = "stretch_time"
-    send("Stretch Zone today — 11 or 12?")
+    send("Stretch Zone today — 11 or 12?", followup=True)
 
 def checkin_after_drilling():
     send("Drilling done? How'd it feel 👊")
@@ -164,7 +200,8 @@ def water_evening():
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    body = request.form.get('Body', '').strip().lower()
+    raw_body = request.form.get('Body', '').strip()
+    body = raw_body.lower()
     sender = request.form.get('From', '')
     resp = MessagingResponse()
 
@@ -176,14 +213,15 @@ def webhook():
             break
 
     if partner_name:
-        # Forward partner's reply to Corey
-        send(f"{partner_name} said: \"{request.form.get('Body', '').strip()}\"\n\nWhat do you want me to reply?", followup=False)
+        # Forward partner's reply to Corey — nag him to respond
+        send(f"{partner_name} said: \"{raw_body}\"\n\nWhat do you want me to reply?", followup=True)
         state["last_question"] = "partner_reply"
         state["replying_to"] = partner_name
         return str(resp)
 
     # It's from Corey — cancel any pending follow-up
     state["awaiting_reply"] = False
+    state["followup_index"] = 0
     try:
         scheduler.remove_job('followup')
     except Exception:
@@ -195,7 +233,7 @@ def webhook():
     if last_q == "partner_reply":
         partner = state.get("replying_to")
         if partner and partner in PARTNERS:
-            send_to(PARTNERS[partner], request.form.get('Body', '').strip())
+            send_to(PARTNERS[partner], raw_body)
             resp.message(f"Sent to {partner} 👊")
         state["last_question"] = None
         state["replying_to"] = None
@@ -219,6 +257,10 @@ def webhook():
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
                                   id='drill_checkin', replace_existing=True)
+        elif claude_is_skip(raw_body, "Yo what time you drilling this morning — 7 or 8?"):
+            state["last_question"] = None
+            state["drilling_time"] = None
+            resp.message(ask_claude(raw_body))
         else:
             resp.message("Just say 7 or 8 lol")
 
@@ -247,18 +289,16 @@ def webhook():
             if datetime.now(TZ) < checkin_at:
                 scheduler.add_job(checkin_after_stretch, 'date', run_date=checkin_at,
                                   id='stretch_checkin', replace_existing=True)
+        elif claude_is_skip(raw_body, "Stretch Zone today — 11 or 12?"):
+            state["last_question"] = None
+            state["stretch_time"] = None
+            resp.message(ask_claude(raw_body))
         else:
             resp.message("Just say 11 or 12")
 
     else:
         # No structured question pending — use Claude for conversation
-        try:
-            raw_body = request.form.get('Body', '').strip()
-            reply = ask_claude(raw_body)
-            resp.message(reply)
-        except Exception as e:
-            logging.error(f"Claude error: {e}")
-            resp.message("Yo my bad, brain glitched for a sec. Say that again?")
+        resp.message(ask_claude(raw_body))
 
     return str(resp)
 
