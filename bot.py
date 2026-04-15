@@ -131,10 +131,13 @@ def estimate_water_from_image(image_bytes, content_type):
                     {
                         "type": "text",
                         "text": (
-                            "This is a photo of a water bottle. Estimate how many liters of water "
-                            "the person has CONSUMED/FINISHED from it. "
-                            "Empty bottle = 1.0L consumed. Half empty = 0.5L consumed. "
-                            "Reply with ONLY a decimal number like 0.5 or 1.0. Nothing else."
+                            "Look at this water bottle photo. Do two things:\n"
+                            "1. Identify the brand and size (e.g. Fiji 1L, Dasani 500mL, Smartwater 700mL, "
+                            "Evian 500mL, Voss 800mL, etc.) using the label, shape, and cap.\n"
+                            "2. Estimate what fraction of the bottle has been CONSUMED based on the water level.\n"
+                            "Calculate: consumed_liters = bottle_capacity_L × fraction_consumed.\n"
+                            "Examples: full Fiji 1L just finished = 1.0, half-empty Dasani 500mL = 0.25.\n"
+                            "Reply with ONLY a decimal number in liters. Nothing else."
                         )
                     }
                 ]
