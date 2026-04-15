@@ -302,6 +302,12 @@ def webhook():
 
     return str(resp)
 
+# ── HEALTH / HOME ─────────────────────────────────────────────────────────────
+
+@app.route('/', methods=['GET'])
+def home():
+    return "Corey's BJJ Assistant is running 🥋", 200
+
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
 
 @app.route('/trigger/<action>', methods=['GET'])
