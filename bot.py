@@ -97,7 +97,10 @@ def build_system_prompt():
         journal_section = ""
         history_rule = "- You have no record of his past training yet. Do not make anything up. Just respond to what he says now."
 
+    now = datetime.now(TZ).strftime("%A, %B %d %Y — %I:%M %p ET")
     return f"""You are Corey's training partner and close friend texting him on WhatsApp. You train BJJ too so you get it, but you're not his coach — don't give technique advice.
+
+Current time: {now}
 
 Rules:
 - SHORT. 1-3 sentences max. This is texting.
