@@ -366,6 +366,18 @@ def ask_partner_drilling():
         state["partner_pending"] = name
     logging.info("Asked partners about drilling")
 
+def water_penalty_check():
+    check_and_reset_water()
+    if state["water_today"] >= WATER_GOAL_L:
+        return
+    had = state["water_today"]
+    left = round(WATER_GOAL_L - had, 2)
+    send(
+        f"Bro you only hit {had}L today — {left}L short of your goal 😤\n\n"
+        f"Penalty: 15 push-ups, 15 squats, 5 burpees. Right now. "
+        f"Don't make me ask twice 💧"
+    )
+
 def water_late_night():
     send_water("Yo it's late — still drinking?")
 
@@ -530,6 +542,7 @@ def trigger(action):
         "private": remind_private,
         "evening": remind_evening,
         "partner": ask_partner_drilling,
+        "penalty": water_penalty_check,
     }
     fn = actions.get(action)
     if fn:
@@ -561,6 +574,9 @@ scheduler.add_job(checkin_after_evening,'cron', day_of_week='mon,tue,thu', hour=
 
 # Ask partners about drilling (Sun–Thu at 7 PM, for next morning)
 scheduler.add_job(ask_partner_drilling, 'cron', day_of_week='sun,mon,tue,wed,thu', hour=19, minute=0)
+
+# Water penalty check — 10 PM daily
+scheduler.add_job(water_penalty_check, 'cron', hour=22, minute=0)
 
 # Water reminders — every day
 scheduler.add_job(water_late_night,'cron', hour=1,  minute=39)
