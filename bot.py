@@ -373,9 +373,9 @@ def water_penalty_check():
     had = state["water_today"]
     left = round(WATER_GOAL_L - had, 2)
     send(
-        f"Yo you only hit {had}L today — {left}L short 😬 "
-        f"You already know what it is... 15 push-ups, 15 squats, 5 burpees before bed. "
-        f"We do it for the cause 💧"
+        f"Only {had}L today — champions don't miss the small stuff bro 💧 "
+        f"{left}L short means 15 push-ups, 15 squats, 5 burpees before you sleep. "
+        f"Every little thing adds up. You know that."
     )
 
 def water_late_night():
