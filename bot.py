@@ -1,5 +1,6 @@
 import os
 import base64
+import sqlite3
 import requests as req
 from datetime import datetime, timedelta
 import pytz
@@ -29,19 +30,73 @@ claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 CLAUDE_MODEL = "claude-sonnet-4-5"
 WATER_GOAL_L = 3.0
 TZ = pytz.timezone('America/New_York')
+DB_PATH = os.environ.get('DB_PATH', '/data/bjj.db')
 
 # Chat history for conversational context
 chat_history = []
 
-SYSTEM_PROMPT = """You are Corey's personal BJJ training assistant texting him on WhatsApp. You talk like a real friend — casual, supportive, sometimes funny. Keep messages SHORT (1-3 sentences max, this is texting not email).
+# ── JOURNAL (SQLite) ───────────────────────────────────────────────────────────
 
-You know Corey's full schedule:
+def init_db():
+    os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS journal (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            date       TEXT,
+            session    TEXT,
+            notes      TEXT,
+            created_at TEXT
+        )''')
+        conn.commit()
+
+def save_journal_entry(session, notes):
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            'INSERT INTO journal (date, session, notes, created_at) VALUES (?,?,?,?)',
+            (datetime.now(TZ).strftime('%Y-%m-%d'), session, notes, datetime.now(TZ).isoformat())
+        )
+        conn.commit()
+    logging.info(f"JOURNAL [{session}]: {notes[:80]}")
+
+def get_recent_journal(n=15):
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            return conn.execute(
+                'SELECT date, session, notes FROM journal ORDER BY created_at DESC LIMIT ?', (n,)
+            ).fetchall()
+    except Exception:
+        return []
+
+# ── SYSTEM PROMPT (dynamic — injects journal) ─────────────────────────────────
+
+def build_system_prompt():
+    journal = get_recent_journal(15)
+    journal_section = ""
+    if journal:
+        journal_section = "\n\nCorey's training journal (most recent first):\n"
+        for date, session, notes in journal:
+            journal_section += f"- {date} [{session}]: {notes}\n"
+
+    return f"""You are John Danaher — the most analytical mind in Brazilian Jiu-Jitsu — texting Corey directly as his personal coach via WhatsApp.
+
+Your communication style:
+- Precise and analytical. Identify the mechanical problem before offering the solution.
+- Direct but invested in his development. You see his potential.
+- SHORT texts — 2-4 sentences max. This is WhatsApp, not a lecture hall.
+- Naturally use phrases like "the problem is...", "the solution is...", "you must understand..."
+- Reference his actual training history when relevant. You remember everything.
+- Occasionally drop a philosophical gem about BJJ, but don't overdo it.
+- You are not robotic. You are Danaher — intense, precise, quietly warm.
+
+Corey's schedule:
 - Mon/Wed/Fri: Drilling (7-8 or 8-9 AM), S&C with Roy (10-11 AM), Private with Bruno Malfacine (2-4 PM)
 - Mon/Tue/Thu: Evening class with Bruno (7:45-9 PM)
-- Tue/Thu: Stretch Zone (11-12 or 12-1 PM), Private with Bruno (2-4 PM), Competition Class with Bruno (7:45-9 PM)
-- Every day: Drink a gallon of water
+- Tue/Thu: Stretch Zone (11-12 or 12-1 PM), Private with Bruno (2-4 PM), Competition Class (7:45-9 PM)
+- Daily water goal: 3 liters
 
-You care about his training, recovery, hydration, and mindset. You're like a coach/homie hybrid. Don't be robotic. Use slang naturally. You can use emojis but don't overdo it."""
+When Corey mentions a TOURNAMENT: reference his journal explicitly — what positions are sharp, what he hasn't worked yet, what to rely on, what to avoid.
+When he describes what he learned in a session: ask exactly ONE precise follow-up question that deepens understanding of the mechanical principle.
+When he mentions a weakness or something he struggled with: acknowledge it analytically and suggest one concrete drill or focus.{journal_section}"""
 
 def ask_claude(user_msg):
     if not claude:
@@ -54,7 +109,7 @@ def ask_claude(user_msg):
         response = claude.messages.create(
             model=CLAUDE_MODEL,
             max_tokens=300,
-            system=SYSTEM_PROMPT,
+            system=build_system_prompt(),
             messages=chat_history,
         )
     except Exception as e:
@@ -97,6 +152,7 @@ state = {
     "followup_delays": [],   # cadence for current follow-up chain
     "water_today": 0.0,      # liters consumed today
     "water_date": None,      # "YYYY-MM-DD" — resets daily
+    "debrief_session": None, # session type being debriefed after class
 }
 
 # Schedule follow-ups: every 15 min, 3 times
@@ -205,7 +261,8 @@ def ask_stretch_time():
     send("Stretch Zone today — 11 or 12?", followup=True)
 
 def checkin_after_drilling():
-    send("Drilling done? How'd it feel 👊")
+    state["debrief_session"] = "Drilling"
+    send("Drilling done? How'd it feel — what were you working on?")
 
 def remind_sc():
     send("S&C with Roy in 15 — you ready to suffer lol")
@@ -219,6 +276,7 @@ def remind_private():
     send_water("Water before the private 💧")
 
 def checkin_after_private():
+    state["debrief_session"] = "Private with Bruno"
     send("How was the private? What'd you work on?")
 
 def remind_stretch():
@@ -233,6 +291,7 @@ def remind_evening():
     send_water("Sip that water before you head out 💧")
 
 def checkin_after_evening():
+    state["debrief_session"] = "Evening class"
     send("How was tonight? What'd Bruno have you drilling?")
 
 # ── PARTNER MESSAGES ──────────────────────────────────────────────────────────
@@ -377,7 +436,10 @@ def webhook():
             resp.message("Just say 11 or 12")
 
     else:
-        # No structured question pending — use Claude for conversation
+        if state.get("debrief_session"):
+            session = state["debrief_session"]
+            state["debrief_session"] = None
+            save_journal_entry(session, raw_body)
         resp.message(ask_claude(raw_body))
 
     return str(resp)
@@ -438,6 +500,7 @@ scheduler.add_job(water_morning,   'cron', hour=9,  minute=0)
 scheduler.add_job(water_afternoon, 'cron', hour=13, minute=30)
 scheduler.add_job(water_evening,   'cron', hour=19, minute=0)
 
+init_db()
 scheduler.start()
 
 # ── RUN ───────────────────────────────────────────────────────────────────────
