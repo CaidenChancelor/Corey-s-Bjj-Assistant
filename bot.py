@@ -91,10 +91,13 @@ state = {
     "partner_pending": None, # waiting on partner reply
     "replying_to": None,     # which partner Corey is responding to
     "followup_index": 0,     # how many follow-ups have fired
+    "followup_delays": [],   # cadence for current follow-up chain
 }
 
-# Follow-up cadence — 3 reminders at 15, 30, 60 min then stop
-FOLLOWUP_DELAYS_MIN = [15, 30, 60]
+# Schedule follow-ups: every 15 min, 3 times
+FOLLOWUP_DELAYS_MIN  = [15, 30, 45]
+# Water follow-ups: every 5 min, 2 times
+WATER_FOLLOWUP_DELAYS = [5, 10]
 
 
 # ── SEND ──────────────────────────────────────────────────────────────────────
@@ -109,15 +112,19 @@ def send_to(number, msg):
     client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
     logging.info(f"SENT to {number}: {msg}")
 
-def send(msg, followup=False):
+def send(msg, followup=False, delays=None):
     client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
     logging.info(f"SENT: {msg}")
     if followup:
         state["awaiting_reply"] = True
         state["followup_index"] = 0
-        run_at = datetime.now(TZ) + timedelta(minutes=FOLLOWUP_DELAYS_MIN[0])
+        state["followup_delays"] = delays or FOLLOWUP_DELAYS_MIN
+        run_at = datetime.now(TZ) + timedelta(minutes=state["followup_delays"][0])
         scheduler.add_job(send_followup, 'date', run_date=run_at,
                           id='followup', replace_existing=True)
+
+def send_water(msg):
+    send(msg, followup=True, delays=WATER_FOLLOWUP_DELAYS)
 
 def send_followup():
     if not state.get("awaiting_reply"):
@@ -128,10 +135,10 @@ def send_followup():
         return
     send(FOLLOWUPS[idx], followup=False)
     state["followup_index"] = idx + 1
-    # Schedule next reminder if we haven't hit the cap
     next_idx = state["followup_index"]
-    if next_idx < len(FOLLOWUP_DELAYS_MIN):
-        run_at = datetime.now(TZ) + timedelta(minutes=FOLLOWUP_DELAYS_MIN[next_idx])
+    delays = state.get("followup_delays", FOLLOWUP_DELAYS_MIN)
+    if next_idx < len(delays):
+        run_at = datetime.now(TZ) + timedelta(minutes=delays[next_idx])
         scheduler.add_job(send_followup, 'date', run_date=run_at,
                           id='followup', replace_existing=True)
     else:
@@ -154,24 +161,28 @@ def checkin_after_drilling():
 
 def remind_sc():
     send("S&C with Roy in 15 — you ready to suffer lol")
+    send_water("You got your water for S&C? 💧")
 
 def checkin_after_sc():
     send("You make it through Roy today? 💀")
 
 def remind_private():
     send("Bruno private in 15 — get your head right 🥋")
+    send_water("Water before the private 💧")
 
 def checkin_after_private():
     send("How was the private? What'd you work on?")
 
 def remind_stretch():
     send("Stretch Zone coming up — you heading out?")
+    send_water("Bring that water to Stretch Zone 💧")
 
 def checkin_after_stretch():
     send("Body feeling better after Stretch Zone?")
 
 def remind_evening():
     send("Evening class with Bruno at 7:45 — you on your way?")
+    send_water("Sip that water before you head out 💧")
 
 def checkin_after_evening():
     send("How was tonight? What'd Bruno have you drilling?")
@@ -185,16 +196,16 @@ def ask_partner_drilling():
     logging.info("Asked partners about drilling")
 
 def water_late_night():
-    send("Yo it's late — you still drinking water or nah?")
+    send_water("Yo it's late — you still drinking water or nah?")
 
 def water_morning():
-    send("You sipping on that water yet? Start early 💧")
+    send_water("You sipping on that water yet? Start early 💧")
 
 def water_afternoon():
-    send("Mid-day check — how's that gallon looking?")
+    send_water("Mid-day check — how's that gallon looking?")
 
 def water_evening():
-    send("Almost end of day — you hit that gallon?")
+    send_water("Almost end of day — you hit that gallon?")
 
 # ── WEBHOOK (incoming replies from you) ───────────────────────────────────────
 
@@ -244,7 +255,7 @@ def webhook():
             state["drilling_time"] = 7
             state["last_question"] = None
             resp.message("Bet — drilling at 7. I'll check in after 🔥")
-            # One-shot checkin after drilling ends
+            send_water("And start sipping that water now 💧")
             run_at = datetime.now(TZ).replace(hour=8, minute=5, second=0, microsecond=0)
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
@@ -253,6 +264,7 @@ def webhook():
             state["drilling_time"] = 8
             state["last_question"] = None
             resp.message("Bet — drilling at 8. Got you 👊")
+            send_water("And start sipping that water now 💧")
             run_at = datetime.now(TZ).replace(hour=9, minute=5, second=0, microsecond=0)
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
@@ -269,6 +281,7 @@ def webhook():
             state["stretch_time"] = 11
             state["last_question"] = None
             resp.message("Got it — Stretch Zone at 11 🙆")
+            send_water("Drink some water before you get there 💧")
             remind_at  = datetime.now(TZ).replace(hour=10, minute=45, second=0, microsecond=0)
             checkin_at = datetime.now(TZ).replace(hour=12, minute=5,  second=0, microsecond=0)
             if datetime.now(TZ) < remind_at:
@@ -281,6 +294,7 @@ def webhook():
             state["stretch_time"] = 12
             state["last_question"] = None
             resp.message("Got it — Stretch Zone at 12 🙆")
+            send_water("Drink some water before you get there 💧")
             remind_at  = datetime.now(TZ).replace(hour=11, minute=45, second=0, microsecond=0)
             checkin_at = datetime.now(TZ).replace(hour=13, minute=5,  second=0, microsecond=0)
             if datetime.now(TZ) < remind_at:
