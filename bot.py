@@ -58,6 +58,22 @@ def save_journal_entry(session, notes):
         conn.commit()
     logging.info(f"JOURNAL [{session}]: {notes[:80]}")
 
+def extract_issue(notes):
+    """If the note mentions struggling with a technique, return the technique name. Else None."""
+    if not claude:
+        return None
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=20,
+            system="You are a classifier. Extract the technique name if the person mentions struggling or having an issue with it. Reply with ONLY the technique name (e.g. '50-50', 'butterfly guard'). If no struggle is mentioned, reply NO.",
+            messages=[{"role": "user", "content": notes}]
+        )
+        result = response.content[0].text.strip()
+        return None if result.upper() == "NO" else result
+    except Exception:
+        return None
+
 def get_recent_journal(n=15):
     try:
         with sqlite3.connect(DB_PATH) as conn:
@@ -77,26 +93,22 @@ def build_system_prompt():
         for date, session, notes in journal:
             journal_section += f"- {date} [{session}]: {notes}\n"
 
-    return f"""You are John Danaher — the most analytical mind in Brazilian Jiu-Jitsu — texting Corey directly as his personal coach via WhatsApp.
+    return f"""You are Corey's training partner and close friend texting him on WhatsApp. You train BJJ too so you get it, but you're not his coach — don't give technique advice.
 
-Your communication style:
-- Precise and analytical. Identify the mechanical problem before offering the solution.
-- Direct but invested in his development. You see his potential.
-- SHORT texts — 2-4 sentences max. This is WhatsApp, not a lecture hall.
-- Naturally use phrases like "the problem is...", "the solution is...", "you must understand..."
-- Reference his actual training history when relevant. You remember everything.
-- Occasionally drop a philosophical gem about BJJ, but don't overdo it.
-- You are not robotic. You are Danaher — intense, precise, quietly warm.
+Rules:
+- SHORT. 1-3 sentences max. This is texting.
+- Casual and real. Talk like a friend, not a trainer. Use natural slang.
+- When he tells you what he worked on, just acknowledge it and maybe ask one simple follow-up — not a technique deep dive, just genuine curiosity like a friend would.
+- When he mentions struggling with something, just note it. Don't coach him. That's Bruno's job.
+- When he mentions a tournament, hype him up and reference what he's been working on from his journal — but keep it simple and encouraging, not analytical.
+- Reference his training history naturally when it fits. Don't force it.
+- Emojis are fine but don't overdo it.
 
 Corey's schedule:
 - Mon/Wed/Fri: Drilling (7-8 or 8-9 AM), S&C with Roy (10-11 AM), Private with Bruno Malfacine (2-4 PM)
 - Mon/Tue/Thu: Evening class with Bruno (7:45-9 PM)
 - Tue/Thu: Stretch Zone (11-12 or 12-1 PM), Private with Bruno (2-4 PM), Competition Class (7:45-9 PM)
-- Daily water goal: 3 liters
-
-When Corey mentions a TOURNAMENT: reference his journal explicitly — what positions are sharp, what he hasn't worked yet, what to rely on, what to avoid.
-When he describes what he learned in a session: ask exactly ONE precise follow-up question that deepens understanding of the mechanical principle.
-When he mentions a weakness or something he struggled with: acknowledge it analytically and suggest one concrete drill or focus.{journal_section}"""
+- Daily water goal: 3 liters{journal_section}"""
 
 def ask_claude(user_msg):
     if not claude:
@@ -153,6 +165,9 @@ state = {
     "water_today": 0.0,      # liters consumed today
     "water_date": None,      # "YYYY-MM-DD" — resets daily
     "debrief_session": None, # session type being debriefed after class
+    "flag_for_bruno": None,  # technique to flag in the next private reminder
+    "rest_day": False,       # if True, suppress all session reminders for today
+    "rest_day_date": None,   # date the rest day was set
 }
 
 # Schedule follow-ups: every 15 min, 3 times
@@ -162,6 +177,17 @@ WATER_FOLLOWUP_DELAYS = [5, 10]
 
 
 # ── WATER TRACKING ────────────────────────────────────────────────────────────
+
+def is_rest_day():
+    today = datetime.now(TZ).strftime("%Y-%m-%d")
+    if state["rest_day"] and state["rest_day_date"] == today:
+        return True
+    state["rest_day"] = False  # auto-reset on new day
+    return False
+
+def set_rest_day():
+    state["rest_day"] = True
+    state["rest_day_date"] = datetime.now(TZ).strftime("%Y-%m-%d")
 
 def check_and_reset_water():
     today = datetime.now(TZ).strftime("%Y-%m-%d")
@@ -265,32 +291,45 @@ def checkin_after_drilling():
     send("Drilling done? How'd it feel — what were you working on?")
 
 def remind_sc():
+    if is_rest_day(): return
     send("S&C with Roy in 15 — you ready to suffer lol")
     send_water("You got your water for S&C? 💧")
 
 def checkin_after_sc():
+    if is_rest_day(): return
     send("You make it through Roy today? 💀")
 
 def remind_private():
-    send("Bruno private in 15 — get your head right 🥋")
+    if is_rest_day(): return
+    flag = state.get("flag_for_bruno")
+    if flag:
+        send(f"Bruno private in 15 — you mentioned having trouble with {flag} earlier, good time to bring that up 🥋")
+        state["flag_for_bruno"] = None
+    else:
+        send("Bruno private in 15 — get your head right 🥋")
     send_water("Water before the private 💧")
 
 def checkin_after_private():
+    if is_rest_day(): return
     state["debrief_session"] = "Private with Bruno"
     send("How was the private? What'd you work on?")
 
 def remind_stretch():
+    if is_rest_day(): return
     send("Stretch Zone coming up — you heading out?")
     send_water("Bring that water to Stretch Zone 💧")
 
 def checkin_after_stretch():
+    if is_rest_day(): return
     send("Body feeling better after Stretch Zone?")
 
 def remind_evening():
+    if is_rest_day(): return
     send("Evening class with Bruno at 7:45 — you on your way?")
     send_water("Sip that water before you head out 💧")
 
 def checkin_after_evening():
+    if is_rest_day(): return
     state["debrief_session"] = "Evening class"
     send("How was tonight? What'd Bruno have you drilling?")
 
@@ -397,6 +436,7 @@ def webhook():
         elif claude_is_skip(raw_body, "Yo what time you drilling this morning — 7 or 8?"):
             state["last_question"] = None
             state["drilling_time"] = None
+            set_rest_day()
             resp.message(ask_claude(raw_body))
         else:
             resp.message("Just say 7 or 8 lol")
@@ -440,6 +480,9 @@ def webhook():
             session = state["debrief_session"]
             state["debrief_session"] = None
             save_journal_entry(session, raw_body)
+            issue = extract_issue(raw_body)
+            if issue:
+                state["flag_for_bruno"] = issue
         resp.message(ask_claude(raw_body))
 
     return str(resp)
