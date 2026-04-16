@@ -47,7 +47,63 @@ def init_db():
             notes      TEXT,
             created_at TEXT
         )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS messages (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            role       TEXT,
+            content    TEXT,
+            created_at TEXT
+        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS daily_water (
+            date   TEXT PRIMARY KEY,
+            liters REAL
+        )''')
         conn.commit()
+
+def save_message(role, content):
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO messages (role, content, created_at) VALUES (?,?,?)',
+                (role, content, datetime.now(TZ).isoformat())
+            )
+            conn.commit()
+    except Exception as e:
+        logging.error(f"Message save error: {e}")
+
+def load_chat_history(n=20):
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT role, content FROM messages ORDER BY created_at DESC LIMIT ?', (n,)
+            ).fetchall()
+            return [{"role": r, "content": c} for r, c in reversed(rows)]
+    except Exception:
+        return []
+
+def save_water_to_db():
+    today = datetime.now(TZ).strftime("%Y-%m-%d")
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT OR REPLACE INTO daily_water (date, liters) VALUES (?,?)',
+                (today, state["water_today"])
+            )
+            conn.commit()
+    except Exception as e:
+        logging.error(f"Water DB save error: {e}")
+
+def load_water_from_db():
+    today = datetime.now(TZ).strftime("%Y-%m-%d")
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute(
+                'SELECT liters FROM daily_water WHERE date = ?', (today,)
+            ).fetchone()
+            if row:
+                state["water_today"] = row[0]
+                state["water_date"] = today
+    except Exception as e:
+        logging.error(f"Water DB load error: {e}")
 
 def save_journal_entry(session, notes):
     with sqlite3.connect(DB_PATH) as conn:
@@ -130,7 +186,10 @@ Corey's schedule:
 def ask_claude(user_msg):
     if not claude:
         return "Bot brain offline — API key missing"
-    chat_history.append({"role": "user", "content": user_msg})
+    timestamp = datetime.now(TZ).strftime("%I:%M %p")
+    timestamped_msg = f"[{timestamp}] {user_msg}"
+    chat_history.append({"role": "user", "content": timestamped_msg})
+    save_message("user", timestamped_msg)
     # Keep last 20 messages for context
     if len(chat_history) > 20:
         chat_history.pop(0)
@@ -147,6 +206,7 @@ def ask_claude(user_msg):
         return "Yo my bad, brain glitched for a sec. Say that again?"
     reply = response.content[0].text
     chat_history.append({"role": "assistant", "content": reply})
+    save_message("assistant", reply)
     return reply
 
 def claude_is_skip(user_msg, question_context):
@@ -211,6 +271,7 @@ def check_and_reset_water():
     if state["water_date"] != today:
         state["water_today"] = 0.0
         state["water_date"] = today
+        save_water_to_db()
 
 def estimate_water_from_image(image_bytes, content_type):
     if not claude:
@@ -408,6 +469,7 @@ def webhook():
         if liters is not None:
             check_and_reset_water()
             state["water_today"] = round(state["water_today"] + liters, 2)
+            save_water_to_db()
             remaining = round(WATER_GOAL_L - state["water_today"], 2)
             if remaining <= 0:
                 resp.message(f"LET'S GO!! You hit your {WATER_GOAL_L}L goal today 🎉💧")
@@ -585,6 +647,8 @@ scheduler.add_job(water_afternoon, 'cron', hour=13, minute=30)
 scheduler.add_job(water_evening,   'cron', hour=19, minute=0)
 
 init_db()
+load_water_from_db()
+chat_history.extend(load_chat_history(20))
 scheduler.start()
 
 # ── RUN ───────────────────────────────────────────────────────────────────────
