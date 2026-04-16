@@ -175,6 +175,7 @@ Rules:
 - When he mentions a tournament, hype him up and reference what he's been working on from his journal — but keep it simple and encouraging, not analytical.
 - NEVER make up or invent training history. Only reference what's actually in the journal below or what Corey has said in this conversation.
 {history_rule}
+- NEVER pretend to know something you don't — places, people, things he mentions. If you don't know, just say "I don't know what that is, what is it?" Don't guess and don't fake it.
 - Emojis are fine but don't overdo it.
 
 Corey's schedule:
@@ -291,12 +292,12 @@ def estimate_water_from_image(image_bytes, content_type):
                     {
                         "type": "text",
                         "text": (
-                            "Look at this water bottle photo. Do two things:\n"
-                            "1. Identify the brand and size (e.g. Fiji 1L, Dasani 500mL, Smartwater 700mL, "
-                            "Evian 500mL, Voss 800mL, etc.) using the label, shape, and cap.\n"
-                            "2. Estimate what fraction of the bottle has been CONSUMED based on the water level.\n"
-                            "Calculate: consumed_liters = bottle_capacity_L × fraction_consumed.\n"
-                            "Examples: full Fiji 1L just finished = 1.0, half-empty Dasani 500mL = 0.25.\n"
+                            "Look at this photo of a water container (bottle, glass, cup, etc.).\n"
+                            "Estimate how many liters of water were consumed based on what you see.\n"
+                            "- For branded bottles: identify brand and size, estimate fraction consumed.\n"
+                            "- For restaurant glasses or generic cups: estimate the volume (a standard restaurant glass is ~0.35-0.45L, a large glass is ~0.5L).\n"
+                            "- If multiple glasses/containers are visible, add them up.\n"
+                            "Examples: full Fiji 1L = 1.0, half Dasani 500mL = 0.25, two restaurant glasses = 0.8.\n"
                             "Reply with ONLY a decimal number in liters. Nothing else."
                         )
                     }
