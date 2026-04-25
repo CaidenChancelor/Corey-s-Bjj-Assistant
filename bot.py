@@ -374,6 +374,8 @@ def ask_stretch_time():
     send("Stretch Zone today — 11 or 12?", followup=True)
 
 def checkin_after_drilling():
+    state["last_question"] = None
+    state["drilling_time"] = None
     state["debrief_session"] = "Drilling"
     send("Drilling done? How'd it feel — what were you working on?")
 
@@ -408,6 +410,8 @@ def remind_stretch():
 
 def checkin_after_stretch():
     if is_rest_day(): return
+    state["last_question"] = None
+    state["stretch_time"] = None
     send("Body feeling better after Stretch Zone?")
 
 def remind_evening():
@@ -539,7 +543,9 @@ def webhook():
             set_rest_day()
             resp.message(ask_claude(raw_body))
         else:
-            resp.message("Just say 7 or 8 lol")
+            state["last_question"] = None
+            state["drilling_time"] = None
+            resp.message(ask_claude(raw_body))
 
     elif last_q == "stretch_time":
         if "11" in body:
@@ -573,7 +579,9 @@ def webhook():
             state["stretch_time"] = None
             resp.message(ask_claude(raw_body))
         else:
-            resp.message("Just say 11 or 12")
+            state["last_question"] = None
+            state["stretch_time"] = None
+            resp.message(ask_claude(raw_body))
 
     else:
         if state.get("debrief_session"):
