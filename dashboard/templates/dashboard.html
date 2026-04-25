@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — BJJ Bot{% endblock %}
+{% block head %}<meta http-equiv="refresh" content="30">{% endblock %}
+{% block content %}
+{% if status.error %}
+<div class="card error-card">
+    <h2>Bot offline?</h2>
+    <p>{{ status.error }}</p>
+</div>
+{% else %}
+<div class="grid">
+    <div class="card">
+        <h2>💧 Water</h2>
+        <div class="big-number">{{ status.water_today }}L <span class="muted">/ {{ status.water_goal }}L</span></div>
+        <div class="progress"><div class="bar" style="width: {{ (status.water_today / status.water_goal * 100)|round(0)|int }}%"></div></div>
+        {% if status.water_remaining > 0 %}
+        <p class="muted">{{ status.water_remaining }}L to go</p>
+        {% else %}
+        <p class="success">Goal hit 🎉</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>🤖 Bot State</h2>
+        <table>
+            <tr><td>Model</td><td>{{ status.model }}</td></tr>
+            <tr><td>Last question</td><td>{{ status.last_question or '—' }}</td></tr>
+            <tr><td>Drilling time</td><td>{{ status.drilling_time or '—' }}</td></tr>
+            <tr><td>Stretch time</td><td>{{ status.stretch_time or '—' }}</td></tr>
+            <tr><td>Rest day</td><td>{{ '✓' if status.rest_day else '—' }}</td></tr>
+            <tr><td>Awaiting reply</td><td>{{ '✓' if status.awaiting_reply else '—' }}</td></tr>
+            <tr><td>Followups sent</td><td>{{ status.followup_index }}</td></tr>
+            <tr><td>Debrief pending</td><td>{{ status.debrief_session or '—' }}</td></tr>
+            <tr><td>Flag for Bruno</td><td>{{ status.flag_for_bruno or '—' }}</td></tr>
+        </table>
+    </div>
+
+    <div class="card span-2">
+        <h2>📓 Recent journal</h2>
+        {% if status.journal %}
+        <ul class="journal">
+            {% for entry in status.journal %}
+            <li><strong>{{ entry.date }}</strong> [{{ entry.session }}]: {{ entry.notes }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">No journal entries yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="card span-2">
+        <h2>💬 Recent messages</h2>
+        {% if status.recent_messages %}
+        <ul class="messages">
+            {% for msg in status.recent_messages %}
+            <li class="msg msg-{{ msg.role }}"><span class="role">{{ msg.role }}:</span> {{ msg.content }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">No messages yet.</p>
+        {% endif %}
+    </div>
+</div>
+<p class="muted footer">Auto-refreshes every 30s · Bot URL: <a href="{{ bot_url }}">{{ bot_url }}</a></p>
+{% endif %}
+{% endblock %}

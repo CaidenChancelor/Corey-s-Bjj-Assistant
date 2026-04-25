@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Login — BJJ Bot{% endblock %}
+{% block content %}
+<div class="login-card">
+    <h1>🥋 BJJ Bot</h1>
+    <form method="POST" action="{{ url_for('login') }}">
+        <input type="password" name="password" placeholder="Password" autofocus required>
+        <button type="submit">Sign in</button>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

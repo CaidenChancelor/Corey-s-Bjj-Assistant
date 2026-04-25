@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Editor — BJJ Bot{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="editor-header">
+        <h2>💻 Code editor</h2>
+        <form method="POST" action="{{ url_for('editor_clear') }}" style="display:inline;">
+            <button type="submit" class="btn-secondary">Clear chat</button>
+        </form>
+    </div>
+
+    <div class="chat-history">
+        {% for msg in history %}
+        <div class="chat-msg chat-{{ msg.role }}">
+            <div class="chat-role">{{ msg.role }}</div>
+            <div class="chat-content">{{ msg.content }}</div>
+        </div>
+        {% endfor %}
+        {% if not history %}
+        <p class="muted">Ask Claude to read, edit, or commit changes to the bot. Examples:<br>
+        — "show me the water reminder schedule"<br>
+        — "add a comment at the top of bot.py"<br>
+        — "change the water goal to 4L"</p>
+        {% endif %}
+    </div>
+
+    <form method="POST" action="{{ url_for('editor_send') }}" class="chat-form">
+        <textarea name="message" rows="3" placeholder="Ask Claude to make a change..." autofocus required></textarea>
+        <button type="submit">Send</button>
+    </form>
+</div>
+{% endblock %}

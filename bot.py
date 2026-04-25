@@ -609,6 +609,37 @@ def webhook():
 def home():
     return f"Corey's BJJ Assistant is running 🥋\nModel: {CLAUDE_MODEL}", 200
 
+# ── DASHBOARD STATUS API ──────────────────────────────────────────────────────
+
+@app.route('/api/status', methods=['GET'])
+def api_status():
+    auth = request.headers.get('Authorization', '')
+    expected = f"Bearer {os.environ.get('API_TOKEN', '')}"
+    if not os.environ.get('API_TOKEN') or auth != expected:
+        return {"error": "unauthorized"}, 401
+    check_and_reset_water()
+    journal = get_recent_journal(10)
+    recent_messages = load_chat_history(20)
+    return {
+        "model": CLAUDE_MODEL,
+        "water_today": state["water_today"],
+        "water_goal": WATER_GOAL_L,
+        "water_remaining": round(WATER_GOAL_L - state["water_today"], 2),
+        "last_question": state["last_question"],
+        "drilling_time": state["drilling_time"],
+        "stretch_time": state["stretch_time"],
+        "rest_day": state["rest_day"],
+        "awaiting_reply": state["awaiting_reply"],
+        "followup_index": state["followup_index"],
+        "debrief_session": state["debrief_session"],
+        "flag_for_bruno": state["flag_for_bruno"],
+        "recent_messages": recent_messages,
+        "journal": [
+            {"date": d, "session": s, "notes": n}
+            for d, s, n in journal
+        ],
+    }
+
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
 
 @app.route('/trigger/<action>', methods=['GET'])

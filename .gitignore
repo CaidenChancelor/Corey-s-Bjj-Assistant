@@ -1,0 +1,7 @@
+.claude-tower/
+.env
+__pycache__/
+*.pyc
+*.db
+*.sqlite
+.DS_Store
