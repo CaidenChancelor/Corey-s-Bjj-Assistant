@@ -17,12 +17,12 @@ logging.basicConfig(level=logging.INFO)
 
 ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
 AUTH_TOKEN  = os.environ.get('TWILIO_AUTH_TOKEN')
-FROM_NUMBER = os.environ.get('FROM_NUMBER', '+13052502213')
-MY_NUMBER   = os.environ.get('MY_NUMBER',   '+13054601000')
+FROM_NUMBER = os.environ.get('FROM_NUMBER', 'whatsapp:+14155238886')
+MY_NUMBER   = os.environ.get('MY_NUMBER',   'whatsapp:+13054601000')
 
 # Drilling partners
 PARTNERS = {
-    "God-Killer": "+19544173000",
+    "God-Killer": "whatsapp:+19544173000",
 }
 
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
