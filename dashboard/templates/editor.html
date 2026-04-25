@@ -1,32 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Editor — BJJ Bot{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="editor-header">
-        <h2>💻 Code editor</h2>
-        <form method="POST" action="{{ url_for('editor_clear') }}" style="display:inline;">
-            <button type="submit" class="btn-secondary">Clear chat</button>
-        </form>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Editor</h1>
+        <p class="page-subtitle">Chat to read, edit, and ship code to your bot</p>
     </div>
+    {% if history %}
+    <form method="POST" action="{{ url_for('editor_clear') }}" style="display:inline;">
+        <button type="submit" class="btn-secondary">Clear chat</button>
+    </form>
+    {% endif %}
+</div>
 
+<div class="editor-shell">
     <div class="chat-history">
-        {% for msg in history %}
-        <div class="chat-msg chat-{{ msg.role }}">
-            <div class="chat-role">{{ msg.role }}</div>
-            <div class="chat-content">{{ msg.content }}</div>
-        </div>
-        {% endfor %}
-        {% if not history %}
-        <p class="muted">Ask Claude to read, edit, or commit changes to the bot. Examples:<br>
-        — "show me the water reminder schedule"<br>
-        — "add a comment at the top of bot.py"<br>
-        — "change the water goal to 4L"</p>
+        {% if history %}
+            {% for msg in history %}
+            <div class="chat-msg chat-{{ msg.role }}">
+                <div class="chat-role">
+                    {% if msg.role == 'assistant' %}✦ Claude{% else %}You{% endif %}
+                </div>
+                <div class="chat-content">{{ msg.content }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="chat-empty">
+                <div class="chat-empty-icon">✦</div>
+                <h3>What can I help you build?</h3>
+                <p>Ask Claude to read, edit, or commit changes to your bot.</p>
+                <div class="examples">
+                    <div class="ex">"Show me the system prompt in bot.py"</div>
+                    <div class="ex">"Change the water goal to 4L"</div>
+                    <div class="ex">"Add a check-in 30 min after evening class"</div>
+                    <div class="ex">"What scheduled jobs are running?"</div>
+                </div>
+            </div>
         {% endif %}
     </div>
 
     <form method="POST" action="{{ url_for('editor_send') }}" class="chat-form">
-        <textarea name="message" rows="3" placeholder="Ask Claude to make a change..." autofocus required></textarea>
-        <button type="submit">Send</button>
+        <div class="chat-form-inner">
+            <textarea name="message" rows="2" placeholder="Ask Claude to make a change..." autofocus required></textarea>
+            <button type="submit">Send</button>
+        </div>
     </form>
 </div>
 {% endblock %}

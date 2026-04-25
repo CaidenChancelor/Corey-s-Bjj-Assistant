@@ -2,19 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="theme-color" content="#050508">
     <title>{% block title %}BJJ Bot{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% block head %}{% endblock %}
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
     {% if session.logged_in %}
     <nav class="topbar">
-        <div class="brand">🥋 BJJ Bot</div>
+        <div class="brand">
+            <div class="brand-icon">✦</div>
+            <span>BJJ Bot</span>
+        </div>
         <div class="links">
             <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
             <a href="{{ url_for('editor') }}" class="{% if request.endpoint == 'editor' %}active{% endif %}">Editor</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
         </div>
     </nav>
     {% endif %}

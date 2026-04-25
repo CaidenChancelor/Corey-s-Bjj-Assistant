@@ -1,14 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Login — BJJ Bot{% endblock %}
+{% block title %}Sign in — BJJ Bot{% endblock %}
+{% block body_class %}auth-bg{% endblock %}
 {% block content %}
-<div class="login-card">
-    <h1>🥋 BJJ Bot</h1>
-    <form method="POST" action="{{ url_for('login') }}">
-        <input type="password" name="password" placeholder="Password" autofocus required>
-        <button type="submit">Sign in</button>
-        {% if error %}
-        <p class="error">{{ error }}</p>
-        {% endif %}
-    </form>
+<div class="login-shell">
+    <div class="login-card">
+        <div class="login-logo">✦</div>
+        <h1 class="login-title">Welcome back</h1>
+        <p class="login-sub">Sign in to your BJJ Bot</p>
+        <form method="POST" action="{{ url_for('login') }}" class="login-form">
+            <input type="password" name="password" placeholder="Password" autofocus required autocomplete="current-password">
+            <button type="submit">Continue</button>
+            {% if error %}
+            <p class="login-error">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
 </div>
 {% endblock %}
