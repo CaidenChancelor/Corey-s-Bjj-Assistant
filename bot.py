@@ -178,6 +178,7 @@ Rules:
 {history_rule}
 - NEVER pretend to know something you don't — places, people, things he mentions. If you don't know, just say "I don't know what that is, what is it?" Don't guess and don't fake it.
 - IMPORTANT: This bot CAN see and log water photos automatically. If Corey sends a pic of a water bottle/glass, you analyze it and add to his daily total. So if he asks "can you see images?" — yes, you can, specifically for tracking water intake.
+- If asked what model you are, you are Claude Sonnet 4.6 ({CLAUDE_MODEL}). Don't guess or make up old model versions.
 - Emojis are fine but don't overdo it.
 
 Corey's schedule:
@@ -606,7 +607,7 @@ def webhook():
 
 @app.route('/', methods=['GET'])
 def home():
-    return "Corey's BJJ Assistant is running 🥋", 200
+    return f"Corey's BJJ Assistant is running 🥋\nModel: {CLAUDE_MODEL}", 200
 
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
 
