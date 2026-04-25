@@ -1,4 +1,5 @@
 import os
+import re
 import base64
 import sqlite3
 import requests as req
@@ -27,7 +28,7 @@ PARTNERS = {
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
-CLAUDE_MODEL = "claude-sonnet-4-5"
+CLAUDE_MODEL = "claude-sonnet-4-6"
 WATER_GOAL_L = 3.0
 TZ = pytz.timezone('America/New_York')
 DB_PATH = os.environ.get('DB_PATH', '/data/bjj.db')
@@ -176,6 +177,7 @@ Rules:
 - NEVER make up or invent training history. Only reference what's actually in the journal below or what Corey has said in this conversation.
 {history_rule}
 - NEVER pretend to know something you don't — places, people, things he mentions. If you don't know, just say "I don't know what that is, what is it?" Don't guess and don't fake it.
+- IMPORTANT: This bot CAN see and log water photos automatically. If Corey sends a pic of a water bottle/glass, you analyze it and add to his daily total. So if he asks "can you see images?" — yes, you can, specifically for tracking water intake.
 - Emojis are fine but don't overdo it.
 
 Corey's schedule:
@@ -304,7 +306,10 @@ def estimate_water_from_image(image_bytes, content_type):
                 ]
             }]
         )
-        return float(response.content[0].text.strip())
+        text = response.content[0].text.strip()
+        logging.info(f"Vision raw response: {text}")
+        match = re.search(r'\d+\.?\d*', text)
+        return float(match.group()) if match else None
     except Exception as e:
         logging.error(f"Water vision error: {e}")
         return None
@@ -471,7 +476,11 @@ def webhook():
         content_type  = request.form.get('MediaContentType0', 'image/jpeg')
         image_resp    = req.get(media_url, auth=(ACCOUNT_SID, AUTH_TOKEN))
         liters        = estimate_water_from_image(image_resp.content, content_type)
-        if liters is not None:
+        if liters is None:
+            resp.message("Couldn't read that pic — just text me liters (e.g. '1' or '0.5')")
+        elif liters == 0:
+            resp.message("That glass is empty bro 💀 fill it up and send another pic 💧")
+        else:
             check_and_reset_water()
             state["water_today"] = round(state["water_today"] + liters, 2)
             save_water_to_db()
@@ -480,8 +489,6 @@ def webhook():
                 resp.message(f"LET'S GO!! You hit your {WATER_GOAL_L}L goal today 🎉💧")
             else:
                 resp.message(f"+{liters}L logged 💧 You've had {state['water_today']}L today — {remaining}L to go")
-        else:
-            resp.message("Couldn't read that — just text me how many liters (e.g. '1' or '0.5')")
         return str(resp)
 
     # Check if message is from a partner — relay to Corey
