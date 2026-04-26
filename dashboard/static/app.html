@@ -3823,11 +3823,13 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               eyebrow="bruno lesson feedback"
               value={(() => {
                 const b = window.__bjjdata && window.__bjjdata.bruno_recent;
-                return b && b.notes ? b.notes : "No Bruno session logged yet — text me after your next private.";
+                if (!b) return "No Bruno session logged yet — text me after your next private.";
+                return b.summary || b.notes || "";
               })()}
               meta={(() => {
                 const b = window.__bjjdata && window.__bjjdata.bruno_recent;
-                return b && b.date ? `${b.date} · ${b.session}` : "tap to see all private lessons →";
+                if (!b) return "tap to see all private lessons →";
+                return `${b.date} · tap to read full note →`;
               })()}
               onClick={onOpenLessons}
             />

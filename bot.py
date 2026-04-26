@@ -303,15 +303,54 @@ def get_next_up():
     return None  # nothing left today
 
 
+_bruno_summary_cache = {}  # {journal_id: summary} — avoid re-summarizing on every API hit
+
+
+def summarize_bruno(notes):
+    """Run Claude to compress a private-lesson debrief into a headline (~10 words)."""
+    if not claude or not notes:
+        return (notes[:80] + "…") if notes and len(notes) > 80 else (notes or "")
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=50,
+            system=(
+                "You compress BJJ private-lesson notes into a single short headline "
+                "(8-12 words max). Capture the key technique, breakthrough, or struggle. "
+                "Use Corey's voice — casual, present-tense, training-room language. "
+                "Examples:\n"
+                "- 'Collar drag re-grip clicked — landed it 3× in rolls.'\n"
+                "- 'Worked passing closed guard — posture finally held.'\n"
+                "- 'Spider lasso defense — still getting flattened.'\n"
+                "Return ONLY the headline. No quotes, no preamble."
+            ),
+            messages=[{"role": "user", "content": notes}],
+        )
+        return response.content[0].text.strip().strip('"').strip("'")
+    except Exception as e:
+        logging.error(f"summarize_bruno error: {e}")
+        return (notes[:80] + "…") if len(notes) > 80 else notes
+
+
 def get_bruno_recent():
     try:
         with sqlite3.connect(DB_PATH) as conn:
             row = conn.execute(
-                "SELECT date, session, notes FROM journal "
+                "SELECT id, date, session, notes FROM journal "
                 "WHERE session LIKE '%Bruno%' OR session LIKE '%Private%' "
                 "ORDER BY created_at DESC LIMIT 1"
             ).fetchone()
-            return {"date": row[0], "session": row[1], "notes": row[2]} if row else None
+            if not row:
+                return None
+            jid, date, session, notes = row
+            if jid not in _bruno_summary_cache:
+                _bruno_summary_cache[jid] = summarize_bruno(notes)
+            return {
+                "date": date,
+                "session": session,
+                "notes": notes,
+                "summary": _bruno_summary_cache[jid],
+            }
     except Exception:
         return None
 
