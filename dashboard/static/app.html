@@ -1463,11 +1463,33 @@ function _hWriteLS(key, val) {
 }
 
 function getHydrationLog() {
-  if (_hyLog === null) _hyLog = _hReadLS("hydration_log", HYDRATION_SEED_LOG);
+  if (_hyLog === null) {
+    // Prefer live bot data when available
+    const d = window.__bjjdata;
+    if (d && !d.error && typeof d.water_today === "number") {
+      const totalMl = Math.round((d.water_today || 0) * 1000);
+      if (totalMl > 0) {
+        const now = new Date();
+        const time = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+        _hyLog = [{ id: "bot-today", amount: totalMl, time }];
+      } else {
+        _hyLog = [];
+      }
+    } else {
+      _hyLog = _hReadLS("hydration_log", HYDRATION_SEED_LOG);
+    }
+  }
   return _hyLog;
 }
 function getHydrationGoal() {
-  if (_hyGoal === null) _hyGoal = _hReadLS("hydration_goal", HYDRATION_GOAL_DEFAULT);
+  if (_hyGoal === null) {
+    const d = window.__bjjdata;
+    if (d && !d.error && typeof d.water_goal === "number") {
+      _hyGoal = Math.round(d.water_goal * 1000);
+    } else {
+      _hyGoal = _hReadLS("hydration_goal", HYDRATION_GOAL_DEFAULT);
+    }
+  }
   return _hyGoal;
 }
 function setHydrationLog(next) {
@@ -3816,10 +3838,25 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           <div>
             <Eyebrow style={{ marginBottom: 14, paddingLeft: 4 }}>recent messages</Eyebrow>
             <GlassCard rainbow radius={22} padding={0} style={{ overflow: "hidden" }}>
-              <MessageRow role="claude" body="How did rolling feel today compared to Monday?" time="9:42 PM" />
-              <MessageRow role="you"    body="Tighter on top. Lost top control twice when I overcommitted." time="9:44 PM" />
-              <MessageRow role="claude" body="Try staying chest-to-chest one beat longer before going for the pass." time="9:45 PM" />
-              <MessageRow role="you"    body="Drilled that for 20 min after class. Way smoother." time="10:18 PM" />
+              {(() => {
+                const live = window.__bjjdata && Array.isArray(window.__bjjdata.recent_messages)
+                  ? window.__bjjdata.recent_messages.slice(-8)
+                  : null;
+                const msgs = (live && live.length > 0) ? live : [
+                  { role: "assistant", content: "How did rolling feel today compared to Monday?" },
+                  { role: "user",      content: "Tighter on top. Lost top control twice when I overcommitted." },
+                  { role: "assistant", content: "Try staying chest-to-chest one beat longer before going for the pass." },
+                  { role: "user",      content: "Drilled that for 20 min after class. Way smoother." },
+                ];
+                return msgs.map((m, i) => (
+                  <MessageRow
+                    key={i}
+                    role={m.role === "assistant" ? "claude" : "you"}
+                    body={m.content}
+                    time=""
+                  />
+                ));
+              })()}
             </GlassCard>
           </div>
         </div>
