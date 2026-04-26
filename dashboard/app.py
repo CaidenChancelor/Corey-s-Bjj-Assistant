@@ -1,9 +1,8 @@
 import os
-import json
 import logging
 import requests
 from functools import wraps
-from flask import Flask, render_template, request, redirect, session, url_for, send_from_directory, Response
+from flask import Flask, render_template, request, redirect, session, url_for
 
 from claude_tools import handle_chat_message
 
@@ -16,14 +15,6 @@ DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "")
 BOT_URL = os.environ.get("BOT_URL", "https://corey-s-bjj-assistant-production.up.railway.app")
 API_TOKEN = os.environ.get("API_TOKEN", "")
 
-# Pre-load Corey's React bundle once at startup
-APP_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "app.html")
-try:
-    with open(APP_HTML_PATH, "r") as f:
-        APP_HTML = f.read()
-except FileNotFoundError:
-    APP_HTML = None
-    logging.warning(f"app.html not found at {APP_HTML_PATH} — falling back to old templates")
 
 def require_login(f):
     @wraps(f)
@@ -32,6 +23,7 @@ def require_login(f):
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return wrapper
+
 
 def fetch_bot_status():
     try:
@@ -44,6 +36,7 @@ def fetch_bot_status():
     except Exception as e:
         return {"error": f"Couldn't reach bot: {e}"}
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -55,91 +48,56 @@ def login():
         return render_template("login.html", error="wrong password")
     return render_template("login.html")
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
 
-MOBILE_RESPONSIVE_CSS = """<style>
-/* Force broken multi-column grids in the bundle to stack on narrow viewports.
-   Targets inline-style grids by their template patterns since the React app
-   uses inline styles, not CSS classes. */
-@media (max-width: 700px) {
-  div[style*="grid-template-columns: minmax(0, 1fr) 240px"],
-  div[style*="grid-template-columns: minmax(0,1fr) 240px"],
-  div[style*="grid-template-columns: minmax(0, 1fr) 130px"],
-  div[style*="grid-template-columns: minmax(0,1fr) 130px"],
-  div[style*="grid-template-columns: minmax(0, 1fr) 200px"],
-  div[style*="grid-template-columns: minmax(0,1fr) 200px"],
-  div[style*="grid-template-columns: 1.1fr 1fr"],
-  div[style*="grid-template-columns: 1fr 1fr"],
-  div[style*="grid-template-columns: 1fr 1.1fr"],
-  div[style*="grid-template-columns: repeat(2, 1fr)"],
-  div[style*="grid-template-columns: repeat(3, 1fr)"],
-  div[style*="grid-template-columns: repeat(4, 1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* Make the page padding tighter on phones */
-  body, html, #root { overflow-x: hidden !important; }
-}
-</style>"""
 
 @app.route("/")
 @require_login
 def home():
-    """Serve Corey's React design with live bot data injected via window.__bjjdata."""
-    if APP_HTML is None:
-        return redirect(url_for("dashboard_old"))
-    status = fetch_bot_status()
-    inject = (
-        MOBILE_RESPONSIVE_CSS +
-        f'<script>window.__bjjdata = {json.dumps(status)};'
-        f'window.__bjjeditor = {{endpoint: "/editor/send"}};</script>'
-    )
-    # Inject right before </head>
-    html = APP_HTML.replace("</head>", inject + "</head>", 1)
-    return Response(html, mimetype="text/html")
-
-# ── Fallback (old) routes — kept accessible during Phase 1-3 ─────────────
-
-@app.route("/dashboard-old")
-@require_login
-def dashboard_old():
     return render_template("dashboard.html", status=fetch_bot_status(), bot_url=BOT_URL)
 
-@app.route("/editor-old")
+
+@app.route("/editor")
 @require_login
-def editor_old():
+def editor():
     return render_template("editor.html", history=session.get("chat", []))
 
-# ── Editor backend (works for both old UI and Phase 3 React wiring) ─────
 
 @app.route("/editor/send", methods=["POST"])
 @require_login
 def editor_send():
     msg = request.form.get("message", "").strip()
     if not msg:
-        # If this came from the old form-based UI, redirect back
-        if request.headers.get("Accept", "").startswith("text/html"):
-            return redirect(url_for("editor_old"))
-        return {"error": "empty message"}, 400
+        return redirect(url_for("editor"))
     history = session.get("chat", [])
     reply = handle_chat_message(msg, history)
     history.append({"role": "user", "content": msg})
     history.append({"role": "assistant", "content": reply})
     session["chat"] = history[-40:]
-    # Old form-based UI expects redirect, JSON callers expect JSON
-    if request.headers.get("Accept", "").startswith("text/html"):
-        return redirect(url_for("editor_old"))
-    return {"reply": reply}
+    return redirect(url_for("editor"))
+
 
 @app.route("/editor/clear", methods=["POST"])
 @require_login
 def editor_clear():
     session["chat"] = []
-    if request.headers.get("Accept", "").startswith("text/html"):
-        return redirect(url_for("editor_old"))
-    return {"cleared": True}
+    return redirect(url_for("editor"))
+
+
+# Legacy URL aliases — redirect to the current pages
+@app.route("/dashboard-old")
+def dashboard_old():
+    return redirect(url_for("home"))
+
+
+@app.route("/editor-old")
+def editor_old():
+    return redirect(url_for("editor"))
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5050))

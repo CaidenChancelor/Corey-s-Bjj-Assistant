@@ -4,12 +4,13 @@
 {% block content %}
 <div class="login-shell">
     <div class="login-card">
-        <div class="login-logo">✦</div>
+        <div class="login-logo" aria-hidden="true">✦</div>
         <h1 class="login-title">Welcome back</h1>
         <p class="login-sub">Sign in to your BJJ Bot</p>
         <form method="POST" action="{{ url_for('login') }}" class="login-form">
-            <input type="password" name="password" placeholder="Password" autofocus required autocomplete="current-password">
-            <button type="submit">Continue</button>
+            <input type="password" name="password" placeholder="Password"
+                   autofocus required autocomplete="current-password">
+            <button type="submit" class="btn btn-primary">Continue</button>
             {% if error %}
             <p class="login-error">{{ error }}</p>
             {% endif %}

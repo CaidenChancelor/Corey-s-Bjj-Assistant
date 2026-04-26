@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Editor — BJJ Bot{% endblock %}
 {% block content %}
-<div class="page-header">
+<div class="page-header editor-header">
     <div>
         <h1 class="page-title">Editor</h1>
-        <p class="page-subtitle">Chat to read, edit, and ship code to your bot</p>
+        <p class="page-subtitle">Chat with Claude to edit your bot</p>
     </div>
     {% if history %}
-    <form method="POST" action="{{ url_for('editor_clear') }}" style="display:inline;">
-        <button type="submit" class="btn-secondary">Clear chat</button>
+    <form method="POST" action="{{ url_for('editor_clear') }}">
+        <button type="submit" class="btn btn-glass">Clear chat</button>
     </form>
     {% endif %}
 </div>
@@ -17,7 +17,7 @@
     <div class="chat-history">
         {% if history %}
             {% for msg in history %}
-            <div class="chat-msg chat-{{ msg.role }}">
+            <div class="chat-msg" data-role="{{ msg.role }}">
                 <div class="chat-role">
                     {% if msg.role == 'assistant' %}✦ Claude{% else %}You{% endif %}
                 </div>
@@ -26,14 +26,14 @@
             {% endfor %}
         {% else %}
             <div class="chat-empty">
-                <div class="chat-empty-icon">✦</div>
+                <div class="chat-empty-logo" aria-hidden="true">✦</div>
                 <h3>What can I help you build?</h3>
                 <p>Ask Claude to read, edit, or commit changes to your bot.</p>
-                <div class="examples">
-                    <div class="ex">"Show me the system prompt in bot.py"</div>
-                    <div class="ex">"Change the water goal to 4L"</div>
-                    <div class="ex">"Add a check-in 30 min after evening class"</div>
-                    <div class="ex">"What scheduled jobs are running?"</div>
+                <div class="chat-examples">
+                    <div class="chat-ex">"Show me the system prompt in bot.py"</div>
+                    <div class="chat-ex">"Change the water goal to 4L"</div>
+                    <div class="chat-ex">"Add a check-in 30 min after evening class"</div>
+                    <div class="chat-ex">"What scheduled jobs are running?"</div>
                 </div>
             </div>
         {% endif %}
@@ -41,8 +41,10 @@
 
     <form method="POST" action="{{ url_for('editor_send') }}" class="chat-form">
         <div class="chat-form-inner">
-            <textarea name="message" rows="2" placeholder="Ask Claude to make a change..." autofocus required></textarea>
-            <button type="submit">Send</button>
+            <textarea name="message" rows="2"
+                      placeholder="Ask Claude to make a change..."
+                      autofocus required></textarea>
+            <button type="submit" class="btn btn-primary">Send</button>
         </div>
     </form>
 </div>

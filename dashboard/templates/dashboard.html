@@ -4,8 +4,8 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Real-time view of your training assistant</p>
+        <h1 class="page-title">Today's training</h1>
+        <p class="page-subtitle">Real-time view of your BJJ assistant</p>
     </div>
     <div class="page-pulse">
         <span class="pulse-dot"></span>
@@ -15,34 +15,68 @@
 
 {% if status.error %}
 <div class="card error-card">
-    <h2>Bot offline?</h2>
+    <h2 class="card-title">⚠️ Bot offline</h2>
     <p>{{ status.error }}</p>
 </div>
 {% else %}
+
+{% set water_pct = ((status.water_today / status.water_goal * 100) | round(0) | int) if status.water_goal else 0 %}
+{% set water_pct_capped = water_pct if water_pct < 100 else 100 %}
+
 <div class="grid">
-    <div class="card hero-water col-6">
-        <h2>💧 Hydration today</h2>
-        <div class="water-display">
-            <span class="water-num">{{ status.water_today }}</span>
-            <span class="water-unit">L</span>
-            <span class="water-target">/ {{ status.water_goal }}L goal</span>
-        </div>
-        <div class="progress">
-            <div class="bar" style="width: {{ ((status.water_today / status.water_goal * 100)|round(0)|int) if status.water_today < status.water_goal else 100 }}%"></div>
-        </div>
-        <div class="water-status">
-            {% if status.water_remaining > 0 %}
-            <span class="left">{{ status.water_remaining }}L to go</span>
-            <span class="right">{{ ((status.water_today / status.water_goal * 100)|round(0)|int) }}%</span>
-            {% else %}
-            <span class="success">Goal hit 🎉</span>
-            <span class="right">100%</span>
-            {% endif %}
+    <!-- HYDRATION HERO -->
+    <div class="card hydration-hero">
+        <h2 class="card-title">💧 Hydration · today</h2>
+        <div class="hydration-row">
+            <div>
+                <div class="water-display">
+                    <span class="water-num">{{ "%.1f"|format(status.water_today) }}</span>
+                    <span class="water-unit">L</span>
+                    <span class="water-target">of {{ status.water_goal }} L goal</span>
+                </div>
+                <div class="water-meta">
+                    {% if status.water_remaining > 0 %}
+                    {{ "%.2f"|format(status.water_remaining) }} L to go ·
+                    <span class="pct">{{ water_pct }}%</span>
+                    {% else %}
+                    <span class="success">Goal hit 🎉</span>
+                    +{{ "%.2f"|format(status.water_today - status.water_goal) }} L over
+                    {% endif %}
+                </div>
+                <div class="water-progress" role="progressbar"
+                     aria-valuenow="{{ water_pct }}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="water-progress-ring"></div>
+                    <div class="water-progress-fill" style="width: calc({{ water_pct_capped }}% - 4px);"></div>
+                </div>
+            </div>
+
+            <!-- Bottle visual (only on wider viewports) -->
+            <svg class="water-bottle" viewBox="0 0 100 140" aria-hidden="true">
+                <defs>
+                    <linearGradient id="bottleFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#4ea3ff"/>
+                        <stop offset="55%" stop-color="#2997ff"/>
+                        <stop offset="100%" stop-color="#1f6fdc"/>
+                    </linearGradient>
+                </defs>
+                <!-- Bottle outline -->
+                <rect x="38" y="6" width="24" height="14" rx="2" fill="#1d1d1f" opacity="0.85"/>
+                <path d="M 30 22 L 70 22 L 76 36 Q 80 44 80 56 L 80 124 Q 80 132 72 134 L 28 134 Q 20 132 20 124 L 20 56 Q 20 44 24 36 Z"
+                      fill="rgba(255,255,255,0.4)" stroke="#1d1d1f" stroke-width="1.5" stroke-linejoin="round" opacity="0.9"/>
+                {% set fill_y = 134 - (water_pct_capped * 0.9) %}
+                <!-- Water fill (clip-pathed via mask) -->
+                <mask id="bottleMask">
+                    <path d="M 30 22 L 70 22 L 76 36 Q 80 44 80 56 L 80 124 Q 80 132 72 134 L 28 134 Q 20 132 20 124 L 20 56 Q 20 44 24 36 Z" fill="white"/>
+                </mask>
+                <rect x="20" y="{{ fill_y }}" width="60" height="{{ 134 - fill_y }}"
+                      fill="url(#bottleFill)" mask="url(#bottleMask)" opacity="0.9"/>
+            </svg>
         </div>
     </div>
 
-    <div class="card col-6">
-        <h2>🤖 Bot state</h2>
+    <!-- BOT STATE GRID -->
+    <div class="card">
+        <h2 class="card-title">🤖 Bot state</h2>
         <div class="stat-grid">
             <div class="stat {% if status.last_question %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Last question</div>
@@ -71,14 +105,17 @@
         </div>
     </div>
 
-    <div class="card col-6">
-        <h2>📓 Training journal</h2>
+    <!-- JOURNAL -->
+    <div class="card">
+        <h2 class="card-title">📓 Training journal</h2>
         {% if status.journal %}
         <ul class="timeline">
             {% for entry in status.journal %}
             <li>
-                <span class="timeline-date">{{ entry.date }}</span>
-                <span class="timeline-tag">{{ entry.session }}</span>
+                <div class="timeline-meta">
+                    <span class="timeline-date">{{ entry.date }}</span>
+                    <span class="timeline-tag">{{ entry.session }}</span>
+                </div>
                 <div class="timeline-body">{{ entry.notes }}</div>
             </li>
             {% endfor %}
@@ -91,12 +128,13 @@
         {% endif %}
     </div>
 
-    <div class="card col-6">
-        <h2>💬 Recent messages</h2>
+    <!-- RECENT MESSAGES -->
+    <div class="card">
+        <h2 class="card-title">💬 Recent messages</h2>
         {% if status.recent_messages %}
         <ul class="messages-list">
             {% for msg in status.recent_messages %}
-            <li class="msg-{{ msg.role }}">
+            <li class="msg-row" data-role="{{ msg.role }}">
                 <span class="msg-role">{{ msg.role }}</span>
                 <span class="msg-content">{{ msg.content }}</span>
             </li>
@@ -110,6 +148,10 @@
         {% endif %}
     </div>
 </div>
-<p class="footer">Model: <span style="font-weight: 600; color: var(--text-muted);">{{ status.model }}</span> · <a href="{{ bot_url }}" target="_blank">{{ bot_url }}</a></p>
+
+<p class="footer">
+    Model <a href="{{ bot_url }}" target="_blank" rel="noopener">{{ status.model }}</a>
+    · <a href="{{ bot_url }}" target="_blank" rel="noopener">{{ bot_url }}</a>
+</p>
 {% endif %}
 {% endblock %}

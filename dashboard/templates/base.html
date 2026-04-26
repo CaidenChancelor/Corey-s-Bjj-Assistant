@@ -2,26 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    <meta name="theme-color" content="#050508">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f7f7fa">
     <title>{% block title %}BJJ Bot{% endblock %}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    {% if session.logged_in %}
-    <nav class="topbar">
-        <div class="brand">
-            <div class="brand-icon">✦</div>
-            <span>BJJ Bot</span>
+    {% if session.logged_in and not hide_nav %}
+    <nav class="nav-pill" aria-label="primary">
+        <span class="nav-logo" aria-hidden="true">✦</span>
+        <div class="nav-tabs">
+            <a href="{{ url_for('home') }}"
+               class="nav-tab {% if request.endpoint == 'home' %}active{% endif %}">Dashboard</a>
+            <a href="{{ url_for('editor') }}"
+               class="nav-tab {% if request.endpoint == 'editor' %}active{% endif %}">Editor</a>
         </div>
-        <div class="links">
-            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
-            <a href="{{ url_for('editor') }}" class="{% if request.endpoint == 'editor' %}active{% endif %}">Editor</a>
-            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
-        </div>
+        <a href="{{ url_for('logout') }}" class="nav-logout">Logout</a>
     </nav>
     {% endif %}
     <main class="container">
