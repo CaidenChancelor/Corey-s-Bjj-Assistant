@@ -3418,8 +3418,13 @@ function ProblemsTile({ onClick }) {
   const [hover, setHover] = React.useState(false);
   const { problems, pinned } = useProblemsStore();
 
-  // Show top 4 from the shared store, sorted with pinned first
-  const display = sortProblems(problems, pinned).slice(0, 4);
+  // Prefer live bot problems when available (non-empty array)
+  const live = window.__bjjdata && Array.isArray(window.__bjjdata.problems)
+    ? window.__bjjdata.problems
+    : null;
+  const display = (live && live.length > 0)
+    ? live.slice(0, 4).map((p, i) => ({ id: `bot-${i}`, name: p.name, tier: p.tier || "med" }))
+    : sortProblems(problems, pinned).slice(0, 4);
 
   const tierTextColor = (tier) => ({
     urgent: "#c4324f",
@@ -3497,7 +3502,26 @@ function ProblemsTile({ onClick }) {
 function MicroInjuriesCard({ onClick }) {
   const [hover, setHover] = React.useState(false);
   const { injuries: rawInjuries, pinned } = useMicroInjuriesStore();
-  const sorted = sortMicroInjuries(rawInjuries, pinned);
+
+  // If the bot has live injuries, use those; otherwise fall back to seed
+  const liveInjuries = window.__bjjdata && Array.isArray(window.__bjjdata.injuries_active)
+    ? window.__bjjdata.injuries_active
+    : null;
+  const useLive = liveInjuries && liveInjuries.length > 0;
+
+  // Map bot severity to React tile's severity vocabulary
+  const sevMap = { minor: "watch", moderate: "fresh", severe: "critical" };
+  const liveAsTileShape = useLive
+    ? liveInjuries.map((inj, i) => ({
+        id: `bot-injury-${i}`,
+        name: inj.body_part,
+        region: "torso",  // safe default for silhouette
+        severity: sevMap[inj.severity] || "watch",
+        notes: inj.notes,
+      }))
+    : null;
+
+  const sorted = useLive ? liveAsTileShape : sortMicroInjuries(rawInjuries, pinned);
 
   // Decorate with x/y/color for the silhouette + row dot
   const tones = {
@@ -3797,14 +3821,23 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             <StatTile
               icon={Icons.bot}
               eyebrow="bruno lesson feedback"
-              value={<>Collar drag re-grip clicked — landed it 3× in rolls.</>}
-              meta="tap to see all private lessons →"
+              value={(() => {
+                const b = window.__bjjdata && window.__bjjdata.bruno_recent;
+                return b && b.notes ? b.notes : "No Bruno session logged yet — text me after your next private.";
+              })()}
+              meta={(() => {
+                const b = window.__bjjdata && window.__bjjdata.bruno_recent;
+                return b && b.date ? `${b.date} · ${b.session}` : "tap to see all private lessons →";
+              })()}
               onClick={onOpenLessons}
             />
             <StatTile
               icon={Icons.clock}
               eyebrow="next up today"
-              value={<>BJJ class · 7:00 PM</>}
+              value={(() => {
+                const n = window.__bjjdata && window.__bjjdata.next_up;
+                return n || "Nothing scheduled — rest day vibes 🥋";
+              })()}
               meta="tap to see today's schedule →"
               valueStyle={{ fontSize: 22, fontWeight: 600 }}
               onClick={onOpenSchedule}
@@ -3814,16 +3847,39 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 
         {/* secondary stat row */}
         <div className="dash-stat-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginBottom: 40 }}>
-          <CalorieTile
-            total={2255}
-            goal={2800}
-            lastMeal="Rice + chicken bowl"
-            lastMealCal={620}
-            lastMealTime="5:30 PM · pre-training"
-            onClick={onOpenMeals}
-          />
+          {(() => {
+            const d = window.__bjjdata || {};
+            const meal = d.recent_meal;
+            return (
+              <CalorieTile
+                total={typeof d.calorie_today === "number" ? d.calorie_today : 0}
+                goal={typeof d.calorie_goal === "number" ? d.calorie_goal : 2800}
+                lastMeal={meal && meal.name ? meal.name : "No meals logged yet"}
+                lastMealCal={meal && meal.calories ? meal.calories : 0}
+                lastMealTime={meal ? `${meal.time} · ${meal.kind || ''}` : "text me what you ate"}
+                onClick={onOpenMeals}
+              />
+            );
+          })()}
           <ProblemsTile onClick={onOpenProblems} />
-          <StatTile icon={Icons.flame} eyebrow="streak"    value={<><span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "#2997ff" }}>14 days</span></>} meta="best so far · 19 days" />
+          <StatTile
+            icon={Icons.flame}
+            eyebrow="water streak"
+            value={(() => {
+              const d = window.__bjjdata;
+              const days = d && typeof d.streak_days === "number" ? d.streak_days : 0;
+              return (
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "#2997ff" }}>
+                  {days} {days === 1 ? "day" : "days"}
+                </span>
+              );
+            })()}
+            meta={(() => {
+              const d = window.__bjjdata;
+              const days = d && typeof d.streak_days === "number" ? d.streak_days : 0;
+              return days >= 3 ? "stay locked in 🔥" : "hit 3 L every day to build it";
+            })()}
+          />
         </div>
 
         {/* two-column: timeline + messages */}
