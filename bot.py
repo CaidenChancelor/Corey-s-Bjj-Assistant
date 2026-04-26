@@ -332,6 +332,33 @@ def summarize_bruno(notes):
         return (notes[:80] + "…") if len(notes) > 80 else notes
 
 
+def get_bruno_lessons(limit=20):
+    """All Bruno/Private journal entries with cached summaries."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                "SELECT id, date, session, notes, created_at FROM journal "
+                "WHERE session LIKE '%Bruno%' OR session LIKE '%Private%' "
+                "ORDER BY created_at DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+    except Exception:
+        return []
+    lessons = []
+    for jid, date, session, notes, created_at in rows:
+        if jid not in _bruno_summary_cache:
+            _bruno_summary_cache[jid] = summarize_bruno(notes)
+        lessons.append({
+            "id": f"L{jid}",
+            "date": date,
+            "session": session,
+            "summary": _bruno_summary_cache[jid],
+            "notes": notes,
+            "created_at": created_at,
+        })
+    return lessons
+
+
 def get_bruno_recent():
     try:
         with sqlite3.connect(DB_PATH) as conn:
@@ -906,6 +933,7 @@ def api_status():
         # training
         "next_up": get_next_up(),
         "bruno_recent": get_bruno_recent(),
+        "bruno_lessons": get_bruno_lessons(20),
         "problems": (
             [{"name": state["flag_for_bruno"], "tier": "urgent"}]
             if state.get("flag_for_bruno") else []

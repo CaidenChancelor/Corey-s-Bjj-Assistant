@@ -1679,7 +1679,35 @@ function _bWriteLS(key, val) {
 }
 
 function getBrunoLessons() {
-  if (_brunoCache === null) _brunoCache = _bReadLS("bruno_lessons", BRUNO_DEFAULT);
+  if (_brunoCache === null) {
+    // Prefer live bot data when available
+    const live = window.__bjjdata && Array.isArray(window.__bjjdata.bruno_lessons)
+      ? window.__bjjdata.bruno_lessons
+      : null;
+    if (live && live.length > 0) {
+      _brunoCache = live.map((l) => {
+        // Split the bot's free-form notes into bullet-style array.
+        // Real BJJ debriefs are usually single sentences/paragraphs;
+        // split on double-newlines, otherwise keep as single bullet.
+        const text = (l.notes || "").trim();
+        const bullets = text
+          ? (text.includes("\n\n")
+              ? text.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean)
+              : [text])
+          : [];
+        return {
+          id: l.id,
+          date: l.date,
+          week: l.session || "Private with Bruno",
+          summary: l.summary || (text ? text.slice(0, 60) : "Bruno lesson"),
+          description: text || l.summary || "",
+          notes: bullets,
+        };
+      });
+    } else {
+      _brunoCache = _bReadLS("bruno_lessons", BRUNO_DEFAULT);
+    }
+  }
   return _brunoCache;
 }
 function getBrunoPinned() {
