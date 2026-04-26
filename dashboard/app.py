@@ -1,8 +1,9 @@
 import os
+import json
 import logging
 import requests
 from functools import wraps
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, Response
 
 from claude_tools import handle_chat_message
 
@@ -14,6 +15,15 @@ app.secret_key = os.environ.get("DASHBOARD_SECRET", "dev-secret-change-me")
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "")
 BOT_URL = os.environ.get("BOT_URL", "https://corey-s-bjj-assistant-production.up.railway.app")
 API_TOKEN = os.environ.get("API_TOKEN", "")
+
+# Pre-load the React bundle once at startup
+APP_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "app.html")
+try:
+    with open(APP_HTML_PATH, "r") as f:
+        APP_HTML = f.read()
+except FileNotFoundError:
+    APP_HTML = None
+    logging.warning(f"app.html not found at {APP_HTML_PATH} — falling back to Jinja templates")
 
 
 def require_login(f):
@@ -37,6 +47,17 @@ def fetch_bot_status():
         return {"error": f"Couldn't reach bot: {e}"}
 
 
+def serve_react_bundle():
+    """Serve Corey's React design with live bot data injected via window.__bjjdata."""
+    status = fetch_bot_status()
+    inject = (
+        f'<script>window.__bjjdata = {json.dumps(status)};'
+        f'window.__bjjeditor = {{endpoint: "/editor/send"}};</script>'
+    )
+    html = APP_HTML.replace("</head>", inject + "</head>", 1)
+    return Response(html, mimetype="text/html")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -58,45 +79,55 @@ def logout():
 @app.route("/")
 @require_login
 def home():
-    return render_template("dashboard.html", status=fetch_bot_status(), bot_url=BOT_URL)
+    if APP_HTML is None:
+        return redirect(url_for("dashboard_old"))
+    return serve_react_bundle()
 
 
+# /editor URL serves the same React bundle — internal NavPill handles tab switching
 @app.route("/editor")
 @require_login
 def editor():
+    if APP_HTML is None:
+        return redirect(url_for("editor_old"))
+    return serve_react_bundle()
+
+
+# ── Working Jinja fallbacks (real bot data, plain UI) ─────────────────────
+
+@app.route("/dashboard-old")
+@require_login
+def dashboard_old():
+    return render_template("dashboard.html", status=fetch_bot_status(), bot_url=BOT_URL)
+
+
+@app.route("/editor-old")
+@require_login
+def editor_old():
     return render_template("editor.html", history=session.get("chat", []))
 
+
+# ── Editor backend (used by Jinja fallback today; React bundle in Phase 3) ─
 
 @app.route("/editor/send", methods=["POST"])
 @require_login
 def editor_send():
     msg = request.form.get("message", "").strip()
     if not msg:
-        return redirect(url_for("editor"))
+        return redirect(url_for("editor_old"))
     history = session.get("chat", [])
     reply = handle_chat_message(msg, history)
     history.append({"role": "user", "content": msg})
     history.append({"role": "assistant", "content": reply})
     session["chat"] = history[-40:]
-    return redirect(url_for("editor"))
+    return redirect(url_for("editor_old"))
 
 
 @app.route("/editor/clear", methods=["POST"])
 @require_login
 def editor_clear():
     session["chat"] = []
-    return redirect(url_for("editor"))
-
-
-# Legacy URL aliases — redirect to the current pages
-@app.route("/dashboard-old")
-def dashboard_old():
-    return redirect(url_for("home"))
-
-
-@app.route("/editor-old")
-def editor_old():
-    return redirect(url_for("editor"))
+    return redirect(url_for("editor_old"))
 
 
 if __name__ == "__main__":
