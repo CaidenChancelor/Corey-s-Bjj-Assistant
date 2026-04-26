@@ -60,6 +60,30 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+MOBILE_RESPONSIVE_CSS = """<style>
+/* Force broken multi-column grids in the bundle to stack on narrow viewports.
+   Targets inline-style grids by their template patterns since the React app
+   uses inline styles, not CSS classes. */
+@media (max-width: 700px) {
+  div[style*="grid-template-columns: minmax(0, 1fr) 240px"],
+  div[style*="grid-template-columns: minmax(0,1fr) 240px"],
+  div[style*="grid-template-columns: minmax(0, 1fr) 130px"],
+  div[style*="grid-template-columns: minmax(0,1fr) 130px"],
+  div[style*="grid-template-columns: minmax(0, 1fr) 200px"],
+  div[style*="grid-template-columns: minmax(0,1fr) 200px"],
+  div[style*="grid-template-columns: 1.1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1.1fr"],
+  div[style*="grid-template-columns: repeat(2, 1fr)"],
+  div[style*="grid-template-columns: repeat(3, 1fr)"],
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Make the page padding tighter on phones */
+  body, html, #root { overflow-x: hidden !important; }
+}
+</style>"""
+
 @app.route("/")
 @require_login
 def home():
@@ -68,6 +92,7 @@ def home():
         return redirect(url_for("dashboard_old"))
     status = fetch_bot_status()
     inject = (
+        MOBILE_RESPONSIVE_CSS +
         f'<script>window.__bjjdata = {json.dumps(status)};'
         f'window.__bjjeditor = {{endpoint: "/editor/send"}};</script>'
     )
