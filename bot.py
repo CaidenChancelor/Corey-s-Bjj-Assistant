@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import base64
 import sqlite3
 import requests as req
@@ -30,6 +31,7 @@ ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 CLAUDE_MODEL = "claude-sonnet-4-6"
 WATER_GOAL_L = 3.0
+CALORIE_GOAL = int(os.environ.get('CALORIE_GOAL', 2800))
 TZ = pytz.timezone('America/New_York')
 DB_PATH = os.environ.get('DB_PATH', '/data/bjj.db')
 
@@ -57,6 +59,25 @@ def init_db():
         conn.execute('''CREATE TABLE IF NOT EXISTS daily_water (
             date   TEXT PRIMARY KEY,
             liters REAL
+        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS meals (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            date       TEXT,
+            time       TEXT,
+            name       TEXT,
+            calories   INTEGER,
+            kind       TEXT,
+            notes      TEXT,
+            created_at TEXT
+        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS injuries (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            date       TEXT,
+            body_part  TEXT,
+            severity   TEXT,
+            notes      TEXT,
+            resolved   INTEGER DEFAULT 0,
+            created_at TEXT
         )''')
         conn.commit()
 
@@ -128,6 +149,169 @@ def extract_issue(notes):
         )
         result = response.content[0].text.strip()
         return None if result.upper() == "NO" else result
+    except Exception:
+        return None
+
+
+def classify_message(text):
+    """One Claude call → structured intents. Returns dict with water_l, meal, injury keys."""
+    empty = {"water_l": None, "meal": None, "injury": None}
+    if not claude or not text:
+        return empty
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=200,
+            system=(
+                "You are an intent classifier for a BJJ training assistant. "
+                "Given a user message, output JSON with these fields:\n"
+                '- water_l: number of liters of water if user is logging water intake, else null. '
+                'Examples: "drank 1L"→1.0, "had 500ml"→0.5, "just finished a glass"→0.25, '
+                '"chugged a bottle"→0.5, "drank 2 bottles of water"→1.0.\n'
+                '- meal: object {name, calories, kind} if user is logging a meal/food, else null. '
+                'kind ∈ {"breakfast","lunch","dinner","snack","pre-training","post-training","other"}. '
+                'Estimate calories (integer) if not given.\n'
+                '- injury: object {body_part, severity, notes} if user is reporting an injury, tweak, or pain, else null. '
+                'severity ∈ {"minor","moderate","severe"}. Body part should be specific (e.g. "left knee", "lower back").\n\n'
+                "Return ONLY valid JSON. No markdown, no explanation."
+            ),
+            messages=[{"role": "user", "content": text}],
+        )
+        raw = response.content[0].text.strip()
+        raw = re.sub(r'^```\w*\s*|\s*```$', '', raw).strip()
+        data = json.loads(raw)
+        # Normalize keys we expect
+        return {
+            "water_l": data.get("water_l"),
+            "meal": data.get("meal"),
+            "injury": data.get("injury"),
+        }
+    except Exception as e:
+        logging.error(f"classify_message error: {e}")
+        return empty
+
+
+def save_meal(name, calories, kind="other", notes=""):
+    now = datetime.now(TZ)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            'INSERT INTO meals (date, time, name, calories, kind, notes, created_at) VALUES (?,?,?,?,?,?,?)',
+            (now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), name, int(calories or 0), kind, notes, now.isoformat()),
+        )
+        conn.commit()
+    logging.info(f"MEAL: {name} ({calories} cal, {kind})")
+
+
+def get_today_calories():
+    today = datetime.now(TZ).strftime('%Y-%m-%d')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute('SELECT COALESCE(SUM(calories), 0) FROM meals WHERE date = ?', (today,)).fetchone()
+            return int(row[0] or 0)
+    except Exception:
+        return 0
+
+
+def get_recent_meal():
+    today = datetime.now(TZ).strftime('%Y-%m-%d')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute(
+                'SELECT name, calories, time, kind FROM meals WHERE date = ? ORDER BY created_at DESC LIMIT 1',
+                (today,),
+            ).fetchone()
+            return {"name": row[0], "calories": row[1], "time": row[2], "kind": row[3]} if row else None
+    except Exception:
+        return None
+
+
+def save_injury(body_part, severity, notes):
+    now = datetime.now(TZ)
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(
+            'INSERT INTO injuries (date, body_part, severity, notes, created_at) VALUES (?,?,?,?,?)',
+            (now.strftime('%Y-%m-%d'), body_part, severity, notes, now.isoformat()),
+        )
+        conn.commit()
+    logging.info(f"INJURY: {body_part} ({severity})")
+
+
+def get_active_injuries():
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT body_part, severity, notes, date FROM injuries WHERE resolved = 0 ORDER BY created_at DESC LIMIT 5'
+            ).fetchall()
+            return [{"body_part": r[0], "severity": r[1], "notes": r[2], "date": r[3]} for r in rows]
+    except Exception:
+        return []
+
+
+def get_streak_days():
+    """Consecutive days hitting WATER_GOAL_L, ending today (or yesterday if today not yet hit)."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT date, liters FROM daily_water ORDER BY date DESC LIMIT 60'
+            ).fetchall()
+    except Exception:
+        return 0
+    if not rows:
+        return 0
+    history = {r[0]: (r[1] or 0) for r in rows}
+    today = datetime.now(TZ).date()
+    today_str = today.strftime('%Y-%m-%d')
+    cursor = today if history.get(today_str, 0) >= WATER_GOAL_L else (today - timedelta(days=1))
+    streak = 0
+    while True:
+        d = cursor.strftime('%Y-%m-%d')
+        if history.get(d, 0) >= WATER_GOAL_L:
+            streak += 1
+            cursor -= timedelta(days=1)
+        else:
+            break
+    return streak
+
+
+def get_next_up():
+    """Compute the next training session today based on weekday + current time."""
+    now = datetime.now(TZ)
+    weekday = now.strftime('%a').lower()
+    events = []
+    if weekday in ('mon', 'wed', 'fri'):
+        events.append((7, 0, "Drilling · 7 or 8 AM"))
+        events.append((10, 0, "S&C with Roy · 10 AM"))
+        events.append((14, 0, "Bruno private · 2 PM"))
+    if weekday in ('mon', 'tue', 'thu'):
+        events.append((19, 45, "Evening class · 7:45 PM"))
+    if weekday in ('tue', 'thu'):
+        events.append((11, 0, "Stretch Zone · 11 AM"))
+        events.append((14, 0, "Bruno private · 2 PM"))
+        events.append((19, 45, "Competition class · 7:45 PM"))
+    # Dedupe (Bruno private can appear twice on Tue/Thu)
+    seen = set()
+    deduped = []
+    for h, m, label in sorted(events, key=lambda e: e[0] * 60 + e[1]):
+        if label in seen:
+            continue
+        seen.add(label)
+        deduped.append((h, m, label))
+    nm = now.hour * 60 + now.minute
+    for h, m, label in deduped:
+        if h * 60 + m >= nm:
+            return label
+    return None  # nothing left today
+
+
+def get_bruno_recent():
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute(
+                "SELECT date, session, notes FROM journal "
+                "WHERE session LIKE '%Bruno%' OR session LIKE '%Private%' "
+                "ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
+            return {"date": row[0], "session": row[1], "notes": row[2]} if row else None
     except Exception:
         return None
 
@@ -592,6 +776,7 @@ def webhook():
             resp.message(ask_claude(raw_body))
 
     else:
+        # If Corey is debriefing a session, journal it and extract any technique struggle
         if state.get("debrief_session"):
             session = state["debrief_session"]
             state["debrief_session"] = None
@@ -599,6 +784,47 @@ def webhook():
             issue = extract_issue(raw_body)
             if issue:
                 state["flag_for_bruno"] = issue
+            resp.message(ask_claude(raw_body))
+            return str(resp)
+
+        # Try classifying the message as water / meal / injury logging before falling to chat
+        intents = classify_message(raw_body)
+
+        if intents.get("water_l"):
+            try:
+                liters = float(intents["water_l"])
+            except (TypeError, ValueError):
+                liters = 0
+            if liters > 0:
+                check_and_reset_water()
+                state["water_today"] = round(state["water_today"] + liters, 2)
+                save_water_to_db()
+                remaining = round(WATER_GOAL_L - state["water_today"], 2)
+                if remaining <= 0:
+                    resp.message(f"+{liters}L logged 💧 LET'S GO — you hit your {WATER_GOAL_L}L goal today 🎉")
+                else:
+                    resp.message(f"+{liters}L logged 💧 You've had {state['water_today']}L today — {remaining}L to go")
+                return str(resp)
+
+        meal = intents.get("meal")
+        if meal and meal.get("name"):
+            cals = int(meal.get("calories") or 0)
+            save_meal(meal["name"], cals, meal.get("kind", "other"), notes=raw_body)
+            total = get_today_calories()
+            remaining = max(0, CALORIE_GOAL - total)
+            resp.message(f"+{cals} cal logged 🍚 ({meal['name']}) · {total:,}/{CALORIE_GOAL:,} today · {remaining} to go")
+            return str(resp)
+
+        injury = intents.get("injury")
+        if injury and injury.get("body_part"):
+            sev = injury.get("severity", "minor")
+            notes = injury.get("notes") or raw_body
+            save_injury(injury["body_part"], sev, notes)
+            emoji = {"minor": "🩹", "moderate": "🩼", "severe": "🚨"}.get(sev, "🩹")
+            resp.message(f"Logged {injury['body_part']} ({sev}) {emoji} Take it easy bro — anything I should flag for tomorrow?")
+            return str(resp)
+
+        # Nothing structured — full chat
         resp.message(ask_claude(raw_body))
 
     return str(resp)
@@ -620,11 +846,16 @@ def api_status():
     check_and_reset_water()
     journal = get_recent_journal(10)
     recent_messages = load_chat_history(20)
+    cal_today = get_today_calories()
+    injuries = get_active_injuries()
     return {
         "model": CLAUDE_MODEL,
+        # water
         "water_today": state["water_today"],
         "water_goal": WATER_GOAL_L,
         "water_remaining": round(WATER_GOAL_L - state["water_today"], 2),
+        "streak_days": get_streak_days(),
+        # bot state
         "last_question": state["last_question"],
         "drilling_time": state["drilling_time"],
         "stretch_time": state["stretch_time"],
@@ -633,6 +864,22 @@ def api_status():
         "followup_index": state["followup_index"],
         "debrief_session": state["debrief_session"],
         "flag_for_bruno": state["flag_for_bruno"],
+        # training
+        "next_up": get_next_up(),
+        "bruno_recent": get_bruno_recent(),
+        "problems": (
+            [{"name": state["flag_for_bruno"], "tier": "urgent"}]
+            if state.get("flag_for_bruno") else []
+        ),
+        # nutrition
+        "calorie_today": cal_today,
+        "calorie_goal": CALORIE_GOAL,
+        "calorie_remaining": max(0, CALORIE_GOAL - cal_today),
+        "recent_meal": get_recent_meal(),
+        # injuries
+        "injuries_active": injuries,
+        "injuries_count": len(injuries),
+        # logs
         "recent_messages": recent_messages,
         "journal": [
             {"date": d, "session": s, "notes": n}
