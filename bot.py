@@ -640,6 +640,21 @@ def api_status():
         ],
     }
 
+# ── NOTIFY (push WhatsApp message via API token) ──────────────────────────────
+
+@app.route('/api/notify', methods=['POST'])
+def api_notify():
+    auth = request.headers.get('Authorization', '')
+    expected = f"Bearer {os.environ.get('API_TOKEN', '')}"
+    if not os.environ.get('API_TOKEN') or auth != expected:
+        return {"error": "unauthorized"}, 401
+    payload = request.get_json(silent=True) or {}
+    msg = (payload.get('message') or '').strip()
+    if not msg:
+        return {"error": "empty message"}, 400
+    send(msg, followup=False)
+    return {"ok": True}
+
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
 
 @app.route('/trigger/<action>', methods=['GET'])
