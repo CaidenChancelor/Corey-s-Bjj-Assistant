@@ -1689,6 +1689,9 @@ def trigger(action):
         "evening": remind_evening,
         "partner": ask_partner_drilling,
         "penalty": water_penalty_check,
+        "checkin_private": checkin_after_private,
+        "checkin_drilling": checkin_after_drilling,
+        "checkin_evening": checkin_after_evening,
     }
     fn = actions.get(action)
     if fn:
