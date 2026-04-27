@@ -13,14 +13,14 @@
     </div>
 </div>
 
-{% if status.error %}
+{% if status.get('error') %}
 <div class="card error-card">
     <h2 class="card-title">⚠️ Bot offline</h2>
-    <p>{{ status.error }}</p>
+    <p>{{ status.get('error') }}</p>
 </div>
 {% else %}
 
-{% set water_pct = ((status.water_today / status.water_goal * 100) | round(0) | int) if status.water_goal else 0 %}
+{% set water_pct = ((status.get('water_today', 0) / status.get('water_goal', 3) * 100) | round(0) | int) if status.get('water_goal') else 0 %}
 {% set water_pct_capped = water_pct if water_pct < 100 else 100 %}
 
 <div class="grid">
@@ -30,17 +30,17 @@
         <div class="hydration-row">
             <div>
                 <div class="water-display">
-                    <span class="water-num">{{ "%.1f"|format(status.water_today) }}</span>
+                    <span class="water-num">{{ "%.1f"|format(status.get('water_today', 0)) }}</span>
                     <span class="water-unit">L</span>
-                    <span class="water-target">of {{ status.water_goal }} L goal</span>
+                    <span class="water-target">of {{ status.get('water_goal', 3) }} L goal</span>
                 </div>
                 <div class="water-meta">
-                    {% if status.water_remaining > 0 %}
-                    {{ "%.2f"|format(status.water_remaining) }} L to go ·
+                    {% if status.get('water_remaining', 0) > 0 %}
+                    {{ "%.2f"|format(status.get('water_remaining', 0)) }} L to go ·
                     <span class="pct">{{ water_pct }}%</span>
                     {% else %}
                     <span class="success">Goal hit 🎉</span>
-                    +{{ "%.2f"|format(status.water_today - status.water_goal) }} L over
+                    +{{ "%.2f"|format(status.get('water_today', 0) - status.get('water_goal', 3)) }} L over
                     {% endif %}
                 </div>
                 <div class="water-progress" role="progressbar"
@@ -78,29 +78,29 @@
     <div class="card">
         <h2 class="card-title">🤖 Bot state</h2>
         <div class="stat-grid">
-            <div class="stat {% if status.last_question %}active{% else %}empty{% endif %}">
+            <div class="stat {% if status.get('last_question') %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Last question</div>
-                <div class="stat-value">{{ status.last_question or '—' }}</div>
+                <div class="stat-value">{{ status.get('last_question') or '—' }}</div>
             </div>
-            <div class="stat {% if status.drilling_time %}active{% else %}empty{% endif %}">
+            <div class="stat {% if status.get('drilling_time') %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Drilling</div>
-                <div class="stat-value">{{ (status.drilling_time|string + ' AM') if status.drilling_time else '—' }}</div>
+                <div class="stat-value">{{ (status.get('drilling_time')|string + ' AM') if status.get('drilling_time') else '—' }}</div>
             </div>
-            <div class="stat {% if status.stretch_time %}active{% else %}empty{% endif %}">
+            <div class="stat {% if status.get('stretch_time') %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Stretch zone</div>
-                <div class="stat-value">{{ (status.stretch_time|string + ' AM') if status.stretch_time else '—' }}</div>
+                <div class="stat-value">{{ (status.get('stretch_time')|string + ' AM') if status.get('stretch_time') else '—' }}</div>
             </div>
-            <div class="stat {% if status.rest_day %}active{% else %}empty{% endif %}">
+            <div class="stat {% if status.get('rest_day') %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Rest day</div>
-                <div class="stat-value">{{ 'Yes' if status.rest_day else '—' }}</div>
+                <div class="stat-value">{{ 'Yes' if status.get('rest_day') else '—' }}</div>
             </div>
-            <div class="stat {% if status.awaiting_reply %}active{% else %}empty{% endif %}">
+            <div class="stat {% if status.get('awaiting_reply') %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Awaiting reply</div>
-                <div class="stat-value">{{ ('Yes (' + status.followup_index|string + ')') if status.awaiting_reply else '—' }}</div>
+                <div class="stat-value">{{ ('Yes (' + status.get('followup_index', 0)|string + ')') if status.get('awaiting_reply') else '—' }}</div>
             </div>
-            <div class="stat {% if status.flag_for_bruno %}active{% else %}empty{% endif %}">
+            <div class="stat {% if status.get('flag_for_bruno') %}active{% else %}empty{% endif %}">
                 <div class="stat-label">Flag for Bruno</div>
-                <div class="stat-value">{{ status.flag_for_bruno or '—' }}</div>
+                <div class="stat-value">{{ status.get('flag_for_bruno') or '—' }}</div>
             </div>
         </div>
     </div>
@@ -108,9 +108,9 @@
     <!-- JOURNAL -->
     <div class="card">
         <h2 class="card-title">📓 Training journal</h2>
-        {% if status.journal %}
+        {% if status.get('journal') %}
         <ul class="timeline">
-            {% for entry in status.journal %}
+            {% for entry in status.get('journal') %}
             <li>
                 <div class="timeline-meta">
                     <span class="timeline-date">{{ entry.date }}</span>
@@ -131,9 +131,9 @@
     <!-- RECENT MESSAGES -->
     <div class="card">
         <h2 class="card-title">💬 Recent messages</h2>
-        {% if status.recent_messages %}
+        {% if status.get('recent_messages') %}
         <ul class="messages-list">
-            {% for msg in status.recent_messages %}
+            {% for msg in status.get('recent_messages') %}
             <li class="msg-row" data-role="{{ msg.role }}">
                 <span class="msg-role">{{ msg.role }}</span>
                 <span class="msg-content">{{ msg.content }}</span>
@@ -150,7 +150,7 @@
 </div>
 
 <p class="footer">
-    Model <a href="{{ bot_url }}" target="_blank" rel="noopener">{{ status.model }}</a>
+    Model <a href="{{ bot_url }}" target="_blank" rel="noopener">{{ status.get('model', 'unknown') }}</a>
     · <a href="{{ bot_url }}" target="_blank" rel="noopener">{{ bot_url }}</a>
 </p>
 {% endif %}

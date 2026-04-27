@@ -118,13 +118,42 @@ def execute_tool(name, args):
         return f"Error: {e}"
 
 def handle_chat_message(user_message, history):
-    """Run an agent loop: send msg → execute tools → repeat until Claude returns final text."""
+    """Run an agent loop: send msg → execute tools → repeat until Claude returns final text.
+
+    NOTE: `history` must NOT include the current user_message — this function appends it
+    internally. The Flask caller is responsible for storing the returned reply back into
+    the session after this returns.
+    """
     if not claude:
         return "Anthropic API key not configured."
     if not GITHUB_PAT:
         return "GITHUB_PAT not configured — can't read/write the repo."
 
-    messages = list(history) + [{"role": "user", "content": user_message}]
+    try:
+        return _run_agent_loop(user_message, history)
+    except anthropic.APIConnectionError as e:
+        logging.exception("Claude API connection error")
+        return f"Connection error reaching Claude: {e}"
+    except anthropic.AuthenticationError:
+        logging.exception("Claude API auth error")
+        return "Anthropic API key is invalid or expired."
+    except anthropic.RateLimitError:
+        logging.exception("Claude API rate limit")
+        return "Rate limited by Anthropic. Try again in a moment."
+    except anthropic.APIStatusError as e:
+        logging.exception("Claude API status error")
+        return f"Claude API error ({e.status_code}): {e.message}"
+    except Exception as e:
+        logging.exception("Unexpected error in handle_chat_message")
+        return f"Unexpected error: {e}"
+
+
+def _run_agent_loop(user_message, history):
+    """Inner agent loop — called by handle_chat_message inside a try/except."""
+    # Cap incoming history at the last 20 messages to avoid ballooning API costs.
+    capped_history = list(history)[-20:]
+
+    messages = capped_history + [{"role": "user", "content": user_message}]
 
     for _ in range(10):  # safety cap on tool-use loops
         response = claude.messages.create(

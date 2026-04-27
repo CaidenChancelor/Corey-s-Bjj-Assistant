@@ -40,7 +40,7 @@ def fetch_bot_status():
         r = requests.get(
             f"{BOT_URL}/api/status",
             headers={"Authorization": f"Bearer {API_TOKEN}"},
-            timeout=10,
+            timeout=5,
         )
         return r.json() if r.ok else {"error": f"Bot returned {r.status_code}"}
     except Exception as e:
@@ -112,22 +112,34 @@ def editor_old():
 @app.route("/editor/send", methods=["POST"])
 @require_login
 def editor_send():
-    msg = request.form.get("message", "").strip()
+    # Accept both JSON (from React fetch) and form data (from Jinja form)
+    if request.is_json:
+        msg = (request.get_json(force=True) or {}).get("message", "").strip()
+    else:
+        msg = request.form.get("message", "").strip()
+
     if not msg:
-        return redirect(url_for("editor_old"))
+        if request.is_json:
+            return {"error": "empty"}, 400
+        return redirect(url_for("editor"))
+
     history = session.get("chat", [])
-    reply = handle_chat_message(msg, history)
     history.append({"role": "user", "content": msg})
+    reply = handle_chat_message(msg, history[:-1])  # pass history without current turn
     history.append({"role": "assistant", "content": reply})
-    session["chat"] = history[-40:]
-    return redirect(url_for("editor_old"))
+    session["chat"] = history[-10:]  # 10 messages max to stay under 4KB cookie limit
+    session.modified = True
+
+    if request.is_json:
+        return {"reply": reply}
+    return redirect(url_for("editor"))
 
 
 @app.route("/editor/clear", methods=["POST"])
 @require_login
 def editor_clear():
     session["chat"] = []
-    return redirect(url_for("editor_old"))
+    return redirect(url_for("editor"))
 
 
 if __name__ == "__main__":

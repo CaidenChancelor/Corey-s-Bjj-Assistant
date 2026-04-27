@@ -9,7 +9,7 @@
     {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    {% if session.logged_in and not hide_nav %}
+    {% if session.get('logged_in') and not hide_nav %}
     <nav class="nav-pill" aria-label="primary">
         <span class="nav-logo" aria-hidden="true">✦</span>
         <div class="nav-tabs">

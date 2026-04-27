@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>BJJ Dashboard — UI Kit</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <style>
 /* =============================================================
    BJJ Dashboard — Colors & Type
@@ -1462,6 +1462,10 @@ function _hWriteLS(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
 }
 
+function isBotEntry(id) {
+  return String(id || "").startsWith("bot-");
+}
+
 function getHydrationLog() {
   if (_hyLog === null) {
     // Prefer live bot data when available
@@ -1700,7 +1704,7 @@ function getBrunoLessons() {
           date: l.date,
           week: l.session || "Private with Bruno",
           summary: l.summary || (text ? text.slice(0, 60) : "Bruno lesson"),
-          description: text || l.summary || "",
+          description: l.summary || "",
           notes: bullets,
         };
       });
@@ -1902,10 +1906,14 @@ function Hydration({ onBack }) {
   };
 
   // Build a 7-day strip: 6 historical seed days + today
-  const historyDays = [
-    ...HYDRATION_HISTORY_SEED,
-    { date: "Today", total },
-  ];
+  const historyDays = (() => {
+    const live = window.__bjjdata && Array.isArray(window.__bjjdata.daily_water_7d)
+      ? window.__bjjdata.daily_water_7d.map(d => ({
+          date: d.date, total: Math.round((d.liters || 0) * 1000)
+        }))
+      : HYDRATION_HISTORY_SEED;
+    return [...live, { date: "Today", total }];
+  })();
 
   // Sort log newest-first for display
   const displayLog = [...log].sort((a, b) => (b.time || "").localeCompare(a.time || ""));
@@ -2025,21 +2033,19 @@ function Hydration({ onBack }) {
                     Custom
                   </span>
                 </GlassButton>
-                <button
+                {log.length > 0 && log.some(e => !isBotEntry(e.id)) && <button
                   onClick={() => {
                     const last = displayLog[0];
                     if (last) removeEntry(last.id);
                   }}
-                  disabled={log.length === 0}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
                     padding: "9px 14px", borderRadius: 980,
                     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
-                    color: log.length === 0 ? "rgba(29,29,31,0.32)" : "rgba(29,29,31,0.7)",
+                    color: "rgba(29,29,31,0.7)",
                     background: "transparent",
                     border: "1px solid rgba(0,0,0,0.10)",
-                    cursor: log.length === 0 ? "not-allowed" : "pointer",
-                    opacity: log.length === 0 ? 0.55 : 1,
+                    cursor: "pointer",
                   }}
                   title="Remove the most recent sip">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -2047,7 +2053,7 @@ function Hydration({ onBack }) {
                     <path d="M3 13a9 9 0 1 0 3-7.7L3 8"/>
                   </svg>
                   Undo last
-                </button>
+                </button>}
                 <button
                   onClick={() => { if (log.length === 0) return; clearArmed ? doClear() : armClear(); }}
                   disabled={log.length === 0}
@@ -2233,6 +2239,7 @@ function Hydration({ onBack }) {
           .hy-hero-bottle { display: none !important; }
           .hy-body-grid { grid-template-columns: 1fr !important; }
         }
+        .nav-pill-tab { min-height: 44px !important; display: flex !important; align-items: center !important; }
       `}</style>
     </div>
   );
@@ -2868,7 +2875,7 @@ function LogRow({ entry, isLast, onDelete }) {
         fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 500,
         letterSpacing: "-0.01em", color: "#1d1d1f",
       }}>{formatHydrationAmount(entry.amount)}</div>
-      <button
+      {!isBotEntry(entry.id) && <button
         onClick={onDelete}
         aria-label="Delete entry"
         style={{
@@ -2877,15 +2884,15 @@ function LogRow({ entry, isLast, onDelete }) {
           background: hover ? "rgba(224,38,74,0.10)" : "transparent",
           cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
-          opacity: 1,
-          transition: "background 160ms ease, color 160ms ease",
-          color: hover ? "#e0264a" : "rgba(29,29,31,0.45)",
+          opacity: hover ? 1 : 0.4,
+          transition: "background 160ms ease, color 160ms ease, opacity 160ms ease",
+          color: "#e0264a",
         }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
         </svg>
-      </button>
+      </button>}
     </div>
   );
 }
@@ -3156,7 +3163,7 @@ function WaterHero({ onClick }) {
                 Custom
               </span>
             </GlassButton>
-            {log.length > 0 ? (
+            {log.length > 0 && log.some(e => !isBotEntry(e.id)) ? (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -4091,11 +4098,28 @@ function Editor() {
     { role: "user",   body: "Tighter on top. I lost top control twice when I overcommitted on the pass." },
     { role: "claude", body: "Try staying chest-to-chest one beat longer before going for the pass — let them carry your weight, then move." },
   ]);
-  const onSend = () => {
-    if (!value.trim()) return;
-    setMessages([...messages, { role: "user", body: value }]);
+  const [loading, setLoading] = useStateEd(false);
+  const handleSend = async () => {
+    const text = value.trim();
+    if (!text) return;
+    setMessages(prev => [...prev, { role: "user", body: text }]);
     setValue("");
+    setLoading(true);
+    try {
+      const res = await fetch("/editor/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: "claude", body: data.reply || "Error reaching server" }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: "claude", body: "Failed to reach server." }]);
+    } finally {
+      setLoading(false);
+    }
   };
+  const onSend = handleSend;
 
   return (
     <div style={{
@@ -4254,7 +4278,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
         onClick={() => setAdding(true)}
         aria-label="Add lesson"
         style={{
-          position: "fixed", bottom: 32, right: 32, zIndex: 50,
+          position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
@@ -4653,7 +4677,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
 // =====================================================
 function BrunoLessonDetail({ lessonId, onBack }) {
   const { lessons, pinned, setLessons, setPinned } = useBrunoStore();
-  const lesson = lessons.find((l) => l.id === lessonId) || lessons[0];
+  const lesson = lessons.find((l) => l.id === lessonId);
   const [editing, setEditing] = useStateBL(false);
   const [confirming, setConfirming] = useStateBL(false);
   const isPinned = pinned.includes(lesson?.id);
@@ -5241,7 +5265,7 @@ function Meals({ onBack }) {
         onClick={() => setAdding(true)}
         aria-label="Add meal"
         style={{
-          position: "fixed", bottom: 32, right: 32, zIndex: 50,
+          position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
@@ -5994,7 +6018,7 @@ function Problems({ onBack }) {
         onClick={() => setAdding(true)}
         aria-label="Add problem"
         style={{
-          position: "fixed", bottom: 32, right: 32, zIndex: 50,
+          position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
@@ -6552,7 +6576,7 @@ function MicroInjuries({ onBack }) {
         onClick={() => setAdding(true)}
         aria-label="Add micro-injury"
         style={{
-          position: "fixed", bottom: 32, right: 32, zIndex: 50,
+          position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",

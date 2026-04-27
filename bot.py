@@ -3,6 +3,7 @@ import re
 import json
 import base64
 import sqlite3
+import threading
 import requests as req
 from datetime import datetime, timedelta
 import pytz
@@ -128,13 +129,16 @@ def load_water_from_db():
         logging.error(f"Water DB load error: {e}")
 
 def save_journal_entry(session, notes):
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            'INSERT INTO journal (date, session, notes, created_at) VALUES (?,?,?,?)',
-            (datetime.now(TZ).strftime('%Y-%m-%d'), session, notes, datetime.now(TZ).isoformat())
-        )
-        conn.commit()
-    logging.info(f"JOURNAL [{session}]: {notes[:80]}")
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO journal (date, session, notes, created_at) VALUES (?,?,?,?)',
+                (datetime.now(TZ).strftime('%Y-%m-%d'), session, notes, datetime.now(TZ).isoformat())
+            )
+            conn.commit()
+        logging.info(f"JOURNAL [{session}]: {notes[:80]}")
+    except Exception as e:
+        logging.error(f"Journal save error: {e}")
 
 def extract_issue(notes):
     """If the note mentions struggling with a technique, return the technique name. Else None."""
@@ -193,13 +197,16 @@ def classify_message(text):
 
 def save_meal(name, calories, kind="other", notes=""):
     now = datetime.now(TZ)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            'INSERT INTO meals (date, time, name, calories, kind, notes, created_at) VALUES (?,?,?,?,?,?,?)',
-            (now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), name, int(calories or 0), kind, notes, now.isoformat()),
-        )
-        conn.commit()
-    logging.info(f"MEAL: {name} ({calories} cal, {kind})")
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO meals (date, time, name, calories, kind, notes, created_at) VALUES (?,?,?,?,?,?,?)',
+                (now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), name, int(calories or 0), kind, notes, now.isoformat()),
+            )
+            conn.commit()
+        logging.info(f"MEAL: {name} ({calories} cal, {kind})")
+    except Exception as e:
+        logging.error(f"Meal save error: {e}")
 
 
 def get_today_calories():
@@ -227,13 +234,16 @@ def get_recent_meal():
 
 def save_injury(body_part, severity, notes):
     now = datetime.now(TZ)
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            'INSERT INTO injuries (date, body_part, severity, notes, created_at) VALUES (?,?,?,?,?)',
-            (now.strftime('%Y-%m-%d'), body_part, severity, notes, now.isoformat()),
-        )
-        conn.commit()
-    logging.info(f"INJURY: {body_part} ({severity})")
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO injuries (date, body_part, severity, notes, created_at) VALUES (?,?,?,?,?)',
+                (now.strftime('%Y-%m-%d'), body_part, severity, notes, now.isoformat()),
+            )
+            conn.commit()
+        logging.info(f"INJURY: {body_part} ({severity})")
+    except Exception as e:
+        logging.error(f"Injury save error: {e}")
 
 
 def get_active_injuries():
@@ -257,10 +267,15 @@ def get_streak_days():
     except Exception:
         return 0
     if not rows:
-        return 0
-    history = {r[0]: (r[1] or 0) for r in rows}
+        history = {}
+    else:
+        history = {r[0]: (r[1] or 0) for r in rows}
     today = datetime.now(TZ).date()
     today_str = today.strftime('%Y-%m-%d')
+    # Overlay in-memory total in case it hasn't been flushed to DB yet
+    live_today = state.get("water_today", 0.0)
+    if live_today > history.get(today_str, 0.0):
+        history[today_str] = live_today
     cursor = today if history.get(today_str, 0) >= WATER_GOAL_L else (today - timedelta(days=1))
     streak = 0
     while True:
@@ -282,7 +297,7 @@ def get_next_up():
         events.append((7, 0, "Drilling · 7 or 8 AM"))
         events.append((10, 0, "S&C with Roy · 10 AM"))
         events.append((14, 0, "Bruno private · 2 PM"))
-    if weekday in ('mon', 'tue', 'thu'):
+    if weekday == 'mon':
         events.append((19, 45, "Evening class · 7:45 PM"))
     if weekday in ('tue', 'thu'):
         events.append((11, 0, "Stretch Zone · 11 AM"))
@@ -304,6 +319,7 @@ def get_next_up():
 
 
 _bruno_summary_cache = {}  # {journal_id: summary} — avoid re-summarizing on every API hit
+_bruno_summary_lock = threading.Lock()
 
 
 def summarize_bruno(notes):
@@ -329,7 +345,7 @@ def summarize_bruno(notes):
         return response.content[0].text.strip().strip('"').strip("'")
     except Exception as e:
         logging.error(f"summarize_bruno error: {e}")
-        return (notes[:80] + "…") if len(notes) > 80 else notes
+        return (notes[:80] + "…") if notes and len(notes) > 80 else (notes or "")
 
 
 def get_bruno_lessons(limit=20):
@@ -346,13 +362,12 @@ def get_bruno_lessons(limit=20):
         return []
     lessons = []
     for jid, date, session, notes, created_at in rows:
-        if jid not in _bruno_summary_cache:
-            _bruno_summary_cache[jid] = summarize_bruno(notes)
+        summary = (notes[:80] + "…") if notes and len(notes) > 80 else (notes or "Bruno lesson")
         lessons.append({
             "id": f"L{jid}",
             "date": date,
             "session": session,
-            "summary": _bruno_summary_cache[jid],
+            "summary": summary,
             "notes": notes,
             "created_at": created_at,
         })
@@ -370,16 +385,30 @@ def get_bruno_recent():
             if not row:
                 return None
             jid, date, session, notes = row
-            if jid not in _bruno_summary_cache:
-                _bruno_summary_cache[jid] = summarize_bruno(notes)
+            with _bruno_summary_lock:
+                if jid not in _bruno_summary_cache:
+                    _bruno_summary_cache[jid] = summarize_bruno(notes)
+            summary = _bruno_summary_cache[jid]
             return {
                 "date": date,
                 "session": session,
                 "notes": notes,
-                "summary": _bruno_summary_cache[jid],
+                "summary": summary,
             }
     except Exception:
         return None
+
+def get_water_history(days=6):
+    """Last N days of water intake for the dashboard chart."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT date, liters FROM daily_water ORDER BY date DESC LIMIT ?', (days,)
+            ).fetchall()
+        return [{"date": r[0], "liters": r[1] or 0} for r in reversed(rows)]
+    except Exception:
+        return []
+
 
 def get_recent_journal(n=15):
     try:
@@ -485,20 +514,22 @@ def claude_is_skip(user_msg, question_context):
 
 # Conversation state (in-memory, resets on redeploy — fine for now)
 state = {
-    "last_question": None,   # what we're waiting on
-    "drilling_time": None,   # 7 or 8
-    "stretch_time": None,    # 11 or 12
-    "awaiting_reply": False, # follow-up tracking
-    "partner_pending": None, # waiting on partner reply
-    "replying_to": None,     # which partner Corey is responding to
-    "followup_index": 0,     # how many follow-ups have fired
-    "followup_delays": [],   # cadence for current follow-up chain
-    "water_today": 0.0,      # liters consumed today
-    "water_date": None,      # "YYYY-MM-DD" — resets daily
-    "debrief_session": None, # session type being debriefed after class
-    "flag_for_bruno": None,  # technique to flag in the next private reminder
-    "rest_day": False,       # if True, suppress all session reminders for today
-    "rest_day_date": None,   # date the rest day was set
+    "last_question": None,       # what we're waiting on
+    "last_question_time": None,  # datetime when last_question was set (H8)
+    "drilling_time": None,       # 7 or 8
+    "stretch_time": None,        # 11 or 12
+    "awaiting_reply": False,     # follow-up tracking
+    "partner_pending": None,     # waiting on partner reply
+    "replying_to": None,         # which partner Corey is responding to
+    "followup_index": 0,         # how many follow-ups have fired
+    "followup_delays": [],       # cadence for current follow-up chain
+    "water_today": 0.0,          # liters consumed today
+    "water_date": None,          # "YYYY-MM-DD" — resets daily
+    "debrief_session": None,     # session type being debriefed after class
+    "debrief_time": None,        # datetime when debrief_session was set (H9)
+    "flag_for_bruno": None,      # technique to flag in the next private reminder
+    "rest_day": False,           # if True, suppress all session reminders for today
+    "rest_day_date": None,       # date the rest day was set
 }
 
 # Schedule follow-ups: every 15 min, 3 times
@@ -525,7 +556,6 @@ def check_and_reset_water():
     if state["water_date"] != today:
         state["water_today"] = 0.0
         state["water_date"] = today
-        save_water_to_db()
 
 def estimate_water_from_image(image_bytes, content_type):
     if not claude:
@@ -574,12 +604,18 @@ FOLLOWUPS = [
 ]
 
 def send_to(number, msg):
-    client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
-    logging.info(f"SENT to {number}: {msg}")
+    try:
+        client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
+        logging.info(f"SENT to {number}: {msg}")
+    except Exception as e:
+        logging.error(f"send_to error ({number}): {e}")
 
 def send(msg, followup=False, delays=None):
-    client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
-    logging.info(f"SENT: {msg}")
+    try:
+        client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
+        logging.info(f"SENT: {msg}")
+    except Exception as e:
+        logging.error(f"send error: {e}")
     if followup:
         state["awaiting_reply"] = True
         state["followup_index"] = 0
@@ -622,17 +658,20 @@ def send_followup():
 def ask_drilling_time():
     state["drilling_time"] = None
     state["last_question"] = "drilling_time"
+    state["last_question_time"] = datetime.now(TZ)
     send("Yo what time you drilling this morning — 7 or 8?", followup=True)
 
 def ask_stretch_time():
     state["stretch_time"] = None
     state["last_question"] = "stretch_time"
+    state["last_question_time"] = datetime.now(TZ)
     send("Stretch Zone today — 11 or 12?", followup=True)
 
 def checkin_after_drilling():
     state["last_question"] = None
     state["drilling_time"] = None
     state["debrief_session"] = "Drilling"
+    state["debrief_time"] = datetime.now(TZ)
     send("Drilling done? How'd it feel — what were you working on?")
 
 def remind_sc():
@@ -657,6 +696,7 @@ def remind_private():
 def checkin_after_private():
     if is_rest_day(): return
     state["debrief_session"] = "Private with Bruno"
+    state["debrief_time"] = datetime.now(TZ)
     send("How was the private? What'd you work on?")
 
 def remind_stretch():
@@ -678,6 +718,7 @@ def remind_evening():
 def checkin_after_evening():
     if is_rest_day(): return
     state["debrief_session"] = "Evening class"
+    state["debrief_time"] = datetime.now(TZ)
     send("How was tonight? What'd Bruno have you drilling?")
 
 # ── PARTNER MESSAGES ──────────────────────────────────────────────────────────
@@ -751,6 +792,12 @@ def webhook():
 
     if partner_name:
         # Forward partner's reply to Corey — nag him to respond
+        state["awaiting_reply"] = False
+        state["followup_index"] = 0
+        try:
+            scheduler.remove_job('followup')
+        except Exception:
+            pass
         send(f"{partner_name} said: \"{raw_body}\"\n\nWhat do you want me to reply?", followup=True)
         state["last_question"] = "partner_reply"
         state["replying_to"] = partner_name
@@ -777,6 +824,12 @@ def webhook():
         return str(resp)
 
     if last_q == "drilling_time":
+        _lqt = state.get("last_question_time")
+        if _lqt and (datetime.now(TZ) - _lqt).total_seconds() > 3600:
+            state["last_question"] = None
+            state["last_question_time"] = None
+            resp.message(ask_claude(raw_body))
+            return str(resp)
         if "7" in body:
             state["drilling_time"] = 7
             state["last_question"] = None
@@ -806,6 +859,12 @@ def webhook():
             resp.message(ask_claude(raw_body))
 
     elif last_q == "stretch_time":
+        _lqt = state.get("last_question_time")
+        if _lqt and (datetime.now(TZ) - _lqt).total_seconds() > 3600:
+            state["last_question"] = None
+            state["last_question_time"] = None
+            resp.message(ask_claude(raw_body))
+            return str(resp)
         if "11" in body:
             state["stretch_time"] = 11
             state["last_question"] = None
@@ -844,8 +903,16 @@ def webhook():
     else:
         # If Corey is debriefing a session, journal it and extract any technique struggle
         if state.get("debrief_session"):
+            _dbt = state.get("debrief_time")
+            if _dbt and (datetime.now(TZ) - _dbt).total_seconds() > 14400:
+                # Debrief question is over 4 hours old — they probably skipped, don't journal
+                state["debrief_session"] = None
+                state["debrief_time"] = None
+                resp.message(ask_claude(raw_body))
+                return str(resp)
             session = state["debrief_session"]
             state["debrief_session"] = None
+            state["debrief_time"] = None
             save_journal_entry(session, raw_body)
             issue = extract_issue(raw_body)
             if issue:
@@ -921,6 +988,7 @@ def api_status():
         "water_goal": WATER_GOAL_L,
         "water_remaining": round(WATER_GOAL_L - state["water_today"], 2),
         "streak_days": get_streak_days(),
+        "daily_water_7d": get_water_history(6),
         # bot state
         "last_question": state["last_question"],
         "drilling_time": state["drilling_time"],
