@@ -317,6 +317,14 @@ def proxy_water_delete(entry_id):
     return body, status
 
 
+# Technique history
+@app.route("/api/technique-history", methods=["GET"])
+@require_login
+def proxy_technique_history():
+    body, status = _bot("GET", "/api/technique-history")
+    return body, status
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5050))
     app.run(host="0.0.0.0", port=port, debug=False)
