@@ -1209,7 +1209,7 @@ def webhook():
             state["last_question"] = None
             resp.message("Bet — drilling at 7. I'll check in after 🔥")
             send_water("Start sipping now —")
-            run_at = datetime.now(TZ).replace(hour=8, minute=5, second=0, microsecond=0)
+            run_at = datetime.now(TZ).replace(hour=8, minute=15, second=0, microsecond=0)
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
                                   id='drill_checkin', replace_existing=True)
@@ -1218,7 +1218,7 @@ def webhook():
             state["last_question"] = None
             resp.message("Bet — drilling at 8. Got you 👊")
             send_water("Start sipping now —")
-            run_at = datetime.now(TZ).replace(hour=9, minute=5, second=0, microsecond=0)
+            run_at = datetime.now(TZ).replace(hour=9, minute=15, second=0, microsecond=0)
             if datetime.now(TZ) < run_at:
                 scheduler.add_job(checkin_after_drilling, 'date', run_date=run_at,
                                   id='drill_checkin', replace_existing=True)
