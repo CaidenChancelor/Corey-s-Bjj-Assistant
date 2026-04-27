@@ -426,7 +426,7 @@ html, body {
   }
 
   .dash-stat-row {
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(4, 1fr) !important;
     gap: 18px !important;
     margin-bottom: 32px !important;
   }
@@ -3577,7 +3577,7 @@ function MicroInjuriesCard({ onClick }) {
   const useLive = liveInjuries && liveInjuries.length > 0;
 
   // Map bot severity to React tile's severity vocabulary
-  const sevMap = { minor: "watch", moderate: "fresh", severe: "critical" };
+  const sevMap = { minor: "watch", moderate: "fresh", severe: "critical", watch: "watch", fresh: "fresh", critical: "critical", managing: "managing" };
   const liveAsTileShape = useLive
     ? liveInjuries.map((inj, i) => ({
         id: `bot-injury-${i}`,
@@ -3868,7 +3868,7 @@ function MessageRow({ role, body, time }) {
   );
 }
 
-function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries }) {
+function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenTechniqueLibrary }) {
   return (
     <div className="dash-page" style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto" }}>
@@ -3915,7 +3915,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         </div>
 
         {/* secondary stat row */}
-        <div className="dash-stat-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24, marginBottom: 40 }}>
+        <div className="dash-stat-row" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, marginBottom: 40 }}>
           {(() => {
             const d = window.__bjjdata || {};
             const meal = d.recent_meal;
@@ -3948,6 +3948,20 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               const days = d && typeof d.streak_days === "number" ? d.streak_days : 0;
               return days >= 3 ? "stay locked in 🔥" : "hit 3 L every day to build it";
             })()}
+          />
+          <StatTile
+            icon={<span style={{ fontSize: 22 }}>📚</span>}
+            eyebrow="technique library"
+            value={(() => {
+              const count = window.__bjjdata && Array.isArray(window.__bjjdata.techniques) ? window.__bjjdata.techniques.length : 0;
+              return (
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ai-purple)" }}>
+                  {count} {count === 1 ? "folder" : "folders"}
+                </span>
+              );
+            })()}
+            meta="tap to browse all folders →"
+            onClick={onOpenTechniqueLibrary}
           />
         </div>
 
@@ -3999,6 +4013,9 @@ const QUICK_ACTIONS = [
   "What changed recently?",
   "Show me bot.py",
   "Any errors in the logs?",
+  "Show my technique folders",
+  "Any active injuries?",
+  "What's my water streak?",
 ];
 
 const TOOL_LABELS = {
@@ -7608,6 +7625,140 @@ window.MicroInjuries = MicroInjuries;
   <script type="text/babel">
 // Top-level router — Login → Dashboard / Editor (with floating nav)
 
+// =====================================================
+// TechniqueLibrary — browse all technique folders
+// =====================================================
+function TechniqueLibrary({ onBack }) {
+  const [selected, setSelected] = React.useState(null);
+  const techniques = (window.__bjjdata && Array.isArray(window.__bjjdata.techniques))
+    ? window.__bjjdata.techniques
+    : [];
+
+  function recencyDot(lastSeen) {
+    if (!lastSeen) return "#b0b0b8";
+    const days = (Date.now() - new Date(lastSeen).getTime()) / 86400000;
+    if (days <= 7)  return "#15a86b";
+    if (days <= 30) return "#c97a00";
+    return "#b0b0b8";
+  }
+
+  function formatDate(d) {
+    if (!d) return "never";
+    const dt = new Date(d);
+    return dt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function capitalize(s) {
+    if (!s) return "";
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  if (selected !== null) {
+    const t = techniques[selected];
+    return (
+      <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto" }}>
+          <button onClick={() => setSelected(null)} style={{
+            border: "none", background: "transparent", padding: 0, cursor: "pointer",
+            fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 16,
+            display: "inline-flex", alignItems: "center", gap: 6,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Back to library
+          </button>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600, letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 6 }}>
+            {capitalize(t.name)}
+          </div>
+          <div style={{ fontSize: 15, color: "rgba(29,29,31,0.55)", marginBottom: 32 }}>
+            {t.count} {t.count === 1 ? "session" : "sessions"} · last worked {formatDate(t.last_seen)}
+          </div>
+          <div style={{
+            background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
+            border: "1px solid var(--glass-stroke-2)", borderRadius: 18,
+            padding: "24px 28px", boxShadow: "var(--shadow-card)",
+            color: "rgba(29,29,31,0.62)", fontSize: 15, lineHeight: 1.6,
+          }}>
+            Full history available after next sync
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+        <button onClick={onBack} style={{
+          border: "none", background: "transparent", padding: 0, cursor: "pointer",
+          fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 12,
+          display: "inline-flex", alignItems: "center", gap: 6,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 38, fontWeight: 600, letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 8 }}>
+          Technique Library
+        </div>
+        <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", lineHeight: 1.5, maxWidth: 520, marginBottom: 36 }}>
+          Every technique folder the bot has logged from your sessions.
+        </div>
+
+        {techniques.length === 0 ? (
+          <div style={{
+            background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
+            border: "1px solid var(--glass-stroke-2)", borderRadius: 18,
+            padding: "32px 28px", boxShadow: "var(--shadow-card)",
+            color: "rgba(29,29,31,0.55)", fontSize: 15, lineHeight: 1.6, textAlign: "center",
+          }}>
+            No techniques logged yet — your folders will appear here after your first session debrief
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {techniques.map((t, i) => (
+              <div
+                key={t.id || i}
+                onClick={() => setSelected(i)}
+                style={{
+                  background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
+                  border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
+                  padding: "18px 22px", boxShadow: "var(--shadow-card)",
+                  display: "flex", alignItems: "center", gap: 16,
+                  cursor: "pointer", transition: "transform var(--d-fast) var(--ease-out), box-shadow var(--d-fast) var(--ease-out)",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "var(--shadow-pop)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "var(--shadow-card)"; }}
+              >
+                <div style={{
+                  width: 10, height: 10, borderRadius: "50%", flexShrink: 0,
+                  background: recencyDot(t.last_seen),
+                  boxShadow: `0 0 0 3px ${recencyDot(t.last_seen)}22`,
+                }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600, fontSize: 16, color: "#1d1d1f", marginBottom: 2 }}>
+                    {capitalize(t.name)}
+                  </div>
+                  <div style={{ fontSize: 13, color: "rgba(29,29,31,0.52)" }}>
+                    {t.count} {t.count === 1 ? "session" : "sessions"} · last worked {formatDate(t.last_seen)}
+                  </div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(29,29,31,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+window.TechniqueLibrary = TechniqueLibrary;
+
 const { useState: useStateApp } = React;
 
 function App() {
@@ -7636,6 +7787,7 @@ function App() {
                 onOpenProblems={() => setScreen("problems")}
                 onOpenHydration={() => setScreen("hydration")}
                 onOpenMicroInjuries={() => setScreen("micro-injuries")}
+                onOpenTechniqueLibrary={() => setScreen("techniquelibrary")}
               />
             </div>
           )}
@@ -7681,6 +7833,11 @@ function App() {
           {screen === "micro-injuries" && (
             <div data-screen-label="10 Micro-Injuries">
               <MicroInjuries onBack={() => setScreen("dashboard")} />
+            </div>
+          )}
+          {screen === "techniquelibrary" && (
+            <div data-screen-label="11 Technique Library">
+              <TechniqueLibrary onBack={() => setScreen("dashboard")} />
             </div>
           )}
         </>
