@@ -1482,7 +1482,7 @@ def webhook():
                 state["_problem_issue"] = raw_body.strip()
                 state["debrief_step"] = "problem_tier"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message("how bad is it rn — low, medium, high, or urgent?")
+                resp.message("how much of a priority is this for Bruno — low, medium, high, or urgent?")
 
             elif step == "problem_tier":
                 raw_tier = raw_body.lower().strip()
