@@ -7672,7 +7672,7 @@ function TechniqueLibrary({ onBack }) {
             {capitalize(t.name)}
           </div>
           <div style={{ fontSize: 15, color: "rgba(29,29,31,0.55)", marginBottom: 32 }}>
-            {t.count} {t.count === 1 ? "session" : "sessions"} · last worked {formatDate(t.last_seen)}
+            {t.count} {t.count === 1 ? "session" : "sessions"}{t.video_count > 0 ? ` · ${t.video_count} ${t.video_count === 1 ? "video" : "videos"} 🎥` : ""} · last worked {formatDate(t.last_seen)}
           </div>
           <div style={{
             background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
@@ -7680,7 +7680,31 @@ function TechniqueLibrary({ onBack }) {
             padding: "24px 28px", boxShadow: "var(--shadow-card)",
             color: "rgba(29,29,31,0.62)", fontSize: 15, lineHeight: 1.6,
           }}>
-            Full history available after next sync
+            {(window.__bjjdata && Array.isArray(window.__bjjdata.technique_history) && window.__bjjdata.technique_history.length > 0) ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {window.__bjjdata.technique_history.map((entry, idx) => (
+                  <div key={idx} style={{ borderBottom: idx < window.__bjjdata.technique_history.length - 1 ? "1px solid var(--glass-stroke-2)" : "none", paddingBottom: idx < window.__bjjdata.technique_history.length - 1 ? 20 : 0 }}>
+                    <div style={{ fontSize: 13, color: "rgba(29,29,31,0.45)", marginBottom: 4 }}>{entry.date} · {entry.session}</div>
+                    <div style={{ fontSize: 15, color: "rgba(29,29,31,0.8)", lineHeight: 1.6 }}>{entry.notes}</div>
+                    {entry.video_url && (
+                      <video
+                        controls
+                        style={{
+                          width: "100%",
+                          borderRadius: 12,
+                          marginTop: 10,
+                          maxHeight: 300,
+                          background: "#000"
+                        }}
+                        src={entry.video_url}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              "Full history available after next sync"
+            )}
           </div>
         </div>
       </div>
@@ -7742,7 +7766,7 @@ function TechniqueLibrary({ onBack }) {
                     {capitalize(t.name)}
                   </div>
                   <div style={{ fontSize: 13, color: "rgba(29,29,31,0.52)" }}>
-                    {t.count} {t.count === 1 ? "session" : "sessions"} · last worked {formatDate(t.last_seen)}
+                    {t.count} {t.count === 1 ? "session" : "sessions"}{t.video_count > 0 ? ` · ${t.video_count} ${t.video_count === 1 ? "video" : "videos"} 🎥` : ""} · last worked {formatDate(t.last_seen)}
                   </div>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(29,29,31,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

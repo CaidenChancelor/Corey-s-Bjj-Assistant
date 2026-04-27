@@ -30,6 +30,9 @@ PARTNERS = {
 if not ACCOUNT_SID or not AUTH_TOKEN:
     logging.warning("TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN not set — bot will not send messages")
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+CLOUDINARY_API_KEY    = os.environ.get('CLOUDINARY_API_KEY', '')
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET', '')
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 CLAUDE_MODEL = "claude-sonnet-4-6"
@@ -114,8 +117,13 @@ def init_db():
     session      TEXT,
     notes        TEXT,
     sentiment    TEXT,
+    video_url    TEXT,
     created_at   TEXT
 )''')
+        try:
+            conn.execute('ALTER TABLE technique_log ADD COLUMN video_url TEXT')
+        except Exception:
+            pass  # column already exists
         conn.commit()
 
 def save_message(role, content):
@@ -706,6 +714,7 @@ state = {
     "_problem_position": None,
     "_problem_issue": None,
     "_technique_check_pending": None,  # technique awaiting folder-check confirmation
+    "_video_technique_log_id": None,  # technique_log row id waiting for video
     "_injury_body_part": None,
     "_injury_severity": None,
     "_injury_description": None,
@@ -873,16 +882,75 @@ def get_or_create_technique(name):
 
 
 def log_technique_note(technique_id, session, notes, sentiment):
-    """Append a session note to a technique folder."""
+    """Append a session note to a technique folder. Returns inserted row id."""
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cursor = conn.execute(
                 'INSERT INTO technique_log (technique_id, date, session, notes, sentiment, created_at) VALUES (?,?,?,?,?,?)',
                 (technique_id, datetime.now(TZ).strftime('%Y-%m-%d'), session, notes, sentiment, datetime.now(TZ).isoformat())
             )
             conn.commit()
+            return cursor.lastrowid
     except Exception as e:
         logging.error(f"log_technique_note error: {e}")
+        return None
+
+
+def update_technique_log_video(log_id, video_url):
+    """Attach a video URL to a technique_log entry."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute('UPDATE technique_log SET video_url=? WHERE id=?', (video_url, log_id))
+            conn.commit()
+    except Exception as e:
+        logging.error(f"update_technique_log_video error: {e}")
+
+
+def upload_to_cloudinary(media_url):
+    """Download media from Twilio URL and upload to Cloudinary. Returns secure_url or None."""
+    if not CLOUDINARY_CLOUD_NAME or not CLOUDINARY_API_KEY or not CLOUDINARY_API_SECRET:
+        logging.warning("Cloudinary credentials not configured")
+        return None
+    try:
+        # Download from Twilio (needs auth)
+        media_response = req.get(
+            media_url,
+            auth=(ACCOUNT_SID, AUTH_TOKEN),
+            timeout=30,
+        )
+        if not media_response.ok:
+            logging.error(f"Failed to download media: {media_response.status_code}")
+            return None
+        media_bytes = media_response.content
+        content_type = media_response.headers.get('Content-Type', 'video/mp4')
+        # Upload to Cloudinary via REST API
+        import hashlib, time as _time
+        timestamp = str(int(_time.time()))
+        folder = "bjj-technique-videos"
+        params_to_sign = f"folder={folder}&timestamp={timestamp}"
+        signature = hashlib.sha1(
+            f"{params_to_sign}{CLOUDINARY_API_SECRET}".encode()
+        ).hexdigest()
+        upload_url = f"https://api.cloudinary.com/v1_1/{CLOUDINARY_CLOUD_NAME}/video/upload"
+        files = {"file": (f"technique_{timestamp}.mp4", media_bytes, content_type)}
+        data = {
+            "api_key": CLOUDINARY_API_KEY,
+            "timestamp": timestamp,
+            "signature": signature,
+            "folder": folder,
+        }
+        upload_resp = req.post(upload_url, files=files, data=data, timeout=120)
+        if upload_resp.ok:
+            result = upload_resp.json()
+            url = result.get("secure_url")
+            logging.info(f"Cloudinary upload success: {url}")
+            return url
+        else:
+            logging.error(f"Cloudinary upload failed: {upload_resp.text[:200]}")
+            return None
+    except Exception as e:
+        logging.error(f"upload_to_cloudinary error: {e}")
+        return None
 
 
 def get_technique_history(technique_id, limit=5):
@@ -891,11 +959,11 @@ def get_technique_history(technique_id, limit=5):
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT date, session, notes, sentiment FROM technique_log '
+                'SELECT date, session, notes, sentiment, video_url FROM technique_log '
                 'WHERE technique_id = ? AND date < ? ORDER BY created_at DESC LIMIT ?',
                 (technique_id, today, limit)
             ).fetchall()
-        return [{"date": r[0], "session": r[1], "notes": r[2], "sentiment": r[3]} for r in rows]
+        return [{"date": r[0], "session": r[1], "notes": r[2], "sentiment": r[3], "video_url": r[4]} for r in rows]
     except Exception:
         return []
 
@@ -926,15 +994,16 @@ def extract_techniques(notes):
 
 
 def get_all_techniques():
-    """All technique folders with note count and last seen date."""
+    """All technique folders with note count, last seen date, and video count."""
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT t.id, t.name, COUNT(l.id) as cnt, MAX(l.date) as last_seen '
+                'SELECT t.id, t.name, COUNT(l.id) as cnt, MAX(l.date) as last_seen, '
+                'SUM(CASE WHEN l.video_url IS NOT NULL THEN 1 ELSE 0 END) as video_count '
                 'FROM techniques t LEFT JOIN technique_log l ON t.id = l.technique_id '
                 'GROUP BY t.id ORDER BY last_seen DESC LIMIT 100'
             ).fetchall()
-        return [{"id": r[0], "name": r[1], "count": r[2], "last_seen": r[3]} for r in rows]
+        return [{"id": r[0], "name": r[1], "count": r[2], "last_seen": r[3], "video_count": r[4] or 0} for r in rows]
     except Exception:
         return []
 
@@ -1246,6 +1315,7 @@ def webhook():
                 # Extract techniques, log them, check for existing folders on struggled techniques
                 techniques = extract_techniques(notes)
                 folder_to_check = None  # (name, id) of first existing folder with struggled sentiment
+                last_log_id = None
 
                 for tech in techniques:
                     tech_name = (tech.get("name") or "").strip()
@@ -1253,16 +1323,23 @@ def webhook():
                         continue
                     tid, is_new = get_or_create_technique(tech_name)
                     if tid:
-                        log_technique_note(tid, session_type, notes, tech.get("sentiment", "worked_on"))
+                        log_id = log_technique_note(tid, session_type, notes, tech.get("sentiment", "worked_on"))
+                        if log_id:
+                            last_log_id = log_id
                         if not is_new and tech.get("sentiment") == "struggled" and folder_to_check is None:
                             folder_to_check = (tech_name, tid)
 
+                state["_video_technique_log_id"] = last_log_id
                 if folder_to_check:
                     tech_name, _ = folder_to_check
-                    state["debrief_step"] = "technique_folder_check"
+                    state["debrief_step"] = "video_check"
                     state["debrief_time"] = datetime.now(TZ)
                     state["_technique_check_pending"] = tech_name
-                    resp.message(f"Logged 🥋\n\nWe already have a folder on {tech_name}. Want me to check that folder to see if you've solved this before?")
+                    resp.message("Logged 🥋 Got any video from today's session? Send it now or say 'skip'")
+                elif last_log_id:
+                    state["debrief_step"] = "video_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("Logged 🥋 Got any video from today's session? Send it now or say 'skip'")
                 else:
                     state["debrief_step"] = "injury_check"
                     state["debrief_time"] = datetime.now(TZ)
@@ -1295,6 +1372,40 @@ def webhook():
                 state["debrief_step"] = "injury_check"
                 state["debrief_time"] = datetime.now(TZ)
                 state["_technique_check_pending"] = None
+                return str(resp)
+
+            elif step == "video_check":
+                # Check if this is an MMS with video/image
+                num_media = int(request.form.get('NumMedia', 0))
+                if num_media > 0:
+                    media_url = request.form.get('MediaUrl0', '')
+                    media_type = request.form.get('MediaContentType0', '')
+                    log_id = state.get("_video_technique_log_id")
+                    if media_url and log_id and ('video' in media_type or 'image' in media_type):
+                        resp.message("Got it, uploading your video 📹 This might take a sec...")
+                        video_url = upload_to_cloudinary(media_url)
+                        if video_url:
+                            update_technique_log_video(log_id, video_url)
+                            resp.message("Video saved to your technique folder ✅")
+                        else:
+                            resp.message("Couldn't upload the video, but everything else is saved.")
+                    else:
+                        resp.message("Couldn't process that media, moving on.")
+                else:
+                    # Text response — check for skip
+                    lower = raw_body.lower().strip()
+                    skip_words = ["skip", "no", "nah", "nope", "none", "n/a", "not now"]
+                    if not any(w in lower for w in skip_words):
+                        resp.message("Send the video as a WhatsApp message, or say 'skip' to move on.")
+                        return str(resp)  # stay on this step
+                # Move to technique_folder_check or injury_check
+                state["_video_technique_log_id"] = None
+                pending = state.get("_technique_check_pending")
+                if pending:
+                    state["debrief_step"] = "technique_folder_check"
+                else:
+                    state["debrief_step"] = "injury_check"
+                state["debrief_time"] = datetime.now(TZ)
                 return str(resp)
 
             elif step == "injury_check":
