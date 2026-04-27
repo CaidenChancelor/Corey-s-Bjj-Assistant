@@ -206,6 +206,36 @@ def extract_issue(notes):
         return None
 
 
+def interpret_debrief_reply(step, user_reply, context=None):
+    """Use Claude to intelligently interpret a debrief message.
+    Returns dict with one of: understood/correction/skip/unclear keys."""
+    if not claude:
+        return {"understood": True, "value": user_reply.strip()}
+    ctx = f"\nContext (previous answers): {json.dumps(context)}" if context else ""
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=120,
+            system=(
+                "You interpret replies in a BJJ training debrief. "
+                "Return JSON only — one of these shapes:\n"
+                '{"understood": true, "value": "extracted clean value"}\n'
+                '{"correction": true, "field": "headline", "value": "corrected technique name"} — user is fixing a previous answer\n'
+                '{"skip": true} — user wants to skip\n'
+                '{"unclear": true, "ask": "one short clarifying question"}\n'
+                "For the headline step: extract just the technique name (e.g. 'spider lasso') from natural language like 'we worked on spider lasso today'.\n"
+                "For corrections: detect phrases like 'i meant', 'i mean', 'actually', 'wait', 'no i said', 'correction'.\n"
+                "For skip: detect 'skip', 'no', 'nah', 'nothing', 'n/a'.\n"
+                "Return ONLY valid JSON."
+            ),
+            messages=[{"role": "user", "content": f"Step: {step}\nUser reply: {user_reply}{ctx}"}],
+        )
+        raw = re.sub(r'^```\w*\s*|\s*```$', '', response.content[0].text.strip()).strip()
+        return json.loads(raw)
+    except Exception:
+        return {"understood": True, "value": user_reply.strip()}
+
+
 def classify_message(text):
     """One Claude call → structured intents. Returns dict with water_l, meal, injury keys."""
     empty = {"water_l": None, "meal": None, "injury": None}
@@ -1324,14 +1354,40 @@ def webhook():
             step = state["debrief_step"]
 
             if step == "headline":
-                state["debrief_headline"] = raw_body.strip()
+                interp = interpret_debrief_reply("headline", raw_body)
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "what technique did you work on?"))
+                    return str(resp)
+                if interp.get("skip"):
+                    # Skip debrief entirely
+                    state["debrief_session"] = None
+                    state["debrief_step"] = None
+                    state["debrief_time"] = None
+                    resp.message("all good, no worries 👊")
+                    return str(resp)
+                headline = interp.get("value", raw_body).strip()
+                state["debrief_headline"] = headline
                 state["debrief_step"] = "full_notes"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message(f"nice, {state['debrief_headline']} 👊 give me the full breakdown — what was the set-up, what clicked, what didn't, how many rounds? say as much or as little as you want")
+                resp.message(f"nice, {headline} 👊 give me the full breakdown — what was the set-up, what clicked, what didn't, how many rounds? say as much or as little as you want")
 
             elif step == "full_notes":
+                # Check if this is a correction to the headline
+                interp = interpret_debrief_reply("full_notes", raw_body, {
+                    "headline": state.get("debrief_headline", "")
+                })
+                if interp.get("correction") and interp.get("field") == "headline":
+                    corrected = interp.get("value", raw_body).strip()
+                    state["debrief_headline"] = corrected
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message(f"got it, {corrected} 👊 now give me the full breakdown — what was the set-up, what clicked, what didn't?")
+                    return str(resp)
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "tell me what happened in the session"))
+                    return str(resp)
+                # Use the interpreted value or raw_body
                 headline = state.get("debrief_headline") or ""
-                full_notes = raw_body.strip()
+                full_notes = interp.get("value", raw_body).strip() if interp.get("understood") else raw_body.strip()
                 notes = f"{headline}\n\n{full_notes}".strip()
                 session_type = state["debrief_session"]
                 save_journal_entry(session_type, notes)
@@ -1505,6 +1561,16 @@ def webhook():
                 resp.message(f"logged {body_part} ({severity}) {severity_emoji} all good, everything's saved 💪")
 
             elif step == "problem_check":
+                # Check for corrections to earlier steps
+                interp = interpret_debrief_reply("problem_check", raw_body, {
+                    "headline": state.get("debrief_headline", ""),
+                })
+                if interp.get("correction") and interp.get("field") == "headline":
+                    corrected = interp.get("value", raw_body).strip()
+                    state["debrief_headline"] = corrected
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message(f"updated — technique is {corrected}. anything you kept getting stuck on that you wanna flag for Bruno?")
+                    return str(resp)
                 lower = raw_body.lower()
                 skip_words = ["no", "nah", "nope", "all good", "nothing", "n/a", "na", "not really", "nope"]
                 is_skip = any(w in lower for w in skip_words)
