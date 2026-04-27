@@ -27,6 +27,8 @@ PARTNERS = {
     "God-Killer": "whatsapp:+19544173000",
 }
 
+if not ACCOUNT_SID or not AUTH_TOKEN:
+    logging.warning("TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN not set — bot will not send messages")
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
@@ -44,6 +46,7 @@ chat_history = []
 def init_db():
     os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
+        conn.execute('PRAGMA journal_mode=WAL')  # allow concurrent reader+writer threads
         conn.execute('''CREATE TABLE IF NOT EXISTS journal (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             date       TEXT,
@@ -388,7 +391,7 @@ def get_bruno_recent():
             with _bruno_summary_lock:
                 if jid not in _bruno_summary_cache:
                     _bruno_summary_cache[jid] = summarize_bruno(notes)
-            summary = _bruno_summary_cache[jid]
+                summary = _bruno_summary_cache[jid]
             return {
                 "date": date,
                 "session": session,

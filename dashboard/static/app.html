@@ -2035,7 +2035,7 @@ function Hydration({ onBack }) {
                 </GlassButton>
                 {log.length > 0 && log.some(e => !isBotEntry(e.id)) && <button
                   onClick={() => {
-                    const last = displayLog[0];
+                    const last = displayLog.find(e => !isBotEntry(e.id));
                     if (last) removeEntry(last.id);
                   }}
                   style={{
@@ -3009,7 +3009,12 @@ function WaterHero({ onClick }) {
   const remaining = Math.max(0, goal - total);
 
   // Streak — count consecutive history days hitting goal, plus today if hit
-  const historyDays = [...HYDRATION_HISTORY_SEED, { date: "Today", total }];
+  const historyDays = (() => {
+    const live = window.__bjjdata && Array.isArray(window.__bjjdata.daily_water_7d)
+      ? window.__bjjdata.daily_water_7d.map(d => ({ date: d.date, total: Math.round((d.liters || 0) * 1000) }))
+      : HYDRATION_HISTORY_SEED;
+    return [...live, { date: "Today", total }];
+  })();
   let streak = 0;
   for (let i = historyDays.length - 1; i >= 0; i--) {
     if (historyDays[i].total >= goal) streak++;
