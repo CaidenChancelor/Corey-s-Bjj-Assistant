@@ -625,6 +625,11 @@ state = {
     "water_date": None,          # "YYYY-MM-DD" — resets daily
     "debrief_session": None,     # session type being debriefed after class
     "debrief_time": None,        # datetime when debrief_session was set (H9)
+    "debrief_step": None,        # current step in the debrief interview
+    "debrief_headline": None,    # e.g. "De La Riva passing"
+    "debrief_one_liner": None,   # e.g. "Couldn't stack when he kept hips heavy"
+    "_problem_position": None,
+    "_problem_issue": None,
     "flag_for_bruno": None,      # technique to flag in the next private reminder
     "rest_day": False,           # if True, suppress all session reminders for today
     "rest_day_date": None,       # date the rest day was set
@@ -770,7 +775,10 @@ def checkin_after_drilling():
     state["drilling_time"] = None
     state["debrief_session"] = "Drilling"
     state["debrief_time"] = datetime.now(TZ)
-    send("Drilling done? How'd it feel — what were you working on?")
+    state["debrief_step"] = "headline"
+    state["debrief_headline"] = None
+    state["debrief_one_liner"] = None
+    send("Drilling done! What were you working on today? (just the topic)")
 
 def remind_sc():
     if is_rest_day(): return
@@ -795,7 +803,10 @@ def checkin_after_private():
     if is_rest_day(): return
     state["debrief_session"] = "Private with Bruno"
     state["debrief_time"] = datetime.now(TZ)
-    send("How was the private? What'd you work on?")
+    state["debrief_step"] = "headline"
+    state["debrief_headline"] = None
+    state["debrief_one_liner"] = None
+    send("How was the private today? What was the main thing you worked on? (just the topic, like 'De La Riva passing' or 'closed guard escapes')")
 
 def remind_stretch():
     if is_rest_day(): return
@@ -817,7 +828,10 @@ def checkin_after_evening():
     if is_rest_day(): return
     state["debrief_session"] = "Evening class"
     state["debrief_time"] = datetime.now(TZ)
-    send("How was tonight? What'd Bruno have you drilling?")
+    state["debrief_step"] = "headline"
+    state["debrief_headline"] = None
+    state["debrief_one_liner"] = None
+    send("How was evening class? What did Bruno have you drilling? (just the topic)")
 
 # ── PARTNER MESSAGES ──────────────────────────────────────────────────────────
 
@@ -1008,23 +1022,118 @@ def webhook():
             resp.message(ask_claude(raw_body))
 
     else:
-        # If Corey is debriefing a session, journal it and extract any technique struggle
-        if state.get("debrief_session"):
+        # Multi-step debrief interview
+        if state.get("debrief_session") and state.get("debrief_step"):
             _dbt = state.get("debrief_time")
             if _dbt and (datetime.now(TZ) - _dbt).total_seconds() > 14400:
-                # Debrief question is over 4 hours old — they probably skipped, don't journal
                 state["debrief_session"] = None
                 state["debrief_time"] = None
+                state["debrief_step"] = None
+                state["debrief_headline"] = None
+                state["debrief_one_liner"] = None
                 resp.message(ask_claude(raw_body))
                 return str(resp)
-            session = state["debrief_session"]
-            state["debrief_session"] = None
-            state["debrief_time"] = None
-            save_journal_entry(session, raw_body)
-            issue = extract_issue(raw_body)
-            if issue:
-                state["flag_for_bruno"] = issue
-            resp.message(ask_claude(raw_body))
+
+            step = state["debrief_step"]
+
+            if step == "headline":
+                state["debrief_headline"] = raw_body.strip()
+                state["debrief_step"] = "one_liner"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message(f"Got it — {state['debrief_headline']}. Give me a one-liner: what was the big takeaway or main issue from today?")
+
+            elif step == "one_liner":
+                state["debrief_one_liner"] = raw_body.strip()
+                state["debrief_step"] = "full_notes"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("Full notes — set-up, what clicked or didn't click, how many rounds? Write as much or as little as you want.")
+
+            elif step == "full_notes":
+                headline = state.get("debrief_headline") or ""
+                one_liner = state.get("debrief_one_liner") or ""
+                full_notes = raw_body.strip()
+                notes = f"{headline}\n{one_liner}\n\n{full_notes}".strip()
+                session_type = state["debrief_session"]
+                save_journal_entry(session_type, notes)
+                issue = extract_issue(notes)
+                if issue:
+                    state["flag_for_bruno"] = issue
+                state["debrief_step"] = "injury_check"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("Logged 🥋 Anything feel off physically? Any tweaks, soreness, or pain?")
+
+            elif step == "injury_check":
+                lower = raw_body.lower()
+                skip_words = ["no", "nah", "nope", "all good", "fine", "nothing", "n/a", "na", "good", "im good", "i'm good", "feels good"]
+                is_skip = any(w in lower for w in skip_words)
+                if is_skip:
+                    state["debrief_step"] = "problem_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("Any technique you kept getting stuck on or want to flag for Bruno?")
+                else:
+                    save_injury(raw_body.strip(), "minor", raw_body.strip())
+                    state["debrief_step"] = "problem_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("Got it, logged that injury 🩹 Any technique you kept getting stuck on or want to flag for Bruno?")
+
+            elif step == "problem_check":
+                lower = raw_body.lower()
+                skip_words = ["no", "nah", "nope", "all good", "nothing", "n/a", "na", "not really", "nope"]
+                is_skip = any(w in lower for w in skip_words)
+                if is_skip:
+                    state["debrief_session"] = None
+                    state["debrief_step"] = None
+                    state["debrief_headline"] = None
+                    state["debrief_one_liner"] = None
+                    state["debrief_time"] = None
+                    resp.message("All good, I've got everything logged. Keep grinding 💪")
+                else:
+                    state["debrief_step"] = "problem_position"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("What position was it? (e.g. 'spider lasso', 'double leg finish', 'closed guard escape')")
+
+            elif step == "problem_position":
+                state["_problem_position"] = raw_body.strip()
+                state["debrief_step"] = "problem_issue"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message(f"Got it — {raw_body.strip()}. What exactly was the issue? Where does it break down?")
+
+            elif step == "problem_issue":
+                state["_problem_issue"] = raw_body.strip()
+                state["debrief_step"] = "problem_tier"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("How big of a problem is it right now — low, medium, high, or urgent?")
+
+            elif step == "problem_tier":
+                raw_tier = raw_body.lower().strip()
+                tier_map = {
+                    "low": "low", "l": "low",
+                    "medium": "med", "med": "med", "m": "med",
+                    "high": "high", "h": "high",
+                    "urgent": "urgent", "u": "urgent", "asap": "urgent"
+                }
+                tier = tier_map.get(raw_tier, "med")
+                position = state.get("_problem_position", "")
+                issue = state.get("_problem_issue", "")
+                description = issue
+                try:
+                    with sqlite3.connect(DB_PATH) as conn:
+                        conn.execute(
+                            'INSERT INTO problems (name, tier, description, created_at) VALUES (?,?,?,?)',
+                            (position, tier, description, datetime.now(TZ).isoformat())
+                        )
+                        conn.commit()
+                except Exception as e:
+                    logging.error(f"Problem save error: {e}")
+                state["debrief_session"] = None
+                state["debrief_step"] = None
+                state["debrief_headline"] = None
+                state["debrief_one_liner"] = None
+                state["debrief_time"] = None
+                state["_problem_position"] = None
+                state["_problem_issue"] = None
+                resp.message(f"Flagged — {position} ({tier}) 📌 I'll make sure Bruno knows. Keep grinding 💪")
+
             return str(resp)
 
         # Try classifying the message as water / meal / injury logging before falling to chat

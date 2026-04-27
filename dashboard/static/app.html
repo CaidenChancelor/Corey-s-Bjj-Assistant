@@ -3508,6 +3508,15 @@ function ProblemsTile({ onClick }) {
       <Eyebrow>upcoming problems</Eyebrow>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {display.length === 0 && (
+          <div style={{
+            padding: "20px 0",
+            textAlign: "center",
+            fontSize: 14,
+            color: "rgba(29,29,31,0.4)",
+            fontStyle: "italic"
+          }}>No current issues</div>
+        )}
         {display.map((p, i) => {
           const isUrgent = p.tier === "urgent";
           return (
