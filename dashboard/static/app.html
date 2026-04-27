@@ -923,6 +923,7 @@ function NavPill({ active, onChange }) {
             const isActive = active === t;
             return (
               <div key={t} onClick={() => onChange(t)}
+                className="nav-pill-tab"
                 style={{
                   padding: "7px 16px", borderRadius: 980,
                   fontSize: 13.5, fontWeight: 500,
@@ -1935,7 +1936,7 @@ function Hydration({ onBack }) {
   const lastSip = displayLog[0]?.time || "—";
 
   return (
-    <div className="hy-page" style={{ minHeight: "100vh", paddingTop: 90, paddingBottom: 120, paddingLeft: 24, paddingRight: 24 }}>
+    <div className="hy-page" style={{ minHeight: "100vh", paddingTop: 90, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 1140, margin: "0 auto" }}>
         {/* Header */}
         <button onClick={onBack} style={{
@@ -2879,7 +2880,7 @@ function LogRow({ entry, isLast, onDelete }) {
         onClick={onDelete}
         aria-label="Delete entry"
         style={{
-          width: 28, height: 28, borderRadius: "50%",
+          width: 40, height: 40, borderRadius: "50%",
           border: "none",
           background: hover ? "rgba(224,38,74,0.10)" : "transparent",
           cursor: "pointer",
@@ -3843,7 +3844,7 @@ function MessageRow({ role, body, time }) {
 
 function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries }) {
   return (
-    <div className="dash-page" style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: 24, paddingRight: 24 }}>
+    <div className="dash-page" style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 1180, margin: "0 auto" }}>
         {/* greeting */}
         <div style={{ marginBottom: 32, paddingLeft: 4 }}>
@@ -4218,7 +4219,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
   const editingLesson = lessons.find((l) => l.id === editingId);
 
   return (
-    <div style={{ paddingTop: 100, paddingBottom: 120, paddingLeft: 24, paddingRight: 24 }}>
+    <div style={{ paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 880, margin: "0 auto" }}>
         {/* Back */}
         <button
@@ -4375,7 +4376,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 520, maxHeight: "calc(100vh - 48px)",
+          width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
           background: "#fff", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
@@ -4491,7 +4492,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
 }
 
 const inputStyle = {
-  width: "100%", padding: "11px 14px", fontSize: 14.5,
+  width: "100%", padding: "11px 14px", fontSize: 16,
   border: "1px solid rgba(0,0,0,0.12)", borderRadius: 10,
   outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
   color: "#1d1d1f",
@@ -4702,7 +4703,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
 
   if (!lesson) {
     return (
-      <div style={{ paddingTop: 100, paddingLeft: 24, paddingRight: 24, textAlign: "center" }}>
+      <div style={{ paddingTop: 100, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)", textAlign: "center" }}>
         <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(29,29,31,0.62)" }}>← Back</button>
         <div style={{ marginTop: 24, fontSize: 16, color: "rgba(29,29,31,0.55)" }}>This lesson was deleted.</div>
       </div>
@@ -4720,7 +4721,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
   };
 
   return (
-    <div style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: 24, paddingRight: 24 }}>
+    <div style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 720, margin: "0 auto" }}>
         {/* Back + actions row */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -5182,7 +5183,7 @@ function Meals({ onBack }) {
   const detailMeal   = detailId  ? meals.find((m) => m.id === detailId)  : null;
 
   return (
-    <div style={{ paddingTop: 100, paddingBottom: 120, paddingLeft: 24, paddingRight: 24 }}>
+    <div style={{ paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 880, margin: "0 auto" }}>
         {/* Back */}
         <button
@@ -5458,7 +5459,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 540, maxHeight: "calc(100vh - 48px)",
+          width: "100%", maxWidth: 540, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
           background: "#fff", borderRadius: 24, padding: "28px 32px 24px",
           border: "1px solid rgba(0,0,0,0.06)",
@@ -5646,7 +5647,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "100%", maxWidth: 520, maxHeight: "calc(100vh - 48px)",
+          width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
           background: "#fff", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
@@ -5661,7 +5662,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         </div>
 
         {/* Time + Label */}
-        <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 10, marginBottom: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(80px, 120px) 1fr", gap: 10, marginBottom: 12 }}>
           <MealField label="Time">
             <input
               value={time}
@@ -5774,7 +5775,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
 }
 
 const mealInputStyle = {
-  width: "100%", padding: "11px 14px", fontSize: 14.5,
+  width: "100%", padding: "11px 14px", fontSize: 16,
   border: "1px solid rgba(0,0,0,0.12)", borderRadius: 10,
   outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
   color: "#1d1d1f",
@@ -5965,7 +5966,7 @@ function Problems({ onBack }) {
   const detailProblem  = problems.find((p) => p.id === detailId);
 
   return (
-    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: 24, paddingRight: 24 }}>
+    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
@@ -6335,7 +6336,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) submit(); }}
           placeholder="e.g. Half-guard bottom"
           style={{
-            width: "100%", padding: "12px 14px", fontSize: 15,
+            width: "100%", padding: "12px 14px", fontSize: 16,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
             outline: "none", marginBottom: 14, fontFamily: "inherit", boxSizing: "border-box",
           }}
@@ -6348,7 +6349,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
           placeholder="What's the issue? Where does it break down?"
           rows={4}
           style={{
-            width: "100%", padding: "12px 14px", fontSize: 14, lineHeight: 1.5,
+            width: "100%", padding: "12px 14px", fontSize: 16, lineHeight: 1.5,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
             outline: "none", marginBottom: 16, fontFamily: "inherit", boxSizing: "border-box",
             resize: "vertical", minHeight: 80,
@@ -6523,7 +6524,7 @@ function MicroInjuries({ onBack }) {
   const detailInjury  = injuries.find((p) => p.id === detailId);
 
   return (
-    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: 24, paddingRight: 24 }}>
+    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
@@ -6916,7 +6917,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           background: "#fff", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
-          maxHeight: "calc(100vh - 48px)", overflowY: "auto",
+          maxHeight: "calc(100dvh - 48px)", overflowY: "auto",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
@@ -6952,7 +6953,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
               value={region}
               onChange={(e) => setRegion(e.target.value)}
               style={{
-                width: "100%", padding: "11px 12px", fontSize: 14,
+                width: "100%", padding: "11px 12px", fontSize: 16,
                 border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
                 outline: "none", fontFamily: "inherit", boxSizing: "border-box",
                 background: "#fff", color: "#1d1d1f", cursor: "pointer",
@@ -6978,7 +6979,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
               onChange={(e) => setRest(e.target.value)}
               placeholder="e.g. 2 more rest days"
               style={{
-                width: "100%", padding: "11px 12px", fontSize: 14,
+                width: "100%", padding: "11px 12px", fontSize: 16,
                 border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
                 outline: "none", fontFamily: "inherit", boxSizing: "border-box",
               }}
@@ -6993,7 +6994,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           placeholder="What happened? What aggravates it?"
           rows={4}
           style={{
-            width: "100%", padding: "12px 14px", fontSize: 14, lineHeight: 1.5,
+            width: "100%", padding: "12px 14px", fontSize: 16, lineHeight: 1.5,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
             outline: "none", marginBottom: 16, fontFamily: "inherit", boxSizing: "border-box",
             resize: "vertical", minHeight: 80,
