@@ -5173,6 +5173,19 @@ const CAL_GOAL = 2800;
 
 function Meals({ onBack }) {
   const [meals, setMeals] = useStateMeals(() => {
+    const liveMeals = window.__bjjdata && Array.isArray(window.__bjjdata.meals_today) && window.__bjjdata.meals_today.length > 0
+      ? window.__bjjdata.meals_today.map(m => ({
+          id: String(m.id),
+          time: m.time || "00:00",
+          label: m.name,
+          calories: m.calories || 0,
+          macros: { p: 0, c: 0, f: 0 },
+          items: [m.name],
+          notes: m.notes || "",
+          kind: m.kind || "other",
+        }))
+      : null;
+    if (liveMeals) return liveMeals;
     try {
       const raw = localStorage.getItem("meals_today_v2");
       if (raw) return JSON.parse(raw);
@@ -5995,7 +6008,15 @@ function Problems({ onBack }) {
     setEditingId(null);
   };
 
-  const sorted = sortProblems(problems, pinned, sortMode);
+  const liveProblems = window.__bjjdata && Array.isArray(window.__bjjdata.all_problems) && window.__bjjdata.all_problems.length > 0
+    ? window.__bjjdata.all_problems.map((p, i) => ({
+        id: `bot-problem-${i}`,
+        name: p.name,
+        tier: p.tier || "med",
+        description: p.source === "active" ? "Currently flagged for your next Bruno session." : "Extracted from recent training notes.",
+      }))
+    : null;
+  const sorted = sortProblems(liveProblems || problems, pinned, sortMode);
   const confirmProblem = problems.find((p) => p.id === confirmId);
   const editingProblem = problems.find((p) => p.id === editingId);
   const detailProblem  = problems.find((p) => p.id === detailId);
@@ -6553,7 +6574,20 @@ function MicroInjuries({ onBack }) {
     setEditingId(null);
   };
 
-  const sorted = sortMicroInjuries(injuries, pinned, sortMode);
+  const botSevMap = { minor: "watch", moderate: "fresh", severe: "critical" };
+  const liveInjuries = window.__bjjdata && Array.isArray(window.__bjjdata.all_injuries) && window.__bjjdata.all_injuries.length > 0
+    ? window.__bjjdata.all_injuries.map(inj => ({
+        id: `bot-injury-${inj.id}`,
+        name: inj.body_part,
+        severity: botSevMap[inj.severity] || "watch",
+        region: "other",
+        rest: inj.resolved ? "resolved" : "monitor",
+        description: inj.notes || "",
+        date: inj.date,
+        resolved: inj.resolved,
+      }))
+    : null;
+  const sorted = sortMicroInjuries(liveInjuries || injuries, pinned, sortMode);
   const confirmInjury = injuries.find((p) => p.id === confirmId);
   const editingInjury = injuries.find((p) => p.id === editingId);
   const detailInjury  = injuries.find((p) => p.id === detailId);

@@ -235,6 +235,20 @@ def get_recent_meal():
         return None
 
 
+def get_all_meals_today():
+    """Return all meals logged today for the dashboard Meals page."""
+    today = datetime.now(TZ).strftime('%Y-%m-%d')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT id, time, name, calories, kind, notes FROM meals WHERE date = ? ORDER BY time ASC',
+                (today,)
+            ).fetchall()
+        return [{"id": r[0], "time": r[1], "name": r[2], "calories": r[3], "kind": r[4], "notes": r[5]} for r in rows]
+    except Exception:
+        return []
+
+
 def save_injury(body_part, severity, notes):
     now = datetime.now(TZ)
     try:
@@ -258,6 +272,45 @@ def get_active_injuries():
             return [{"body_part": r[0], "severity": r[1], "notes": r[2], "date": r[3]} for r in rows]
     except Exception:
         return []
+
+
+def get_all_injuries():
+    """Return all injuries (active + resolved) for the dashboard Micro-Injuries page."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT id, date, body_part, severity, notes, resolved FROM injuries ORDER BY created_at DESC LIMIT 20'
+            ).fetchall()
+        return [{"id": r[0], "date": r[1], "body_part": r[2], "severity": r[3], "notes": r[4], "resolved": bool(r[5])} for r in rows]
+    except Exception:
+        return []
+
+
+def get_all_problems():
+    """Return all flagged technique problems from journal history."""
+    problems = []
+    # Current active flag
+    if state.get("flag_for_bruno"):
+        problems.append({"name": state["flag_for_bruno"], "tier": "urgent", "source": "active"})
+    # Recent journal entries with extracted issues
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT notes FROM journal ORDER BY created_at DESC LIMIT 30'
+            ).fetchall()
+        seen = {p["name"].lower() for p in problems}
+        for (notes,) in rows:
+            if not notes:
+                continue
+            issue = extract_issue(notes)
+            if issue and issue.lower() not in seen:
+                problems.append({"name": issue, "tier": "med", "source": "journal"})
+                seen.add(issue.lower())
+                if len(problems) >= 8:
+                    break
+    except Exception:
+        pass
+    return problems
 
 
 def get_streak_days():
@@ -1036,9 +1089,12 @@ def api_status():
         "calorie_goal": CALORIE_GOAL,
         "calorie_remaining": max(0, CALORIE_GOAL - cal_today),
         "recent_meal": get_recent_meal(),
+        "meals_today": get_all_meals_today(),
         # injuries
         "injuries_active": injuries,
         "injuries_count": len(injuries),
+        "all_injuries": get_all_injuries(),
+        "all_problems": get_all_problems(),
         # logs
         "recent_messages": recent_messages,
         "journal": [
