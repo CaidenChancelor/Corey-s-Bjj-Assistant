@@ -1030,7 +1030,7 @@ def checkin_after_drilling():
     state["debrief_step"] = "headline"
     state["debrief_headline"] = None
     state["debrief_one_liner"] = None
-    send("Drilling done! What were you working on today? (just the topic)")
+    send("yo how was drilling, what were you guys working on?")
 
 def remind_sc():
     if is_rest_day(): return
@@ -1058,7 +1058,7 @@ def checkin_after_private():
     state["debrief_step"] = "headline"
     state["debrief_headline"] = None
     state["debrief_one_liner"] = None
-    send("How was the private today? What was the main thing you worked on? (just the topic, like 'De La Riva passing' or 'closed guard escapes')")
+    send("yo how was the private, what did you and Bruno work on today?")
 
 def remind_stretch():
     if is_rest_day(): return
@@ -1083,7 +1083,7 @@ def checkin_after_evening():
     state["debrief_step"] = "headline"
     state["debrief_headline"] = None
     state["debrief_one_liner"] = None
-    send("How was evening class? What did Bruno have you drilling? (just the topic)")
+    send("yo how was class tonight, what were you working on?")
 
 # ── PARTNER MESSAGES ──────────────────────────────────────────────────────────
 
@@ -1293,13 +1293,13 @@ def webhook():
                 state["debrief_headline"] = raw_body.strip()
                 state["debrief_step"] = "one_liner"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message(f"Got it — {state['debrief_headline']}. Give me a one-liner: what was the big takeaway or main issue from today?")
+                resp.message(f"nice, {state['debrief_headline']} 👊 give me a one liner — what was the main takeaway or issue?")
 
             elif step == "one_liner":
                 state["debrief_one_liner"] = raw_body.strip()
                 state["debrief_step"] = "full_notes"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message("Full notes — set-up, what clicked or didn't click, how many rounds? Write as much or as little as you want.")
+                resp.message("aight now give me the full breakdown — what was the set-up, what clicked, what didn't, how many rounds? say as much or as little as you want")
 
             elif step == "full_notes":
                 headline = state.get("debrief_headline") or ""
@@ -1335,15 +1335,15 @@ def webhook():
                     state["debrief_step"] = "video_check"
                     state["debrief_time"] = datetime.now(TZ)
                     state["_technique_check_pending"] = tech_name
-                    resp.message("Logged 🥋 Got any video from today's session? Send it now or say 'skip'")
+                    resp.message("logged 🥋 you got any video from today? send it or say skip")
                 elif last_log_id:
                     state["debrief_step"] = "video_check"
                     state["debrief_time"] = datetime.now(TZ)
-                    resp.message("Logged 🥋 Got any video from today's session? Send it now or say 'skip'")
+                    resp.message("logged 🥋 you got any video from today? send it or say skip")
                 else:
                     state["debrief_step"] = "injury_check"
                     state["debrief_time"] = datetime.now(TZ)
-                    resp.message("Logged 🥋 Anything feel off physically? Any tweaks or soreness?")
+                    resp.message("logged 🥋 anything feel off? any tweaks or soreness?")
 
             elif step == "technique_folder_check":
                 tech_name = state.get("_technique_check_pending", "")
@@ -1415,7 +1415,7 @@ def webhook():
                 if is_skip:
                     state["debrief_step"] = "problem_check"
                     state["debrief_time"] = datetime.now(TZ)
-                    resp.message("Any technique you kept getting stuck on or want to flag for Bruno?")
+                    resp.message("anything you kept getting stuck on that you wanna flag for Bruno?")
                 else:
                     state["_injury_body_part"] = raw_body.strip()
                     state["debrief_step"] = "injury_severity"
@@ -1465,7 +1465,7 @@ def webhook():
                 state["debrief_step"] = "problem_check"
                 state["debrief_time"] = datetime.now(TZ)
                 severity_emoji = {"managing": "🩹", "watch": "👀", "fresh": "🩼", "critical": "🚨"}.get(severity, "🩹")
-                resp.message(f"Logged {body_part} ({severity}) {severity_emoji}\n\nAny technique you kept getting stuck on or want to flag for Bruno?")
+                resp.message(f"Logged {body_part} ({severity}) {severity_emoji}\n\nanything you kept getting stuck on that you wanna flag for Bruno?")
 
             elif step == "problem_check":
                 lower = raw_body.lower()
@@ -1481,19 +1481,19 @@ def webhook():
                 else:
                     state["debrief_step"] = "problem_position"
                     state["debrief_time"] = datetime.now(TZ)
-                    resp.message("What position was it? (e.g. 'spider lasso', 'double leg finish', 'closed guard escape')")
+                    resp.message("what position was it?")
 
             elif step == "problem_position":
                 state["_problem_position"] = raw_body.strip()
                 state["debrief_step"] = "problem_issue"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message(f"Got it — {raw_body.strip()}. What exactly was the issue? Where does it break down?")
+                resp.message(f"got it, {raw_body.strip()} — what's the issue with it? where does it break down?")
 
             elif step == "problem_issue":
                 state["_problem_issue"] = raw_body.strip()
                 state["debrief_step"] = "problem_tier"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message("How big of a problem is it right now — low, medium, high, or urgent?")
+                resp.message("how bad is it rn — low, medium, high, or urgent?")
 
             elif step == "problem_tier":
                 raw_tier = raw_body.lower().strip()
