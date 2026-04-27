@@ -1180,7 +1180,7 @@ function _writeLS(key, val) {
 }
 
 function getProblems() {
-  if (_problemsCache === null) _problemsCache = _readLS("problems_list", PROBLEMS_DEFAULT);
+  if (_problemsCache === null) _problemsCache = _readLS("problems_list", []);
   return _problemsCache;
 }
 function getPinned() {
@@ -1352,7 +1352,7 @@ function _miWriteLS(key, val) {
 }
 
 function getMicroInjuries() {
-  if (_microInjuriesCache === null) _microInjuriesCache = _miReadLS("micro_injuries_list", MICRO_INJURIES_DEFAULT);
+  if (_microInjuriesCache === null) _microInjuriesCache = _miReadLS("micro_injuries_list", []);
   return _microInjuriesCache;
 }
 function getMicroInjuriesPinned() {
@@ -1481,7 +1481,7 @@ function getHydrationLog() {
         _hyLog = [];
       }
     } else {
-      _hyLog = _hReadLS("hydration_log", HYDRATION_SEED_LOG);
+      _hyLog = _hReadLS("hydration_log", []);
     }
   }
   return _hyLog;
@@ -1710,7 +1710,7 @@ function getBrunoLessons() {
         };
       });
     } else {
-      _brunoCache = _bReadLS("bruno_lessons", BRUNO_DEFAULT);
+      _brunoCache = _bReadLS("bruno_lessons", []);
     }
   }
   return _brunoCache;
@@ -1912,7 +1912,7 @@ function Hydration({ onBack }) {
       ? window.__bjjdata.daily_water_7d.map(d => ({
           date: d.date, total: Math.round((d.liters || 0) * 1000)
         }))
-      : HYDRATION_HISTORY_SEED;
+      : [];
     return [...live, { date: "Today", total }];
   })();
 
@@ -3014,7 +3014,7 @@ function WaterHero({ onClick }) {
   const historyDays = (() => {
     const live = window.__bjjdata && Array.isArray(window.__bjjdata.daily_water_7d)
       ? window.__bjjdata.daily_water_7d.map(d => ({ date: d.date, total: Math.round((d.liters || 0) * 1000) }))
-      : HYDRATION_HISTORY_SEED;
+      : [];
     return [...live, { date: "Today", total }];
   })();
   let streak = 0;
@@ -3942,12 +3942,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 const live = window.__bjjdata && Array.isArray(window.__bjjdata.recent_messages)
                   ? window.__bjjdata.recent_messages.slice(-8)
                   : null;
-                const msgs = (live && live.length > 0) ? live : [
-                  { role: "assistant", content: "How did rolling feel today compared to Monday?" },
-                  { role: "user",      content: "Tighter on top. Lost top control twice when I overcommitted." },
-                  { role: "assistant", content: "Try staying chest-to-chest one beat longer before going for the pass." },
-                  { role: "user",      content: "Drilled that for 20 min after class. Way smoother." },
-                ];
+                const msgs = (live && live.length > 0) ? live : [];
                 return msgs.map((m, i) => (
                   <MessageRow
                     key={i}
@@ -5190,7 +5185,7 @@ function Meals({ onBack }) {
       const raw = localStorage.getItem("meals_today_v2");
       if (raw) return JSON.parse(raw);
     } catch {}
-    return MEALS_DEFAULT;
+    return [];
   });
   const [confirmId, setConfirmId] = useStateMeals(null);
   const [editingId, setEditingId] = useStateMeals(null);
