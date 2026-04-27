@@ -1180,21 +1180,21 @@ function _writeLS(key, val) {
 }
 
 function getProblems() {
-  if (_problemsCache === null) _problemsCache = _readLS("problems_list", []);
+  if (_problemsCache === null) _problemsCache = _readLS("problems_list_v2", []);
   return _problemsCache;
 }
 function getPinned() {
-  if (_pinnedCache === null) _pinnedCache = _readLS("problems_pinned", []);
+  if (_pinnedCache === null) _pinnedCache = _readLS("problems_pinned_v2", []);
   return _pinnedCache;
 }
 function setProblems(next) {
   _problemsCache = typeof next === "function" ? next(getProblems()) : next;
-  _writeLS("problems_list", _problemsCache);
+  _writeLS("problems_list_v2", _problemsCache);
   _problemsListeners.forEach((fn) => fn());
 }
 function setPinned(next) {
   _pinnedCache = typeof next === "function" ? next(getPinned()) : next;
-  _writeLS("problems_pinned", _pinnedCache);
+  _writeLS("problems_pinned_v2", _pinnedCache);
   _problemsListeners.forEach((fn) => fn());
 }
 function subscribeProblems(fn) {
@@ -1352,21 +1352,21 @@ function _miWriteLS(key, val) {
 }
 
 function getMicroInjuries() {
-  if (_microInjuriesCache === null) _microInjuriesCache = _miReadLS("micro_injuries_list", []);
+  if (_microInjuriesCache === null) _microInjuriesCache = _miReadLS("micro_injuries_list_v2", []);
   return _microInjuriesCache;
 }
 function getMicroInjuriesPinned() {
-  if (_microInjuriesPinnedCache === null) _microInjuriesPinnedCache = _miReadLS("micro_injuries_pinned", []);
+  if (_microInjuriesPinnedCache === null) _microInjuriesPinnedCache = _miReadLS("micro_injuries_pinned_v2", []);
   return _microInjuriesPinnedCache;
 }
 function setMicroInjuries(next) {
   _microInjuriesCache = typeof next === "function" ? next(getMicroInjuries()) : next;
-  _miWriteLS("micro_injuries_list", _microInjuriesCache);
+  _miWriteLS("micro_injuries_list_v2", _microInjuriesCache);
   _microInjuriesListeners.forEach((fn) => fn());
 }
 function setMicroInjuriesPinned(next) {
   _microInjuriesPinnedCache = typeof next === "function" ? next(getMicroInjuriesPinned()) : next;
-  _miWriteLS("micro_injuries_pinned", _microInjuriesPinnedCache);
+  _miWriteLS("micro_injuries_pinned_v2", _microInjuriesPinnedCache);
   _microInjuriesListeners.forEach((fn) => fn());
 }
 function subscribeMicroInjuries(fn) {
@@ -1481,7 +1481,7 @@ function getHydrationLog() {
         _hyLog = [];
       }
     } else {
-      _hyLog = _hReadLS("hydration_log", []);
+      _hyLog = _hReadLS("hydration_log_v2", []);
     }
   }
   return _hyLog;
@@ -1499,7 +1499,7 @@ function getHydrationGoal() {
 }
 function setHydrationLog(next) {
   _hyLog = typeof next === "function" ? next(getHydrationLog()) : next;
-  _hWriteLS("hydration_log", _hyLog);
+  _hWriteLS("hydration_log_v2", _hyLog);
   _hyListeners.forEach((fn) => fn());
 }
 function setHydrationGoal(next) {
@@ -1710,23 +1710,23 @@ function getBrunoLessons() {
         };
       });
     } else {
-      _brunoCache = _bReadLS("bruno_lessons", []);
+      _brunoCache = _bReadLS("bruno_lessons_v2", []);
     }
   }
   return _brunoCache;
 }
 function getBrunoPinned() {
-  if (_brunoPinnedCache === null) _brunoPinnedCache = _bReadLS("bruno_pinned", []);
+  if (_brunoPinnedCache === null) _brunoPinnedCache = _bReadLS("bruno_pinned_v2", []);
   return _brunoPinnedCache;
 }
 function setBrunoLessons(next) {
   _brunoCache = typeof next === "function" ? next(getBrunoLessons()) : next;
-  _bWriteLS("bruno_lessons", _brunoCache);
+  _bWriteLS("bruno_lessons_v2", _brunoCache);
   _brunoListeners.forEach((fn) => fn());
 }
 function setBrunoPinned(next) {
   _brunoPinnedCache = typeof next === "function" ? next(getBrunoPinned()) : next;
-  _bWriteLS("bruno_pinned", _brunoPinnedCache);
+  _bWriteLS("bruno_pinned_v2", _brunoPinnedCache);
   _brunoListeners.forEach((fn) => fn());
 }
 function subscribeBruno(fn) {
