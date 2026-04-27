@@ -4415,8 +4415,9 @@ function Editor() {
   };
 
   const onSend = handleSend;
-  // Feature 1: show quick actions when input is empty
-  const showQuickActions = !value.trim();
+  // Feature 1: always show quick actions (especially important on mobile where
+  // the keyboard hides the empty state before the user can see chips)
+  const showQuickActions = true;
 
   return (
     <div style={{
@@ -4485,14 +4486,20 @@ function Editor() {
           )}
         </div>
 
-        {/* Feature 1: Quick action chips — visible when input is empty */}
+        {/* Feature 1: Quick action chips — always visible, scrollable on mobile */}
         {showQuickActions && (
-          <div style={{
-            display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10,
-            scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
-          }}>
+          <div
+            className="editor-chips"
+            style={{
+              display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10,
+              scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
+              scrollSnapType: "x proximity",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
             <style>{`
-              .quick-chips-row::-webkit-scrollbar { display: none; }
+              .editor-chips::-webkit-scrollbar { display: none; }
+              .editor-chips { -ms-overflow-style: none; scrollbar-width: none; }
               .quick-chip:hover { background: rgba(122,92,255,0.12) !important; border-color: rgba(122,92,255,0.4) !important; }
             `}</style>
             {QUICK_ACTIONS.map((action) => (
@@ -4502,17 +4509,21 @@ function Editor() {
                 onClick={() => handleSend(action)}
                 style={{
                   flexShrink: 0,
-                  padding: "7px 14px",
+                  scrollSnapAlign: "start",
+                  padding: "9px 16px",
+                  minHeight: 36,
                   borderRadius: 980,
                   background: "rgba(122,92,255,0.06)",
                   border: "1px solid rgba(122,92,255,0.22)",
-                  fontSize: 13,
+                  fontSize: 14,
                   color: "#5a40cc",
                   letterSpacing: "-0.01em",
                   cursor: "pointer",
                   fontFamily: "var(--font-text)",
                   whiteSpace: "nowrap",
                   transition: "background 0.15s ease, border-color 0.15s ease",
+                  WebkitTapHighlightColor: "transparent",
+                  touchAction: "manipulation",
                 }}
               >{action}</button>
             ))}

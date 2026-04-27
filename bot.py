@@ -1495,20 +1495,27 @@ def webhook():
 
             elif step == "injury_check":
                 lower = raw_body.lower()
-                skip_words = ["no", "nah", "nope", "all good", "fine", "nothing", "n/a", "na", "good", "im good", "i'm good", "feels good", "feel good", "nothing wrong"]
-                is_skip = any(w in lower for w in skip_words)
-                if is_skip:
-                    # End the debrief
+                clear_skip = ["no", "nah", "nope", "all good", "fine", "nothing", "n/a", "na", "good", "im good", "i'm good", "feels good", "feel good", "nothing wrong"]
+                if any(w in lower for w in clear_skip):
                     state["debrief_session"] = None
                     state["debrief_step"] = None
                     state["debrief_headline"] = None
                     state["debrief_time"] = None
                     resp.message("all good, everything's logged 💪 keep grinding")
                 else:
-                    state["_injury_body_part"] = raw_body.strip()
-                    state["debrief_step"] = "injury_severity"
-                    state["debrief_time"] = datetime.now(TZ)
-                    resp.message(f"Got it — {raw_body.strip()}. How bad is it?\n\n• *Managing* — minor, barely noticeable\n• *Watch* — noticeable, keeping an eye on it\n• *Fresh* — happened recently, needs attention\n• *Critical* — serious, may need to stop training")
+                    interp = interpret_debrief_reply("injury_check", raw_body)
+                    if interp.get("skip"):
+                        state["debrief_session"] = None
+                        state["debrief_step"] = None
+                        state["debrief_headline"] = None
+                        state["debrief_time"] = None
+                        resp.message("all good, everything's logged 💪 keep grinding")
+                    else:
+                        body_part = interp.get("value", raw_body).strip()
+                        state["_injury_body_part"] = body_part
+                        state["debrief_step"] = "injury_severity"
+                        state["debrief_time"] = datetime.now(TZ)
+                        resp.message(f"got it — {body_part}. how bad is it?\n\n• *Managing* — minor, barely noticeable\n• *Watch* — noticeable, keeping an eye on it\n• *Fresh* — happened recently, needs attention\n• *Critical* — serious, may need to stop training")
 
             elif step == "injury_severity":
                 lower = raw_body.lower().strip()
@@ -1528,13 +1535,20 @@ def webhook():
                 resp.message("What happened? Describe it — how it occurred, what makes it worse, anything relevant.")
 
             elif step == "injury_description":
-                state["_injury_description"] = raw_body.strip()
+                interp = interpret_debrief_reply("injury_description", raw_body, {
+                    "body_part": state.get("_injury_body_part", "")
+                })
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "describe what happened — how did it occur, what makes it worse?"))
+                    return str(resp)
+                state["_injury_description"] = interp.get("value", raw_body).strip()
                 state["debrief_step"] = "injury_rest_plan"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message("What's your rest plan?\n\n• Resting it\n• Getting PT\n• Training through it\n• Not sure yet")
+                resp.message("what's your rest plan?\n\n• Resting it\n• Getting PT\n• Training through it\n• Not sure yet")
 
             elif step == "injury_rest_plan":
-                rest_plan = raw_body.strip()
+                interp = interpret_debrief_reply("injury_rest_plan", raw_body)
+                rest_plan = interp.get("value", raw_body).strip()
                 body_part = state.get("_injury_body_part", "")
                 severity = state.get("_injury_severity", "watch")
                 description = state.get("_injury_description", "")
@@ -1585,13 +1599,28 @@ def webhook():
                     resp.message("what position was it?")
 
             elif step == "problem_position":
-                state["_problem_position"] = raw_body.strip()
+                interp = interpret_debrief_reply("problem_position", raw_body)
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "what position specifically?"))
+                    return str(resp)
+                if interp.get("skip"):
+                    state["debrief_step"] = "video_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("you got any video from today? send it or say skip")
+                    return str(resp)
+                state["_problem_position"] = interp.get("value", raw_body).strip()
                 state["debrief_step"] = "problem_issue"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message(f"got it, {raw_body.strip()} — what's the issue with it? where does it break down?")
+                resp.message(f"got it, {state['_problem_position']} — what's the issue with it? where does it break down?")
 
             elif step == "problem_issue":
-                state["_problem_issue"] = raw_body.strip()
+                interp = interpret_debrief_reply("problem_issue", raw_body, {
+                    "position": state.get("_problem_position", "")
+                })
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "describe the issue — where does it break down?"))
+                    return str(resp)
+                state["_problem_issue"] = interp.get("value", raw_body).strip()
                 state["debrief_step"] = "problem_tier"
                 state["debrief_time"] = datetime.now(TZ)
                 resp.message("how much of a priority is this for Bruno — low, medium, high, or urgent?")
