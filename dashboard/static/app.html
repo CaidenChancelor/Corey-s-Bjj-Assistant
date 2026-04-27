@@ -6982,7 +6982,10 @@ function MicroInjuries({ onBack }) {
     }
   };
 
-  const botSevMap = { minor: "watch", moderate: "fresh", severe: "critical" };
+  const botSevMap = {
+    minor: "watch", moderate: "fresh", severe: "critical",
+    watch: "watch", fresh: "fresh", critical: "critical", managing: "managing"
+  };
   const liveInjuries = window.__bjjdata && Array.isArray(window.__bjjdata.all_injuries) && window.__bjjdata.all_injuries.length > 0
     ? window.__bjjdata.all_injuries.map(inj => ({
         id: `bot-injury-${inj.id}`,

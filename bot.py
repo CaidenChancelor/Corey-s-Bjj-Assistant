@@ -296,6 +296,36 @@ def save_injury(body_part, severity, notes):
         logging.error(f"Injury save error: {e}")
 
 
+def map_body_region(body_part_text):
+    """Map a body part description to a Micro-Injuries region code."""
+    text = body_part_text.lower()
+    is_left = "left" in text
+    is_right = "right" in text
+    if "knee" in text:
+        return "knee-l" if is_left else "knee-r"
+    if "shoulder" in text:
+        return "shoulder-l" if is_left else "shoulder-r"
+    if "ankle" in text:
+        return "ankle-l" if is_left else "ankle-r"
+    if "elbow" in text:
+        return "elbow-l" if is_left else "elbow-r"
+    if "wrist" in text:
+        return "wrist-l" if is_left else "wrist-r"
+    if "hip" in text:
+        return "hip-l" if is_left else "hip-r"
+    if "rib" in text:
+        return "ribs-l" if is_left else "ribs-r"
+    if "neck" in text:
+        return "neck"
+    if "head" in text:
+        return "head"
+    if "chest" in text:
+        return "chest"
+    if "back" in text:
+        return "lower-back"
+    return "other"
+
+
 def get_active_injuries():
     try:
         with sqlite3.connect(DB_PATH) as conn:
@@ -676,6 +706,9 @@ state = {
     "_problem_position": None,
     "_problem_issue": None,
     "_technique_check_pending": None,  # technique awaiting folder-check confirmation
+    "_injury_body_part": None,
+    "_injury_severity": None,
+    "_injury_description": None,
     "flag_for_bruno": None,      # technique to flag in the next private reminder
     "rest_day": False,           # if True, suppress all session reminders for today
     "rest_day_date": None,       # date the rest day was set
@@ -1266,17 +1299,62 @@ def webhook():
 
             elif step == "injury_check":
                 lower = raw_body.lower()
-                skip_words = ["no", "nah", "nope", "all good", "fine", "nothing", "n/a", "na", "good", "im good", "i'm good", "feels good"]
+                skip_words = ["no", "nah", "nope", "all good", "fine", "nothing", "n/a", "na", "good", "im good", "i'm good", "feels good", "feel good", "nothing wrong"]
                 is_skip = any(w in lower for w in skip_words)
                 if is_skip:
                     state["debrief_step"] = "problem_check"
                     state["debrief_time"] = datetime.now(TZ)
                     resp.message("Any technique you kept getting stuck on or want to flag for Bruno?")
                 else:
-                    save_injury(raw_body.strip(), "minor", raw_body.strip())
-                    state["debrief_step"] = "problem_check"
+                    state["_injury_body_part"] = raw_body.strip()
+                    state["debrief_step"] = "injury_severity"
                     state["debrief_time"] = datetime.now(TZ)
-                    resp.message("Got it, logged that injury 🩹 Any technique you kept getting stuck on or want to flag for Bruno?")
+                    resp.message(f"Got it — {raw_body.strip()}. How bad is it?\n\n• *Managing* — minor, barely noticeable\n• *Watch* — noticeable, keeping an eye on it\n• *Fresh* — happened recently, needs attention\n• *Critical* — serious, may need to stop training")
+
+            elif step == "injury_severity":
+                lower = raw_body.lower().strip()
+                severity_map = {
+                    "managing": "managing", "manage": "managing",
+                    "watch": "watch", "watching": "watch",
+                    "fresh": "fresh",
+                    "critical": "critical", "serious": "critical",
+                }
+                severity = next((v for k, v in severity_map.items() if k in lower), "watch")
+                state["_injury_severity"] = severity
+                state["debrief_step"] = "injury_description"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("What happened? Describe it — how it occurred, what makes it worse, anything relevant.")
+
+            elif step == "injury_description":
+                state["_injury_description"] = raw_body.strip()
+                state["debrief_step"] = "injury_rest_plan"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("What's your rest plan?\n\n• Resting it\n• Getting PT\n• Training through it\n• Not sure yet")
+
+            elif step == "injury_rest_plan":
+                rest_plan = raw_body.strip()
+                body_part = state.get("_injury_body_part", "")
+                severity = state.get("_injury_severity", "watch")
+                description = state.get("_injury_description", "")
+                region = map_body_region(body_part)
+                notes = f"Description: {description}\nRest plan: {rest_plan}\nRegion: {region}"
+                try:
+                    with sqlite3.connect(DB_PATH) as conn:
+                        conn.execute(
+                            'INSERT INTO injuries (date, body_part, severity, notes, created_at) VALUES (?,?,?,?,?)',
+                            (datetime.now(TZ).strftime('%Y-%m-%d'), body_part, severity, notes, datetime.now(TZ).isoformat())
+                        )
+                        conn.commit()
+                    logging.info(f"INJURY logged: {body_part} ({severity})")
+                except Exception as e:
+                    logging.error(f"Injury log error: {e}")
+                state["_injury_body_part"] = None
+                state["_injury_severity"] = None
+                state["_injury_description"] = None
+                state["debrief_step"] = "problem_check"
+                state["debrief_time"] = datetime.now(TZ)
+                severity_emoji = {"managing": "🩹", "watch": "👀", "fresh": "🩼", "critical": "🚨"}.get(severity, "🩹")
+                resp.message(f"Logged {body_part} ({severity}) {severity_emoji}\n\nAny technique you kept getting stuck on or want to flag for Bruno?")
 
             elif step == "problem_check":
                 lower = raw_body.lower()
@@ -1335,6 +1413,9 @@ def webhook():
                 state["_problem_position"] = None
                 state["_problem_issue"] = None
                 state["_technique_check_pending"] = None
+                state["_injury_body_part"] = None
+                state["_injury_severity"] = None
+                state["_injury_description"] = None
                 resp.message(f"Flagged — {position} ({tier}) 📌 I'll make sure Bruno knows. Keep grinding 💪")
 
             return str(resp)
@@ -1520,7 +1601,7 @@ scheduler.add_job(checkin_after_sc,'cron', day_of_week='mon,wed,fri', hour=11, m
 
 # Private with Bruno (Mon–Fri)
 scheduler.add_job(remind_private,       'cron', day_of_week='mon-fri', hour=13, minute=45)
-scheduler.add_job(checkin_after_private,'cron', day_of_week='mon-fri', hour=16, minute=5)
+scheduler.add_job(checkin_after_private,'cron', day_of_week='mon-fri', hour=16, minute=15)
 
 # Evening class — Mon, Tue, Thu
 scheduler.add_job(remind_evening,       'cron', day_of_week='mon,tue,thu', hour=19, minute=30)
