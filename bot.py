@@ -1291,30 +1291,23 @@ def webhook():
 
             if step == "headline":
                 state["debrief_headline"] = raw_body.strip()
-                state["debrief_step"] = "one_liner"
-                state["debrief_time"] = datetime.now(TZ)
-                resp.message(f"nice, {state['debrief_headline']} 👊 give me a one liner — what was the main takeaway or issue?")
-
-            elif step == "one_liner":
-                state["debrief_one_liner"] = raw_body.strip()
                 state["debrief_step"] = "full_notes"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message("aight now give me the full breakdown — what was the set-up, what clicked, what didn't, how many rounds? say as much or as little as you want")
+                resp.message(f"nice, {state['debrief_headline']} 👊 give me the full breakdown — what was the set-up, what clicked, what didn't, how many rounds? say as much or as little as you want")
 
             elif step == "full_notes":
                 headline = state.get("debrief_headline") or ""
-                one_liner = state.get("debrief_one_liner") or ""
                 full_notes = raw_body.strip()
-                notes = f"{headline}\n{one_liner}\n\n{full_notes}".strip()
+                notes = f"{headline}\n\n{full_notes}".strip()
                 session_type = state["debrief_session"]
                 save_journal_entry(session_type, notes)
                 issue = extract_issue(notes)
                 if issue:
                     state["flag_for_bruno"] = issue
 
-                # Extract techniques, log them, check for existing folders on struggled techniques
+                # Extract techniques and log them
                 techniques = extract_techniques(notes)
-                folder_to_check = None  # (name, id) of first existing folder with struggled sentiment
+                folder_to_check = None
                 last_log_id = None
 
                 for tech in techniques:
@@ -1331,19 +1324,12 @@ def webhook():
 
                 state["_video_technique_log_id"] = last_log_id
                 if folder_to_check:
-                    tech_name, _ = folder_to_check
-                    state["debrief_step"] = "video_check"
-                    state["debrief_time"] = datetime.now(TZ)
-                    state["_technique_check_pending"] = tech_name
-                    resp.message("logged 🥋 you got any video from today? send it or say skip")
-                elif last_log_id:
-                    state["debrief_step"] = "video_check"
-                    state["debrief_time"] = datetime.now(TZ)
-                    resp.message("logged 🥋 you got any video from today? send it or say skip")
-                else:
-                    state["debrief_step"] = "injury_check"
-                    state["debrief_time"] = datetime.now(TZ)
-                    resp.message("logged 🥋 anything feel off? any tweaks or soreness?")
+                    state["_technique_check_pending"] = folder_to_check[0]
+
+                # New order: problem_check → video_check → injury_check
+                state["debrief_step"] = "problem_check"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("logged 🥋 anything you kept getting stuck on that you wanna flag for Bruno?")
 
             elif step == "technique_folder_check":
                 tech_name = state.get("_technique_check_pending", "")
@@ -1413,9 +1399,12 @@ def webhook():
                 skip_words = ["no", "nah", "nope", "all good", "fine", "nothing", "n/a", "na", "good", "im good", "i'm good", "feels good", "feel good", "nothing wrong"]
                 is_skip = any(w in lower for w in skip_words)
                 if is_skip:
-                    state["debrief_step"] = "problem_check"
-                    state["debrief_time"] = datetime.now(TZ)
-                    resp.message("anything you kept getting stuck on that you wanna flag for Bruno?")
+                    # End the debrief
+                    state["debrief_session"] = None
+                    state["debrief_step"] = None
+                    state["debrief_headline"] = None
+                    state["debrief_time"] = None
+                    resp.message("all good, everything's logged 💪 keep grinding")
                 else:
                     state["_injury_body_part"] = raw_body.strip()
                     state["debrief_step"] = "injury_severity"
@@ -1462,22 +1451,22 @@ def webhook():
                 state["_injury_body_part"] = None
                 state["_injury_severity"] = None
                 state["_injury_description"] = None
-                state["debrief_step"] = "problem_check"
-                state["debrief_time"] = datetime.now(TZ)
+                state["debrief_session"] = None
+                state["debrief_step"] = None
+                state["debrief_headline"] = None
+                state["debrief_time"] = None
                 severity_emoji = {"managing": "🩹", "watch": "👀", "fresh": "🩼", "critical": "🚨"}.get(severity, "🩹")
-                resp.message(f"Logged {body_part} ({severity}) {severity_emoji}\n\nanything you kept getting stuck on that you wanna flag for Bruno?")
+                resp.message(f"logged {body_part} ({severity}) {severity_emoji} all good, everything's saved 💪")
 
             elif step == "problem_check":
                 lower = raw_body.lower()
                 skip_words = ["no", "nah", "nope", "all good", "nothing", "n/a", "na", "not really", "nope"]
                 is_skip = any(w in lower for w in skip_words)
                 if is_skip:
-                    state["debrief_session"] = None
-                    state["debrief_step"] = None
-                    state["debrief_headline"] = None
-                    state["debrief_one_liner"] = None
-                    state["debrief_time"] = None
-                    resp.message("All good, I've got everything logged. Keep grinding 💪")
+                    # Move to video_check next
+                    state["debrief_step"] = "video_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("you got any video from today? send it or say skip")
                 else:
                     state["debrief_step"] = "problem_position"
                     state["debrief_time"] = datetime.now(TZ)
@@ -1516,18 +1505,15 @@ def webhook():
                         conn.commit()
                 except Exception as e:
                     logging.error(f"Problem save error: {e}")
-                state["debrief_session"] = None
-                state["debrief_step"] = None
-                state["debrief_headline"] = None
-                state["debrief_one_liner"] = None
-                state["debrief_time"] = None
                 state["_problem_position"] = None
                 state["_problem_issue"] = None
-                state["_technique_check_pending"] = None
+                # Move to video_check next
+                state["debrief_step"] = "video_check"
+                state["debrief_time"] = datetime.now(TZ)
                 state["_injury_body_part"] = None
                 state["_injury_severity"] = None
                 state["_injury_description"] = None
-                resp.message(f"Flagged — {position} ({tier}) 📌 I'll make sure Bruno knows. Keep grinding 💪")
+                resp.message(f"flagged — {position} ({tier}) 📌\n\nyou got any video from today? send it or say skip")
 
             return str(resp)
 
