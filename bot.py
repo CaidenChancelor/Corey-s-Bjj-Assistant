@@ -108,6 +108,7 @@ def init_db():
         conn.execute('''CREATE TABLE IF NOT EXISTS techniques (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     name       TEXT UNIQUE,
+    summary    TEXT,
     created_at TEXT
 )''')
         conn.execute('''CREATE TABLE IF NOT EXISTS technique_log (
@@ -124,6 +125,10 @@ def init_db():
             conn.execute('ALTER TABLE technique_log ADD COLUMN video_url TEXT')
         except Exception:
             pass  # column already exists
+        try:
+            conn.execute('ALTER TABLE techniques ADD COLUMN summary TEXT')
+        except Exception:
+            pass
         conn.commit()
 
 def save_message(role, content):
@@ -993,17 +998,46 @@ def extract_techniques(notes):
         return []
 
 
+def generate_technique_summary(technique_id, name):
+    """Generate a short summary of all notes for a technique folder."""
+    if not claude:
+        return None
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT date, notes FROM technique_log WHERE technique_id = ? ORDER BY created_at ASC',
+                (technique_id,)
+            ).fetchall()
+        if not rows:
+            return None
+        combined = "\n\n".join(f"[{r[0]}]: {r[1]}" for r in rows)
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=150,
+            system=(
+                "You write short, punchy summaries of a BJJ athlete's progress on a specific technique. "
+                "2-3 sentences max. Capture the arc — what they struggled with, what clicked, where they are now. "
+                "Use the athlete's own language and voice. No generic advice."
+            ),
+            messages=[{"role": "user", "content": f"Technique: {name}\n\nSession notes:\n{combined}"}]
+        )
+        return response.content[0].text.strip()
+    except Exception as e:
+        logging.error(f"generate_technique_summary error: {e}")
+        return None
+
+
 def get_all_techniques():
     """All technique folders with note count, last seen date, and video count."""
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT t.id, t.name, COUNT(l.id) as cnt, MAX(l.date) as last_seen, '
+                'SELECT t.id, t.name, t.summary, COUNT(l.id) as cnt, MAX(l.date) as last_seen, '
                 'SUM(CASE WHEN l.video_url IS NOT NULL THEN 1 ELSE 0 END) as video_count '
                 'FROM techniques t LEFT JOIN technique_log l ON t.id = l.technique_id '
                 'GROUP BY t.id ORDER BY last_seen DESC LIMIT 100'
             ).fetchall()
-        return [{"id": r[0], "name": r[1], "count": r[2], "last_seen": r[3], "video_count": r[4] or 0} for r in rows]
+        return [{"id": r[0], "name": r[1], "summary": r[2], "count": r[3], "last_seen": r[4], "video_count": r[5] or 0} for r in rows]
     except Exception:
         return []
 
@@ -1321,6 +1355,15 @@ def webhook():
                             last_log_id = log_id
                         if not is_new and tech.get("sentiment") == "struggled" and folder_to_check is None:
                             folder_to_check = (tech_name, tid)
+                        # Regenerate technique summary
+                        try:
+                            new_summary = generate_technique_summary(tid, tech_name)
+                            if new_summary:
+                                with sqlite3.connect(DB_PATH) as conn:
+                                    conn.execute('UPDATE techniques SET summary=? WHERE id=?', (new_summary, tid))
+                                    conn.commit()
+                        except Exception:
+                            pass
 
                 state["_video_technique_log_id"] = last_log_id
                 if folder_to_check:
@@ -1419,7 +1462,10 @@ def webhook():
                     "fresh": "fresh",
                     "critical": "critical", "serious": "critical",
                 }
-                severity = next((v for k, v in severity_map.items() if k in lower), "watch")
+                severity = next((v for k, v in severity_map.items() if k in lower), None)
+                if severity is None:
+                    resp.message("just pick one: managing, watch, fresh, or critical")
+                    return str(resp)
                 state["_injury_severity"] = severity
                 state["debrief_step"] = "injury_description"
                 state["debrief_time"] = datetime.now(TZ)
@@ -1492,7 +1538,11 @@ def webhook():
                     "high": "high", "h": "high",
                     "urgent": "urgent", "u": "urgent", "asap": "urgent"
                 }
-                tier = tier_map.get(raw_tier, "med")
+                tier = tier_map.get(raw_tier)
+                if tier is None:
+                    # Didn't understand — re-explain without logging anything
+                    resp.message("just reply with one of these: low, medium, high, or urgent — how much of a priority is this for your next Bruno session?")
+                    return str(resp)
                 position = state.get("_problem_position", "")
                 issue = state.get("_problem_issue", "")
                 description = issue
@@ -1897,6 +1947,38 @@ def api_water_delete(entry_id):
         state["water_today"] = round(max(0.0, state["water_today"] - row[0]), 2)
         save_water_to_db()
         return {"ok": True, "water_today": state["water_today"]}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/technique-history', methods=['GET'])
+def api_technique_history():
+    auth = request.headers.get('Authorization', '')
+    expected = f"Bearer {os.environ.get('API_TOKEN', '')}"
+    if not os.environ.get('API_TOKEN') or auth != expected:
+        return {"error": "unauthorized"}, 401
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            techniques = conn.execute(
+                'SELECT id, name, summary FROM techniques ORDER BY created_at DESC'
+            ).fetchall()
+        result = []
+        for tid, name, summary in techniques:
+            with sqlite3.connect(DB_PATH) as conn:
+                logs = conn.execute(
+                    'SELECT date, session, notes, sentiment, video_url FROM technique_log '
+                    'WHERE technique_id = ? ORDER BY created_at ASC',
+                    (tid,)
+                ).fetchall()
+            result.append({
+                "id": tid,
+                "name": name,
+                "summary": summary,
+                "entries": [
+                    {"date": r[0], "session": r[1], "notes": r[2], "sentiment": r[3], "video_url": r[4]}
+                    for r in logs
+                ]
+            })
+        return {"techniques": result}
     except Exception as e:
         return {"error": str(e)}, 500
 
