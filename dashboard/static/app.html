@@ -3991,7 +3991,15 @@ window.Dashboard = Dashboard;
   <script type="text/babel">
 // Editor — chat with rotating rainbow halo on the focused composer
 
-const { useState: useStateEd, useRef: useRefEd, useEffect: useEffectEd } = React;
+const { useState: useStateEd, useRef: useRefEd, useEffect: useEffectEd, useCallback: useCallbackEd } = React;
+
+const QUICK_ACTIONS = [
+  "Check bot logs",
+  "Check deployment status",
+  "What changed recently?",
+  "Show me bot.py",
+  "Any errors in the logs?",
+];
 
 const TOOL_LABELS = {
   read_file:            (input) => `📖 Read ${input.path || input.file_path || ''}`,
@@ -4034,7 +4042,7 @@ function renderContent(text) {
   return html;
 }
 
-function ChatMessage({ role, body, toolEvents, loading }) {
+function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
   if (role === "user") {
     return (
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 18 }}>
@@ -4144,23 +4152,28 @@ function ChatMessage({ role, body, toolEvents, loading }) {
       {hasWrite && (
         <div style={{
           marginTop: 6,
-          paddingLeft: 2,
           display: "inline-block",
           padding: "3px 12px",
           borderRadius: 20,
-          background: "rgba(52,199,89,0.10)",
-          border: "1px solid rgba(52,199,89,0.28)",
+          background: deployDone ? "rgba(52,199,89,0.10)" : "rgba(122,92,255,0.08)",
+          border: deployDone ? "1px solid rgba(52,199,89,0.28)" : "1px solid rgba(122,92,255,0.22)",
           fontSize: 12,
-          color: "#1a7a35",
+          color: deployDone ? "#1a7a35" : "#5a40cc",
           letterSpacing: "-0.008em",
           fontFamily: "var(--font-text)",
-        }}>🚀 Committed to GitHub — Railway deploying (~60s)</div>
+          transition: "all 0.4s ease",
+        }}>
+          {deployDone
+            ? "✅ Should be live now — hard refresh if needed"
+            : <span>🚀 Deploying<span style={{ display: "inline-flex", gap: 2, marginLeft: 2 }}><span style={{ animation: "dot-pulse 1.2s ease-in-out infinite", animationDelay: "0s",   display: "inline-block" }}>.</span><span style={{ animation: "dot-pulse 1.2s ease-in-out infinite", animationDelay: "0.2s", display: "inline-block" }}>.</span><span style={{ animation: "dot-pulse 1.2s ease-in-out infinite", animationDelay: "0.4s", display: "inline-block" }}>.</span></span></span>
+          }
+        </div>
       )}
     </div>
   );
 }
 
-function Composer({ focused, setFocused, value, setValue, onSend }) {
+function Composer({ focused, setFocused, value, setValue, onSend, listening, onVoice }) {
   return (
     <div style={{ position: "relative", padding: 4 }}>
       {/* rotating rainbow halo — only when focused */}
@@ -4179,7 +4192,7 @@ function Composer({ focused, setFocused, value, setValue, onSend }) {
       )}
       <div style={{
         position: "relative",
-        display: "flex", alignItems: "flex-end", gap: 12,
+        display: "flex", alignItems: "flex-end", gap: 8,
         background: "#ffffff",
         borderRadius: 22,
         padding: "12px 12px 12px 20px",
@@ -4207,6 +4220,29 @@ function Composer({ focused, setFocused, value, setValue, onSend }) {
             padding: "10px 0",
           }}
         />
+        {/* Mic button */}
+        <button
+          onClick={onVoice}
+          title="Voice input"
+          style={{
+            flexShrink: 0,
+            width: 40, height: 40, borderRadius: "50%",
+            border: listening ? "none" : "1px solid rgba(122,92,255,0.22)",
+            cursor: "pointer",
+            background: listening ? "rgba(220,38,38,0.10)" : "rgba(122,92,255,0.06)",
+            color: listening ? "#dc2626" : "#7a5cff",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.2s ease",
+            animation: listening ? "mic-pulse 1s ease-in-out infinite" : "none",
+          }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="2" width="6" height="12" rx="3"/>
+            <path d="M5 10a7 7 0 0 0 14 0"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="8" y1="22" x2="16" y2="22"/>
+          </svg>
+        </button>
+        {/* Send button */}
         <span style={{
           position: "relative", display: "inline-flex", flexShrink: 0,
           width: 40, height: 40, borderRadius: "50%",
@@ -4236,7 +4272,10 @@ function Composer({ focused, setFocused, value, setValue, onSend }) {
           </button>
         </span>
       </div>
-      <style>{`@keyframes composer-rot { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes composer-rot { to { transform: rotate(360deg); } }
+        @keyframes mic-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.3); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }
+      `}</style>
     </div>
   );
 }
@@ -4244,15 +4283,61 @@ function Composer({ focused, setFocused, value, setValue, onSend }) {
 function Editor() {
   const [focused, setFocused] = useStateEd(false);
   const [value, setValue] = useStateEd("");
-  const [messages, setMessages] = useStateEd([
-    { role: "claude", body: "How did rolling feel today compared to Monday?" },
-    { role: "user",   body: "Tighter on top. I lost top control twice when I overcommitted on the pass." },
-    { role: "claude", body: "Try staying chest-to-chest one beat longer before going for the pass — let them carry your weight, then move." },
-  ]);
+  const [messages, setMessages] = useStateEd([]);
   const [loading, setLoading] = useStateEd(false);
-  const handleSend = async () => {
-    const text = value.trim();
+  const messagesEndRef = useRefEd(null);
+  // Feature 2: track deploy-done state per message index
+  const [deployDoneMap, setDeployDoneMap] = useStateEd({});
+  const deployTimers = useRefEd({});
+  // Feature 3: voice input
+  const [listening, setListening] = useStateEd(false);
+  // Feature 4: session title (first 40 chars of first user message sent this session)
+  const [sessionTitle, setSessionTitle] = useStateEd(null);
+  const hasSetTitle = useRefEd(false);
+
+  useEffectEd(() => {
+    fetch("/editor/history")
+      .then(r => r.json())
+      .then(data => {
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages.map(m => ({
+            role: m.role === "assistant" ? "claude" : m.role,
+            body: m.content,
+            toolEvents: [],
+          })));
+          setTimeout(() => {
+            if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+          }, 150);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Feature 2: when messages change, set up deploy timers for any new write_file messages
+  useEffectEd(() => {
+    messages.forEach((m, i) => {
+      if (
+        m.role === "claude" &&
+        m.toolEvents && m.toolEvents.some(e => e.tool === "write_file") &&
+        deployDoneMap[i] === undefined &&
+        !deployTimers.current[i]
+      ) {
+        deployTimers.current[i] = setTimeout(() => {
+          setDeployDoneMap(prev => ({ ...prev, [i]: true }));
+        }, 62000);
+        setDeployDoneMap(prev => ({ ...prev, [i]: false }));
+      }
+    });
+  }, [messages]);
+
+  const handleSend = async (overrideText) => {
+    const text = (typeof overrideText === "string" ? overrideText : value).trim();
     if (!text) return;
+    // Feature 4: set session title from first user message sent this session
+    if (!hasSetTitle.current) {
+      setSessionTitle(text.slice(0, 40));
+      hasSetTitle.current = true;
+    }
     setMessages(prev => [...prev, { role: "user", body: text }]);
     setValue("");
     setLoading(true);
@@ -4270,13 +4355,51 @@ function Editor() {
         body: typeof reply === "string" ? reply : (reply.reply || String(reply)),
         toolEvents: toolEvents,
       }]);
+      setTimeout(() => {
+        if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     } catch (e) {
       setMessages(prev => [...prev, { role: "claude", body: "Failed to reach server." }]);
     } finally {
       setLoading(false);
     }
   };
+
+  const clearHistory = async () => {
+    await fetch("/editor/clear", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    setMessages([]);
+    setDeployDoneMap({});
+    deployTimers.current = {};
+    setSessionTitle(null);
+    hasSetTitle.current = false;
+  };
+
+  // Feature 3: voice input handler
+  const handleVoice = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert("Voice input not supported in this browser");
+      return;
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SR();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setValue(prev => prev + (prev ? ' ' : '') + transcript);
+    };
+    recognition.start();
+    setListening(true);
+    recognition.onend = () => setListening(false);
+    recognition.onerror = () => setListening(false);
+  };
+
   const onSend = handleSend;
+  // Feature 1: show quick actions when input is empty
+  const showQuickActions = !value.trim();
 
   return (
     <div style={{
@@ -4288,12 +4411,31 @@ function Editor() {
       display: "flex", flexDirection: "column",
     }}>
       <div style={{ maxWidth: 760, margin: "0 auto", width: "100%", flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ marginBottom: 24, paddingLeft: 4 }}>
-          <Eyebrow style={{ marginBottom: 10 }}>conversation · today</Eyebrow>
-          <div style={{
-            fontFamily: "var(--font-display)", fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 600,
-            letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1.1,
-          }}>Editor</div>
+        {/* Header */}
+        <div style={{ marginBottom: 24, paddingLeft: 4, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div>
+            <Eyebrow style={{ marginBottom: 10 }}>conversation · today</Eyebrow>
+            <div style={{
+              fontFamily: "var(--font-display)", fontSize: "clamp(24px, 5vw, 32px)", fontWeight: 600,
+              letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1.1,
+            }}>Editor</div>
+            {/* Feature 4: session title */}
+            {sessionTitle && (
+              <div style={{
+                marginTop: 5,
+                fontSize: 13, color: "rgba(29,29,31,0.42)",
+                letterSpacing: "-0.008em", fontStyle: "italic",
+                lineHeight: 1.3,
+              }}>{sessionTitle}{sessionTitle.length >= 40 ? "…" : ""}</div>
+            )}
+          </div>
+          {messages.length > 0 && (
+            <button onClick={clearHistory} style={{
+              background: "none", border: "1px solid rgba(29,29,31,0.15)", borderRadius: 8,
+              padding: "6px 14px", fontSize: 13, fontFamily: "var(--font-text)",
+              color: "rgba(29,29,31,0.55)", cursor: "pointer", marginBottom: 4,
+            }}>Clear</button>
+          )}
         </div>
 
         <div style={{ flex: 1, marginBottom: 24, minHeight: 360 }}>
@@ -4312,14 +4454,63 @@ function Editor() {
           ) : (
             <>
               {messages.map((m, i) => (
-                <ChatMessage key={i} role={m.role} body={m.body} toolEvents={m.toolEvents} />
+                <ChatMessage
+                  key={i}
+                  role={m.role}
+                  body={m.body}
+                  toolEvents={m.toolEvents}
+                  deployDone={deployDoneMap[i]}
+                />
               ))}
               {loading && <ChatMessage role="claude" body="" loading={true} />}
+              <div ref={messagesEndRef} />
             </>
           )}
         </div>
 
-        <Composer focused={focused} setFocused={setFocused} value={value} setValue={setValue} onSend={onSend} />
+        {/* Feature 1: Quick action chips — visible when input is empty */}
+        {showQuickActions && (
+          <div style={{
+            display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10,
+            scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
+          }}>
+            <style>{`
+              .quick-chips-row::-webkit-scrollbar { display: none; }
+              .quick-chip:hover { background: rgba(122,92,255,0.12) !important; border-color: rgba(122,92,255,0.4) !important; }
+            `}</style>
+            {QUICK_ACTIONS.map((action) => (
+              <button
+                key={action}
+                className="quick-chip"
+                onClick={() => handleSend(action)}
+                style={{
+                  flexShrink: 0,
+                  padding: "7px 14px",
+                  borderRadius: 980,
+                  background: "rgba(122,92,255,0.06)",
+                  border: "1px solid rgba(122,92,255,0.22)",
+                  fontSize: 13,
+                  color: "#5a40cc",
+                  letterSpacing: "-0.01em",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-text)",
+                  whiteSpace: "nowrap",
+                  transition: "background 0.15s ease, border-color 0.15s ease",
+                }}
+              >{action}</button>
+            ))}
+          </div>
+        )}
+
+        <Composer
+          focused={focused}
+          setFocused={setFocused}
+          value={value}
+          setValue={setValue}
+          onSend={onSend}
+          listening={listening}
+          onVoice={handleVoice}
+        />
         <div style={{ fontSize: 12, color: "rgba(29,29,31,0.45)", textAlign: "center", marginTop: 12 }}>
           Enter to send · Shift + Enter for a new line
         </div>

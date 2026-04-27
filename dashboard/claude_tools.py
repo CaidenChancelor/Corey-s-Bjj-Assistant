@@ -270,6 +270,35 @@ def execute_tool(name, args):
         logging.exception(f"Tool {name} failed")
         return f"Error: {e}"
 
+def compact_editor_history(history):
+    """Compact a long conversation into summary + recent messages. Returns new history list or None on failure."""
+    if not claude:
+        return None
+    try:
+        history_text = "\n".join(
+            f"{m['role'].upper()}: {m['content'][:400]}" for m in history
+        )
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=500,
+            system=(
+                "You summarize coding assistant conversation history. "
+                "Write 3-6 sentences covering: what files were changed, what bugs were fixed, "
+                "what features were built, and key context for future messages. "
+                "Be specific — mention file names, function names, what actually changed."
+            ),
+            messages=[{"role": "user", "content": f"Summarize this conversation:\n\n{history_text}"}],
+        )
+        summary = response.content[0].text.strip()
+        return [
+            {"role": "user", "content": f"[Conversation summary: {summary}]"},
+            {"role": "assistant", "content": "Got it — I have the context from our previous session. What do you want to work on?"},
+        ] + history[-6:]
+    except Exception as e:
+        logging.error(f"compact_editor_history error: {e}")
+        return None
+
+
 def handle_chat_message(user_message, history):
     """Run an agent loop: send msg → execute tools → repeat until Claude returns final text.
 

@@ -1,11 +1,12 @@
 import os
 import json
 import logging
+import sqlite3 as _sqlite3
 import requests
 from functools import wraps
 from flask import Flask, render_template, request, redirect, session, url_for, Response
 
-from claude_tools import handle_chat_message
+from claude_tools import handle_chat_message, compact_editor_history
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,6 +16,65 @@ app.secret_key = os.environ.get("DASHBOARD_SECRET", "dev-secret-change-me")
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "")
 BOT_URL = os.environ.get("BOT_URL", "https://corey-s-bjj-assistant-production.up.railway.app")
 API_TOKEN = os.environ.get("API_TOKEN", "")
+
+EDITOR_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "editor_history.db")
+
+def _init_editor_db():
+    with _sqlite3.connect(EDITOR_DB) as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS editor_history (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            role      TEXT,
+            content   TEXT,
+            created_at TEXT
+        )''')
+        conn.commit()
+
+_init_editor_db()
+
+def _load_editor_history(limit=40):
+    try:
+        with _sqlite3.connect(EDITOR_DB) as conn:
+            rows = conn.execute(
+                'SELECT role, content FROM editor_history ORDER BY id DESC LIMIT ?', (limit,)
+            ).fetchall()
+        return [{"role": r[0], "content": r[1]} for r in reversed(rows)]
+    except Exception:
+        return []
+
+def _save_editor_message(role, content):
+    try:
+        from datetime import datetime as _dt
+        with _sqlite3.connect(EDITOR_DB) as conn:
+            conn.execute(
+                'INSERT INTO editor_history (role, content, created_at) VALUES (?,?,?)',
+                (role, content, _dt.now().isoformat())
+            )
+            conn.commit()
+    except Exception as e:
+        logging.error(f"Editor history save error: {e}")
+
+def _clear_editor_history():
+    try:
+        with _sqlite3.connect(EDITOR_DB) as conn:
+            conn.execute('DELETE FROM editor_history')
+            conn.commit()
+    except Exception as e:
+        logging.error(f"Editor history clear error: {e}")
+
+def _replace_editor_history(messages):
+    """Replace all history with a compacted set of messages."""
+    try:
+        from datetime import datetime as _dt
+        with _sqlite3.connect(EDITOR_DB) as conn:
+            conn.execute('DELETE FROM editor_history')
+            for msg in messages:
+                conn.execute(
+                    'INSERT INTO editor_history (role, content, created_at) VALUES (?,?,?)',
+                    (msg["role"], msg["content"], _dt.now().isoformat())
+                )
+            conn.commit()
+    except Exception as e:
+        logging.error(f"Editor history replace error: {e}")
 
 # Pre-load the React bundle once at startup
 APP_HTML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "app.html")
@@ -112,7 +172,6 @@ def editor_old():
 @app.route("/editor/send", methods=["POST"])
 @require_login
 def editor_send():
-    # Accept both JSON (from React fetch) and form data (from Jinja form)
     if request.is_json:
         msg = (request.get_json(force=True) or {}).get("message", "").strip()
     else:
@@ -123,9 +182,21 @@ def editor_send():
             return {"error": "empty"}, 400
         return redirect(url_for("editor"))
 
-    history = session.get("chat", [])
-    history.append({"role": "user", "content": msg})
-    result = handle_chat_message(msg, history[:-1])
+    # Load history from DB
+    history = _load_editor_history(40)
+
+    # Auto-compact if getting long
+    if len(history) >= 30:
+        compacted = compact_editor_history(history)
+        if compacted:
+            _replace_editor_history(compacted)
+            history = compacted
+
+    # Save user message to DB
+    _save_editor_message("user", msg)
+
+    # Call Claude
+    result = handle_chat_message(msg, history)
     if isinstance(result, dict):
         reply = result.get("reply", "")
         tool_events = result.get("tool_events", [])
@@ -133,9 +204,8 @@ def editor_send():
         reply = result
         tool_events = []
 
-    history.append({"role": "assistant", "content": reply})
-    session["chat"] = history[-11:]
-    session.modified = True
+    # Save assistant reply to DB
+    _save_editor_message("assistant", reply)
 
     if request.is_json:
         return {"reply": reply, "tool_events": tool_events}
@@ -145,8 +215,17 @@ def editor_send():
 @app.route("/editor/clear", methods=["POST"])
 @require_login
 def editor_clear():
-    session["chat"] = []
+    _clear_editor_history()
+    if request.is_json:
+        return {"ok": True}
     return redirect(url_for("editor"))
+
+
+@app.route("/editor/history", methods=["GET"])
+@require_login
+def editor_history_route():
+    messages = _load_editor_history(40)
+    return {"messages": messages}
 
 
 # ── Bot API proxy — forwards to bot service with shared token ──────────────
