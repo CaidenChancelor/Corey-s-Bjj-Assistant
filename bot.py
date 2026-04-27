@@ -98,6 +98,10 @@ def init_db():
             resolved    INTEGER DEFAULT 0,
             created_at  TEXT
         )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+)''')
         conn.commit()
 
 def save_message(role, content):
@@ -319,6 +323,33 @@ def get_all_problems():
     except Exception:
         pass
     return problems
+
+
+def get_streak_count():
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute("SELECT value FROM settings WHERE key='streak_count'").fetchone()
+            return int(row[0]) if row else 0
+    except Exception:
+        return 0
+
+def get_streak_date():
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute("SELECT value FROM settings WHERE key='streak_date'").fetchone()
+            return row[0] if row else None
+    except Exception:
+        return None
+
+def set_streak_count(n):
+    today = datetime.now(TZ).strftime('%Y-%m-%d')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('streak_count', ?)", (str(n),))
+            conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('streak_date', ?)", (today,))
+            conn.commit()
+    except Exception as e:
+        logging.error(f"Streak save error: {e}")
 
 
 def get_streak_days():
@@ -657,8 +688,19 @@ def set_rest_day():
 def check_and_reset_water():
     today = datetime.now(TZ).strftime("%Y-%m-%d")
     if state["water_date"] != today:
+        if state["water_today"] < WATER_GOAL_L:
+            set_streak_count(0)
         state["water_today"] = 0.0
         state["water_date"] = today
+
+def maybe_increment_streak(liters_just_added):
+    """Increment streak if this addition just crossed the daily goal for the first time today."""
+    today_str = datetime.now(TZ).strftime('%Y-%m-%d')
+    previously_under = (state["water_today"] - liters_just_added) < WATER_GOAL_L
+    just_hit = state["water_today"] >= WATER_GOAL_L
+    if previously_under and just_hit and get_streak_date() != today_str:
+        set_streak_count(get_streak_count() + 1)
+
 
 def estimate_water_from_image(image_bytes, content_type):
     if not claude:
@@ -888,6 +930,7 @@ def webhook():
             check_and_reset_water()
             state["water_today"] = round(state["water_today"] + liters, 2)
             save_water_to_db()
+            maybe_increment_streak(liters)
             try:
                 with sqlite3.connect(DB_PATH) as conn:
                     conn.execute(
@@ -1136,6 +1179,18 @@ def webhook():
 
             return str(resp)
 
+        # Streak query
+        streak_words = ["streak", "how many days", "water streak", "days in a row"]
+        if any(w in body for w in streak_words):
+            count = get_streak_count()
+            if count == 0:
+                resp.message("Your streak is at 0 — hit your 3L goal today to start one 💧")
+            elif count == 1:
+                resp.message("You're on a 1-day streak 💧 Keep it going!")
+            else:
+                resp.message(f"You're on a {count}-day streak 🔥💧 Don't break it!")
+            return str(resp)
+
         # Try classifying the message as water / meal / injury logging before falling to chat
         intents = classify_message(raw_body)
 
@@ -1148,6 +1203,7 @@ def webhook():
                 check_and_reset_water()
                 state["water_today"] = round(state["water_today"] + liters, 2)
                 save_water_to_db()
+                maybe_increment_streak(liters)
                 try:
                     with sqlite3.connect(DB_PATH) as conn:
                         conn.execute(
@@ -1212,7 +1268,7 @@ def api_status():
         "water_today": state["water_today"],
         "water_goal": WATER_GOAL_L,
         "water_remaining": round(WATER_GOAL_L - state["water_today"], 2),
-        "streak_days": get_streak_days(),
+        "streak_days": get_streak_count(),
         "daily_water_7d": get_water_history(6),
         "water_log_today": get_water_log_today(),
         # bot state
@@ -1479,6 +1535,7 @@ def api_water_add():
             conn.commit()
         state["water_today"] = round(state["water_today"] + liters, 2)
         save_water_to_db()
+        maybe_increment_streak(liters)
         return {"ok": True, "water_today": state["water_today"]}
     except Exception as e:
         return {"error": str(e)}, 500
