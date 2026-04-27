@@ -3993,7 +3993,48 @@ window.Dashboard = Dashboard;
 
 const { useState: useStateEd, useRef: useRefEd, useEffect: useEffectEd } = React;
 
-function ChatMessage({ role, body }) {
+const TOOL_LABELS = {
+  read_file:            (input) => `📖 Read ${input.path || input.file_path || ''}`,
+  write_file:           (input) => `✏️ Committed ${input.path || input.file_path || ''}`,
+  list_files:           (input) => `📋 Browsed ${input.path || '/'}`,
+  get_railway_logs:     (input) => `🚂 Railway logs (${input.service || ''})`,
+  get_deployment_status:(input) => `🚦 Deployment status (${input.service || ''})`,
+};
+
+function renderContent(text) {
+  // Process triple-backtick code blocks first
+  let html = '';
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  parts.forEach((part) => {
+    if (part.startsWith('```') && part.endsWith('```')) {
+      const inner = part.slice(3, -3);
+      // Strip optional language identifier on first line
+      const newlineIdx = inner.indexOf('\n');
+      const code = newlineIdx !== -1 ? inner.slice(newlineIdx + 1) : inner;
+      const escaped = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const id = 'cb_' + Math.random().toString(36).slice(2);
+      html += `<div style="position:relative;margin:8px 0;">` +
+        `<pre id="${id}" style="background:rgba(0,0,0,0.05);padding:12px 12px 12px 12px;border-radius:8px;font-family:monospace;font-size:13px;overflow-x:auto;white-space:pre-wrap;margin:0;">${escaped}</pre>` +
+        `<button onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);})()" ` +
+          `style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.07);border:none;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;color:#555;font-family:monospace;">Copy</button>` +
+        `</div>`;
+    } else {
+      // Inline backticks
+      let s = part.replace(/`([^`]+)`/g, (_, c) => {
+        const esc = c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return `<code style="background:rgba(0,0,0,0.07);padding:2px 5px;border-radius:4px;font-family:monospace;font-size:13px;">${esc}</code>`;
+      });
+      // Bold
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // Newlines
+      s = s.replace(/\n/g, '<br/>');
+      html += s;
+    }
+  });
+  return html;
+}
+
+function ChatMessage({ role, body, toolEvents, loading }) {
   if (role === "user") {
     return (
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 18 }}>
@@ -4010,9 +4051,72 @@ function ChatMessage({ role, body }) {
       </div>
     );
   }
-  // claude — rainbow border
+
+  // Thinking state
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 18 }}>
+        <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
+            background: "linear-gradient(120deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff)",
+            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            WebkitMaskComposite: "xor", maskComposite: "exclude",
+            pointerEvents: "none",
+          }}></div>
+          <div style={{
+            padding: "14px 20px", borderRadius: 22,
+            background: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(40px) saturate(180%)",
+            WebkitBackdropFilter: "blur(40px) saturate(180%)",
+            color: "rgba(29,29,31,0.5)",
+            fontSize: 15.5, lineHeight: 1.5,
+            letterSpacing: "-0.011em",
+            display: "flex", alignItems: "center", gap: 6,
+          }}>
+            Claude is working
+            <span style={{ display: "inline-flex", gap: 3 }}>
+              <span style={{ animation: "dot-pulse 1.2s ease-in-out infinite", animationDelay: "0s",   display: "inline-block" }}>.</span>
+              <span style={{ animation: "dot-pulse 1.2s ease-in-out infinite", animationDelay: "0.2s", display: "inline-block" }}>.</span>
+              <span style={{ animation: "dot-pulse 1.2s ease-in-out infinite", animationDelay: "0.4s", display: "inline-block" }}>.</span>
+            </span>
+          </div>
+        </div>
+        <style>{`@keyframes dot-pulse { 0%,80%,100% { opacity:0.2; } 40% { opacity:1; } }`}</style>
+      </div>
+    );
+  }
+
+  const events = toolEvents || [];
+  const hasWrite = events.some(e => e.tool === "write_file");
+
   return (
-    <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 18 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", marginBottom: 18 }}>
+      {/* Tool chips */}
+      {events.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 6, paddingLeft: 2 }}>
+          {events.map((ev, i) => {
+            const labelFn = TOOL_LABELS[ev.tool];
+            const label = labelFn ? labelFn(ev.input || {}) : ev.tool;
+            return (
+              <div key={i} style={{
+                display: "inline-block",
+                padding: "3px 10px",
+                borderRadius: 20,
+                background: "rgba(122,92,255,0.07)",
+                border: "1px solid rgba(122,92,255,0.15)",
+                fontSize: 12,
+                color: "rgba(29,29,31,0.55)",
+                letterSpacing: "-0.008em",
+                fontFamily: "var(--font-text)",
+              }}>{label}</div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Message bubble */}
       <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
         <div style={{
           position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
@@ -4022,16 +4126,36 @@ function ChatMessage({ role, body }) {
           WebkitMaskComposite: "xor", maskComposite: "exclude",
           pointerEvents: "none",
         }}></div>
-        <div style={{
-          padding: "14px 20px", borderRadius: 22,
-          background: "rgba(255,255,255,0.85)",
-          backdropFilter: "blur(40px) saturate(180%)",
-          WebkitBackdropFilter: "blur(40px) saturate(180%)",
-          color: "#1d1d1f",
-          fontSize: 15.5, lineHeight: 1.5,
-          letterSpacing: "-0.011em",
-        }}>{body}</div>
+        <div
+          style={{
+            padding: "14px 20px", borderRadius: 22,
+            background: "rgba(255,255,255,0.85)",
+            backdropFilter: "blur(40px) saturate(180%)",
+            WebkitBackdropFilter: "blur(40px) saturate(180%)",
+            color: "#1d1d1f",
+            fontSize: 15.5, lineHeight: 1.5,
+            letterSpacing: "-0.011em",
+          }}
+          dangerouslySetInnerHTML={{ __html: renderContent(body || '') }}
+        />
       </div>
+
+      {/* Deploy banner */}
+      {hasWrite && (
+        <div style={{
+          marginTop: 6,
+          paddingLeft: 2,
+          display: "inline-block",
+          padding: "3px 12px",
+          borderRadius: 20,
+          background: "rgba(52,199,89,0.10)",
+          border: "1px solid rgba(52,199,89,0.28)",
+          fontSize: 12,
+          color: "#1a7a35",
+          letterSpacing: "-0.008em",
+          fontFamily: "var(--font-text)",
+        }}>🚀 Committed to GitHub — Railway deploying (~60s)</div>
+      )}
     </div>
   );
 }
@@ -4139,7 +4263,13 @@ function Editor() {
         body: JSON.stringify({ message: text }),
       });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: "claude", body: data.reply || "Error reaching server" }]);
+      const reply = data.reply || data;
+      const toolEvents = data.tool_events || [];
+      setMessages(prev => [...prev, {
+        role: "claude",
+        body: typeof reply === "string" ? reply : (reply.reply || String(reply)),
+        toolEvents: toolEvents,
+      }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: "claude", body: "Failed to reach server." }]);
     } finally {
@@ -4180,7 +4310,12 @@ function Editor() {
               }}>Ask Claude about today's training.</div>
             </div>
           ) : (
-            messages.map((m, i) => <ChatMessage key={i} role={m.role} body={m.body} />)
+            <>
+              {messages.map((m, i) => (
+                <ChatMessage key={i} role={m.role} body={m.body} toolEvents={m.toolEvents} />
+              ))}
+              {loading && <ChatMessage role="claude" body="" loading={true} />}
+            </>
           )}
         </div>
 

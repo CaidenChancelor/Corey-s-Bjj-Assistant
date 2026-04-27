@@ -125,13 +125,20 @@ def editor_send():
 
     history = session.get("chat", [])
     history.append({"role": "user", "content": msg})
-    reply = handle_chat_message(msg, history[:-1])  # pass history without current turn
+    result = handle_chat_message(msg, history[:-1])
+    if isinstance(result, dict):
+        reply = result.get("reply", "")
+        tool_events = result.get("tool_events", [])
+    else:
+        reply = result
+        tool_events = []
+
     history.append({"role": "assistant", "content": reply})
-    session["chat"] = history[-11:]  # store 11 so history[:-1] passes 10 to Claude
+    session["chat"] = history[-11:]
     session.modified = True
 
     if request.is_json:
-        return {"reply": reply}
+        return {"reply": reply, "tool_events": tool_events}
     return redirect(url_for("editor"))
 
 

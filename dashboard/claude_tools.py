@@ -12,6 +12,13 @@ ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 
 GITHUB_API = "https://api.github.com"
+RAILWAY_API = "https://backboard.railway.app/graphql/v2"
+RAILWAY_TOKEN = os.environ.get("RAILWAY_TOKEN", "")
+RAILWAY_PROJECT_ID = os.environ.get("RAILWAY_PROJECT_ID", "")
+# Optional: explicit service IDs (auto-discovered from project if not set)
+RAILWAY_BOT_SERVICE_ID = os.environ.get("RAILWAY_BOT_SERVICE_ID", "")
+RAILWAY_DASHBOARD_SERVICE_ID = os.environ.get("RAILWAY_DASHBOARD_SERVICE_ID", "")
+
 GH_HEADERS = {
     "Authorization": f"Bearer {GITHUB_PAT}",
     "Accept": "application/vnd.github+json",
@@ -67,6 +74,41 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "get_railway_logs",
+        "description": "Fetch recent deployment logs from Railway for the bot or dashboard service. Use this proactively when the user reports errors, unexpected behavior, or anything not working — don't wait for them to ask. Returns the last N log lines.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "enum": ["bot", "dashboard"],
+                    "description": "Which Railway service to fetch logs from"
+                },
+                "lines": {
+                    "type": "integer",
+                    "description": "Number of recent log lines (default 50, max 200)",
+                    "default": 50
+                }
+            },
+            "required": ["service"]
+        }
+    },
+    {
+        "name": "get_deployment_status",
+        "description": "Check the latest deployment status on Railway for the bot or dashboard. Use this after committing a file to confirm the deploy succeeded.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "service": {
+                    "type": "string",
+                    "enum": ["bot", "dashboard"],
+                    "description": "Which service to check"
+                }
+            },
+            "required": ["service"]
+        }
+    }
 ]
 
 def gh_get_file(path):
@@ -98,6 +140,21 @@ def gh_list(path):
     items = r.json()
     return [{"name": i["name"], "type": i["type"], "path": i["path"]} for i in items]
 
+def railway_query(query, variables=None):
+    """Call Railway GraphQL API. Returns parsed JSON or error dict."""
+    if not RAILWAY_TOKEN:
+        return {"error": "RAILWAY_TOKEN env var not set — add it to the dashboard Railway service"}
+    try:
+        r = requests.post(
+            RAILWAY_API,
+            headers={"Authorization": f"Bearer {RAILWAY_TOKEN}", "Content-Type": "application/json"},
+            json={"query": query, "variables": variables or {}},
+            timeout=15,
+        )
+        return r.json()
+    except Exception as e:
+        return {"error": f"Railway API error: {e}"}
+
 def execute_tool(name, args):
     try:
         if name == "read_file":
@@ -112,6 +169,102 @@ def execute_tool(name, args):
         if name == "list_files":
             items = gh_list(args.get("path", ""))
             return "\n".join(f"{i['type']}: {i['path']}" for i in items)
+        if name == "get_railway_logs":
+            service = args.get("service", "bot")
+            lines = min(int(args.get("lines", 50)), 200)
+            if not RAILWAY_TOKEN:
+                return "RAILWAY_TOKEN not set. Ask Corey to add it at railway.app → Account Settings → Tokens."
+            if not RAILWAY_PROJECT_ID:
+                return "RAILWAY_PROJECT_ID not set. Ask Corey to add it (visible in the Railway project URL)."
+            # Step 1: Get service ID
+            service_id = RAILWAY_BOT_SERVICE_ID if service == "bot" else RAILWAY_DASHBOARD_SERVICE_ID
+            if not service_id:
+                # Auto-discover from project
+                result = railway_query("""
+                    query($projectId: String!) {
+                      project(id: $projectId) {
+                        services { edges { node { id name } } }
+                      }
+                    }
+                """, {"projectId": RAILWAY_PROJECT_ID})
+                if "error" in result:
+                    return f"Railway API error: {result['error']}"
+                services = result.get("data", {}).get("project", {}).get("services", {}).get("edges", [])
+                target_name = "bot" if service == "bot" else "dashboard"
+                matched = [s["node"] for s in services if target_name.lower() in s["node"]["name"].lower()]
+                if not matched:
+                    names = [s["node"]["name"] for s in services]
+                    return f"Couldn't find {service} service. Available: {names}. Set RAILWAY_BOT_SERVICE_ID or RAILWAY_DASHBOARD_SERVICE_ID env vars."
+                service_id = matched[0]["id"]
+            # Step 2: Get latest deployment ID
+            result = railway_query("""
+                query($serviceId: String!) {
+                  deployments(input: { serviceId: $serviceId }) {
+                    edges { node { id status createdAt } }
+                  }
+                }
+            """, {"serviceId": service_id})
+            if "error" in result:
+                return f"Railway API error: {result['error']}"
+            deployments = result.get("data", {}).get("deployments", {}).get("edges", [])
+            if not deployments:
+                return f"No deployments found for {service} service."
+            latest = deployments[0]["node"]
+            deployment_id = latest["id"]
+            status = latest["status"]
+            # Step 3: Get logs
+            result = railway_query("""
+                query($deploymentId: String!) {
+                  deploymentLogs(deploymentId: $deploymentId) {
+                    message timestamp severity
+                  }
+                }
+            """, {"deploymentId": deployment_id})
+            if "error" in result:
+                return f"Railway API error: {result['error']}"
+            logs = result.get("data", {}).get("deploymentLogs", [])
+            if not logs:
+                return f"No logs available for latest {service} deployment (status: {status})."
+            recent = logs[-lines:]
+            log_text = "\n".join(f"[{l.get('severity','INFO')}] {l.get('message','')}" for l in recent)
+            return f"=== {service.upper()} logs (deployment {deployment_id[:8]}, status: {status}) ===\n{log_text}"
+        if name == "get_deployment_status":
+            service = args.get("service", "bot")
+            if not RAILWAY_TOKEN:
+                return "RAILWAY_TOKEN not set."
+            if not RAILWAY_PROJECT_ID:
+                return "RAILWAY_PROJECT_ID not set."
+            service_id = RAILWAY_BOT_SERVICE_ID if service == "bot" else RAILWAY_DASHBOARD_SERVICE_ID
+            if not service_id:
+                result = railway_query("""
+                    query($projectId: String!) {
+                      project(id: $projectId) {
+                        services { edges { node { id name } } }
+                      }
+                    }
+                """, {"projectId": RAILWAY_PROJECT_ID})
+                if "error" in result:
+                    return f"Railway API error: {result['error']}"
+                services = result.get("data", {}).get("project", {}).get("services", {}).get("edges", [])
+                target_name = "bot" if service == "bot" else "dashboard"
+                matched = [s["node"] for s in services if target_name.lower() in s["node"]["name"].lower()]
+                if not matched:
+                    return f"Couldn't find {service} service."
+                service_id = matched[0]["id"]
+            result = railway_query("""
+                query($serviceId: String!) {
+                  deployments(input: { serviceId: $serviceId }) {
+                    edges { node { id status createdAt } }
+                  }
+                }
+            """, {"serviceId": service_id})
+            if "error" in result:
+                return f"Railway API error: {result['error']}"
+            deployments = result.get("data", {}).get("deployments", {}).get("edges", [])
+            if not deployments:
+                return f"No deployments found for {service}."
+            d = deployments[0]["node"]
+            return f"{service.upper()} latest deployment: {d['status']} (id: {d['id'][:8]}, created: {d['createdAt']})"
         return f"Unknown tool: {name}"
     except Exception as e:
         logging.exception(f"Tool {name} failed")
@@ -125,27 +278,27 @@ def handle_chat_message(user_message, history):
     the session after this returns.
     """
     if not claude:
-        return "Anthropic API key not configured."
+        return {"reply": "Anthropic API key not configured.", "tool_events": []}
     if not GITHUB_PAT:
-        return "GITHUB_PAT not configured — can't read/write the repo."
+        return {"reply": "GITHUB_PAT not configured — can't read/write the repo.", "tool_events": []}
 
     try:
         return _run_agent_loop(user_message, history)
     except anthropic.APIConnectionError as e:
         logging.exception("Claude API connection error")
-        return f"Connection error reaching Claude: {e}"
+        return {"reply": f"Connection error reaching Claude: {e}", "tool_events": []}
     except anthropic.AuthenticationError:
         logging.exception("Claude API auth error")
-        return "Anthropic API key is invalid or expired."
+        return {"reply": "Anthropic API key is invalid or expired.", "tool_events": []}
     except anthropic.RateLimitError:
         logging.exception("Claude API rate limit")
-        return "Rate limited by Anthropic. Try again in a moment."
+        return {"reply": "Rate limited by Anthropic. Try again in a moment.", "tool_events": []}
     except anthropic.APIStatusError as e:
         logging.exception("Claude API status error")
-        return f"Claude API error ({e.status_code}): {e.message}"
+        return {"reply": f"Claude API error ({e.status_code}): {e.message}", "tool_events": []}
     except Exception as e:
         logging.exception("Unexpected error in handle_chat_message")
-        return f"Unexpected error: {e}"
+        return {"reply": f"Unexpected error: {e}", "tool_events": []}
 
 
 def _run_agent_loop(user_message, history):
@@ -154,6 +307,8 @@ def _run_agent_loop(user_message, history):
     capped_history = list(history)[-20:]
 
     messages = capped_history + [{"role": "user", "content": user_message}]
+
+    tool_events = []
 
     for _ in range(10):  # safety cap on tool-use loops
         response = claude.messages.create(
@@ -167,7 +322,7 @@ def _run_agent_loop(user_message, history):
         if response.stop_reason != "tool_use":
             # Final text response — concat any text blocks
             text = "".join(b.text for b in response.content if b.type == "text")
-            return text or "(no response)"
+            return {"reply": text or "(no response)", "tool_events": tool_events}
 
         # Append assistant turn (with tool_use blocks) and run the tools
         messages.append({"role": "assistant", "content": response.content})
@@ -176,6 +331,11 @@ def _run_agent_loop(user_message, history):
         for block in response.content:
             if block.type == "tool_use":
                 result = execute_tool(block.name, block.input)
+                tool_events.append({
+                    "tool": block.name,
+                    "input": block.input,
+                    "result_preview": result[:300] if isinstance(result, str) else str(result)[:300]
+                })
                 tool_results.append({
                     "type": "tool_result",
                     "tool_use_id": block.id,
@@ -183,4 +343,4 @@ def _run_agent_loop(user_message, history):
                 })
         messages.append({"role": "user", "content": tool_results})
 
-    return "Hit the tool-use loop cap (10 iterations). Try a more specific request."
+    return {"reply": "Hit the tool-use loop cap (10 iterations). Try a more specific request.", "tool_events": tool_events}
