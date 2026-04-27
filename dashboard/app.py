@@ -142,6 +142,95 @@ def editor_clear():
     return redirect(url_for("editor"))
 
 
+# ── Bot API proxy — forwards to bot service with shared token ──────────────
+
+def _bot(method, path, json_body=None):
+    """Forward a request to the bot API with the shared Bearer token."""
+    try:
+        r = requests.request(
+            method,
+            f"{BOT_URL}{path}",
+            headers={"Authorization": f"Bearer {API_TOKEN}", "Content-Type": "application/json"},
+            json=json_body,
+            timeout=8,
+        )
+        return r.json(), r.status_code
+    except Exception as e:
+        return {"error": str(e)}, 502
+
+
+# Meals
+@app.route("/api/meals", methods=["POST"])
+@require_login
+def proxy_meals_create():
+    body, status = _bot("POST", "/api/meals", request.get_json(force=True))
+    return body, status
+
+
+@app.route("/api/meals/<int:meal_id>", methods=["PATCH", "DELETE"])
+@require_login
+def proxy_meals_item(meal_id):
+    body, status = _bot(
+        request.method,
+        f"/api/meals/{meal_id}",
+        request.get_json(force=True) if request.method == "PATCH" else None,
+    )
+    return body, status
+
+
+# Injuries
+@app.route("/api/injuries", methods=["POST"])
+@require_login
+def proxy_injuries_create():
+    body, status = _bot("POST", "/api/injuries", request.get_json(force=True))
+    return body, status
+
+
+@app.route("/api/injuries/<int:injury_id>", methods=["PATCH", "DELETE"])
+@require_login
+def proxy_injuries_item(injury_id):
+    body, status = _bot(
+        request.method,
+        f"/api/injuries/{injury_id}",
+        request.get_json(force=True) if request.method == "PATCH" else None,
+    )
+    return body, status
+
+
+# Problems
+@app.route("/api/problems", methods=["POST"])
+@require_login
+def proxy_problems_create():
+    body, status = _bot("POST", "/api/problems", request.get_json(force=True))
+    return body, status
+
+
+@app.route("/api/problems/<int:problem_id>", methods=["PATCH", "DELETE"])
+@require_login
+def proxy_problems_item(problem_id):
+    body, status = _bot(
+        request.method,
+        f"/api/problems/{problem_id}",
+        request.get_json(force=True) if request.method == "PATCH" else None,
+    )
+    return body, status
+
+
+# Water
+@app.route("/api/water/add", methods=["POST"])
+@require_login
+def proxy_water_add():
+    body, status = _bot("POST", "/api/water/add", request.get_json(force=True))
+    return body, status
+
+
+@app.route("/api/water/entry/<int:entry_id>", methods=["DELETE"])
+@require_login
+def proxy_water_delete(entry_id):
+    body, status = _bot("DELETE", f"/api/water/entry/{entry_id}")
+    return body, status
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5050))
     app.run(host="0.0.0.0", port=port, debug=False)

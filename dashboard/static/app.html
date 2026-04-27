@@ -1469,17 +1469,20 @@ function isBotEntry(id) {
 
 function getHydrationLog() {
   if (_hyLog === null) {
-    // Prefer live bot data when available
     const d = window.__bjjdata;
-    if (d && !d.error && typeof d.water_today === "number") {
-      const totalMl = Math.round((d.water_today || 0) * 1000);
-      if (totalMl > 0) {
-        const now = new Date();
-        const time = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
-        _hyLog = [{ id: "bot-today", amount: totalMl, time }];
-      } else {
-        _hyLog = [];
-      }
+    if (d && !d.error && Array.isArray(d.water_log_today) && d.water_log_today.length > 0) {
+      // Use real per-sip entries from water_log table
+      _hyLog = d.water_log_today.map(e => ({
+        id: String(e.id),  // numeric bot ID as string
+        amount: e.amount_ml,
+        time: e.time,
+      }));
+    } else if (d && !d.error && typeof d.water_today === "number" && d.water_today > 0) {
+      // Fall back to synthesized single entry if no log entries yet
+      const totalMl = Math.round(d.water_today * 1000);
+      const now = new Date();
+      const time = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+      _hyLog = [{ id: "bot-today", amount: totalMl, time }];
     } else {
       _hyLog = _hReadLS("hydration_log_v2", []);
     }
@@ -1510,6 +1513,16 @@ function setHydrationGoal(next) {
 function subscribeHydration(fn) {
   _hyListeners.add(fn);
   return () => _hyListeners.delete(fn);
+}
+
+async function apiCall(method, path, body) {
+  try {
+    await fetch(path, {
+      method,
+      headers: body ? { "Content-Type": "application/json" } : {},
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {}  // silent fail — optimistic update already applied
 }
 
 function useHydrationStore() {
@@ -1890,9 +1903,12 @@ function Hydration({ onBack }) {
     if (!ml || ml <= 0) return;
     const id = "log-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     setLog((prev) => [...prev, { id, amount: ml, time: time || nowTimeLabel() }]);
+    apiCall("POST", "/api/water/add", { amount_l: ml / 1000 });
   };
   const removeEntry = (id) => {
     setLog((prev) => prev.filter((e) => e.id !== id));
+    const entryId = parseInt(id, 10);
+    if (!isNaN(entryId)) apiCall("DELETE", `/api/water/entry/${entryId}`);
   };
   const submitCustom = ({ amount, time }) => {
     addAmount(amount, time);
@@ -5210,13 +5226,31 @@ function Meals({ onBack }) {
   const totalF = meals.reduce((s, m) => s + (Number(m.macros?.f) || 0), 0);
 
   const deleteMeal = (id) => {
+    const confirmMeal = meals.find((m) => m.id === id);
     persist(meals.filter((m) => m.id !== id));
     setConfirmId(null);
     if (detailId === id) setDetailId(null);
+    if (confirmMeal) {
+      const mealId = parseInt(confirmMeal.id, 10);
+      if (!isNaN(mealId)) apiCall("DELETE", `/api/meals/${mealId}`);
+    }
   };
   const updateMeal = (id, data) => {
+    const editingMeal = meals.find((m) => m.id === id);
     persist(meals.map((m) => m.id === id ? { ...m, ...data } : m));
     setEditingId(null);
+    if (editingMeal) {
+      const mealId = parseInt(editingMeal.id, 10);
+      if (!isNaN(mealId)) {
+        apiCall("PATCH", `/api/meals/${mealId}`, {
+          name: data.label || data.name || "",
+          calories: data.calories || 0,
+          kind: data.kind || "other",
+          notes: data.notes || "",
+          time: data.time || "",
+        });
+      }
+    }
   };
   const addMeal = (data) => {
     const id = "M-" + Date.now().toString(36);
@@ -5224,6 +5258,13 @@ function Meals({ onBack }) {
     const next = [...meals, { ...data, id }].sort((a, b) => (a.time || "").localeCompare(b.time || ""));
     persist(next);
     setAdding(false);
+    apiCall("POST", "/api/meals", {
+      name: data.label || data.name || "",
+      calories: data.calories || 0,
+      kind: data.kind || "other",
+      notes: data.notes || "",
+      time: data.time || "",
+    });
   };
 
   const confirmMeal  = confirmId ? meals.find((m) => m.id === confirmId) : null;
@@ -5992,20 +6033,31 @@ function Problems({ onBack }) {
     setPinned((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
   const deleteProblem = (id) => {
+    const probId = id.startsWith("bot-problem-")
+      ? parseInt(id.replace("bot-problem-", ""), 10)
+      : NaN;
     setProblems((prev) => prev.filter((p) => p.id !== id));
     setPinned((prev) => prev.filter((x) => x !== id));
     setConfirmId(null);
     if (detailId === id) setDetailId(null);
+    if (!isNaN(probId)) apiCall("DELETE", `/api/problems/${probId}`);
   };
   const addProblem = (name, tier, description) => {
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
       + "-" + Date.now().toString(36);
     setProblems((prev) => [...prev, { id, name, tier, description }]);
     setAdding(false);
+    apiCall("POST", "/api/problems", { name, tier, description });
   };
   const updateProblem = (id, name, tier, description) => {
+    const probId = id.startsWith("bot-problem-")
+      ? parseInt(id.replace("bot-problem-", ""), 10)
+      : NaN;
     setProblems((prev) => prev.map((p) => p.id === id ? { ...p, name, tier, description } : p));
     setEditingId(null);
+    if (!isNaN(probId)) {
+      apiCall("PATCH", `/api/problems/${probId}`, { name, tier, description });
+    }
   };
 
   const liveProblems = window.__bjjdata && Array.isArray(window.__bjjdata.all_problems) && window.__bjjdata.all_problems.length > 0
@@ -6557,21 +6609,42 @@ function MicroInjuries({ onBack }) {
   const togglePin = (id) => {
     setPinned((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
+  const uiBotSev = { watch: "minor", fresh: "moderate", critical: "severe", managing: "minor" };
+
   const deleteInjury = (id) => {
+    const injId = id.startsWith("bot-injury-")
+      ? parseInt(id.replace("bot-injury-", ""), 10)
+      : NaN;
     setInjuries((prev) => prev.filter((p) => p.id !== id));
     setPinned((prev) => prev.filter((x) => x !== id));
     setConfirmId(null);
     if (detailId === id) setDetailId(null);
+    if (!isNaN(injId)) apiCall("DELETE", `/api/injuries/${injId}`);
   };
   const addInjury = (name, severity, region, rest, description) => {
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
       + "-" + Date.now().toString(36);
     setInjuries((prev) => [...prev, { id, name, severity, region, rest, description }]);
     setAdding(false);
+    apiCall("POST", "/api/injuries", {
+      body_part: name,
+      severity: uiBotSev[severity] || "minor",
+      notes: description || "",
+    });
   };
   const updateInjury = (id, name, severity, region, rest, description) => {
+    const injId = id.startsWith("bot-injury-")
+      ? parseInt(id.replace("bot-injury-", ""), 10)
+      : NaN;
     setInjuries((prev) => prev.map((p) => p.id === id ? { ...p, name, severity, region, rest, description } : p));
     setEditingId(null);
+    if (!isNaN(injId)) {
+      apiCall("PATCH", `/api/injuries/${injId}`, {
+        body_part: name,
+        severity: uiBotSev[severity] || "minor",
+        notes: description || "",
+      });
+    }
   };
 
   const botSevMap = { minor: "watch", moderate: "fresh", severe: "critical" };

@@ -83,6 +83,21 @@ def init_db():
             resolved   INTEGER DEFAULT 0,
             created_at TEXT
         )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS water_log (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            date       TEXT,
+            time       TEXT,
+            amount_l   REAL,
+            created_at TEXT
+        )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS problems (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT,
+            tier        TEXT DEFAULT 'med',
+            description TEXT DEFAULT '',
+            resolved    INTEGER DEFAULT 0,
+            created_at  TEXT
+        )''')
         conn.commit()
 
 def save_message(role, content):
@@ -287,27 +302,20 @@ def get_all_injuries():
 
 
 def get_all_problems():
-    """Return all flagged technique problems from journal history."""
+    """All technique problems from DB + active flag."""
     problems = []
-    # Current active flag
     if state.get("flag_for_bruno"):
-        problems.append({"name": state["flag_for_bruno"], "tier": "urgent", "source": "active"})
-    # Recent journal entries with extracted issues
+        problems.append({"id": "active", "name": state["flag_for_bruno"], "tier": "urgent", "description": "Flagged for next Bruno session.", "resolved": False})
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT notes FROM journal ORDER BY created_at DESC LIMIT 30'
+                'SELECT id, name, tier, description, resolved FROM problems ORDER BY created_at DESC LIMIT 20'
             ).fetchall()
         seen = {p["name"].lower() for p in problems}
-        for (notes,) in rows:
-            if not notes:
-                continue
-            issue = extract_issue(notes)
-            if issue and issue.lower() not in seen:
-                problems.append({"name": issue, "tier": "med", "source": "journal"})
-                seen.add(issue.lower())
-                if len(problems) >= 8:
-                    break
+        for r in rows:
+            if r[1].lower() not in seen:
+                problems.append({"id": r[0], "name": r[1], "tier": r[2], "description": r[3] or "", "resolved": bool(r[4])})
+                seen.add(r[1].lower())
     except Exception:
         pass
     return problems
@@ -474,6 +482,19 @@ def get_bruno_recent():
             }
     except Exception:
         return None
+
+def get_water_log_today():
+    """Per-sip water entries for today."""
+    today = datetime.now(TZ).strftime('%Y-%m-%d')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT id, time, amount_l FROM water_log WHERE date = ? ORDER BY created_at ASC', (today,)
+            ).fetchall()
+        return [{"id": r[0], "time": r[1], "amount_ml": round(r[2] * 1000)} for r in rows]
+    except Exception:
+        return []
+
 
 def get_water_history(days=6):
     """Last N days of water intake for the dashboard chart."""
@@ -853,6 +874,15 @@ def webhook():
             check_and_reset_water()
             state["water_today"] = round(state["water_today"] + liters, 2)
             save_water_to_db()
+            try:
+                with sqlite3.connect(DB_PATH) as conn:
+                    conn.execute(
+                        'INSERT INTO water_log (date, time, amount_l, created_at) VALUES (?,?,?,?)',
+                        (datetime.now(TZ).strftime('%Y-%m-%d'), datetime.now(TZ).strftime('%H:%M'), liters, datetime.now(TZ).isoformat())
+                    )
+                    conn.commit()
+            except Exception as e:
+                logging.error(f"water_log insert error: {e}")
             remaining = round(WATER_GOAL_L - state["water_today"], 2)
             if remaining <= 0:
                 resp.message(f"LET'S GO!! You hit your {WATER_GOAL_L}L goal today 🎉💧")
@@ -1009,6 +1039,15 @@ def webhook():
                 check_and_reset_water()
                 state["water_today"] = round(state["water_today"] + liters, 2)
                 save_water_to_db()
+                try:
+                    with sqlite3.connect(DB_PATH) as conn:
+                        conn.execute(
+                            'INSERT INTO water_log (date, time, amount_l, created_at) VALUES (?,?,?,?)',
+                            (datetime.now(TZ).strftime('%Y-%m-%d'), datetime.now(TZ).strftime('%H:%M'), liters, datetime.now(TZ).isoformat())
+                        )
+                        conn.commit()
+                except Exception as e:
+                    logging.error(f"water_log insert error: {e}")
                 remaining = round(WATER_GOAL_L - state["water_today"], 2)
                 if remaining <= 0:
                     resp.message(f"+{liters}L logged 💧 LET'S GO — you hit your {WATER_GOAL_L}L goal today 🎉")
@@ -1066,6 +1105,7 @@ def api_status():
         "water_remaining": round(WATER_GOAL_L - state["water_today"], 2),
         "streak_days": get_streak_days(),
         "daily_water_7d": get_water_history(6),
+        "water_log_today": get_water_log_today(),
         # bot state
         "last_question": state["last_question"],
         "drilling_time": state["drilling_time"],
@@ -1176,6 +1216,181 @@ init_db()
 load_water_from_db()
 chat_history.extend(load_chat_history(20))
 scheduler.start()
+
+# ── CRUD ENDPOINTS ────────────────────────────────────────────────────────────
+
+@app.route('/api/meals', methods=['POST'])
+def api_meals_create():
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    save_meal(data.get('name', ''), data.get('calories', 0), data.get('kind', 'other'), data.get('notes', ''))
+    return {"ok": True}
+
+@app.route('/api/meals/<int:meal_id>', methods=['PATCH'])
+def api_meals_update(meal_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            for field in ('name', 'kind', 'time', 'notes'):
+                if field in data:
+                    conn.execute(f'UPDATE meals SET {field}=? WHERE id=?', (data[field], meal_id))
+            if 'calories' in data:
+                conn.execute('UPDATE meals SET calories=? WHERE id=?', (int(data['calories']), meal_id))
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/meals/<int:meal_id>', methods=['DELETE'])
+def api_meals_delete(meal_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute('DELETE FROM meals WHERE id=?', (meal_id,))
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/injuries', methods=['POST'])
+def api_injuries_create():
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    save_injury(data.get('body_part', ''), data.get('severity', 'minor'), data.get('notes', ''))
+    return {"ok": True}
+
+@app.route('/api/injuries/<int:injury_id>', methods=['PATCH'])
+def api_injuries_update(injury_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            for field in ('body_part', 'severity', 'notes'):
+                if field in data:
+                    conn.execute(f'UPDATE injuries SET {field}=? WHERE id=?', (data[field], injury_id))
+            if 'resolved' in data:
+                conn.execute('UPDATE injuries SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, injury_id))
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/injuries/<int:injury_id>', methods=['DELETE'])
+def api_injuries_delete(injury_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute('DELETE FROM injuries WHERE id=?', (injury_id,))
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/problems', methods=['POST'])
+def api_problems_create():
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO problems (name, tier, description, created_at) VALUES (?,?,?,?)',
+                (data.get('name', ''), data.get('tier', 'med'), data.get('description', ''), datetime.now(TZ).isoformat())
+            )
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/problems/<int:problem_id>', methods=['PATCH'])
+def api_problems_update(problem_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            for field in ('name', 'tier', 'description'):
+                if field in data:
+                    conn.execute(f'UPDATE problems SET {field}=? WHERE id=?', (data[field], problem_id))
+            if 'resolved' in data:
+                conn.execute('UPDATE problems SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, problem_id))
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/problems/<int:problem_id>', methods=['DELETE'])
+def api_problems_delete(problem_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute('DELETE FROM problems WHERE id=?', (problem_id,))
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/water/add', methods=['POST'])
+def api_water_add():
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    try:
+        liters = float(data.get('amount_l', 0))
+    except (TypeError, ValueError):
+        return {"error": "invalid amount_l"}, 400
+    if liters <= 0:
+        return {"error": "amount_l must be > 0"}, 400
+    now = datetime.now(TZ)
+    check_and_reset_water()
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO water_log (date, time, amount_l, created_at) VALUES (?,?,?,?)',
+                (now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), liters, now.isoformat())
+            )
+            conn.commit()
+        state["water_today"] = round(state["water_today"] + liters, 2)
+        save_water_to_db()
+        return {"ok": True, "water_today": state["water_today"]}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route('/api/water/entry/<int:entry_id>', methods=['DELETE'])
+def api_water_delete(entry_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute('SELECT amount_l FROM water_log WHERE id=?', (entry_id,)).fetchone()
+            if not row:
+                return {"error": "not found"}, 404
+            conn.execute('DELETE FROM water_log WHERE id=?', (entry_id,))
+            conn.commit()
+        state["water_today"] = round(max(0.0, state["water_today"] - row[0]), 2)
+        save_water_to_db()
+        return {"ok": True, "water_today": state["water_today"]}
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 # ── RUN ───────────────────────────────────────────────────────────────────────
 
