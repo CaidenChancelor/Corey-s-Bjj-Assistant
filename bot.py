@@ -1065,7 +1065,7 @@ def trigger(action):
 scheduler = BackgroundScheduler(timezone=TZ)
 
 # Ask drilling time every weekday morning
-scheduler.add_job(ask_drilling_time, 'cron', day_of_week='mon-fri', hour=6, minute=30)
+scheduler.add_job(ask_drilling_time, 'cron', day_of_week='mon,wed,fri', hour=6, minute=30)
 
 # Ask stretch zone time on Tue/Thu
 scheduler.add_job(ask_stretch_time, 'cron', day_of_week='tue,thu', hour=10, minute=30)
@@ -1092,7 +1092,7 @@ scheduler.add_job(water_penalty_check, 'cron', hour=22, minute=0)
 scheduler.add_job(water_late_night,'cron', hour=1,  minute=39)
 scheduler.add_job(water_morning,   'cron', hour=9,  minute=0)
 scheduler.add_job(water_afternoon, 'cron', hour=13, minute=30)
-scheduler.add_job(water_evening,   'cron', hour=19, minute=0)
+scheduler.add_job(water_evening,   'cron', hour=19, minute=5)
 
 init_db()
 load_water_from_db()

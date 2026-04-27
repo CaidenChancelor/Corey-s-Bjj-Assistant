@@ -2241,6 +2241,7 @@ function Hydration({ onBack }) {
           .hy-body-grid { grid-template-columns: 1fr !important; }
         }
         .nav-pill-tab { min-height: 44px !important; display: flex !important; align-items: center !important; }
+        @media (hover: none) { .lesson-row-actions { opacity: 1 !important; } }
       `}</style>
     </div>
   );
@@ -4672,6 +4673,53 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
           <div style={{ fontSize: 14.5, color: "rgba(29,29,31,0.68)", lineHeight: 1.5 }}>
             {lesson.description}
           </div>
+        </div>
+
+        {/* Action buttons — always visible on touch, hover-only on desktop */}
+        <div style={{
+          display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+          flexShrink: 0, paddingTop: 2,
+          opacity: (showStar || showActions) ? 1 : 0,
+          transition: "opacity 150ms ease",
+        }} className="lesson-row-actions">
+          <button
+            onClick={(e) => { e.stopPropagation(); onTogglePin(); }}
+            aria-label={isPinned ? "Unpin lesson" : "Pin lesson"}
+            style={{
+              width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
+              background: isPinned ? "rgba(255,159,28,0.12)" : "transparent",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: isPinned ? "#ff9f1c" : "rgba(29,29,31,0.4)",
+              transition: "all 150ms ease",
+            }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          {showActions && <>
+            <button
+              onClick={(e) => { e.stopPropagation(); onRequestEdit(); }}
+              aria-label="Edit lesson"
+              style={{
+                width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
+                background: editHover ? "rgba(0,0,0,0.05)" : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "rgba(29,29,31,0.45)",
+              }}
+              onMouseEnter={() => setEditHover(true)} onMouseLeave={() => setEditHover(false)}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onRequestDelete(); }}
+              aria-label="Delete lesson"
+              style={{
+                width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
+                background: trashHover ? "rgba(224,38,74,0.08)" : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "#e0264a",
+              }}
+              onMouseEnter={() => setTrashHover(true)} onMouseLeave={() => setTrashHover(false)}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </>}
         </div>
       </div>
     </div>

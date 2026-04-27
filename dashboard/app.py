@@ -127,7 +127,7 @@ def editor_send():
     history.append({"role": "user", "content": msg})
     reply = handle_chat_message(msg, history[:-1])  # pass history without current turn
     history.append({"role": "assistant", "content": reply})
-    session["chat"] = history[-10:]  # 10 messages max to stay under 4KB cookie limit
+    session["chat"] = history[-11:]  # store 11 so history[:-1] passes 10 to Claude
     session.modified = True
 
     if request.is_json:
