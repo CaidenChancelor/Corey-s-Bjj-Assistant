@@ -102,6 +102,20 @@ def init_db():
     key   TEXT PRIMARY KEY,
     value TEXT
 )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS techniques (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT UNIQUE,
+    created_at TEXT
+)''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS technique_log (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    technique_id INTEGER,
+    date         TEXT,
+    session      TEXT,
+    notes        TEXT,
+    sentiment    TEXT,
+    created_at   TEXT
+)''')
         conn.commit()
 
 def save_message(role, content):
@@ -661,6 +675,7 @@ state = {
     "debrief_one_liner": None,   # e.g. "Couldn't stack when he kept hips heavy"
     "_problem_position": None,
     "_problem_issue": None,
+    "_technique_check_pending": None,  # technique awaiting folder-check confirmation
     "flag_for_bruno": None,      # technique to flag in the next private reminder
     "rest_day": False,           # if True, suppress all session reminders for today
     "rest_day_date": None,       # date the rest day was set
@@ -797,6 +812,99 @@ def send_followup():
                           id='followup', replace_existing=True)
     else:
         state["awaiting_reply"] = False
+
+def _normalize_technique(name):
+    """Normalize technique name: lowercase, strip, collapse whitespace. No semantic merging."""
+    return " ".join(name.lower().strip().split())
+
+
+def get_or_create_technique(name):
+    """Find or create a technique folder. Returns (id, is_new)."""
+    normalized = _normalize_technique(name)
+    if not normalized:
+        return None, True
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            row = conn.execute('SELECT id FROM techniques WHERE name = ?', (normalized,)).fetchone()
+            if row:
+                return row[0], False
+            cursor = conn.execute(
+                'INSERT INTO techniques (name, created_at) VALUES (?,?)',
+                (normalized, datetime.now(TZ).isoformat())
+            )
+            conn.commit()
+            return cursor.lastrowid, True
+    except Exception as e:
+        logging.error(f"get_or_create_technique error: {e}")
+        return None, True
+
+
+def log_technique_note(technique_id, session, notes, sentiment):
+    """Append a session note to a technique folder."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO technique_log (technique_id, date, session, notes, sentiment, created_at) VALUES (?,?,?,?,?,?)',
+                (technique_id, datetime.now(TZ).strftime('%Y-%m-%d'), session, notes, sentiment, datetime.now(TZ).isoformat())
+            )
+            conn.commit()
+    except Exception as e:
+        logging.error(f"log_technique_note error: {e}")
+
+
+def get_technique_history(technique_id, limit=5):
+    """Get past notes for a technique folder, newest first, excluding today."""
+    today = datetime.now(TZ).strftime('%Y-%m-%d')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT date, session, notes, sentiment FROM technique_log '
+                'WHERE technique_id = ? AND date < ? ORDER BY created_at DESC LIMIT ?',
+                (technique_id, today, limit)
+            ).fetchall()
+        return [{"date": r[0], "session": r[1], "notes": r[2], "sentiment": r[3]} for r in rows]
+    except Exception:
+        return []
+
+
+def extract_techniques(notes):
+    """Extract all BJJ techniques from notes. Returns [{name, sentiment}] or []."""
+    if not claude or not notes:
+        return []
+    try:
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=250,
+            system=(
+                "Extract BJJ technique names from training notes. "
+                "Return a JSON array of objects: [{\"name\": \"spider lasso\", \"sentiment\": \"struggled\"}]. "
+                "sentiment must be one of: \"learned\" (figured it out/clicked), \"struggled\" (had trouble/issue), \"worked_on\" (neutral). "
+                "Keep technique names exactly as stated — never merge similar techniques. "
+                "Only named techniques, not vague descriptions. Return [] if none. Return ONLY valid JSON, no markdown."
+            ),
+            messages=[{"role": "user", "content": notes}],
+        )
+        raw = re.sub(r'^```\w*\s*|\s*```$', '', response.content[0].text.strip()).strip()
+        result = json.loads(raw)
+        return result if isinstance(result, list) else []
+    except Exception as e:
+        logging.error(f"extract_techniques error: {e}")
+        return []
+
+
+def get_all_techniques():
+    """All technique folders with note count and last seen date."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT t.id, t.name, COUNT(l.id) as cnt, MAX(l.date) as last_seen '
+                'FROM techniques t LEFT JOIN technique_log l ON t.id = l.technique_id '
+                'GROUP BY t.id ORDER BY last_seen DESC LIMIT 100'
+            ).fetchall()
+        return [{"id": r[0], "name": r[1], "count": r[2], "last_seen": r[3]} for r in rows]
+    except Exception:
+        return []
+
 
 # ── SCHEDULED MESSAGES ────────────────────────────────────────────────────────
 
@@ -1101,9 +1209,60 @@ def webhook():
                 issue = extract_issue(notes)
                 if issue:
                     state["flag_for_bruno"] = issue
+
+                # Extract techniques, log them, check for existing folders on struggled techniques
+                techniques = extract_techniques(notes)
+                folder_to_check = None  # (name, id) of first existing folder with struggled sentiment
+
+                for tech in techniques:
+                    tech_name = (tech.get("name") or "").strip()
+                    if not tech_name:
+                        continue
+                    tid, is_new = get_or_create_technique(tech_name)
+                    if tid:
+                        log_technique_note(tid, session_type, notes, tech.get("sentiment", "worked_on"))
+                        if not is_new and tech.get("sentiment") == "struggled" and folder_to_check is None:
+                            folder_to_check = (tech_name, tid)
+
+                if folder_to_check:
+                    tech_name, _ = folder_to_check
+                    state["debrief_step"] = "technique_folder_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    state["_technique_check_pending"] = tech_name
+                    resp.message(f"Logged 🥋\n\nWe already have a folder on {tech_name}. Want me to check that folder to see if you've solved this before?")
+                else:
+                    state["debrief_step"] = "injury_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    resp.message("Logged 🥋 Anything feel off physically? Any tweaks or soreness?")
+
+            elif step == "technique_folder_check":
+                tech_name = state.get("_technique_check_pending", "")
+                lower = raw_body.lower().strip()
+                yes_words = ["yes", "yeah", "yep", "yup", "sure", "check", "go ahead", "please", "ok", "okay", "y"]
+                wants_check = any(w in lower for w in yes_words)
+
+                if wants_check and tech_name:
+                    tid, _ = get_or_create_technique(tech_name)
+                    if tid:
+                        history = get_technique_history(tid, limit=3)
+                        if history:
+                            lines = []
+                            for h in history:
+                                snippet = h["notes"][:250] + ("…" if len(h["notes"]) > 250 else "")
+                                lines.append(f"📅 {h['date']} ({h['session']}):\n\"{snippet}\"")
+                            resp.message(f"Here's what you had on {tech_name}:\n\n" + "\n\n".join(lines))
+                        else:
+                            resp.message(f"Folder exists for {tech_name} but no older notes found yet.")
+                    else:
+                        resp.message("Couldn't load that folder.")
+                else:
+                    resp.message("Got it, moving on.")
+
+                # Always proceed to injury check
                 state["debrief_step"] = "injury_check"
                 state["debrief_time"] = datetime.now(TZ)
-                resp.message("Logged 🥋 Anything feel off physically? Any tweaks, soreness, or pain?")
+                state["_technique_check_pending"] = None
+                return str(resp)
 
             elif step == "injury_check":
                 lower = raw_body.lower()
@@ -1175,6 +1334,7 @@ def webhook():
                 state["debrief_time"] = None
                 state["_problem_position"] = None
                 state["_problem_issue"] = None
+                state["_technique_check_pending"] = None
                 resp.message(f"Flagged — {position} ({tier}) 📌 I'll make sure Bruno knows. Keep grinding 💪")
 
             return str(resp)
@@ -1300,6 +1460,7 @@ def api_status():
         "injuries_count": len(injuries),
         "all_injuries": get_all_injuries(),
         "all_problems": get_all_problems(),
+        "techniques": get_all_techniques(),
         # logs
         "recent_messages": recent_messages,
         "journal": [
