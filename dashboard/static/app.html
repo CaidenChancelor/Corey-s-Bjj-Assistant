@@ -4907,19 +4907,11 @@ window.DeleteLessonConfirm = DeleteLessonConfirm;
 
 const { useState: useStateSched, useEffect: useEffectSched } = React;
 
-const TODAY_SCHEDULE = [
-  { time: "06:30",  label: "Wake + hydrate",        meta: "500 ml water · light stretch",       kind: "wellness" },
-  { time: "07:30",  label: "Mobility flow",         meta: "20 min · hips + shoulders",          kind: "training" },
-  { time: "08:30",  label: "Breakfast",             meta: "oats, eggs, fruit",                  kind: "wellness" },
-  { time: "10:00",  label: "Deep work block",       meta: "2 hr focus · no notifications",      kind: "work" },
-  { time: "12:30",  label: "Lunch + walk",          meta: "outside, no phone",                  kind: "wellness" },
-  { time: "14:00",  label: "Meetings",              meta: "design review · 1:1 with Sam",       kind: "work" },
-  { time: "17:30",  label: "Pre-training meal",     meta: "rice + chicken · 90 min before",     kind: "wellness" },
-  { time: "19:00",  label: "BJJ class",             meta: "no-gi · half-guard focus",           kind: "training", highlight: true },
-  { time: "20:30",  label: "Open mat + rolls",      meta: "5 × 6 min rounds",                   kind: "training" },
-  { time: "21:30",  label: "Cooldown + journal",    meta: "stretch · log the session",          kind: "wellness" },
-  { time: "22:30",  label: "Wind down",             meta: "no screens · read 20 min",           kind: "wellness" },
-];
+const TODAY_SCHEDULE = (
+  window.__bjjdata && Array.isArray(window.__bjjdata.today_schedule) && window.__bjjdata.today_schedule.length > 0
+    ? window.__bjjdata.today_schedule
+    : []
+);
 
 const KIND_DOT = {
   training: "linear-gradient(135deg, #ff4f9a, #7a5cff, #4cd6ff)",

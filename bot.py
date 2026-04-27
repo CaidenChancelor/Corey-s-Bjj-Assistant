@@ -291,6 +291,27 @@ def get_streak_days():
     return streak
 
 
+def get_today_schedule():
+    """Return today's real training sessions for the dashboard Schedule page."""
+    now = datetime.now(TZ)
+    weekday = now.strftime('%a').lower()
+    events = []
+    if weekday in ('mon', 'wed', 'fri'):
+        events.append({"time": "07:00", "label": "Drilling",          "kind": "training"})
+        events.append({"time": "10:00", "label": "S&C with Roy",      "kind": "training"})
+        events.append({"time": "14:00", "label": "Bruno private",     "kind": "training", "highlight": True})
+    if weekday == 'mon':
+        events.append({"time": "19:45", "label": "Evening class",     "kind": "training", "highlight": True})
+    if weekday in ('tue', 'thu'):
+        events.append({"time": "11:00", "label": "Stretch Zone",      "kind": "wellness"})
+        events.append({"time": "14:00", "label": "Bruno private",     "kind": "training", "highlight": True})
+        events.append({"time": "19:45", "label": "Competition class", "kind": "training", "highlight": True})
+    if weekday == 'sun':
+        events.append({"time": "20:30", "label": "Open mat",          "kind": "training", "highlight": True})
+    events.sort(key=lambda e: e["time"])
+    return events
+
+
 def get_next_up():
     """Compute the next training session today based on weekday + current time."""
     now = datetime.now(TZ)
@@ -1003,6 +1024,7 @@ def api_status():
         "flag_for_bruno": state["flag_for_bruno"],
         # training
         "next_up": get_next_up(),
+        "today_schedule": get_today_schedule(),
         "bruno_recent": get_bruno_recent(),
         "bruno_lessons": get_bruno_lessons(20),
         "problems": (
