@@ -4358,12 +4358,16 @@ function Editor() {
     setMessages(prev => [...prev, { role: "user", body: text }]);
     setValue("");
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 min timeout
     try {
       const res = await fetch("/editor/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       const reply = data.reply || data;
       const toolEvents = data.tool_events || [];
@@ -4376,7 +4380,9 @@ function Editor() {
         if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }, 100);
     } catch (e) {
-      setMessages(prev => [...prev, { role: "claude", body: "Failed to reach server." }]);
+      clearTimeout(timeoutId);
+      const msg = e.name === "AbortError" ? "Request timed out — Claude took too long. Try a simpler request." : "Failed to reach server.";
+      setMessages(prev => [...prev, { role: "claude", body: msg }]);
     } finally {
       setLoading(false);
     }

@@ -1,1 +1,1 @@
-web: gunicorn --chdir dashboard app:app
+web: gunicorn --chdir dashboard app:app --timeout 120 --workers 1
