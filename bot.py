@@ -841,18 +841,28 @@ FOLLOWUPS = [
 ]
 
 def send_to(number, msg):
+    if not ACCOUNT_SID or not AUTH_TOKEN:
+        logging.warning(f"Twilio credentials missing; not sending to {number}: {msg}")
+        return {"ok": False, "error": "twilio_credentials_missing"}
     try:
-        client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
+        message = client.messages.create(body=msg, from_=FROM_NUMBER, to=number)
         logging.info(f"SENT to {number}: {msg}")
+        return {"ok": True, "sid": getattr(message, "sid", None)}
     except Exception as e:
         logging.error(f"send_to error ({number}): {e}")
+        return {"ok": False, "error": "twilio_send_failed", "detail": str(e)}
 
 def send(msg, followup=False, delays=None):
+    if not ACCOUNT_SID or not AUTH_TOKEN:
+        logging.warning(f"Twilio credentials missing; not sending: {msg}")
+        return {"ok": False, "error": "twilio_credentials_missing"}
     try:
-        client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
+        message = client.messages.create(body=msg, from_=FROM_NUMBER, to=MY_NUMBER)
         logging.info(f"SENT: {msg}")
+        result = {"ok": True, "sid": getattr(message, "sid", None)}
     except Exception as e:
         logging.error(f"send error: {e}")
+        return {"ok": False, "error": "twilio_send_failed", "detail": str(e)}
     if followup:
         state["awaiting_reply"] = True
         state["followup_index"] = 0
@@ -860,6 +870,7 @@ def send(msg, followup=False, delays=None):
         run_at = datetime.now(TZ) + timedelta(minutes=state["followup_delays"][0])
         scheduler.add_job(send_followup, 'date', run_date=run_at,
                           id='followup', replace_existing=True)
+    return result
 
 def water_progress():
     check_and_reset_water()
@@ -1488,8 +1499,10 @@ def webhook():
                 pending = state.get("_technique_check_pending")
                 if pending:
                     state["debrief_step"] = "technique_folder_check"
+                    resp.message(f"you've had notes on {pending} before — want me to pull the folder and show the recent history?")
                 else:
                     state["debrief_step"] = "injury_check"
+                    resp.message("any injuries, tweaks, or pain from today?")
                 state["debrief_time"] = datetime.now(TZ)
                 return str(resp)
 
@@ -1747,6 +1760,9 @@ def api_status():
     injuries = get_active_injuries()
     return {
         "model": CLAUDE_MODEL,
+        "twilio_configured": bool(ACCOUNT_SID and AUTH_TOKEN),
+        "from_number": FROM_NUMBER,
+        "my_number": MY_NUMBER,
         # water
         "water_today": state["water_today"],
         "water_goal": WATER_GOAL_L,
@@ -1804,8 +1820,10 @@ def api_notify():
     msg = (payload.get('message') or '').strip()
     if not msg:
         return {"error": "empty message"}, 400
-    send(msg, followup=False)
-    return {"ok": True}
+    result = send(msg, followup=False)
+    if not result.get("ok"):
+        return result, 503
+    return result
 
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
 
