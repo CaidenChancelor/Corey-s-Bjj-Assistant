@@ -1825,6 +1825,31 @@ def api_notify():
         return result, 503
     return result
 
+@app.route('/api/twilio/message/<sid>', methods=['GET'])
+def api_twilio_message_status(sid):
+    auth = request.headers.get('Authorization', '')
+    expected = f"Bearer {os.environ.get('API_TOKEN', '')}"
+    if not os.environ.get('API_TOKEN') or auth != expected:
+        return {"error": "unauthorized"}, 401
+    if not ACCOUNT_SID or not AUTH_TOKEN:
+        return {"ok": False, "error": "twilio_credentials_missing"}, 503
+    try:
+        message = client.messages(sid).fetch()
+        return {
+            "ok": True,
+            "sid": message.sid,
+            "status": message.status,
+            "error_code": message.error_code,
+            "error_message": message.error_message,
+            "to": message.to,
+            "from_number": getattr(message, "from_", None),
+            "date_created": message.date_created.isoformat() if message.date_created else None,
+            "date_sent": message.date_sent.isoformat() if message.date_sent else None,
+        }
+    except Exception as e:
+        logging.error(f"Twilio status lookup error ({sid}): {e}")
+        return {"ok": False, "error": "twilio_status_lookup_failed", "detail": str(e)}, 502
+
 # ── TRIGGER (for testing) ─────────────────────────────────────────────────────
 
 @app.route('/trigger/<action>', methods=['GET'])
