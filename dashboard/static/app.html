@@ -82,11 +82,11 @@
     var(--accent-oxblood)
   );
 
-  /* Mesh — far softer, jewel-tone blooms */
-  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(110, 19, 32, 0.22), transparent 70%);
-  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(28, 44, 90, 0.18), transparent 70%);
-  --mesh-blob-blue:    radial-gradient(50% 50% at 30% 82%, rgba(28, 44, 90, 0.14), transparent 70%);
-  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.18), transparent 70%);
+  /* Mesh — barely-visible jewel-tone blooms (let the fluid canvas do the work) */
+  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(110, 19, 32, 0.06), transparent 70%);
+  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(28, 44, 90, 0.05), transparent 70%);
+  --mesh-blob-blue:    radial-gradient(50% 50% at 30% 82%, rgba(28, 44, 90, 0.04), transparent 70%);
+  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.05), transparent 70%);
 
   /* =========================================================
      COLOR — Semantic
@@ -303,20 +303,7 @@ body {
   isolation: isolate;
   background: transparent;
 }
-.page-halo::before {
-  content: ""; position: fixed; inset: -10%;
-  background-image:
-    var(--mesh-blob-pink),
-    var(--mesh-blob-purple),
-    var(--mesh-blob-blue),
-    var(--mesh-blob-cyan);
-  filter: blur(60px) saturate(110%);
-  opacity: 0.55;
-  z-index: 0;
-  animation: mesh-drift var(--d-mesh) ease-in-out infinite;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-}
+.page-halo::before { display: none; }
 .page-halo::after { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
