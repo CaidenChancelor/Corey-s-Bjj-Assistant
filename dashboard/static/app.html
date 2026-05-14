@@ -7207,255 +7207,294 @@ const MICRO_INJURY_TIME_LABELS = {
 };
 
 function MicroInjuryTimeChart({ buckets }) {
-  // Each session occupies a 90° wedge of a donut, ordered clockwise from top.
-  //   Top → Morning drilling, Right → Bruno, Bottom → Night class, Left → Late
-  const segments = [
-    { key: "morning",   color: "#ff4f9a", colorEnd: "#ff8fbf" },
-    { key: "afternoon", color: "#c862ff", colorEnd: "#a78bfa" },
-    { key: "evening",   color: "#3b82ff", colorEnd: "#60a5fa" },
-    { key: "night",     color: "#4cd6ff", colorEnd: "#93e6ff" },
+  // Cartesian area chart: 4 sessions across the X axis, count on Y axis.
+  // Order matches the day: Morning drilling → Bruno → Night class → Late.
+  const sessions = [
+    { key: "morning",   color: "#ff4f9a" },
+    { key: "afternoon", color: "#c862ff" },
+    { key: "evening",   color: "#3b82ff" },
+    { key: "night",     color: "#4cd6ff" },
   ];
 
-  const size = 280;
-  const cx = size / 2;
-  const cy = size / 2;
-  const rOuter = 112;
-  const rInner = 70;
-  const trackInset = 0.5;
-  const gapDeg = 5; // spacing between segments
+  // Viewport / margins
+  const vbW = 360;
+  const vbH = 230;
+  const margin = { top: 32, right: 28, bottom: 56, left: 28 };
+  const plotW = vbW - margin.left - margin.right;
+  const plotH = vbH - margin.top - margin.bottom;
 
-  const counts = segments.map((s) => buckets[s.key] || 0);
-  const maxData = Math.max(...counts);
-  const total = counts.reduce((a, b) => a + b, 0);
-
-  // Peak metadata for the centre readout
+  const values = sessions.map((s) => buckets[s.key] || 0);
+  const maxData = Math.max(...values);
+  const yMax = Math.max(maxData, 1); // never collapse the axis even when all zero
+  const total = values.reduce((a, b) => a + b, 0);
   let peakIdx = -1;
-  if (maxData > 0) peakIdx = counts.findIndex((c) => c === maxData);
-  const peakColor = peakIdx >= 0 ? segments[peakIdx].color : "#1d1d1f";
-  const peakLabel = peakIdx >= 0 ? MICRO_INJURY_TIME_LABELS[segments[peakIdx].key] : "No data yet";
+  if (maxData > 0) peakIdx = values.findIndex((v) => v === maxData);
+  const peakLabel = peakIdx >= 0 ? MICRO_INJURY_TIME_LABELS[sessions[peakIdx].key] : "No data yet";
+  const peakColor = peakIdx >= 0 ? sessions[peakIdx].color : "#1d1d1f";
 
-  // Convert polar → cartesian (0° at top, clockwise)
-  const toXY = (radius, angleDeg) => {
-    const rad = ((angleDeg - 90) * Math.PI) / 180;
-    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  // Point geometry
+  const xAt = (i) => margin.left + (plotW * i) / (sessions.length - 1);
+  const yAt = (v) => margin.top + plotH - (v / yMax) * plotH;
+  const points = sessions.map((s, i) => ({
+    ...s,
+    value: values[i],
+    x: xAt(i),
+    y: yAt(values[i]),
+  }));
+
+  // Catmull-Rom-style smooth path through the points
+  const smooth = (pts) => {
+    if (pts.length < 2) return "";
+    let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+    const t = 0.35;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] || p2;
+      const cp1x = p1.x + ((p2.x - p0.x) * t);
+      const cp1y = p1.y + ((p2.y - p0.y) * t);
+      const cp2x = p2.x - ((p3.x - p1.x) * t);
+      const cp2y = p2.y - ((p3.y - p1.y) * t);
+      d += ` C ${cp1x.toFixed(2)} ${cp1y.toFixed(2)} ${cp2x.toFixed(2)} ${cp2y.toFixed(2)} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+    }
+    return d;
   };
 
-  // Build a thick arc path between start & end angles at outer/inner radii.
-  const arcPath = (startDeg, endDeg, rO, rI) => {
-    const largeArc = endDeg - startDeg > 180 ? 1 : 0;
-    const p1 = toXY(rO, startDeg);
-    const p2 = toXY(rO, endDeg);
-    const p3 = toXY(rI, endDeg);
-    const p4 = toXY(rI, startDeg);
-    return [
-      `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`,
-      `A ${rO} ${rO} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
-      `L ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`,
-      `A ${rI} ${rI} 0 ${largeArc} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
-      "Z",
-    ].join(" ");
-  };
+  const linePath = smooth(points);
+  const baselineY = margin.top + plotH;
+  const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(2)} ${baselineY} L ${points[0].x.toFixed(2)} ${baselineY} Z`;
 
-  // Each segment gets a 90° slice. Apply gap by inseting start/end.
-  const segments_geom = segments.map((seg, i) => {
-    const segStart = i * 90 + gapDeg / 2;
-    const segEnd = (i + 1) * 90 - gapDeg / 2;
-    const value = buckets[seg.key] || 0;
-    const fillRatio = maxData > 0 ? value / maxData : 0;
-    // Fill expands from inner radius outward (like a thermometer)
-    const fillRadius = rInner + (rOuter - rInner) * fillRatio;
-    return { ...seg, segStart, segEnd, value, fillRatio, fillRadius };
-  });
-
-  // Label position: outside the donut at the midpoint of each segment
-  const labelOffset = 26;
-  const labels = segments_geom.map((seg) => {
-    const midDeg = (seg.segStart + seg.segEnd) / 2;
-    const p = toXY(rOuter + labelOffset, midDeg);
-    const ang = ((midDeg - 90) * Math.PI) / 180;
-    const cosA = Math.cos(ang);
-    let anchor = "middle";
-    if (cosA > 0.35) anchor = "start";
-    else if (cosA < -0.35) anchor = "end";
-    return { ...seg, x: p.x, y: p.y, anchor };
+  // Y-axis tick lines — 3 evenly spaced
+  const yTicks = [0, 1, 2, 3].map((k) => {
+    const v = (yMax * k) / 3;
+    return { v: v, y: yAt(v) };
   });
 
   return (
     <div style={{
       position: "relative",
       paddingTop: 8,
-      paddingBottom: 8,
+      paddingBottom: 4,
       display: "flex",
       justifyContent: "center",
-      alignItems: "center",
+      alignItems: "stretch",
     }}>
-      {/* ambient halo */}
+      {/* ambient bloom */}
       <div style={{
         position: "absolute",
-        width: size + 80,
-        height: size + 80,
-        borderRadius: "50%",
-        background: "radial-gradient(circle at 50% 50%, rgba(122,92,255,0.12), rgba(255,255,255,0) 70%)",
+        inset: 0,
+        background: "radial-gradient(ellipse at 50% 65%, rgba(122,92,255,0.10), rgba(255,255,255,0) 70%)",
         filter: "blur(10px)",
         zIndex: 0,
       }}/>
       <svg
-        viewBox={`0 0 ${size} ${size}`}
+        viewBox={`0 0 ${vbW} ${vbH}`}
         width="100%"
-        style={{ maxWidth: 340, height: "auto", position: "relative", zIndex: 1, overflow: "visible" }}
-        aria-label="Injury timing by session"
+        style={{ maxWidth: 480, height: "auto", position: "relative", zIndex: 1, overflow: "visible" }}
+        aria-label="Injuries by session — area chart"
       >
         <defs>
-          {segments.map((s, i) => (
-            <linearGradient key={i} id={`miSeg${i}`} x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%"  stopColor={s.color}    stopOpacity="0.95"/>
-              <stop offset="100%" stopColor={s.colorEnd} stopOpacity="0.85"/>
-            </linearGradient>
-          ))}
-          <filter id="miSegGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="3.5" result="blur"/>
-            <feMerge>
-              <feMergeNode in="blur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-          <linearGradient id="miSegRing" x1="0%" y1="0%" x2="100%" y2="100%">
+          {/* horizontal rainbow used both for the line stroke and fill */}
+          <linearGradient id="miGraphStroke" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%"   stopColor="#ff4f9a"/>
             <stop offset="33%"  stopColor="#c862ff"/>
             <stop offset="66%"  stopColor="#3b82ff"/>
             <stop offset="100%" stopColor="#4cd6ff"/>
           </linearGradient>
+          <linearGradient id="miGraphFill" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stopColor="#c862ff" stopOpacity="0.55"/>
+            <stop offset="55%"  stopColor="#7a5cff" stopOpacity="0.25"/>
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
+          </linearGradient>
+          <filter id="miGraphGlow" x="-20%" y="-50%" width="140%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
 
-        {/* faint track behind each segment (full radial range) */}
-        {segments_geom.map((seg, i) => (
-          <path
-            key={`track-${i}`}
-            d={arcPath(seg.segStart, seg.segEnd, rOuter, rInner)}
-            fill={`${seg.color}10`}
-            stroke={`${seg.color}22`}
-            strokeWidth="1"
-          />
-        ))}
-
-        {/* filled portion of each segment (thermometer style) */}
-        {segments_geom.map((seg, i) => {
-          if (seg.fillRatio <= 0) return null;
-          return (
-            <path
-              key={`fill-${i}`}
-              d={arcPath(seg.segStart, seg.segEnd, seg.fillRadius, rInner + 1)}
-              fill={`url(#miSeg${i})`}
-              stroke={seg.color}
-              strokeWidth="0.75"
-              filter="url(#miSegGlow)"
-            />
-          );
-        })}
-
-        {/* subtle concentric guide rings inside the donut for "scale" feel */}
-        {[0.33, 0.66].map((t, i) => (
-          <circle
-            key={`grid-${i}`}
-            cx={cx}
-            cy={cy}
-            r={rInner + (rOuter - rInner) * t}
-            fill="none"
+        {/* horizontal gridlines */}
+        {yTicks.map((t, i) => (
+          <line
+            key={i}
+            x1={margin.left}
+            x2={margin.left + plotW}
+            y1={t.y}
+            y2={t.y}
             stroke="rgba(29,29,31,0.06)"
             strokeWidth="1"
-            strokeDasharray="2 4"
+            strokeDasharray={i === 0 ? "0" : "2 4"}
           />
         ))}
 
-        {/* outer rainbow trim */}
-        <circle
-          cx={cx}
-          cy={cy}
-          r={rOuter + trackInset}
-          fill="none"
-          stroke="url(#miSegRing)"
-          strokeWidth="1.25"
-          opacity="0.5"
+        {/* y-axis tick labels (only at top tick) */}
+        <text
+          x={margin.left - 6}
+          y={yTicks[yTicks.length - 1].y + 4}
+          textAnchor="end"
+          style={{
+            fontFamily: "var(--font-text), system-ui",
+            fontSize: 9.5,
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            fill: "rgba(29,29,31,0.42)",
+          }}
+        >{Math.round(yMax)}</text>
+
+        {/* filled area under the curve */}
+        <path
+          d={areaPath}
+          fill="url(#miGraphFill)"
         />
-        {/* inner soft edge */}
-        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="rgba(29,29,31,0.08)" strokeWidth="1"/>
 
-        {/* centre readout */}
-        <g>
-          <text
-            x={cx}
-            y={cy - 14}
-            textAnchor="middle"
-            style={{
-              fontFamily: "var(--font-text), system-ui",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              fill: "rgba(29,29,31,0.45)",
-            }}
-          >Peak session</text>
-          <text
-            x={cx}
-            y={cy + 12}
-            textAnchor="middle"
-            style={{
-              fontFamily: "var(--font-display), system-ui",
-              fontSize: 22,
-              fontWeight: 600,
-              letterSpacing: "-0.02em",
-              fill: maxData > 0 ? peakColor : "rgba(29,29,31,0.32)",
-            }}
-          >{peakLabel}</text>
-          <text
-            x={cx}
-            y={cy + 30}
-            textAnchor="middle"
-            style={{
-              fontFamily: "var(--font-text), system-ui",
-              fontSize: 11.5,
-              fontWeight: 600,
-              fill: "rgba(29,29,31,0.45)",
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >{maxData > 0 ? `${maxData} of ${total}` : "—"}</text>
-        </g>
+        {/* the smooth curve itself */}
+        <path
+          d={linePath}
+          fill="none"
+          stroke="url(#miGraphStroke)"
+          strokeWidth="2.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          filter="url(#miGraphGlow)"
+        />
 
-        {/* labels around the perimeter */}
-        {labels.map((l) => {
-          const isPeak = maxData > 0 && l.value === maxData;
-          const isZero = l.value === 0;
+        {/* vertical guide for the peak point */}
+        {peakIdx >= 0 && (
+          <line
+            x1={points[peakIdx].x}
+            x2={points[peakIdx].x}
+            y1={points[peakIdx].y + 6}
+            y2={baselineY}
+            stroke={peakColor}
+            strokeWidth="1"
+            strokeDasharray="2 3"
+            opacity="0.45"
+          />
+        )}
+
+        {/* data point dots + count labels above */}
+        {points.map((p, i) => {
+          const isPeak = i === peakIdx;
+          const isZero = p.value === 0;
           return (
-            <g key={l.key}>
+            <g key={p.key}>
+              <circle cx={p.x} cy={p.y} r={isPeak ? 6 : 4.25} fill="#fff" stroke={p.color} strokeWidth={isPeak ? 2.5 : 2}/>
+              <circle cx={p.x} cy={p.y} r={isPeak ? 2.4 : 1.6} fill={p.color}/>
               <text
-                x={l.x}
-                y={l.y - 5}
-                textAnchor={l.anchor}
-                style={{
-                  fontFamily: "var(--font-text), system-ui",
-                  fontSize: 10.5,
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  fill: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
-                }}
-              >{MICRO_INJURY_TIME_LABELS[l.key]}</text>
-              <text
-                x={l.x}
-                y={l.y + 12}
-                textAnchor={l.anchor}
+                x={p.x}
+                y={p.y - (isPeak ? 14 : 11)}
+                textAnchor="middle"
                 style={{
                   fontFamily: "var(--font-display), system-ui",
-                  fontSize: isPeak ? 18 : 16,
+                  fontSize: isPeak ? 17 : 14,
                   fontWeight: 600,
                   letterSpacing: "-0.02em",
                   fontVariantNumeric: "tabular-nums",
-                  fill: isZero ? "rgba(29,29,31,0.32)" : (isPeak ? l.color : "#1d1d1f"),
+                  fill: isZero ? "rgba(29,29,31,0.32)" : (isPeak ? p.color : "#1d1d1f"),
                 }}
-              >{l.value}</text>
+              >{p.value}</text>
             </g>
           );
         })}
+
+        {/* x-axis labels under each point */}
+        {points.map((p, i) => {
+          const isPeak = i === peakIdx;
+          const isZero = p.value === 0;
+          // Wrap two-word labels onto two lines centered under the tick
+          const label = MICRO_INJURY_TIME_LABELS[p.key];
+          const words = label.split(" ");
+          const isTwoLine = words.length > 1;
+          return (
+            <g key={`xl-${p.key}`}>
+              <line
+                x1={p.x}
+                x2={p.x}
+                y1={baselineY}
+                y2={baselineY + 6}
+                stroke="rgba(29,29,31,0.18)"
+                strokeWidth="1"
+              />
+              {isTwoLine ? (
+                <>
+                  <text
+                    x={p.x}
+                    y={baselineY + 18}
+                    textAnchor="middle"
+                    style={{
+                      fontFamily: "var(--font-text), system-ui",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      fill: isZero ? "rgba(29,29,31,0.38)" : (isPeak ? p.color : "rgba(29,29,31,0.55)"),
+                    }}
+                  >{words[0]}</text>
+                  <text
+                    x={p.x}
+                    y={baselineY + 30}
+                    textAnchor="middle"
+                    style={{
+                      fontFamily: "var(--font-text), system-ui",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      fill: isZero ? "rgba(29,29,31,0.38)" : (isPeak ? p.color : "rgba(29,29,31,0.55)"),
+                    }}
+                  >{words.slice(1).join(" ")}</text>
+                </>
+              ) : (
+                <text
+                  x={p.x}
+                  y={baselineY + 22}
+                  textAnchor="middle"
+                  style={{
+                    fontFamily: "var(--font-text), system-ui",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    fill: isZero ? "rgba(29,29,31,0.38)" : (isPeak ? p.color : "rgba(29,29,31,0.55)"),
+                  }}
+                >{label}</text>
+              )}
+            </g>
+          );
+        })}
+
+        {/* peak readout in the top-left corner */}
+        {maxData > 0 && (
+          <g>
+            <text
+              x={margin.left}
+              y={18}
+              style={{
+                fontFamily: "var(--font-text), system-ui",
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                fill: "rgba(29,29,31,0.42)",
+              }}
+            >Peak</text>
+            <text
+              x={margin.left + 32}
+              y={18}
+              style={{
+                fontFamily: "var(--font-display), system-ui",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "-0.01em",
+                fill: peakColor,
+              }}
+            >{peakLabel} · {maxData} of {total}</text>
+          </g>
+        )}
       </svg>
     </div>
   );
