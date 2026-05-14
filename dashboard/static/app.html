@@ -6961,11 +6961,22 @@ window.Problems = Problems;
 const { useState: useStateMI, useEffect: useEffectMI } = React;
 
 function microInjuryTimeBucketFromText(whenHappened) {
-  const text = String(whenHappened || "").toLowerCase();
-  if (/(morning|am|drilling|s&c|strength)/.test(text)) return "morning";
-  if (/(afternoon|pm|private|bruno|lunch)/.test(text)) return "afternoon";
-  if (/(night|late)/.test(text)) return "night";
-  if (/(evening|class|competition|rolls|open mat)/.test(text)) return "evening";
+  const text = String(whenHappened || "").toLowerCase().trim();
+  if (!text) return null;
+  // 1. Explicit night/late wins outright.
+  if (/\b(night|late)\b/.test(text)) return "night";
+  // 2. Evening words OR 5-9 PM time stamps.
+  if (/\b(evening|class|competition|rolls|open\s*mat)\b/.test(text)) return "evening";
+  if (/(?<!\d)([5-9])\s*pm\b/.test(text)) return "evening";
+  if (/(?<!\d)(10|11)\s*pm\b/.test(text)) return "night";
+  // 3. Afternoon words OR 12-4 PM.
+  if (/\b(afternoon|private|bruno|lunch|midday|noon)\b/.test(text)) return "afternoon";
+  if (/(?<!\d)(12|[1-4])\s*pm\b/.test(text)) return "afternoon";
+  // 4. Morning words / 1-11 AM. "am"/"pm" only count when prefixed by digits
+  //    so casual phrases ("I am sore") can't spoof a bucket.
+  if (/\b(morning|drilling|strength)\b/.test(text) || text.includes("s&c")) return "morning";
+  if (/(?<!\d)(1[0-1]|[1-9])\s*am\b/.test(text)) return "morning";
+  if (/(?<!\d)12\s*am\b/.test(text)) return "night";
   return null;
 }
 

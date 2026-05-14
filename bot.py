@@ -402,16 +402,36 @@ def get_all_injuries():
 
 
 def _infer_injury_time_bucket(when_happened, created_at):
-    """Prefer Corey's written timing, then fall back to log time."""
-    text = (when_happened or "").lower()
-    if any(word in text for word in ("morning", "am", "drilling", "s&c", "strength")):
-        return "morning"
-    if any(word in text for word in ("afternoon", "pm", "private", "bruno", "lunch")):
-        return "afternoon"
-    if any(word in text for word in ("night", "late")):
-        return "night"
-    if any(word in text for word in ("evening", "class", "competition", "rolls", "open mat")):
-        return "evening"
+    """Prefer Corey's written timing, then fall back to log time.
+
+    Precedence:
+      1. night/late wins outright
+      2. evening words (evening/class/competition/rolls/open mat) or 5-9 PM
+      3. afternoon words (afternoon/private/bruno/lunch/midday/noon) or 12-4 PM
+      4. morning words (morning/drilling/strength/s&c) or 1-11 AM
+    "am"/"pm" only count when attached to a digit so phrases like
+    "I am hurt" or "spammed" can't spoof a bucket.
+    """
+    text = (when_happened or "").lower().strip()
+    if text:
+        if re.search(r"\b(night|late)\b", text):
+            return "night"
+        if re.search(r"\b(evening|class|competition|rolls|open\s*mat)\b", text):
+            return "evening"
+        if re.search(r"(?<!\d)([5-9])\s*pm\b", text):
+            return "evening"
+        if re.search(r"(?<!\d)(10|11)\s*pm\b", text):
+            return "night"
+        if re.search(r"\b(afternoon|private|bruno|lunch|midday|noon)\b", text):
+            return "afternoon"
+        if re.search(r"(?<!\d)(12|[1-4])\s*pm\b", text):
+            return "afternoon"
+        if re.search(r"\b(morning|drilling|strength)\b", text) or "s&c" in text:
+            return "morning"
+        if re.search(r"(?<!\d)(1[0-1]|[1-9])\s*am\b", text):
+            return "morning"
+        if re.search(r"(?<!\d)12\s*am\b", text):
+            return "night"
     try:
         hour = datetime.fromisoformat(created_at).hour
         if 5 <= hour < 12:
