@@ -97,8 +97,8 @@
   --accent-warn:    #b87f1f;
   --accent-danger:  #8b1f1f;
 
-  --chat-user-tint:    rgba(41, 151, 255, 0.08);
-  --chat-user-stroke:  rgba(41, 151, 255, 0.22);
+  --chat-user-tint:    rgba(28, 44, 90, 0.08);
+  --chat-user-stroke:  rgba(28, 44, 90, 0.22);
   --chat-claude-tint:  rgba(255, 255, 255, 0.7);
 
   /* =========================================================
@@ -207,21 +207,91 @@ html, body {
   font-feature-settings: "ss01", "cv11", "calt";
 }
 
-/* Editorial paper texture under everything */
+/* =============================================================
+   AURORA BACKGROUND — animated jewel-tone bloom that drifts slowly
+   Not interactive (user nixed the fluid sim). Pure CSS.
+   ============================================================= */
 body {
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  pointer-events: none;
   background-image:
-    radial-gradient(60% 50% at 18% 22%, rgba(110, 19, 32, 0.10), transparent 70%),
-    radial-gradient(55% 45% at 78% 32%, rgba(28, 44, 90, 0.09), transparent 70%),
-    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.10), transparent 70%);
-  background-attachment: fixed;
+    radial-gradient(48% 38% at 18% 22%, rgba(110, 19, 32, 0.42), transparent 65%),
+    radial-gradient(52% 42% at 80% 28%, rgba(28, 44, 90, 0.36), transparent 65%),
+    radial-gradient(46% 38% at 28% 78%, rgba(199, 154, 58, 0.36), transparent 65%),
+    radial-gradient(50% 42% at 84% 78%, rgba(110, 19, 32, 0.26), transparent 65%);
+  filter: blur(60px) saturate(125%);
+  animation: aurora-drift 32s ease-in-out infinite;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.05 0 0 0 0 0.04 0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+  opacity: 0.18;
+  mix-blend-mode: multiply;
+}
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
+  33%  { transform: translate3d(-3%, 2%, 0) scale(1.06) rotate(2deg); }
+  66%  { transform: translate3d(2%, -2%, 0) scale(1.04) rotate(-1deg); }
+  100% { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
 }
 
 /* =============================================================
-   FLUID BACKGROUND CANVAS + GRAIN OVERLAY
+   PAGE-LEVEL CHROME
    ============================================================= */
 #root {
   position: relative;
+  z-index: 1;
   min-height: 100vh;
+}
+
+/* Cards lift on hover with a futuristic gold edge */
+[class*="GlassCard"], .glass-card,
+.hy-hero-card, .dash-hero, .dash-stat-row > * {
+  transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1),
+              box-shadow 380ms cubic-bezier(0.32, 0.72, 0, 1) !important;
+}
+
+/* Scroll reveal — sections fade in + lift on enter */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cursor spotlight — soft jewel-tone glow that follows the cursor.
+   Off on touch devices. */
+@media (hover: hover) and (pointer: fine) {
+  body {
+    --spot-x: 50%;
+    --spot-y: 30%;
+  }
+  body::before {
+    background-image:
+      radial-gradient(36% 32% at var(--spot-x, 50%) var(--spot-y, 30%), rgba(199, 154, 58, 0.30), transparent 60%),
+      radial-gradient(48% 38% at 18% 22%, rgba(110, 19, 32, 0.42), transparent 65%),
+      radial-gradient(52% 42% at 80% 28%, rgba(28, 44, 90, 0.36), transparent 65%),
+      radial-gradient(46% 38% at 28% 78%, rgba(199, 154, 58, 0.30), transparent 65%),
+      radial-gradient(50% 42% at 84% 78%, rgba(110, 19, 32, 0.26), transparent 65%);
+  }
 }
 
 /* =============================================================
@@ -581,6 +651,67 @@ html, body {
     </svg>
   </template>
   <div id="root"></div>
+  <script>
+  (function() {
+    // Cursor spotlight — moves a soft glow with the pointer (desktop only).
+    if (window.matchMedia && window.matchMedia('(pointer: fine) and (hover: hover)').matches) {
+      let rx = 50, ry = 30, tx = 50, ty = 30, raf = null;
+      function loop() {
+        rx += (tx - rx) * 0.08;
+        ry += (ty - ry) * 0.08;
+        document.body.style.setProperty('--spot-x', rx.toFixed(2) + '%');
+        document.body.style.setProperty('--spot-y', ry.toFixed(2) + '%');
+        if (Math.abs(tx - rx) > 0.05 || Math.abs(ty - ry) > 0.05) {
+          raf = requestAnimationFrame(loop);
+        } else {
+          raf = null;
+        }
+      }
+      window.addEventListener('mousemove', function(e) {
+        tx = (e.clientX / window.innerWidth) * 100;
+        ty = (e.clientY / window.innerHeight) * 100;
+        if (!raf) raf = requestAnimationFrame(loop);
+      }, { passive: true });
+    }
+
+    // Scroll reveal — auto-tag direct children of common page wrappers and
+    // observe them with IntersectionObserver.
+    const reveal = (root) => {
+      if (!('IntersectionObserver' in window)) return;
+      const candidates = root.querySelectorAll(
+        '.dash-page > div > div, .hy-page > div > div, [data-screen-label] > div > div'
+      );
+      candidates.forEach((el) => {
+        if (!el.classList.contains('reveal')) el.classList.add('reveal');
+      });
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '-40px 0px', threshold: 0.05 });
+      candidates.forEach((el) => io.observe(el));
+    };
+    // Initial sweep after React mounts
+    const tryReveal = () => {
+      if (document.querySelector('[data-screen-label]') || document.querySelector('.dash-page, .hy-page')) {
+        reveal(document.body);
+      } else {
+        setTimeout(tryReveal, 200);
+      }
+    };
+    setTimeout(tryReveal, 400);
+    // Re-sweep on screen change (NavPill click)
+    new MutationObserver(() => {
+      const newOnes = document.querySelectorAll(
+        '.dash-page > div > div:not(.reveal), .hy-page > div > div:not(.reveal), [data-screen-label] > div > div:not(.reveal)'
+      );
+      if (newOnes.length) reveal(document.body);
+    }).observe(document.body, { childList: true, subtree: true });
+  })();
+  </script>
   <script type="text/babel">
 // Shared primitives for the BJJ Dashboard UI kit
 // Light theme — frosted-white glass over rainbow halo
@@ -599,7 +730,7 @@ function GiLogo({ size = 96 }) {
       <defs>
         {/* Soft cool ink for outlines + shadows */}
         <linearGradient id={blueId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#4ea3ff"/>
+          <stop offset="0%" stopColor="var(--accent-cobalt, #1c2c5a)"/>
           <stop offset="55%" stopColor="#2d6cf6"/>
           <stop offset="100%" stopColor="#1f4dc8"/>
         </linearGradient>
@@ -2011,7 +2142,7 @@ function Hydration({ onBack }) {
               <div style={{ display: "flex", alignItems: "baseline", flexWrap: "wrap", columnGap: 14, rowGap: 4, marginBottom: 8 }}>
                 <span style={{
                   fontFamily: "var(--font-display)", fontSize: "clamp(56px, 11vw, 88px)", fontWeight: 600,
-                  letterSpacing: "-0.04em", lineHeight: 1, color: "#2997ff",
+                  letterSpacing: "-0.04em", lineHeight: 1, color: "var(--accent-cobalt, #1c2c5a)",
                   whiteSpace: "nowrap",
                 }}>{formatHydrationAmount(total)}</span>
                 <button
@@ -2034,7 +2165,7 @@ function Hydration({ onBack }) {
                 <div style={{
                   position: "absolute", inset: 0, borderRadius: 980,
                   padding: 1.5,
-                  background: "linear-gradient(100deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
+                  background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
                   WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                   mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                   WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -2043,8 +2174,8 @@ function Hydration({ onBack }) {
                 <div style={{
                   position: "absolute", left: 2, top: 2, bottom: 2,
                   width: `calc(${pct}% - 4px)`, borderRadius: 980,
-                  background: "linear-gradient(180deg, #4ea3ff 0%, #2997ff 50%, #1f6fdc 100%)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(41,151,255,0.5)",
+                  background: "linear-gradient(180deg, var(--accent-cobalt, #1c2c5a) 0%, var(--accent-oxblood, #6e1320) 60%, var(--accent-gold, #c79a3a) 100%)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 0 14px rgba(28,44,90,0.45)",
                   transition: "width 320ms cubic-bezier(0.32,0.72,0,1)",
                 }}></div>
               </div>
@@ -2125,7 +2256,7 @@ function Hydration({ onBack }) {
             borderTop: "1px solid rgba(0,0,0,0.06)",
             display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18,
           }}>
-            <MiniStat label="Last sip" value={lastSip === "—" ? "—" : formatTimeFriendly(lastSip)} accent="#2997ff" />
+            <MiniStat label="Last sip" value={lastSip === "—" ? "—" : formatTimeFriendly(lastSip)} accent="var(--accent-cobalt, #1c2c5a)" />
             <MiniStat label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="#7a5cff" />
             <MiniStat label="Logs" value={displayLog.length} accent="#c862ff" />
             <MiniStat label="7-day avg" value={formatHydrationAmount(avg)} accent="#ff4f9a" />
@@ -2201,20 +2332,20 @@ function Hydration({ onBack }) {
                         background: "rgba(0,0,0,0.04)",
                         borderRadius: 8, overflow: "hidden",
                         display: "flex", alignItems: "flex-end",
-                        border: isToday ? "1.5px solid rgba(41,151,255,0.4)" : "none",
+                        border: isToday ? "1.5px solid rgba(28,44,90,0.4)" : "none",
                       }}>
                         <div style={{
                           width: "100%", height: `${dayPct}%`,
                           background: hit
-                            ? "linear-gradient(180deg, #4ea3ff 0%, #2997ff 50%, #1f6fdc 100%)"
-                            : "linear-gradient(180deg, rgba(78,163,255,0.55) 0%, rgba(41,151,255,0.55) 100%)",
+                            ? "linear-gradient(180deg, var(--accent-cobalt, #1c2c5a) 0%, var(--accent-cobalt, #1c2c5a) 50%, var(--accent-oxblood, #6e1320) 100%)"
+                            : "linear-gradient(180deg, rgba(78,163,255,0.55) 0%, rgba(28,44,90,0.55) 100%)",
                           borderRadius: 6,
                           transition: "height 320ms cubic-bezier(0.32,0.72,0,1)",
                         }}></div>
                       </div>
                       <div style={{
                         fontSize: 11, fontWeight: isToday ? 600 : 500,
-                        color: isToday ? "#2997ff" : "rgba(29,29,31,0.55)",
+                        color: isToday ? "var(--accent-cobalt, #1c2c5a)" : "rgba(29,29,31,0.55)",
                         letterSpacing: "0.02em",
                       }}>{d.date}</div>
                     </div>
@@ -2302,9 +2433,9 @@ function BottleVisual({ pct }) {
             <stop offset="100%" stopColor="rgba(255,255,255,0.55)"/>
           </linearGradient>
           <linearGradient id="waterFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4ea3ff"/>
-            <stop offset="50%" stopColor="#2997ff"/>
-            <stop offset="100%" stopColor="#1f6fdc"/>
+            <stop offset="0%" stopColor="var(--accent-cobalt, #1c2c5a)"/>
+            <stop offset="50%" stopColor="var(--accent-cobalt, #1c2c5a)"/>
+            <stop offset="100%" stopColor="var(--accent-oxblood, #6e1320)"/>
           </linearGradient>
           <clipPath id="bottleClip">
             <path d="M70 50 L70 30 Q70 22 78 22 L122 22 Q130 22 130 30 L130 50 L150 70 Q160 80 160 95 L160 220 Q160 240 140 240 L60 240 Q40 240 40 220 L40 95 Q40 80 50 70 Z"/>
@@ -2537,7 +2668,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
                 fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600,
                 letterSpacing: "-0.025em", color: "#1d1d1f", lineHeight: 1.25,
               }}>
-                Drink <span style={{ color: "#2997ff" }}>{formatHydrationAmount(remaining)}</span> by <span style={{ color: "#2997ff" }}>{formatTimeFriendly(paceTarget)}</span>
+                Drink <span style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatHydrationAmount(remaining)}</span> by <span style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatTimeFriendly(paceTarget)}</span>
               </div>
               <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginTop: 6 }}>
                 {hoursLeft >= 1
@@ -2670,8 +2801,8 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
               padding: "6px 12px", fontSize: 12, fontWeight: 500,
               borderRadius: 999, cursor: "pointer",
               border: "1px solid rgba(0,0,0,0.10)",
-              background: draft === p ? "rgba(41,151,255,0.10)" : "#fff",
-              color: draft === p ? "#2997ff" : "rgba(29,29,31,0.7)",
+              background: draft === p ? "rgba(28,44,90,0.10)" : "#fff",
+              color: draft === p ? "var(--accent-cobalt, #1c2c5a)" : "rgba(29,29,31,0.7)",
             }}>{formatTimeFriendly(p)}</button>
           ))}
         </div>
@@ -2692,7 +2823,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
             <div style={{ fontSize: 14, color: "#1d1d1f" }}>That time is already past — pick something later.</div>
           ) : (
             <div style={{ fontSize: 14, color: "#1d1d1f", lineHeight: 1.5 }}>
-              Drink <strong style={{ color: "#2997ff" }}>{formatHydrationAmount(remaining)}</strong> by <strong style={{ color: "#2997ff" }}>{formatTimeFriendly(draft)}</strong> · about <strong>{formatHydrationAmount(perHour)}/hour</strong>.
+              Drink <strong style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatHydrationAmount(remaining)}</strong> by <strong style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatTimeFriendly(draft)}</strong> · about <strong>{formatHydrationAmount(perHour)}/hour</strong>.
             </div>
           )}
         </div>
@@ -2771,21 +2902,21 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
               return (
                 <button key={ml} type="button" onClick={() => setAmount(String(ml))} style={{
                   padding: "14px 8px", borderRadius: 14, cursor: "pointer",
-                  border: active ? "1.5px solid #2997ff" : "1px solid rgba(0,0,0,0.10)",
-                  background: active ? "rgba(41,151,255,0.08)" : "#fff",
+                  border: active ? "1.5px solid var(--accent-cobalt, #1c2c5a)" : "1px solid rgba(0,0,0,0.10)",
+                  background: active ? "rgba(28,44,90,0.08)" : "#fff",
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                   transition: "all 160ms ease",
                 }}>
                   <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
                     <path d="M3 3 L19 3 L17 23 Q17 25 15 25 L7 25 Q5 25 5 23 Z"
-                      fill={active ? "rgba(41,151,255,0.18)" : "rgba(0,0,0,0.04)"}
-                      stroke={active ? "#2997ff" : "rgba(29,29,31,0.4)"} strokeWidth="1.4"/>
+                      fill={active ? "rgba(28,44,90,0.18)" : "rgba(0,0,0,0.04)"}
+                      stroke={active ? "var(--accent-cobalt, #1c2c5a)" : "rgba(29,29,31,0.4)"} strokeWidth="1.4"/>
                     <path d={`M5.4 ${25 - (ml/1000)*16} Q11 ${23 - (ml/1000)*16} 16.6 ${25 - (ml/1000)*16} L17 23 Q17 25 15 25 L7 25 Q5 25 5 23 Z`}
-                      fill={active ? "#2997ff" : "rgba(41,151,255,0.55)"}/>
+                      fill={active ? "var(--accent-cobalt, #1c2c5a)" : "rgba(28,44,90,0.55)"}/>
                   </svg>
                   <div style={{
                     fontSize: 12, fontWeight: 600,
-                    color: active ? "#2997ff" : "#1d1d1f",
+                    color: active ? "var(--accent-cobalt, #1c2c5a)" : "#1d1d1f",
                   }}>{formatHydrationAmount(ml)}</div>
                   <div style={{
                     fontSize: 10, color: "rgba(29,29,31,0.55)",
@@ -2896,8 +3027,8 @@ function LogRow({ entry, isLast, onDelete }) {
       }}>
       <div style={{
         width: 8, height: 8, borderRadius: "50%",
-        background: "linear-gradient(180deg, #4ea3ff 0%, #2997ff 100%)",
-        boxShadow: "0 0 10px rgba(41,151,255,0.55)",
+        background: "linear-gradient(180deg, var(--accent-cobalt, #1c2c5a) 0%, var(--accent-cobalt, #1c2c5a) 100%)",
+        boxShadow: "0 0 10px rgba(28,44,90,0.55)",
         flexShrink: 0,
       }}></div>
       <div style={{
@@ -3147,7 +3278,7 @@ function WaterHero({ onClick }) {
             <span style={{
               position: "relative",
               fontFamily: "var(--font-display)", fontSize: "clamp(48px, 9vw, 88px)", fontWeight: 600,
-              letterSpacing: "-0.04em", lineHeight: 1, color: "#2997ff",
+              letterSpacing: "-0.04em", lineHeight: 1, color: "var(--accent-cobalt, #1c2c5a)",
               whiteSpace: "nowrap",
             }}>{formatHydrationAmount(total)}</span>
             <span style={{
@@ -3167,7 +3298,7 @@ function WaterHero({ onClick }) {
             <div style={{
               position: "absolute", inset: 0, borderRadius: 980,
               padding: 1.5,
-              background: "linear-gradient(100deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
+              background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
               WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -3178,10 +3309,10 @@ function WaterHero({ onClick }) {
               width: `calc(${pct}% - 4px)`, borderRadius: 980,
               background: pct >= 100
                 ? "linear-gradient(180deg, #4ed7a8 0%, #2cc296 50%, #19a07a 100%)"
-                : "linear-gradient(180deg, #4ea3ff 0%, #2997ff 50%, #1f6fdc 100%)",
+                : "linear-gradient(180deg, var(--accent-cobalt, #1c2c5a) 0%, var(--accent-cobalt, #1c2c5a) 50%, var(--accent-oxblood, #6e1320) 100%)",
               boxShadow: pct >= 100
                 ? "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(44,194,150,0.5)"
-                : "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(41,151,255,0.5)",
+                : "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(28,44,90,0.5)",
               transition: "width 320ms cubic-bezier(0.32,0.72,0,1), background 320ms ease",
             }}></div>
 
@@ -3260,7 +3391,7 @@ function WaterHero({ onClick }) {
         borderTop: "1px solid rgba(0,0,0,0.06)",
         display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14,
       }}>
-        <MiniStatHero label="Sips today" value={log.length ? `${log.length}` : "0"} accent="#2997ff" />
+        <MiniStatHero label="Sips today" value={log.length ? `${log.length}` : "0"} accent="var(--accent-cobalt, #1c2c5a)" />
         <MiniStatHero label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="#7a5cff" />
         <MiniStatHero label="7-day avg" value={formatHydrationAmount(avg)} accent="#ff4f9a" />
       </div>
@@ -3299,9 +3430,9 @@ function MiniBottle({ pct, hit }) {
             <stop offset="100%" stopColor="rgba(255,255,255,0.55)"/>
           </linearGradient>
           <linearGradient id="miniWater" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={hit ? "#4ed7a8" : "#4ea3ff"}/>
-            <stop offset="50%" stopColor={hit ? "#2cc296" : "#2997ff"}/>
-            <stop offset="100%" stopColor={hit ? "#19a07a" : "#1f6fdc"}/>
+            <stop offset="0%" stopColor={hit ? "#4ed7a8" : "var(--accent-cobalt, #1c2c5a)"}/>
+            <stop offset="50%" stopColor={hit ? "#2cc296" : "var(--accent-cobalt, #1c2c5a)"}/>
+            <stop offset="100%" stopColor={hit ? "#19a07a" : "var(--accent-oxblood, #6e1320)"}/>
           </linearGradient>
           <clipPath id="miniClip">
             <path d="M38 28 L38 16 Q38 11 42 11 L68 11 Q72 11 72 16 L72 28 L82 40 Q88 46 88 56 L88 138 Q88 150 76 150 L34 150 Q22 150 22 138 L22 56 Q22 46 28 40 Z"/>
@@ -3436,9 +3567,9 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
           flexShrink: 0,
           padding: "5px 12px", borderRadius: 980,
           fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 600,
-          letterSpacing: "-0.01em", color: "#2997ff",
-          background: "rgba(41,151,255,0.08)",
-          border: "1px solid rgba(41,151,255,0.22)",
+          letterSpacing: "-0.01em", color: "var(--accent-cobalt, #1c2c5a)",
+          background: "rgba(28,44,90,0.08)",
+          border: "1px solid rgba(28,44,90,0.22)",
           fontVariantNumeric: "tabular-nums",
         }}>{lastMealCal} cal</div>
       </div>
@@ -3458,7 +3589,7 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
           <span style={{
             fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 600,
             letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1,
-            background: "linear-gradient(135deg, #1d1d1f 0%, #2997ff 100%)",
+            background: "linear-gradient(135deg, #1d1d1f 0%, var(--accent-cobalt, #1c2c5a) 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>{total.toLocaleString()}</span>
@@ -3893,7 +4024,7 @@ function AllergyTrackerCard({ onClick }) {
         cursor: "pointer",
         transform: hover ? "translateY(-2px)" : "translateY(0)",
         boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03), 0 14px 34px -14px rgba(21,168,107,0.34), 0 16px 38px -16px rgba(41,151,255,0.24)"
+          ? "0 1px 2px rgba(0,0,0,0.03), 0 14px 34px -14px rgba(21,168,107,0.34), 0 16px 38px -16px rgba(28,44,90,0.24)"
           : "0 1px 2px rgba(0,0,0,0.03), 0 8px 22px -12px rgba(21,168,107,0.22)",
         transition: "all 220ms cubic-bezier(0.32,0.72,0,1)",
         overflow: "hidden",
@@ -3908,7 +4039,7 @@ function AllergyTrackerCard({ onClick }) {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             <MiniStat label="7 days" value={stats.last_7_days || 0} accent="#15a86b" />
-            <MiniStat label="Impact" value={missed > 0 ? "missed" : "clear"} accent="#2997ff" />
+            <MiniStat label="Impact" value={missed > 0 ? "missed" : "clear"} accent="var(--accent-cobalt, #1c2c5a)" />
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, alignItems: "end", minHeight: 150 }}>
@@ -3919,7 +4050,7 @@ function AllergyTrackerCard({ onClick }) {
                 height: 104,
                 borderRadius: 12,
                 border: "1px solid rgba(0,0,0,0.06)",
-                background: "linear-gradient(180deg, rgba(21,168,107,0.08), rgba(41,151,255,0.05))",
+                background: "linear-gradient(180deg, rgba(21,168,107,0.08), rgba(28,44,90,0.05))",
                 display: "flex",
                 alignItems: "flex-end",
                 overflow: "hidden",
@@ -3927,7 +4058,7 @@ function AllergyTrackerCard({ onClick }) {
                 <div style={{
                   width: "100%",
                   height: `${Math.max(8, (buckets[key] || 0) / maxBucket * 100)}%`,
-                  background: "linear-gradient(180deg, #15a86b, #2997ff)",
+                  background: "linear-gradient(180deg, #15a86b, var(--accent-cobalt, #1c2c5a))",
                   borderRadius: "12px 12px 0 0",
                 }}></div>
               </div>
@@ -4090,7 +4221,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               const d = window.__bjjdata;
               const days = d && typeof d.streak_days === "number" ? d.streak_days : 0;
               return (
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "#2997ff" }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--accent-cobalt, #1c2c5a)" }}>
                   {days} {days === 1 ? "day" : "days"}
                 </span>
               );
@@ -5915,7 +6046,7 @@ function Meals({ onBack }) {
             <div style={{
               position: "absolute", inset: 0, borderRadius: 980,
               padding: 1.5,
-              background: "linear-gradient(100deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
+              background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
               WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
               WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -5924,8 +6055,8 @@ function Meals({ onBack }) {
             <div style={{
               position: "absolute", left: 2, top: 2, bottom: 2,
               width: `calc(${pct}% - 4px)`, borderRadius: 980,
-              background: "linear-gradient(180deg, #4ea3ff 0%, #2997ff 50%, #1f6fdc 100%)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(41,151,255,0.5)",
+              background: "linear-gradient(180deg, var(--accent-cobalt, #1c2c5a) 0%, var(--accent-cobalt, #1c2c5a) 50%, var(--accent-oxblood, #6e1320) 100%)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(28,44,90,0.5)",
             }}></div>
           </div>
 
@@ -6101,9 +6232,9 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
             flexShrink: 0,
             padding: "6px 14px", borderRadius: 980,
             fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
-            letterSpacing: "-0.01em", color: "#2997ff",
-            background: "rgba(41,151,255,0.08)",
-            border: "1px solid rgba(41,151,255,0.22)",
+            letterSpacing: "-0.01em", color: "var(--accent-cobalt, #1c2c5a)",
+            background: "rgba(28,44,90,0.08)",
+            border: "1px solid rgba(28,44,90,0.22)",
             fontVariantNumeric: "tabular-nums",
           }}>{meal.calories} cal</div>
         </div>
