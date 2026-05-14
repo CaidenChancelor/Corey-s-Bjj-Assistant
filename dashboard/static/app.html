@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
 /* =============================================================
    BJJ Dashboard — Colors & Type
@@ -104,11 +104,11 @@
   /* =========================================================
      TYPOGRAPHY  — SF Pro first, Inter fallback
      ========================================================= */
-  --font-display: "Cormorant Garamond", "EB Garamond", "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-display: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-text:    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-rounded: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-rounded: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono:    "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
-  --font-serif:   "Cormorant Garamond", "EB Garamond", "Playfair Display", Georgia, serif;
+  --font-serif:   "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
   --type-hero:        clamp(48px, 6vw, 88px);
   --type-display-xl:  56px;
@@ -298,22 +298,22 @@ body::after {
    SEMANTIC TYPE CLASSES
    ============================================================= */
 .t-hero       { font-family: var(--font-display); font-size: var(--type-hero);
-                font-weight: 500; letter-spacing: -0.025em;
-                line-height: 0.98; font-style: normal; }
+                font-weight: 800; letter-spacing: -0.04em;
+                line-height: 0.92; text-transform: none; }
 .t-display-xl { font-family: var(--font-display); font-size: var(--type-display-xl);
-                font-weight: 500; letter-spacing: -0.02em;
-                line-height: 1.04; }
+                font-weight: 700; letter-spacing: -0.035em;
+                line-height: 1.0; }
 .t-display-lg { font-family: var(--font-display); font-size: var(--type-display-lg);
-                font-weight: 500; letter-spacing: -0.02em;
-                line-height: 1.1; }
+                font-weight: 700; letter-spacing: -0.03em;
+                line-height: 1.06; }
 .t-display-md { font-family: var(--font-display); font-size: var(--type-display-md);
-                font-weight: 500; letter-spacing: -0.015em;
+                font-weight: 600; letter-spacing: -0.02em;
                 line-height: 1.15; }
 .t-display-sm { font-family: var(--font-display); font-size: var(--type-display-sm);
-                font-weight: 500; letter-spacing: -0.01em;
+                font-weight: 600; letter-spacing: -0.015em;
                 line-height: 1.2; }
 .t-lead       { font-family: var(--font-display); font-size: var(--type-lead);
-                font-weight: 400; letter-spacing: -0.005em; font-style: italic;
+                font-weight: 500; letter-spacing: -0.005em;
                 line-height: 1.4; color: var(--fg-2); }
 .t-body       { font-size: var(--type-body); font-weight: var(--w-regular);
                 letter-spacing: var(--track-body); line-height: var(--leading-normal);
@@ -1943,8 +1943,8 @@ function Login({ onContinue }) {
           }}>Vol. I · {new Date().getFullYear()}</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: "clamp(64px, 14vw, 96px)",
-            fontWeight: 500, fontStyle: "italic",
+            fontSize: "clamp(72px, 16vw, 132px)",
+            fontWeight: 800, fontStyle: "normal",
             letterSpacing: "-0.04em",
             lineHeight: 0.95,
             color: "var(--ink, #1a1814)",
@@ -1959,7 +1959,7 @@ function Login({ onContinue }) {
             <div style={{ height: 1, width: 36, background: "var(--ink-hairline)" }}/>
             <div style={{
               fontFamily: "var(--font-display)",
-              fontSize: 17, fontStyle: "italic",
+              fontSize: 17, fontStyle: "normal",
               color: "var(--ink-muted)", letterSpacing: "0.02em",
             }}>a training journal</div>
             <div style={{ height: 1, width: 36, background: "var(--ink-hairline)" }}/>
@@ -2708,7 +2708,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
                 <span style={{
                   position: "absolute", inset: 0, borderRadius: 999,
                   padding: 1.5,
-                  background: "linear-gradient(120deg, #4cd6ff 0%, #7a5cff 50%, #ff4f9a 100%)",
+                  background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
                   WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                   mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                   WebkitMaskComposite: "xor",
@@ -3662,7 +3662,7 @@ function ProblemsTile({ onClick }) {
             textAlign: "center",
             fontSize: 14,
             color: "rgba(29,29,31,0.4)",
-            fontStyle: "italic"
+            fontStyle: "normal"
           }}>No current issues</div>
         )}
         {display.map((p, i) => {
@@ -4119,8 +4119,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           <div className="dash-greeting" style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(44px, 7vw, 84px)",
-            fontWeight: 500,
-            fontStyle: "italic",
+            fontWeight: 800,
+            fontStyle: "normal",
             letterSpacing: "-0.035em",
             color: "var(--ink, #1a1814)",
             lineHeight: 0.95,
@@ -4128,8 +4128,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(44px, 7vw, 84px)",
-            fontWeight: 500,
-            letterSpacing: "-0.035em",
+            fontWeight: 800,
+            letterSpacing: "-0.045em",
             lineHeight: 0.95,
             background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
             WebkitBackgroundClip: "text", backgroundClip: "text",
@@ -4138,7 +4138,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           }}>composed.</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: 18, fontStyle: "italic",
+            fontSize: 18, fontStyle: "normal",
             color: "var(--ink-muted)", marginTop: 14,
             letterSpacing: "0.005em",
           }}>{(() => {
@@ -4741,7 +4741,7 @@ function Editor() {
             <div style={{
               fontFamily: "var(--font-display)",
               fontSize: "clamp(40px, 6.5vw, 64px)",
-              fontWeight: 500, fontStyle: "italic",
+              fontWeight: 800, fontStyle: "normal",
               letterSpacing: "-0.03em",
               color: "var(--ink, #1a1814)",
               lineHeight: 0.95,
@@ -4750,7 +4750,7 @@ function Editor() {
               <div style={{
                 marginTop: 10,
                 fontFamily: "var(--font-display)",
-                fontSize: 16, fontStyle: "italic",
+                fontSize: 16, fontStyle: "normal",
                 color: "var(--ink-muted)", letterSpacing: "0.005em",
                 lineHeight: 1.35, maxWidth: 560,
               }}>&ldquo;{sessionTitle}{sessionTitle.length >= 40 ? "…" : ""}&rdquo;</div>
@@ -4935,7 +4935,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(44px, 7vw, 76px)",
-            fontWeight: 500, fontStyle: "italic",
+            fontWeight: 800, fontStyle: "normal",
             letterSpacing: "-0.035em",
             color: "var(--ink, #1a1814)",
             lineHeight: 0.96,
@@ -4943,8 +4943,8 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(44px, 7vw, 76px)",
-            fontWeight: 500,
-            letterSpacing: "-0.035em",
+            fontWeight: 800,
+            letterSpacing: "-0.045em",
             lineHeight: 0.96,
             background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
             WebkitBackgroundClip: "text", backgroundClip: "text",
@@ -4953,7 +4953,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           }}>Bruno.</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: 17, fontStyle: "italic",
+            fontSize: 17, fontStyle: "normal",
             color: "var(--ink-muted)", marginTop: 16, maxWidth: 580,
             letterSpacing: "0.005em", lineHeight: 1.45,
           }}>Every private, plated and filed. Tap a plate to read the full debrief — pin, edit, or delete from the row.</div>
@@ -5167,7 +5167,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
               <span style={{
                 position: "absolute", inset: 0, borderRadius: 10,
                 padding: 1.5,
-                background: "linear-gradient(120deg, #4cd6ff 0%, #7a5cff 50%, #ff4f9a 100%)",
+                background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
                 WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "xor",
@@ -5584,7 +5584,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 15, color: "rgba(29,29,31,0.45)", fontStyle: "italic" }}>
+            <div style={{ fontSize: 15, color: "rgba(29,29,31,0.45)", fontStyle: "normal" }}>
               No detailed notes yet — tap edit to add some.
             </div>
           )}
@@ -5700,7 +5700,7 @@ function Schedule({ onBack }) {
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
             <div style={{
               fontFamily: "var(--font-display)",
-              fontSize: 18, fontStyle: "italic",
+              fontSize: 18, fontStyle: "normal",
               color: "var(--ink-muted)",
               letterSpacing: "0.005em",
               fontVariantNumeric: "tabular-nums",
@@ -5709,14 +5709,14 @@ function Schedule({ onBack }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(40px, 6vw, 68px)",
-            fontWeight: 500, fontStyle: "italic",
+            fontWeight: 800, fontStyle: "normal",
             letterSpacing: "-0.03em",
             color: "var(--ink, #1a1814)",
             lineHeight: 0.96,
           }}>{fmtDate(now)}</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: 17, fontStyle: "italic",
+            fontSize: 17, fontStyle: "normal",
             color: "var(--ink-muted)", marginTop: 14, maxWidth: 580,
             letterSpacing: "0.005em", lineHeight: 1.45,
           }}>
@@ -6021,12 +6021,12 @@ function Meals({ onBack }) {
             <div style={{
               fontFamily: "var(--font-display)",
               fontSize: "clamp(48px, 7.5vw, 80px)",
-              fontWeight: 500, fontStyle: "italic",
+              fontWeight: 800, fontStyle: "normal",
               letterSpacing: "-0.035em",
               color: "var(--ink, #1a1814)", lineHeight: 0.95,
               fontVariantNumeric: "tabular-nums",
             }}>{total}<span style={{
-              fontStyle: "italic",
+              fontStyle: "normal",
               color: "var(--ink-muted)",
               fontWeight: 400,
               fontSize: "0.45em",
@@ -6034,7 +6034,7 @@ function Meals({ onBack }) {
             }}>kcal</span></div>
             <div style={{
               fontFamily: "var(--font-display)",
-              fontSize: 17, fontStyle: "italic",
+              fontSize: 17, fontStyle: "normal",
               color: "var(--ink-muted)",
               fontVariantNumeric: "tabular-nums",
               letterSpacing: "0.005em",
@@ -6569,7 +6569,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
               <span style={{
                 position: "absolute", inset: 0, borderRadius: 10,
                 padding: 1.5,
-                background: "linear-gradient(120deg, #4cd6ff 0%, #7a5cff 50%, #ff4f9a 100%)",
+                background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
                 WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "xor",
@@ -6837,7 +6837,7 @@ function Problems({ onBack }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 500, fontStyle: "italic",
+            fontWeight: 800, fontStyle: "normal",
             letterSpacing: "-0.035em",
             color: "var(--ink, #1a1814)",
             lineHeight: 0.95, marginBottom: 4,
@@ -6845,8 +6845,8 @@ function Problems({ onBack }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 500,
-            letterSpacing: "-0.035em",
+            fontWeight: 800,
+            letterSpacing: "-0.045em",
             lineHeight: 0.95,
             background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
             WebkitBackgroundClip: "text", backgroundClip: "text",
@@ -6854,7 +6854,7 @@ function Problems({ onBack }) {
           }}>stuck.</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: 17, fontStyle: "italic",
+            fontSize: 17, fontStyle: "normal",
             color: "var(--ink-muted)", marginTop: 16, maxWidth: 560,
             letterSpacing: "0.005em", lineHeight: 1.45,
           }}>The positions on file. Tap a row to read the breakdown.</div>
@@ -7092,7 +7092,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
           marginBottom: 24, whiteSpace: "pre-wrap",
         }}>
           {problem.description || (
-            <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "italic" }}>
+            <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "normal" }}>
               No description yet — tap edit to add one.
             </span>
           )}
@@ -7260,7 +7260,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
               <span style={{
                 position: "absolute", inset: 0, borderRadius: 10,
                 padding: 1.5,
-                background: "linear-gradient(120deg, #4cd6ff 0%, #7a5cff 50%, #ff4f9a 100%)",
+                background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
                 WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "xor",
@@ -7822,7 +7822,7 @@ function MicroInjuries({ onBack }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 500, fontStyle: "italic",
+            fontWeight: 800, fontStyle: "normal",
             letterSpacing: "-0.035em",
             color: "var(--ink, #1a1814)",
             lineHeight: 0.95, marginBottom: 4,
@@ -7830,8 +7830,8 @@ function MicroInjuries({ onBack }) {
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 500,
-            letterSpacing: "-0.035em",
+            fontWeight: 800,
+            letterSpacing: "-0.045em",
             lineHeight: 0.95,
             background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
             WebkitBackgroundClip: "text", backgroundClip: "text",
@@ -7839,7 +7839,7 @@ function MicroInjuries({ onBack }) {
           }}>real damage.</div>
           <div style={{
             fontFamily: "var(--font-display)",
-            fontSize: 17, fontStyle: "italic",
+            fontSize: 17, fontStyle: "normal",
             color: "var(--ink-muted)", marginTop: 16, maxWidth: 560,
             letterSpacing: "0.005em", lineHeight: 1.45,
           }}>Tweaks, strains, anything you&rsquo;re managing this week.</div>
@@ -8123,7 +8123,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           marginBottom: (injury.partner || injury.when_happened) ? 10 : 24, whiteSpace: "pre-wrap",
         }}>
           {injury.description || (
-            <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "italic" }}>
+            <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "normal" }}>
               No notes yet — tap edit to add details.
             </span>
           )}
@@ -8384,7 +8384,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
               <span style={{
                 position: "absolute", inset: 0, borderRadius: 10,
                 padding: 1.5,
-                background: "linear-gradient(120deg, #4cd6ff 0%, #7a5cff 50%, #ff4f9a 100%)",
+                background: "linear-gradient(120deg, var(--accent-oxblood, #6e1320) 0%, var(--accent-cobalt, #1c2c5a) 55%, var(--accent-gold, #c79a3a) 100%)",
                 WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "xor",
@@ -8913,7 +8913,7 @@ function TechniqueLibrary({ onBack }) {
             boxShadow: "var(--shadow-card)",
           }}>
             {t.summary ? (
-              <div style={{ fontSize: 15, color: "rgba(29,29,31,0.82)", lineHeight: 1.65, fontStyle: "italic" }}>
+              <div style={{ fontSize: 15, color: "rgba(29,29,31,0.82)", lineHeight: 1.65, fontStyle: "normal" }}>
                 {t.summary}
               </div>
             ) : (
@@ -8990,7 +8990,7 @@ function TechniqueLibrary({ onBack }) {
         <div style={{
           fontFamily: "var(--font-display)",
           fontSize: "clamp(40px, 7vw, 72px)",
-          fontWeight: 500, fontStyle: "italic",
+          fontWeight: 800, fontStyle: "normal",
           letterSpacing: "-0.035em",
           color: "var(--ink, #1a1814)",
           lineHeight: 0.95, marginBottom: 4,
@@ -8998,8 +8998,8 @@ function TechniqueLibrary({ onBack }) {
         <div style={{
           fontFamily: "var(--font-display)",
           fontSize: "clamp(40px, 7vw, 72px)",
-          fontWeight: 500,
-          letterSpacing: "-0.035em",
+          fontWeight: 800,
+          letterSpacing: "-0.045em",
           lineHeight: 0.95,
           background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
           WebkitBackgroundClip: "text", backgroundClip: "text",
@@ -9007,7 +9007,7 @@ function TechniqueLibrary({ onBack }) {
         }}>filed.</div>
         <div style={{
           fontFamily: "var(--font-display)",
-          fontSize: 17, fontStyle: "italic",
+          fontSize: 17, fontStyle: "normal",
           color: "var(--ink-muted)", marginTop: 16, marginBottom: 36, maxWidth: 520,
           letterSpacing: "0.005em", lineHeight: 1.45,
         }}>Every folder the bot has logged from your sessions.</div>
