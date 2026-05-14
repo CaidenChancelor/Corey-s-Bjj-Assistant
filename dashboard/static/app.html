@@ -7206,200 +7206,67 @@ const MICRO_INJURY_TIME_LABELS = {
   night: "Late",
 };
 
-function MicroInjuryCalendar({ injuries }) {
-  // 12-week heatmap: columns = weeks (Mon-anchored), rows = Mon..Sun
-  const weeks = 12;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  // Find the Monday of THIS week
-  const dayIdx = (today.getDay() + 6) % 7; // 0=Mon..6=Sun
-  const endMonday = new Date(today);
-  endMonday.setDate(today.getDate() - dayIdx);
-  // First Monday of the 12-week window
-  const startMonday = new Date(endMonday);
-  startMonday.setDate(endMonday.getDate() - 7 * (weeks - 1));
-
-  // Build date → count map from injuries (date field is "YYYY-MM-DD")
-  const counts = new Map();
-  (Array.isArray(injuries) ? injuries : []).forEach((inj) => {
-    if (!inj || !inj.date) return;
-    counts.set(inj.date, (counts.get(inj.date) || 0) + 1);
-  });
-
-  const fmt = (d) => {
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${d.getFullYear()}-${m}-${day}`;
-  };
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-  // Build columns: each is an array of 7 day-cells
-  const columns = [];
-  for (let w = 0; w < weeks; w++) {
-    const col = [];
-    const colStart = new Date(startMonday);
-    colStart.setDate(startMonday.getDate() + 7 * w);
-    for (let d = 0; d < 7; d++) {
-      const date = new Date(colStart);
-      date.setDate(colStart.getDate() + d);
-      const future = date > today;
-      const key = fmt(date);
-      const count = future ? null : (counts.get(key) || 0);
-      col.push({ date, key, count, future });
-    }
-    columns.push(col);
-  }
-
-  // Month header: only show label when this column contains the 1st of a new month
-  // or is the leftmost column.
-  const monthLabels = columns.map((col, idx) => {
-    const mondayMonth = col[0].date.getMonth();
-    const prev = idx > 0 ? columns[idx - 1][0].date.getMonth() : -1;
-    if (idx === 0 || mondayMonth !== prev) {
-      return monthNames[mondayMonth];
-    }
-    return null;
-  });
-
-  // Color scale
-  const cellStyle = (count, future) => {
-    if (future) return {
-      background: "rgba(29,29,31,0.025)",
-      boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset",
-      cursor: "default",
-    };
-    if (count === 0) return {
-      background: "rgba(29,29,31,0.05)",
-      boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset",
-    };
-    if (count === 1) return {
-      background: "#ff4f9a55",
-      boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 0 8px #ff4f9a44",
-    };
-    if (count === 2) return {
-      background: "#c862ff77",
-      boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 0 10px #c862ff55",
-    };
-    return {
-      background: "linear-gradient(135deg, #7a5cff, #3b82ff)",
-      boxShadow: "0 1px 0 rgba(255,255,255,0.6) inset, 0 0 14px rgba(122,92,255,0.6)",
-    };
-  };
-
-  const totalCount = Array.from(counts.values()).reduce((a, b) => a + b, 0);
-  const dayLabels = ["Mon", "", "Wed", "", "Fri", "", ""]; // sparse, like GH
-
+function MicroInjuryTimeChart({ buckets }) {
+  const rows = [
+    { key: "morning",   color: "#ff4f9a" },
+    { key: "afternoon", color: "#c862ff" },
+    { key: "evening",   color: "#3b82ff" },
+    { key: "night",     color: "#4cd6ff" },
+  ];
+  const counts = rows.map((r) => buckets[r.key] || 0);
+  const maxCount = Math.max(...counts);
   return (
-    <div style={{ paddingTop: 6 }}>
-      {/* Month row */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: `26px repeat(${weeks}, 1fr)`,
-        gap: 4,
-        marginBottom: 6,
-      }}>
-        <div/>
-        {monthLabels.map((m, i) => (
-          <div key={i} style={{
-            fontSize: 9.5,
-            fontWeight: 700,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: "rgba(29,29,31,0.42)",
-            textAlign: "center",
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+      gap: 10,
+      paddingTop: 4,
+    }}>
+      {rows.map((row) => {
+        const count = buckets[row.key] || 0;
+        const isPeak = maxCount > 0 && count === maxCount;
+        const isZero = count === 0;
+        return (
+          <div key={row.key} style={{
+            position: "relative",
+            padding: "14px 14px 13px",
+            borderRadius: 16,
+            background: "rgba(255,255,255,0.78)",
+            border: `1px solid ${isPeak ? row.color + "55" : "rgba(0,0,0,0.05)"}`,
+            boxShadow: isPeak
+              ? `0 1px 0 rgba(255,255,255,0.9) inset, 0 0 0 1px ${row.color}22, 0 8px 22px -14px ${row.color}66`
+              : "0 1px 0 rgba(255,255,255,0.9) inset",
+            transition: "box-shadow 200ms ease, border-color 200ms ease",
             minWidth: 0,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-          }}>{m || ""}</div>
-        ))}
-      </div>
-
-      {/* Grid */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: `26px repeat(${weeks}, 1fr)`,
-        gridTemplateRows: "repeat(7, 1fr)",
-        gap: 4,
-      }}>
-        {dayLabels.map((label, dayIdx) => (
-          <div key={`day-${dayIdx}`} style={{
-            gridColumn: 1,
-            gridRow: dayIdx + 1,
-            fontSize: 9,
-            fontWeight: 700,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            color: "rgba(29,29,31,0.38)",
-            display: "flex",
-            alignItems: "center",
-          }}>{label}</div>
-        ))}
-        {columns.map((col, wIdx) =>
-          col.map((cell, dIdx) => {
-            const niceDate = cell.date.toLocaleDateString(undefined, {
-              month: "short", day: "numeric", year: "numeric",
-            });
-            const title = cell.future
-              ? niceDate
-              : (cell.count > 0
-                  ? `${niceDate} · ${cell.count} ${cell.count === 1 ? "injury" : "injuries"}`
-                  : `${niceDate} · clean`);
-            return (
-              <div
-                key={`c-${wIdx}-${dIdx}`}
-                title={title}
-                style={{
-                  gridColumn: wIdx + 2,
-                  gridRow: dIdx + 1,
-                  aspectRatio: "1 / 1",
-                  borderRadius: 4,
-                  ...cellStyle(cell.count, cell.future),
-                  transition: "transform 120ms ease",
-                  cursor: cell.future ? "default" : "pointer",
-                }}
-              />
-            );
-          })
-        )}
-      </div>
-
-      {/* Legend + total */}
-      <div style={{
-        marginTop: 12,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
-      }}>
-        <div style={{
-          fontSize: 10.5,
-          fontWeight: 600,
-          color: "rgba(29,29,31,0.55)",
-          fontVariantNumeric: "tabular-nums",
-        }}>
-          {totalCount} {totalCount === 1 ? "injury" : "injuries"} · last {weeks} weeks
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ fontSize: 10, color: "rgba(29,29,31,0.42)" }}>Less</span>
-          {[
-            { background: "rgba(29,29,31,0.05)" },
-            { background: "#ff4f9a55" },
-            { background: "#c862ff77" },
-            { background: "linear-gradient(135deg, #7a5cff, #3b82ff)" },
-          ].map((sw, i) => (
-            <div key={i} style={{
-              width: 11, height: 11, borderRadius: 3, ...sw,
-              boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset",
-            }}/>
-          ))}
-          <span style={{ fontSize: 10, color: "rgba(29,29,31,0.42)" }}>More</span>
-        </div>
-      </div>
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: 999, flexShrink: 0,
+                background: `linear-gradient(135deg, ${row.color}, ${row.color}99)`,
+                boxShadow: `0 0 8px ${row.color}66`,
+                opacity: isZero ? 0.4 : 1,
+              }}/>
+              <div style={{
+                fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              }}>{MICRO_INJURY_TIME_LABELS[row.key]}</div>
+            </div>
+            <div style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 28, fontWeight: 600, lineHeight: 1,
+              letterSpacing: "-0.02em",
+              color: isZero ? "rgba(29,29,31,0.32)" : "#1d1d1f",
+              fontVariantNumeric: "tabular-nums",
+            }}>{count}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
-
-function MicroInjuryTimeChart({ buckets }) {
+) {
   // Cartesian area chart: 4 sessions across the X axis, count on Y axis.
   // Order matches the day: Morning drilling → Bruno → Night class → Late.
   const sessions = [
@@ -7693,7 +7560,7 @@ function MicroInjuryTimeChart({ buckets }) {
   );
 }
 
-function MicroInjuryStatsPanel({ stats, open, onToggle, injuries }) {
+function MicroInjuryStatsPanel({ stats, open, onToggle }) {
   const total = stats.total || 0;
   const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0, night: 0 };
   const partnerLeader = stats.top_partners?.[0]?.name || "No partner pattern yet";
@@ -7810,9 +7677,9 @@ function MicroInjuryStatsPanel({ stats, open, onToggle, injuries }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>When it happens</div>
-                <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.08em" }}>last 12 weeks</div>
+                <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.08em" }}>by session</div>
               </div>
-              <MicroInjuryCalendar injuries={injuries} />
+              <MicroInjuryTimeChart buckets={buckets} />
             </div>
           </div>
 
@@ -7964,7 +7831,6 @@ function MicroInjuries({ onBack }) {
         {displayStats.total > 0 && (
           <MicroInjuryStatsPanel
             stats={displayStats}
-            injuries={lookupPool}
             open={analyticsOpen}
             onToggle={() => setAnalyticsOpen((v) => !v)}
           />
