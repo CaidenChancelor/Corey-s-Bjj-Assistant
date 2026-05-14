@@ -107,6 +107,15 @@ def init_db():
         try:
             conn.execute('ALTER TABLE injuries ADD COLUMN when_happened TEXT')
         except Exception: pass
+        try:
+            conn.execute('ALTER TABLE allergies ADD COLUMN trigger_name TEXT')
+        except Exception: pass
+        try:
+            conn.execute(
+                'UPDATE allergies SET trigger_name = "trigger" '
+                'WHERE trigger_name IS NULL AND "trigger" IS NOT NULL'
+            )
+        except Exception: pass
         conn.execute('''CREATE TABLE IF NOT EXISTS water_log (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             date       TEXT,
