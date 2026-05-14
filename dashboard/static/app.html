@@ -104,12 +104,11 @@
   /* =========================================================
      TYPOGRAPHY  — SF Pro first, Inter fallback
      ========================================================= */
-  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont,
-                  "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-text:    "SF Pro Text", -apple-system, BlinkMacSystemFont,
-                  "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-rounded: "SF Pro Rounded", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono:    "SF Mono", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-display: "Cormorant Garamond", "EB Garamond", "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-text:    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-rounded: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-serif:   "Cormorant Garamond", "EB Garamond", "Playfair Display", Georgia, serif;
 
   --type-hero:        clamp(48px, 6vw, 88px);
   --type-display-xl:  56px;
@@ -195,6 +194,7 @@
    GLOBAL BASE
    ============================================================= */
 html, body {
+  margin: 0;
   background: var(--bg-canvas);
   color: var(--fg-1);
   font-family: var(--font-text);
@@ -204,6 +204,49 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11", "calt";
+}
+
+/* Editorial paper texture under everything */
+body {
+  background-image:
+    radial-gradient(60% 50% at 18% 22%, rgba(110, 19, 32, 0.10), transparent 70%),
+    radial-gradient(55% 45% at 78% 32%, rgba(28, 44, 90, 0.09), transparent 70%),
+    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.10), transparent 70%);
+  background-attachment: fixed;
+}
+
+/* =============================================================
+   FLUID BACKGROUND CANVAS + GRAIN OVERLAY
+   ============================================================= */
+#fluid-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+}
+#grain {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+  mix-blend-mode: multiply;
+}
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #fluid-bg { display: none; }
 }
 
 /* =============================================================
@@ -579,7 +622,114 @@ html, body {
             letter-spacing="-0.02em">BJJ Dashboard</text>
     </svg>
   </template>
+  <!-- Ambient fluid background (cursor-driven splats, jewel-tone palette).
+       Sits behind everything via z-index: 0; React app is z-index: 1.
+       Respects prefers-reduced-motion (falls back to static mesh gradient). -->
+  <canvas id="fluid-bg" aria-hidden="true"></canvas>
+  <div id="grain" aria-hidden="true"></div>
   <div id="root"></div>
+  <script>
+  (function() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = document.getElementById('fluid-bg');
+    if (!canvas || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    let W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth;  H = window.innerHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize(); window.addEventListener('resize', resize);
+
+    // Jewel-tone palette
+    const PALETTE = [
+      [110, 19, 32],   // oxblood
+      [28, 44, 90],    // cobalt
+      [199, 154, 58],  // gold
+      [139, 31, 55],   // mulled wine
+      [43, 63, 122],   // softer cobalt
+    ];
+
+    const splats = [];
+    function spawn(x, y, vx, vy, intensity) {
+      const c = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      splats.push({
+        x, y, vx, vy,
+        r: 80 + Math.random() * 140,
+        life: 1,
+        decay: 0.0028 + Math.random() * 0.0018,
+        color: c,
+        alpha: 0.32 * (intensity || 1),
+      });
+      // cap memory
+      if (splats.length > 80) splats.splice(0, splats.length - 80);
+    }
+
+    // Cursor / touch trail
+    let lastX = 0, lastY = 0, hasLast = false, lastTime = 0;
+    function onMove(ev) {
+      const x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      const y = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      const now = performance.now();
+      if (hasLast && now - lastTime < 12) return;
+      let vx = 0, vy = 0;
+      if (hasLast) { vx = x - lastX; vy = y - lastY; }
+      const speed = Math.min(1.5, Math.hypot(vx, vy) / 20);
+      if (speed > 0.05) spawn(x, y, vx * 0.4, vy * 0.4, 0.55 + speed * 0.5);
+      lastX = x; lastY = y; hasLast = true; lastTime = now;
+    }
+    window.addEventListener('mousemove', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+
+    // Ambient idle splats so it never goes still
+    setInterval(() => {
+      if (document.hidden) return;
+      const x = Math.random() * W;
+      const y = Math.random() * H;
+      spawn(x, y, (Math.random() - 0.5) * 0.6, (Math.random() - 0.5) * 0.6, 0.4);
+    }, 1800);
+
+    // Seed a few splats at boot so the canvas isn't blank on first paint
+    for (let i = 0; i < 6; i++) {
+      spawn(Math.random() * window.innerWidth, Math.random() * window.innerHeight, 0, 0, 0.55);
+    }
+
+    let lastFrame = performance.now();
+    function frame(now) {
+      const dt = Math.min(64, now - lastFrame); lastFrame = now;
+      // Fade the previous frame slightly (creates fluid trail feel)
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.fillStyle = 'rgba(0,0,0,0.965)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      // Draw each splat as a radial gradient
+      for (let i = splats.length - 1; i >= 0; i--) {
+        const s = splats[i];
+        s.x += s.vx * (dt / 16);
+        s.y += s.vy * (dt / 16);
+        s.vx *= 0.96; s.vy *= 0.96;
+        s.life -= s.decay * (dt / 16);
+        if (s.life <= 0) { splats.splice(i, 1); continue; }
+        const r = s.r * (0.6 + s.life * 0.8);
+        const a = s.life * s.alpha;
+        const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
+        grad.addColorStop(0, 'rgba(' + s.color.join(',') + ',' + (a * 0.55).toFixed(3) + ')');
+        grad.addColorStop(0.4, 'rgba(' + s.color.join(',') + ',' + (a * 0.22).toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(' + s.color.join(',') + ',0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+  </script>
   <script type="text/babel">
 // Shared primitives for the BJJ Dashboard UI kit
 // Light theme — frosted-white glass over rainbow halo
@@ -7556,38 +7706,39 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
         aria-expanded={open}
         style={{
           width: "100%", textAlign: "left", cursor: "pointer",
-          border: "1px solid rgba(0,0,0,0.05)",
+          border: "1px solid rgba(26,22,19,0.08)",
           borderRadius: 22, padding: 0, overflow: "hidden",
-          background: "rgba(255,255,255,0.78)",
-          backdropFilter: "blur(40px) saturate(180%)",
-          WebkitBackdropFilter: "blur(40px) saturate(180%)",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 12px 32px -16px rgba(60,60,90,0.18)",
-          color: "#1d1d1f",
+          background: "rgba(255,252,245,0.78)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          boxShadow: "0 1px 0 rgba(255,252,245,0.9) inset, 0 12px 32px -16px rgba(26,22,19,0.14)",
+          color: "var(--ink, #1A1613)",
         }}>
         <div style={{
           padding: "18px 20px",
           display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "center",
           position: "relative",
         }}>
-          {/* subtle rainbow accent bar on the left */}
+          {/* subtle jewel accent bar on the left */}
           <div style={{
             position: "absolute", top: 18, bottom: 18, left: 0, width: 3, borderRadius: 999,
-            background: "linear-gradient(180deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
+            background: "linear-gradient(180deg, #6e1320 0%, #1c2c5a 50%, #c79a3a 100%)",
           }}/>
           <div style={{ minWidth: 0, paddingLeft: 8 }}>
             <div style={{
               fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
-              color: "rgba(29,29,31,0.45)", marginBottom: 6,
+              fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+              color: "var(--accent-gold, #c79a3a)", marginBottom: 6,
             }}>Injury Statistics</div>
             <div style={{
               fontFamily: "var(--font-display)", fontSize: "clamp(20px, 3.8vw, 26px)",
-              fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.15, color: "#1d1d1f",
+              fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.15, color: "var(--ink, #1A1613)",
             }}>Patterns across partners, body, and timing</div>
           </div>
           <div style={{
             width: 38, height: 38, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
-            border: "1px solid rgba(0,0,0,0.06)", background: "rgba(255,255,255,0.85)",
-            color: "rgba(29,29,31,0.62)",
+            border: "1px solid rgba(26,22,19,0.08)", background: "rgba(255,252,245,0.85)",
+            color: "rgba(26,22,19,0.50)",
             transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 180ms ease",
           }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -7598,7 +7749,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
         {!open && (
           <div style={{
             display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-            borderTop: "1px solid rgba(0,0,0,0.05)",
+            borderTop: "1px solid rgba(26,22,19,0.06)",
           }}>
             {[
               { label: "Top partner", value: partnerLeader },
@@ -7607,12 +7758,12 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             ].map((item, i, arr) => (
               <div key={item.label} style={{
                 padding: "13px 16px",
-                borderRight: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+                borderRight: i < arr.length - 1 ? "1px solid rgba(26,22,19,0.06)" : "none",
                 minWidth: 0,
               }}>
-                <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(29,29,31,0.45)", marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)", marginBottom: 4 }}>{item.label}</div>
                 <div style={{
-                  fontSize: 13.5, fontWeight: 600, color: "#1d1d1f",
+                  fontSize: 13.5, fontWeight: 600, color: "var(--ink, #1A1613)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                   textTransform: item.label === "Hot spot" || item.label === "Top partner" ? "capitalize" : "none",
                 }}>{item.value}</div>
@@ -7625,51 +7776,51 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
       {open && (
         <div style={{
           marginTop: 12, borderRadius: 22, padding: "18px",
-          background: "rgba(255,255,255,0.78)",
-          backdropFilter: "blur(40px) saturate(180%)",
-          WebkitBackdropFilter: "blur(40px) saturate(180%)",
-          border: "1px solid rgba(0,0,0,0.05)",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 12px 32px -16px rgba(60,60,90,0.18)",
+          background: "rgba(255,252,245,0.78)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          border: "1px solid rgba(26,22,19,0.08)",
+          boxShadow: "0 1px 0 rgba(255,252,245,0.9) inset, 0 12px 32px -16px rgba(26,22,19,0.14)",
         }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10, marginBottom: 18 }}>
-            <MicroInjuryMetric label="Tracked" value={total} tone="#1d1d1f" />
-            <MicroInjuryMetric label="Active" value={stats.active ?? 0} tone="#c4324f" />
-            <MicroInjuryMetric label="Cleared" value={stats.resolved ?? 0} tone="#0f766e" />
+            <MicroInjuryMetric label="Tracked" value={total} tone="var(--ink, #1A1613)" />
+            <MicroInjuryMetric label="Active" value={stats.active ?? 0} tone="#6e1320" />
+            <MicroInjuryMetric label="Cleared" value={stats.resolved ?? 0} tone="#4a7a3a" />
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
             <div style={{
-              padding: 18, borderRadius: 18, background: "rgba(255,255,255,0.6)",
-              border: "1px solid rgba(0,0,0,0.04)", minWidth: 0,
+              padding: 18, borderRadius: 18, background: "rgba(255,252,245,0.6)",
+              border: "1px solid rgba(26,22,19,0.05)", minWidth: 0,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>Who it happens with</div>
-                <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.08em" }}>partner</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>Who it happens with</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.12em" }}>partner</div>
               </div>
-              <MicroInjuryBars rows={stats.top_partners || []} emptyText="Add partner names to unlock this chart" color="#ff4f9a" />
+              <MicroInjuryBars rows={stats.top_partners || []} emptyText="Add partner names to unlock this chart" color="#6e1320" />
             </div>
 
             <div style={{
-              padding: 18, borderRadius: 18, background: "rgba(255,255,255,0.6)",
-              border: "1px solid rgba(0,0,0,0.04)", minWidth: 0,
+              padding: 18, borderRadius: 18, background: "rgba(255,252,245,0.6)",
+              border: "1px solid rgba(26,22,19,0.05)", minWidth: 0,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>When it happens</div>
-                <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.08em" }}>by session</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>When it happens</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.12em" }}>by session</div>
               </div>
               <MicroInjuryTimeChart buckets={buckets} />
             </div>
           </div>
 
           <div style={{
-            marginTop: 16, padding: 18, borderRadius: 18, background: "rgba(255,255,255,0.6)",
-            border: "1px solid rgba(0,0,0,0.04)",
+            marginTop: 16, padding: 18, borderRadius: 18, background: "rgba(255,252,245,0.6)",
+            border: "1px solid rgba(26,22,19,0.05)",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>Body parts taking damage</div>
               <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.08em" }}>frequency</div>
             </div>
-            <MicroInjuryBars rows={stats.top_body_parts || []} emptyText="No body-part data yet" color="#7a5cff" />
+            <MicroInjuryBars rows={stats.top_body_parts || []} emptyText="No body-part data yet" color="#1c2c5a" />
           </div>
         </div>
       )}
@@ -8435,10 +8586,10 @@ window.MicroInjuries = MicroInjuries;
 // Allergy tracker — symptom logs, training impact, and readable statistics.
 
 const ALLERGY_SEVERITIES = [
-  { id: "mild", label: "Mild", color: "#15a86b" },
-  { id: "moderate", label: "Moderate", color: "#c97a00" },
-  { id: "bad", label: "Bad", color: "#e0264a" },
-  { id: "severe", label: "Severe", color: "#c4324f" },
+  { id: "mild", label: "Mild", color: "#4a7a3a" },
+  { id: "moderate", label: "Moderate", color: "#c79a3a" },
+  { id: "bad", label: "Bad", color: "#6e1320" },
+  { id: "severe", label: "Severe", color: "#4a1a10" },
 ];
 const ALLERGY_CATEGORIES = ["Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "All of the Above"];
 const ALLERGY_CAUSES = ["Food", "Pollen", "High Heart Rate", "All of the Above"];
