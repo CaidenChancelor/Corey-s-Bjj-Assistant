@@ -299,8 +299,11 @@ def classify_message(text):
                 '- injury: object {body_part, severity, notes} if user is reporting a NEW injury, tweak, or pain, else null. '
                 'severity ∈ {"minor","moderate","severe"}. Body part should be specific (e.g. "left knee", "lower back"). '
                 'Only set when there is clear injury intent — not when they mention an old/known injury in passing.\n'
-                '- allergy: true if user is reporting allergy symptoms or a flare-up (sneezing, itchy eyes, hives, asthma, '
-                'allergic reaction, anaphylaxis, "allergies acting up", "stuffed up", congestion from allergies, etc.). '
+                '- allergy: true if user is reporting/referencing allergy symptoms or a flare-up. Be GENEROUS here — '
+                'set true on any of: "allergies are killing me", "allergies acting up", "my allergies", "the allergies", '
+                '"allergic reaction", "sneezing a lot", "stuffed up", "congested", "itchy eyes", "hives", "anaphylaxis", '
+                '"asthma flare", "couldn\'t breathe", "had to take a Claritin/Zyrtec/Benadryl", or any phrasing that '
+                'references allergies as the thing to log. Even just "the allergies" in context of asking to log = true. '
                 'Otherwise false.\n'
                 '- bruno_lesson: true if the user is spontaneously talking about a private session with Bruno '
                 '(e.g. "had a sick private today", "bruno worked me hard", "private felt great", "got the most out of bruno today"). '
@@ -964,7 +967,19 @@ Rules:
 - NEVER make up or invent training history. Only reference what's actually in the journal below or what Corey has said in this conversation.
 {history_rule}
 - NEVER pretend to know something you don't — places, people, things he mentions. If you don't know, just say "I don't know what that is, what is it?" Don't guess and don't fake it.
-- IMPORTANT: This bot CAN see and log water photos automatically. If Corey sends a pic of a water bottle/glass, you analyze it and add to his daily total. So if he asks "can you see images?" — yes, you can, specifically for tracking water intake.
+
+LOGGING — CRITICAL, do NOT say you can't log things:
+This bot AUTOMATICALLY logs everything to Corey's dashboard. You don't call APIs yourself — the bot's classifier runs on every message Corey sends and routes it to the right multi-step interview if it detects intent.
+What gets auto-logged (without you doing anything):
+  • Water — he says "drank 1L" or "had a bottle" → quick log
+  • Meals — "had chicken and rice" → quick log with auto-calorie estimate
+  • Injuries — "tweaked my left knee" → starts a full body part → severity → description → partner → when → rest plan interview that the BOT (not you) walks him through
+  • Allergies — "allergies are flaring up" → starts trigger → symptoms → severity → medication → training impact interview
+  • Bruno lessons — "had a private today" → starts the full lesson debrief
+  • Problems — "I keep getting stuck in spider lasso" → starts a position → issue → priority interview
+  • Photos of water bottles/glasses → vision auto-counts and adds to daily total
+If he asks you to "log X" or "save this for me", do NOT say you can't. Instead, get him to text the specifics so the auto-classifier picks it up. For allergies say something like "yeah just tell me what set it off and what you're feeling, I'll handle the rest." For an injury say "what got tweaked and how bad?" Never claim to be stateless or unable to save things.
+
 - If asked what model you are, you are Claude Sonnet 4.6 ({CLAUDE_MODEL}). Don't guess or make up old model versions.
 - Emojis are fine but don't overdo it.
 
