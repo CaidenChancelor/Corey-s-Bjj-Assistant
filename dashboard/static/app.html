@@ -601,6 +601,23 @@ html, body {
 }
 
 
+
+/* =============================================================
+   CARDS — animated border sweep + holographic micro-effects
+   ============================================================= */
+@property --gc-angle {
+  syntax: '<angle>';
+  initial-value: 120deg;
+  inherits: false;
+}
+@keyframes gc-spin { to { --gc-angle: 480deg; } }
+.gc-border-anim {
+  animation: gc-spin 14s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-border-anim { animation: none; }
+}
+
 </style>
   <style>
     html, body, #root { height: 100%; margin: 0; }
@@ -896,37 +913,89 @@ function HaloBackground() {
 // GlassCard — frosted white card
 // =====================================================
 function GlassCard({ children, padding = 28, radius = 22, style = {}, hero = false, rainbow = false, className, ...rest }) {
+  const [hover, setHover] = useState(false);
+  const baseShadow = hero
+    ? "0 1px 0 rgba(255,252,245,0.95) inset, 0 0 0 0.5px rgba(26,22,19,0.04) inset, 0 28px 70px -18px rgba(26,22,19,0.22), 0 8px 20px -10px rgba(199,154,58,0.10)"
+    : "0 1px 0 rgba(255,252,245,0.9) inset, 0 12px 28px -10px rgba(26,22,19,0.16), 0 2px 4px rgba(26,22,19,0.04)";
+  const hoverShadow = hero
+    ? "0 1px 0 rgba(255,252,245,0.95) inset, 0 0 0 0.5px rgba(199,154,58,0.18) inset, 0 36px 84px -16px rgba(26,22,19,0.28), 0 10px 30px -8px rgba(199,154,58,0.22)"
+    : "0 1px 0 rgba(255,252,245,0.92) inset, 0 18px 36px -10px rgba(26,22,19,0.20), 0 3px 8px rgba(26,22,19,0.05)";
   const cardStyle = {
-    background: hero ? "rgba(255,252,245,0.88)" : "rgba(255,252,245,0.72)",
-    border: rainbow ? "1px solid transparent" : "1px solid rgba(26,22,19,0.08)",
-    backdropFilter: "blur(40px)",
-    WebkitBackdropFilter: "blur(40px)",
+    position: "relative",
+    background: hero
+      ? "linear-gradient(180deg, rgba(255,252,245,0.92), rgba(247,241,227,0.78))"
+      : "linear-gradient(180deg, rgba(255,252,245,0.82), rgba(247,241,227,0.66))",
+    border: rainbow ? "1px solid transparent" : "1px solid rgba(26,22,19,0.07)",
+    backdropFilter: "blur(48px) saturate(140%)",
+    WebkitBackdropFilter: "blur(48px) saturate(140%)",
     borderRadius: radius,
     padding,
-    boxShadow: hero
-      ? "0 1px 0 rgba(255,252,245,0.95) inset, 0 24px 60px -16px rgba(26,22,19,0.16), 0 2px 6px rgba(26,22,19,0.04)"
-      : "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(26,22,19,0.12), 0 1px 2px rgba(26,22,19,0.03)",
+    boxShadow: hover ? hoverShadow : baseShadow,
+    transform: hover ? "translateY(-3px)" : "translateY(0)",
+    transition: "transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1)",
+    overflow: "hidden",
     ...style,
   };
+  // Corner accent for hero cards — soft gold bloom in the top-right
+  const corner = hero ? (
+    <div aria-hidden="true" style={{
+      position: "absolute", top: -60, right: -60, width: 220, height: 220,
+      borderRadius: "50%",
+      background: "radial-gradient(closest-side, rgba(199,154,58,0.30), rgba(199,154,58,0))",
+      filter: "blur(8px)",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}/>
+  ) : null;
+  // Slow gradient sweep along the top edge for hero — like a scan line at rest
+  const topSheen = hero ? (
+    <div aria-hidden="true" style={{
+      position: "absolute", top: 0, left: 12, right: 12, height: 1,
+      background: "linear-gradient(90deg, transparent 0%, rgba(199,154,58,0.55) 20%, rgba(28,44,90,0.55) 50%, rgba(110,19,32,0.55) 80%, transparent 100%)",
+      opacity: 0.85,
+      pointerEvents: "none",
+      zIndex: 2,
+    }}/>
+  ) : null;
+  const inner = (
+    <>
+      {corner}
+      {topSheen}
+      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    </>
+  );
   if (rainbow) {
     return (
-      <div className={className} style={{ position: "relative", borderRadius: radius, height: "100%" }}>
-        {/* rainbow border ring (masked) */}
-        <div style={{
+      <div
+        className={className}
+        style={{ position: "relative", borderRadius: radius, height: "100%" }}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
+        {/* jewel-tone border ring (masked) — animated gradient angle */}
+        <div className="gc-border-anim" style={{
           position: "absolute", inset: 0, borderRadius: radius,
           padding: 1.5,
-          background: "linear-gradient(120deg, #6e1320 0%, #1c2c5a 50%, #c79a3a 100%)",
+          background: "linear-gradient(var(--gc-angle, 120deg), #6e1320 0%, #1c2c5a 50%, #c79a3a 100%)",
           WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           WebkitMaskComposite: "xor", maskComposite: "exclude",
           pointerEvents: "none",
-          zIndex: 1,
+          zIndex: 3,
         }}></div>
-        <div className={className + "-inner"} style={{ ...cardStyle, height: "100%", boxSizing: "border-box" }} {...rest}>{children}</div>
+        <div className={className + "-inner"} style={{ ...cardStyle, height: "100%", boxSizing: "border-box" }} {...rest}>{inner}</div>
       </div>
     );
   }
-  return <div className={className} style={cardStyle} {...rest}>{children}</div>;
+  return (
+    <div
+      className={className}
+      style={cardStyle}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      {...rest}
+    >{inner}</div>
+  );
 }
 
 // =====================================================
