@@ -78,14 +78,22 @@ def init_db():
             created_at TEXT
         )''')
         conn.execute('''CREATE TABLE IF NOT EXISTS injuries (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            date       TEXT,
-            body_part  TEXT,
-            severity   TEXT,
-            notes      TEXT,
-            resolved   INTEGER DEFAULT 0,
-            created_at TEXT
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            date          TEXT,
+            body_part     TEXT,
+            severity      TEXT,
+            notes         TEXT,
+            resolved      INTEGER DEFAULT 0,
+            partner       TEXT,
+            when_happened TEXT,
+            created_at    TEXT
         )''')
+        try:
+            conn.execute('ALTER TABLE injuries ADD COLUMN partner TEXT')
+        except Exception: pass
+        try:
+            conn.execute('ALTER TABLE injuries ADD COLUMN when_happened TEXT')
+        except Exception: pass
         conn.execute('''CREATE TABLE IF NOT EXISTS water_log (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
             date       TEXT,
@@ -381,15 +389,53 @@ def get_active_injuries():
 
 
 def get_all_injuries():
-    """Return all injuries (active + resolved) for the dashboard Micro-Injuries page."""
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT id, date, body_part, severity, notes, resolved FROM injuries ORDER BY created_at DESC LIMIT 20'
+                'SELECT id, date, body_part, severity, notes, resolved, partner, when_happened '
+                'FROM injuries ORDER BY created_at DESC LIMIT 20'
             ).fetchall()
-        return [{"id": r[0], "date": r[1], "body_part": r[2], "severity": r[3], "notes": r[4], "resolved": bool(r[5])} for r in rows]
+        return [{"id": r[0], "date": r[1], "body_part": r[2], "severity": r[3],
+                 "notes": r[4], "resolved": bool(r[5]), "partner": r[6], "when_happened": r[7]} for r in rows]
     except Exception:
         return []
+
+
+def get_injury_stats():
+    """Stats for dashboard: top partners, body parts, time-of-day patterns."""
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            partner_rows = conn.execute(
+                "SELECT partner, COUNT(*) as cnt FROM injuries "
+                "WHERE partner IS NOT NULL AND partner != '' AND LOWER(partner) != 'solo' "
+                "GROUP BY LOWER(partner) ORDER BY cnt DESC LIMIT 5"
+            ).fetchall()
+            body_rows = conn.execute(
+                "SELECT body_part, COUNT(*) as cnt FROM injuries "
+                "WHERE body_part IS NOT NULL AND body_part != '' "
+                "GROUP BY LOWER(body_part) ORDER BY cnt DESC LIMIT 5"
+            ).fetchall()
+            time_rows = conn.execute(
+                "SELECT created_at FROM injuries WHERE created_at IS NOT NULL"
+            ).fetchall()
+            time_buckets = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
+            for (ts,) in time_rows:
+                try:
+                    hour = datetime.fromisoformat(ts).hour
+                    if 5 <= hour < 12: time_buckets["morning"] += 1
+                    elif 12 <= hour < 17: time_buckets["afternoon"] += 1
+                    elif 17 <= hour < 22: time_buckets["evening"] += 1
+                    else: time_buckets["night"] += 1
+                except Exception: pass
+            total = conn.execute("SELECT COUNT(*) FROM injuries").fetchone()[0]
+        return {
+            "total": total,
+            "top_partners": [{"name": r[0], "count": r[1]} for r in partner_rows],
+            "top_body_parts": [{"name": r[0], "count": r[1]} for r in body_rows],
+            "time_buckets": time_buckets,
+        }
+    except Exception:
+        return {"total": 0, "top_partners": [], "top_body_parts": [], "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}}
 
 
 def get_all_problems():
@@ -753,6 +799,8 @@ state = {
     "_injury_body_part": None,
     "_injury_severity": None,
     "_injury_description": None,
+    "_injury_partner": None,
+    "_injury_when": None,
     "flag_for_bruno": None,      # technique to flag in the next private reminder
     "rest_day": False,           # if True, suppress all session reminders for today
     "rest_day_date": None,       # date the rest day was set
@@ -1555,6 +1603,23 @@ def webhook():
                     resp.message(interp.get("ask", "describe what happened — how did it occur, what makes it worse?"))
                     return str(resp)
                 state["_injury_description"] = interp.get("value", raw_body).strip()
+                state["debrief_step"] = "injury_partner"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("who were you training with when this happened? (partner's name, or say 'solo' if alone)")
+
+            elif step == "injury_partner":
+                interp = interpret_debrief_reply("injury_partner", raw_body)
+                if interp.get("skip") or "solo" in raw_body.lower() or "alone" in raw_body.lower():
+                    state["_injury_partner"] = "solo"
+                else:
+                    state["_injury_partner"] = interp.get("value", raw_body).strip()
+                state["debrief_step"] = "injury_when"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("when did it happen? (e.g. 'today during drilling', 'earlier this week', 'last private')")
+
+            elif step == "injury_when":
+                interp = interpret_debrief_reply("injury_when", raw_body)
+                state["_injury_when"] = interp.get("value", raw_body).strip()
                 state["debrief_step"] = "injury_rest_plan"
                 state["debrief_time"] = datetime.now(TZ)
                 resp.message("what's your rest plan?\n\n• Resting it\n• Getting PT\n• Training through it\n• Not sure yet")
@@ -1570,8 +1635,9 @@ def webhook():
                 try:
                     with sqlite3.connect(DB_PATH) as conn:
                         conn.execute(
-                            'INSERT INTO injuries (date, body_part, severity, notes, created_at) VALUES (?,?,?,?,?)',
-                            (datetime.now(TZ).strftime('%Y-%m-%d'), body_part, severity, notes, datetime.now(TZ).isoformat())
+                            'INSERT INTO injuries (date, body_part, severity, notes, partner, when_happened, created_at) VALUES (?,?,?,?,?,?,?)',
+                            (datetime.now(TZ).strftime('%Y-%m-%d'), body_part, severity, notes,
+                             state.get("_injury_partner"), state.get("_injury_when"), datetime.now(TZ).isoformat())
                         )
                         conn.commit()
                     logging.info(f"INJURY logged: {body_part} ({severity})")
@@ -1580,6 +1646,8 @@ def webhook():
                 state["_injury_body_part"] = None
                 state["_injury_severity"] = None
                 state["_injury_description"] = None
+                state["_injury_partner"] = None
+                state["_injury_when"] = None
                 state["debrief_session"] = None
                 state["debrief_step"] = None
                 state["debrief_headline"] = None
@@ -1798,6 +1866,7 @@ def api_status():
         "injuries_active": injuries,
         "injuries_count": len(injuries),
         "all_injuries": get_all_injuries(),
+        "injury_stats": get_injury_stats(),
         "all_problems": get_all_problems(),
         "techniques": get_all_techniques(),
         # logs
@@ -1960,8 +2029,21 @@ def api_injuries_create():
     if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
         return {"error": "unauthorized"}, 401
     data = request.get_json(force=True) or {}
-    save_injury(data.get('body_part', ''), data.get('severity', 'minor'), data.get('notes', ''))
-    return {"ok": True}
+    body_part = data.get('body_part', '')
+    severity = data.get('severity', 'minor')
+    notes = data.get('notes', '')
+    partner = data.get('partner') or None
+    when_happened = data.get('when_happened') or None
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO injuries (date, body_part, severity, notes, partner, when_happened, created_at) VALUES (?,?,?,?,?,?,?)',
+                (datetime.now(TZ).strftime('%Y-%m-%d'), body_part, severity, notes, partner, when_happened, datetime.now(TZ).isoformat())
+            )
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 @app.route('/api/injuries/<int:injury_id>', methods=['PATCH'])
 def api_injuries_update(injury_id):
@@ -1971,7 +2053,7 @@ def api_injuries_update(injury_id):
     data = request.get_json(force=True) or {}
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            for field in ('body_part', 'severity', 'notes'):
+            for field in ('body_part', 'severity', 'notes', 'partner', 'when_happened'):
                 if field in data:
                     conn.execute(f'UPDATE injuries SET {field}=? WHERE id=?', (data[field], injury_id))
             if 'resolved' in data:

@@ -6990,28 +6990,32 @@ function MicroInjuries({ onBack }) {
     if (detailId === id) setDetailId(null);
     if (!isNaN(injId)) apiCall("DELETE", `/api/injuries/${injId}`);
   };
-  const addInjury = (name, severity, region, rest, description) => {
+  const addInjury = (name, severity, region, rest, description, partner, whenHappened) => {
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
       + "-" + Date.now().toString(36);
-    setInjuries((prev) => [...prev, { id, name, severity, region, rest, description }]);
+    setInjuries((prev) => [...prev, { id, name, severity, region, rest, description, partner, when_happened: whenHappened }]);
     setAdding(false);
     apiCall("POST", "/api/injuries", {
       body_part: name,
       severity: uiBotSev[severity] || "minor",
       notes: description || "",
+      partner: partner || "",
+      when_happened: whenHappened || "",
     });
   };
-  const updateInjury = (id, name, severity, region, rest, description) => {
+  const updateInjury = (id, name, severity, region, rest, description, partner, whenHappened) => {
     const injId = id.startsWith("bot-injury-")
       ? parseInt(id.replace("bot-injury-", ""), 10)
       : NaN;
-    setInjuries((prev) => prev.map((p) => p.id === id ? { ...p, name, severity, region, rest, description } : p));
+    setInjuries((prev) => prev.map((p) => p.id === id ? { ...p, name, severity, region, rest, description, partner, when_happened: whenHappened } : p));
     setEditingId(null);
     if (!isNaN(injId)) {
       apiCall("PATCH", `/api/injuries/${injId}`, {
         body_part: name,
         severity: uiBotSev[severity] || "minor",
         notes: description || "",
+        partner: partner || "",
+        when_happened: whenHappened || "",
       });
     }
   };
@@ -7030,12 +7034,16 @@ function MicroInjuries({ onBack }) {
         description: inj.notes || "",
         date: inj.date,
         resolved: inj.resolved,
+        partner: inj.partner,
+        when_happened: inj.when_happened,
       }))
     : null;
   const sorted = sortMicroInjuries(liveInjuries || injuries, pinned, sortMode);
-  const confirmInjury = injuries.find((p) => p.id === confirmId);
-  const editingInjury = injuries.find((p) => p.id === editingId);
-  const detailInjury  = injuries.find((p) => p.id === detailId);
+  const lookupPool = liveInjuries || injuries;
+  const confirmInjury = lookupPool.find((p) => p.id === confirmId);
+  const editingInjury = lookupPool.find((p) => p.id === editingId);
+  const detailInjury  = lookupPool.find((p) => p.id === detailId);
+  const injuryStats = (window.__bjjdata && window.__bjjdata.injury_stats) || null;
 
   return (
     <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
@@ -7060,6 +7068,157 @@ function MicroInjuries({ onBack }) {
             The little things — tweaks, strains, anything you're managing this week. Tap a row to read the breakdown — hover to pin, edit, or delete.
           </div>
         </div>
+
+        {/* Patterns */}
+        {injuryStats && injuryStats.total > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginBottom: 22 }}>
+            {/* Top partners */}
+            <GlassCard radius={18} padding={20}>
+              <div style={{
+                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.10em",
+                textTransform: "uppercase", color: "rgba(29,29,31,0.55)", marginBottom: 12,
+              }}>Top Partners</div>
+              {injuryStats.top_partners.length === 0 ? (
+                <div style={{ fontSize: 13, color: "rgba(29,29,31,0.45)", fontStyle: "italic" }}>
+                  No partner data yet
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {(() => {
+                    const maxCount = Math.max(...injuryStats.top_partners.map(p => p.count));
+                    return injuryStats.top_partners.map((p, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{
+                          flex: "0 0 80px",
+                          fontSize: 13, color: "#1d1d1f",
+                          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                          textTransform: "capitalize",
+                        }}>{p.name}</div>
+                        <div style={{
+                          flex: 1, height: 8, borderRadius: 4,
+                          background: "rgba(0,0,0,0.05)", overflow: "hidden",
+                        }}>
+                          <div style={{
+                            width: `${(p.count / maxCount) * 100}%`, height: "100%",
+                            background: "linear-gradient(90deg, #c4324f, #ff4f9a)",
+                            borderRadius: 4,
+                          }}/>
+                        </div>
+                        <div style={{
+                          flex: "0 0 auto", fontSize: 13, fontWeight: 600,
+                          fontVariantNumeric: "tabular-nums", color: "rgba(29,29,31,0.78)",
+                          minWidth: 16, textAlign: "right",
+                        }}>{p.count}</div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              )}
+            </GlassCard>
+
+            {/* Body parts */}
+            <GlassCard radius={18} padding={20}>
+              <div style={{
+                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.10em",
+                textTransform: "uppercase", color: "rgba(29,29,31,0.55)", marginBottom: 12,
+              }}>Body Parts</div>
+              {injuryStats.top_body_parts.length === 0 ? (
+                <div style={{ fontSize: 13, color: "rgba(29,29,31,0.45)", fontStyle: "italic" }}>
+                  No body part data yet
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {(() => {
+                    const maxCount = Math.max(...injuryStats.top_body_parts.map(p => p.count));
+                    return injuryStats.top_body_parts.map((p, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{
+                          flex: "0 0 80px",
+                          fontSize: 13, color: "#1d1d1f",
+                          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                          textTransform: "capitalize",
+                        }}>{p.name}</div>
+                        <div style={{
+                          flex: 1, height: 8, borderRadius: 4,
+                          background: "rgba(0,0,0,0.05)", overflow: "hidden",
+                        }}>
+                          <div style={{
+                            width: `${(p.count / maxCount) * 100}%`, height: "100%",
+                            background: "linear-gradient(90deg, #7a5cff, #4cd6ff)",
+                            borderRadius: 4,
+                          }}/>
+                        </div>
+                        <div style={{
+                          flex: "0 0 auto", fontSize: 13, fontWeight: 600,
+                          fontVariantNumeric: "tabular-nums", color: "rgba(29,29,31,0.78)",
+                          minWidth: 16, textAlign: "right",
+                        }}>{p.count}</div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              )}
+            </GlassCard>
+
+            {/* Time of day */}
+            <GlassCard radius={18} padding={20}>
+              <div style={{
+                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.10em",
+                textTransform: "uppercase", color: "rgba(29,29,31,0.55)", marginBottom: 12,
+              }}>Time of Day</div>
+              {(() => {
+                const buckets = injuryStats.time_buckets || { morning: 0, afternoon: 0, evening: 0, night: 0 };
+                const rows = [
+                  { key: "morning",   label: "Morning" },
+                  { key: "afternoon", label: "Afternoon" },
+                  { key: "evening",   label: "Evening" },
+                  { key: "night",     label: "Night" },
+                ];
+                const maxCount = Math.max(buckets.morning, buckets.afternoon, buckets.evening, buckets.night, 1);
+                const highestKey = rows.reduce((best, r) => buckets[r.key] > buckets[best] ? r.key : best, "morning");
+                const anyData = rows.some((r) => buckets[r.key] > 0);
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {rows.map((r) => {
+                      const count = buckets[r.key] || 0;
+                      const isHighest = anyData && r.key === highestKey && count > 0;
+                      return (
+                        <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{
+                            flex: "0 0 80px",
+                            fontSize: 13, color: "#1d1d1f",
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                          }}>{r.label}</div>
+                          <div style={{
+                            flex: 1, height: 8, borderRadius: 4,
+                            background: "rgba(0,0,0,0.05)", overflow: "hidden",
+                          }}>
+                            <div style={{
+                              width: `${(count / maxCount) * 100}%`, height: "100%",
+                              background: "linear-gradient(90deg, #ff9f1c, #ffd166)",
+                              borderRadius: 4,
+                            }}/>
+                          </div>
+                          <div style={{
+                            flex: "0 0 auto", fontSize: 13, fontWeight: 600,
+                            fontVariantNumeric: "tabular-nums", color: "rgba(29,29,31,0.78)",
+                            minWidth: 16, textAlign: "right",
+                          }}>{count}</div>
+                          {isHighest && (
+                            <div style={{
+                              flex: "0 0 auto", fontSize: 11, color: "rgba(29,29,31,0.55)",
+                              fontStyle: "italic", whiteSpace: "nowrap",
+                            }}>← most common</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </GlassCard>
+          </div>
+        )}
 
         {/* Sort */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
@@ -7138,7 +7297,7 @@ function MicroInjuries({ onBack }) {
         <MicroInjuryFormModal
           mode="add"
           onCancel={() => setAdding(false)}
-          onSubmit={(name, severity, region, rest, description) => addInjury(name, severity, region, rest, description)}
+          onSubmit={(name, severity, region, rest, description, partner, whenHappened) => addInjury(name, severity, region, rest, description, partner, whenHappened)}
         />
       )}
 
@@ -7148,7 +7307,7 @@ function MicroInjuries({ onBack }) {
           mode="edit"
           initial={editingInjury}
           onCancel={() => setEditingId(null)}
-          onSubmit={(name, severity, region, rest, description) => updateInjury(editingInjury.id, name, severity, region, rest, description)}
+          onSubmit={(name, severity, region, rest, description, partner, whenHappened) => updateInjury(editingInjury.id, name, severity, region, rest, description, partner, whenHappened)}
         />
       )}
 
@@ -7328,7 +7487,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         {/* Description */}
         <div style={{
           fontSize: 15.5, color: "rgba(29,29,31,0.78)", lineHeight: 1.6,
-          marginBottom: 24, whiteSpace: "pre-wrap",
+          marginBottom: (injury.partner || injury.when_happened) ? 10 : 24, whiteSpace: "pre-wrap",
         }}>
           {injury.description || (
             <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "italic" }}>
@@ -7336,6 +7495,9 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
             </span>
           )}
         </div>
+        {injury.partner && <div style={{fontSize: 13, color: "rgba(29,29,31,0.55)"}}>With: {injury.partner}</div>}
+        {injury.when_happened && <div style={{fontSize: 13, color: "rgba(29,29,31,0.55)"}}>When: {injury.when_happened}</div>}
+        {(injury.partner || injury.when_happened) && <div style={{ height: 14 }}/>}
 
         {/* Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 16, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
@@ -7410,9 +7572,11 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
   const [region, setRegion] = useStateMI(initial?.region ?? "knee-r");
   const [rest, setRest] = useStateMI(initial?.rest ?? "");
   const [description, setDescription] = useStateMI(initial?.description ?? "");
+  const [partner, setPartner] = useStateMI(initial?.partner ?? "");
+  const [whenHappened, setWhenHappened] = useStateMI(initial?.when_happened ?? "");
 
   const submit = () => {
-    if (name.trim()) onSubmit(name.trim(), severity, region, rest.trim(), description.trim());
+    if (name.trim()) onSubmit(name.trim(), severity, region, rest.trim(), description.trim(), partner.trim(), whenHappened.trim());
   };
 
   return (
@@ -7521,7 +7685,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
           marginBottom: 6, paddingLeft: 2,
         }}>Severity</div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 22 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
           {MICRO_INJURIES_TIERS.map((t) => {
             const active = severity === t.id;
             return (
@@ -7541,6 +7705,40 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
             );
           })}
         </div>
+
+        {/* Partner */}
+        <div style={{
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+          textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+          marginBottom: 6, paddingLeft: 2,
+        }}>Training partner</div>
+        <input
+          value={partner}
+          onChange={(e) => setPartner(e.target.value)}
+          placeholder="e.g. Marcus, or 'solo'"
+          style={{
+            width: "100%", padding: "12px 14px", fontSize: 16,
+            border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
+            outline: "none", marginBottom: 12, fontFamily: "inherit", boxSizing: "border-box",
+          }}
+        />
+
+        {/* When happened */}
+        <div style={{
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+          textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+          marginBottom: 6, paddingLeft: 2,
+        }}>When did it happen</div>
+        <input
+          value={whenHappened}
+          onChange={(e) => setWhenHappened(e.target.value)}
+          placeholder="e.g. today during drilling, last private"
+          style={{
+            width: "100%", padding: "12px 14px", fontSize: 16,
+            border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
+            outline: "none", marginBottom: 22, fontFamily: "inherit", boxSizing: "border-box",
+          }}
+        />
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
