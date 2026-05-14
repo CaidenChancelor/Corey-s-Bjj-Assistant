@@ -8365,6 +8365,14 @@ const ALLERGY_SEVERITIES = [
 ];
 const ALLERGY_CATEGORIES = ["Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "All of the Above"];
 const ALLERGY_CAUSES = ["Food", "Pollen", "High Heart Rate", "All of the Above"];
+const ALLERGY_MEDICATIONS = [
+  "Albuterol Inhaler (Red Pumps)",
+  "Albuterol Machine (Bubbles)",
+  "Formoterol Inhaler (Blue Pumps)",
+  "Prednisone",
+  "Claritin",
+  "Airborne",
+];
 const ALLERGY_IMPACTS = [
   { id: "none", label: "No impact" },
   { id: "modified", label: "Modified training" },
@@ -8625,7 +8633,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const [category, setCategory] = React.useState(initial?.category || "Shortness of Breath");
   const [trigger, setTrigger] = React.useState(initial?.trigger || "Food");
   const [symptoms, setSymptoms] = React.useState(initial?.symptoms || "");
-  const [medication, setMedication] = React.useState(initial?.medication || "");
+  const [medication, setMedication] = React.useState(initial?.medication || ALLERGY_MEDICATIONS[0]);
   const [impact, setImpact] = React.useState(initial?.training_impact || "none");
   const [missed, setMissed] = React.useState(!!initial?.missed_training);
   const submit = () => onSubmit({ date, time, severity, category, trigger: trigger.trim(), symptoms: symptoms.trim(), medication: medication.trim(), training_impact: impact, missed_training: missed });
@@ -8648,7 +8656,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
         </div>
         <textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Symptoms and what it changed in training" rows={4} style={{ ...field, resize: "vertical", marginBottom: 12 }} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-          <input value={medication} onChange={(e) => setMedication(e.target.value)} placeholder="medication" style={field} />
+          <select value={medication} onChange={(e) => setMedication(e.target.value)} style={field}>{ALLERGY_MEDICATIONS.map((m) => <option key={m} value={m}>{m}</option>)}</select>
           <select value={impact} onChange={(e) => setImpact(e.target.value)} style={field}>{ALLERGY_IMPACTS.map((i) => <option key={i.id} value={i.id}>{i.label}</option>)}</select>
         </div>
         <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "rgba(29,29,31,0.74)", marginBottom: 22 }}>
