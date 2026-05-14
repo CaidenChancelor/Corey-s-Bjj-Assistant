@@ -6967,16 +6967,16 @@ function microInjuryTimeBucketFromText(whenHappened) {
   if (/\b(night|late)\b/.test(text)) return "night";
   // 2. Evening words OR 5-9 PM time stamps.
   if (/\b(evening|class|competition|rolls|open\s*mat)\b/.test(text)) return "evening";
-  if (/(?<!\d)([5-9])\s*pm\b/.test(text)) return "evening";
-  if (/(?<!\d)(10|11)\s*pm\b/.test(text)) return "night";
+  if (/\b([5-9])(?::[0-5]\d)?\s*pm\b/.test(text)) return "evening";
+  if (/\b(10|11)(?::[0-5]\d)?\s*pm\b/.test(text)) return "night";
   // 3. Afternoon words OR 12-4 PM.
   if (/\b(afternoon|private|bruno|lunch|midday|noon)\b/.test(text)) return "afternoon";
-  if (/(?<!\d)(12|[1-4])\s*pm\b/.test(text)) return "afternoon";
+  if (/\b(12|[1-4])(?::[0-5]\d)?\s*pm\b/.test(text)) return "afternoon";
   // 4. Morning words / 1-11 AM. "am"/"pm" only count when prefixed by digits
   //    so casual phrases ("I am sore") can't spoof a bucket.
   if (/\b(morning|drilling|strength)\b/.test(text) || text.includes("s&c")) return "morning";
-  if (/(?<!\d)(1[0-1]|[1-9])\s*am\b/.test(text)) return "morning";
-  if (/(?<!\d)12\s*am\b/.test(text)) return "night";
+  if (/\b(1[0-1]|[1-9])(?::[0-5]\d)?\s*am\b/.test(text)) return "morning";
+  if (/\b12(?::[0-5]\d)?\s*am\b/.test(text)) return "night";
   return null;
 }
 

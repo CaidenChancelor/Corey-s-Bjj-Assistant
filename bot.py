@@ -418,19 +418,19 @@ def _infer_injury_time_bucket(when_happened, created_at):
             return "night"
         if re.search(r"\b(evening|class|competition|rolls|open\s*mat)\b", text):
             return "evening"
-        if re.search(r"(?<!\d)([5-9])\s*pm\b", text):
+        if re.search(r"\b([5-9])(?::[0-5]\d)?\s*pm\b", text):
             return "evening"
-        if re.search(r"(?<!\d)(10|11)\s*pm\b", text):
+        if re.search(r"\b(10|11)(?::[0-5]\d)?\s*pm\b", text):
             return "night"
         if re.search(r"\b(afternoon|private|bruno|lunch|midday|noon)\b", text):
             return "afternoon"
-        if re.search(r"(?<!\d)(12|[1-4])\s*pm\b", text):
+        if re.search(r"\b(12|[1-4])(?::[0-5]\d)?\s*pm\b", text):
             return "afternoon"
         if re.search(r"\b(morning|drilling|strength)\b", text) or "s&c" in text:
             return "morning"
-        if re.search(r"(?<!\d)(1[0-1]|[1-9])\s*am\b", text):
+        if re.search(r"\b(1[0-1]|[1-9])(?::[0-5]\d)?\s*am\b", text):
             return "morning"
-        if re.search(r"(?<!\d)12\s*am\b", text):
+        if re.search(r"\b12(?::[0-5]\d)?\s*am\b", text):
             return "night"
     try:
         hour = datetime.fromisoformat(created_at).hour

@@ -17,7 +17,7 @@ sys.path.insert(0, ROOT)
 # Stub minimal env so bot.py imports cleanly without real credentials.
 os.environ.setdefault("DB_PATH", os.path.join(ROOT, "tests", "_throwaway.db"))
 
-from bot import _infer_injury_time_bucket  # noqa: E402
+from bot import _infer_injury_time_bucket, scheduler  # noqa: E402
 
 
 CASES = [
@@ -35,11 +35,13 @@ CASES = [
 
     # --- 5-9 PM with no words → evening ---
     ("hurt around 6 pm", None, "evening"),
+    ("hurt around 7:45 PM", None, "evening"),
     ("9pm", None, "evening"),
     ("5pm session", None, "evening"),
 
     # --- 10/11 PM → night ---
     ("10 pm wind down", None, "night"),
+    ("10:30pm wind down", None, "night"),
     ("11pm late", None, "night"),
 
     # --- afternoon words ---
@@ -50,6 +52,7 @@ CASES = [
 
     # --- 12-4 PM with no words → afternoon ---
     ("1pm", None, "afternoon"),
+    ("2:15 PM", None, "afternoon"),
     ("4 PM", None, "afternoon"),
     ("12pm warmup", None, "afternoon"),
 
@@ -60,6 +63,7 @@ CASES = [
 
     # --- 1-11 AM → morning ---
     ("6am drill", None, "morning"),
+    ("6:30am drill", None, "morning"),
     ("11 am stretch", None, "morning"),
 
     # --- 12 AM → night ---
@@ -100,5 +104,21 @@ def main():
     print(f"All {len(CASES)} cases passed.")
 
 
+def cleanup():
+    try:
+        scheduler.shutdown(wait=False)
+    except Exception:
+        pass
+    db_path = os.environ["DB_PATH"]
+    for path in (db_path, f"{db_path}-shm", f"{db_path}-wal"):
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        cleanup()
