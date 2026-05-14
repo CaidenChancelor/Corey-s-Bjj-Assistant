@@ -401,41 +401,65 @@ def get_all_injuries():
         return []
 
 
+def _infer_injury_time_bucket(when_happened, created_at):
+    """Prefer Corey's written timing, then fall back to log time."""
+    text = (when_happened or "").lower()
+    if any(word in text for word in ("morning", "am", "drilling", "s&c", "strength")):
+        return "morning"
+    if any(word in text for word in ("afternoon", "pm", "private", "bruno", "lunch")):
+        return "afternoon"
+    if any(word in text for word in ("night", "late")):
+        return "night"
+    if any(word in text for word in ("evening", "class", "competition", "rolls", "open mat")):
+        return "evening"
+    try:
+        hour = datetime.fromisoformat(created_at).hour
+        if 5 <= hour < 12:
+            return "morning"
+        if 12 <= hour < 17:
+            return "afternoon"
+        if 17 <= hour < 22:
+            return "evening"
+        return "night"
+    except Exception:
+        return None
+
+
 def get_injury_stats():
-    """Stats for dashboard: top partners, body parts, time-of-day patterns."""
+    """Stats for dashboard: top partners, body parts, and when injuries happen."""
     try:
         with sqlite3.connect(DB_PATH) as conn:
             partner_rows = conn.execute(
-                "SELECT partner, COUNT(*) as cnt FROM injuries "
-                "WHERE partner IS NOT NULL AND partner != '' AND LOWER(partner) != 'solo' "
-                "GROUP BY LOWER(partner) ORDER BY cnt DESC LIMIT 5"
+                "SELECT TRIM(partner), COUNT(*) as cnt FROM injuries "
+                "WHERE partner IS NOT NULL AND TRIM(partner) != '' AND LOWER(TRIM(partner)) != 'solo' "
+                "GROUP BY LOWER(TRIM(partner)) ORDER BY cnt DESC LIMIT 5"
             ).fetchall()
             body_rows = conn.execute(
-                "SELECT body_part, COUNT(*) as cnt FROM injuries "
-                "WHERE body_part IS NOT NULL AND body_part != '' "
-                "GROUP BY LOWER(body_part) ORDER BY cnt DESC LIMIT 5"
+                "SELECT TRIM(body_part), COUNT(*) as cnt FROM injuries "
+                "WHERE body_part IS NOT NULL AND TRIM(body_part) != '' "
+                "GROUP BY LOWER(TRIM(body_part)) ORDER BY cnt DESC LIMIT 5"
             ).fetchall()
             time_rows = conn.execute(
-                "SELECT created_at FROM injuries WHERE created_at IS NOT NULL"
+                "SELECT when_happened, created_at FROM injuries WHERE created_at IS NOT NULL OR when_happened IS NOT NULL"
             ).fetchall()
             time_buckets = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
-            for (ts,) in time_rows:
-                try:
-                    hour = datetime.fromisoformat(ts).hour
-                    if 5 <= hour < 12: time_buckets["morning"] += 1
-                    elif 12 <= hour < 17: time_buckets["afternoon"] += 1
-                    elif 17 <= hour < 22: time_buckets["evening"] += 1
-                    else: time_buckets["night"] += 1
-                except Exception: pass
+            for when_happened, created_at in time_rows:
+                bucket = _infer_injury_time_bucket(when_happened, created_at)
+                if bucket:
+                    time_buckets[bucket] += 1
             total = conn.execute("SELECT COUNT(*) FROM injuries").fetchone()[0]
+            active = conn.execute("SELECT COUNT(*) FROM injuries WHERE resolved = 0").fetchone()[0]
+            resolved = conn.execute("SELECT COUNT(*) FROM injuries WHERE resolved = 1").fetchone()[0]
         return {
             "total": total,
+            "active": active,
+            "resolved": resolved,
             "top_partners": [{"name": r[0], "count": r[1]} for r in partner_rows],
             "top_body_parts": [{"name": r[0], "count": r[1]} for r in body_rows],
             "time_buckets": time_buckets,
         }
     except Exception:
-        return {"total": 0, "top_partners": [], "top_body_parts": [], "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}}
+        return {"total": 0, "active": 0, "resolved": 0, "top_partners": [], "top_body_parts": [], "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}}
 
 
 def get_all_problems():
