@@ -3878,7 +3878,7 @@ function AllergyTrackerCard({ onClick }) {
   const total = stats.total || logs.length || 0;
   const missed = stats.missed_training || logs.filter((l) => l.missed_training).length;
   const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0, night: 0 };
-  const topTrigger = stats.top_triggers && stats.top_triggers[0] ? stats.top_triggers[0].name : "No trigger trend";
+  const topTrigger = stats.top_triggers && stats.top_triggers[0] ? stats.top_triggers[0].name : "No cause trend";
   const maxBucket = Math.max(1, ...Object.values(buckets));
 
   return (
@@ -3904,7 +3904,7 @@ function AllergyTrackerCard({ onClick }) {
             {total} logged
           </div>
           <div style={{ fontSize: 13, color: "rgba(29,29,31,0.58)", lineHeight: 1.45, marginBottom: 14 }}>
-            allergies · {missed} missed training · top trigger: {topTrigger}
+            allergies · {missed} missed training · top cause: {topTrigger}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             <MiniStat label="7 days" value={stats.last_7_days || 0} accent="#15a86b" />
@@ -8308,7 +8308,8 @@ const ALLERGY_SEVERITIES = [
   { id: "bad", label: "Bad", color: "#e0264a" },
   { id: "severe", label: "Severe", color: "#c4324f" },
 ];
-const ALLERGY_CATEGORIES = ["shortness of breath", "coughing", "chest tightness", "lightheaded", "all of the above"];
+const ALLERGY_CATEGORIES = ["Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "All of the Above"];
+const ALLERGY_CAUSES = ["Food", "Pollen", "High Heart Rate", "All of the Above"];
 const ALLERGY_IMPACTS = [
   { id: "none", label: "No impact" },
   { id: "modified", label: "Modified training" },
@@ -8468,7 +8469,7 @@ function Allergies({ onBack }) {
         </button>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 38, fontWeight: 600, letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 8 }}>Allergy Tracker</div>
         <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", lineHeight: 1.5, maxWidth: 620, marginBottom: 24 }}>
-          Track symptoms, triggers, medication, and whether allergies changed or killed training.
+          Track symptoms, causes, medication, and whether allergies changed or killed training.
         </div>
 
         <AllergyStatsPanel stats={stats} />
@@ -8523,7 +8524,7 @@ function AllergyStatsPanel({ stats }) {
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(29,29,31,0.45)", marginBottom: 10 }}>Top triggers</div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(29,29,31,0.45)", marginBottom: 10 }}>Top Causes</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {bars.slice(0, 5).map((bar) => (
               <div key={bar.name}>
@@ -8535,7 +8536,7 @@ function AllergyStatsPanel({ stats }) {
                 </div>
               </div>
             ))}
-            {bars.length === 0 && <div style={{ fontSize: 14, color: "rgba(29,29,31,0.55)" }}>No trigger data yet.</div>}
+            {bars.length === 0 && <div style={{ fontSize: 14, color: "rgba(29,29,31,0.55)" }}>No cause data yet.</div>}
           </div>
         </div>
       </div>
@@ -8566,8 +8567,8 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const [date, setDate] = React.useState(initial?.date || allergyToday());
   const [time, setTime] = React.useState(initial?.time || allergyNowTime());
   const [severity, setSeverity] = React.useState(initial?.severity || "mild");
-  const [category, setCategory] = React.useState(initial?.category || "nasal/sinus");
-  const [trigger, setTrigger] = React.useState(initial?.trigger || "");
+  const [category, setCategory] = React.useState(initial?.category || "Shortness of Breath");
+  const [trigger, setTrigger] = React.useState(initial?.trigger || "Food");
   const [symptoms, setSymptoms] = React.useState(initial?.symptoms || "");
   const [medication, setMedication] = React.useState(initial?.medication || "");
   const [impact, setImpact] = React.useState(initial?.training_impact || "none");
@@ -8585,7 +8586,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
           <select value={category} onChange={(e) => setCategory(e.target.value)} style={field}>{ALLERGY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
-          <input value={trigger} onChange={(e) => setTrigger(e.target.value)} placeholder="trigger: pollen, dust, food" style={field} />
+          <select value={trigger} onChange={(e) => setTrigger(e.target.value)} style={field}>{ALLERGY_CAUSES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
         </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 10, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid rgba(0,0,0,0.10)", background: "#fff", color: severity === s.id ? s.color : "rgba(29,29,31,0.58)", fontSize: 12, fontWeight: 700, textTransform: "uppercase", cursor: "pointer" }}>{s.label}</button>)}
