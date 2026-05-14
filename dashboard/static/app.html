@@ -681,14 +681,12 @@ function SparkleLogo({ size = 28, glow = false }) {
   const id = "g_" + Math.random().toString(36).slice(2, 8);
   return (
     <svg viewBox="0 0 64 64" width={size} height={size}
-         style={glow ? { filter: "drop-shadow(0 0 24px rgba(122,92,255,0.55))" } : null}>
+         style={glow ? { filter: "drop-shadow(0 0 18px rgba(199,154,58,0.4))" } : null}>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#ff4f9a"/>
-          <stop offset="28%" stopColor="#c862ff"/>
-          <stop offset="52%" stopColor="#7a5cff"/>
-          <stop offset="76%" stopColor="#3b82ff"/>
-          <stop offset="100%" stopColor="#4cd6ff"/>
+          <stop offset="0%" stopColor="#6e1320"/>
+          <stop offset="50%" stopColor="#1c2c5a"/>
+          <stop offset="100%" stopColor="#c79a3a"/>
         </linearGradient>
       </defs>
       {/* Karate gi (kimono jacket) — symmetric V-collar silhouette */}
@@ -701,9 +699,9 @@ function SparkleLogo({ size = 28, glow = false }) {
       {/* Body — right lapel panel (under, slightly inset to show V) */}
       <path d="M44 16 L32 12 L32 54 L44 56 L46 32 Z" fill={`url(#${id})`} opacity="0.78"/>
       {/* Belt */}
-      <rect x="18" y="40" width="28" height="5" rx="1" fill="#1d1d1f" opacity="0.85"/>
+      <rect x="18" y="40" width="28" height="5" rx="1" fill="var(--ink, #1A1613)" opacity="0.85"/>
       {/* Belt knot */}
-      <rect x="30" y="38.5" width="4" height="8" rx="1" fill="#1d1d1f" opacity="0.95"/>
+      <rect x="30" y="38.5" width="4" height="8" rx="1" fill="var(--ink, #1A1613)" opacity="0.95"/>
     </svg>
   );
 }
@@ -719,18 +717,18 @@ const haloStyles = {
   mesh: {
     position: "absolute", inset: "-10%",
     backgroundImage: `
-      radial-gradient(60% 50% at 18% 20%, rgba(255, 79, 154, 0.32), transparent 70%),
-      radial-gradient(55% 45% at 78% 30%, rgba(122, 92, 255, 0.30), transparent 70%),
-      radial-gradient(50% 50% at 30% 82%, rgba(59, 130, 255, 0.26), transparent 70%),
-      radial-gradient(45% 40% at 88% 78%, rgba(76, 214, 255, 0.26), transparent 70%)`,
-    filter: "blur(40px) saturate(150%)",
+      radial-gradient(60% 50% at 18% 20%, rgba(110,19,32,0.08), transparent 70%),
+      radial-gradient(55% 45% at 78% 30%, rgba(28,44,90,0.06), transparent 70%),
+      radial-gradient(50% 50% at 30% 82%, rgba(199,154,58,0.08), transparent 70%),
+      radial-gradient(45% 40% at 88% 78%, rgba(110,19,32,0.05), transparent 70%)`,
+    filter: "blur(40px)",
     animation: "mesh-drift 28s ease-in-out infinite",
   },
   halo: {
     position: "absolute", inset: "-50vmax",
-    background: "conic-gradient(from 0deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff, #7a5cff, #ff4f9a)",
-    filter: "blur(120px) saturate(160%)",
-    opacity: 0.5,
+    background: "conic-gradient(from 0deg, rgba(110,19,32,0.3), rgba(28,44,90,0.2), rgba(199,154,58,0.3), rgba(28,44,90,0.2), rgba(110,19,32,0.3))",
+    filter: "blur(120px)",
+    opacity: 0.25,
     WebkitMask: "radial-gradient(closest-side, transparent 62%, black 78%)",
     mask: "radial-gradient(closest-side, transparent 62%, black 78%)",
     animation: "halo-rotate 14s linear infinite",
@@ -758,15 +756,15 @@ function HaloBackground() {
 // =====================================================
 function GlassCard({ children, padding = 28, radius = 22, style = {}, hero = false, rainbow = false, className, ...rest }) {
   const cardStyle = {
-    background: hero ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.65)",
-    border: rainbow ? "1px solid transparent" : "1px solid rgba(0,0,0,0.05)",
-    backdropFilter: "blur(40px) saturate(180%)",
-    WebkitBackdropFilter: "blur(40px) saturate(180%)",
+    background: hero ? "rgba(255,252,245,0.88)" : "rgba(255,252,245,0.72)",
+    border: rainbow ? "1px solid transparent" : "1px solid rgba(26,22,19,0.08)",
+    backdropFilter: "blur(40px)",
+    WebkitBackdropFilter: "blur(40px)",
     borderRadius: radius,
     padding,
     boxShadow: hero
-      ? "0 1px 0 rgba(255,255,255,0.95) inset, 0 24px 60px -16px rgba(60,60,90,0.22), 0 2px 6px rgba(0,0,0,0.05)"
-      : "0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 24px -8px rgba(60,60,90,0.18), 0 1px 2px rgba(0,0,0,0.04)",
+      ? "0 1px 0 rgba(255,252,245,0.95) inset, 0 24px 60px -16px rgba(26,22,19,0.16), 0 2px 6px rgba(26,22,19,0.04)"
+      : "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(26,22,19,0.12), 0 1px 2px rgba(26,22,19,0.03)",
     ...style,
   };
   if (rainbow) {
@@ -776,7 +774,7 @@ function GlassCard({ children, padding = 28, radius = 22, style = {}, hero = fal
         <div style={{
           position: "absolute", inset: 0, borderRadius: radius,
           padding: 1.5,
-          background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
+          background: "linear-gradient(120deg, #6e1320 0%, #1c2c5a 50%, #c79a3a 100%)",
           WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -796,24 +794,15 @@ function GlassCard({ children, padding = 28, radius = 22, style = {}, hero = fal
 function BlueButton({ children, onClick, style = {}, fullWidth = false }) {
   const [hover, setHover] = useState(false);
   const [press, setPress] = useState(false);
-  // Rainbow shadow — barely-there, two stacked tints with very low opacity
-  const rainbowShadowRest =
-    "0 0 0 1px rgba(255,255,255,0.45)," +
-    " 0 10px 28px -10px rgba(255,79,154,0.10)," +
-    " 0 14px 36px -8px rgba(122,92,255,0.10)," +
-    " 0 12px 30px -10px rgba(76,214,255,0.08)";
-  const rainbowShadowHover =
-    "0 0 0 1px rgba(255,255,255,0.5)," +
-    " 0 14px 36px -10px rgba(255,79,154,0.16)," +
-    " 0 18px 44px -8px rgba(122,92,255,0.16)," +
-    " 0 14px 36px -10px rgba(76,214,255,0.12)";
   const btnStyle = {
-    fontFamily: "var(--font-text)", fontSize: 16, fontWeight: 500,
+    fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 13, fontWeight: 600,
     color: "#fff", border: "none", cursor: "pointer",
-    padding: "14px 28px", borderRadius: 980,
-    letterSpacing: "-0.011em",
-    background: hover ? "rgba(41, 151, 255, 0.92)" : "rgba(41, 151, 255, 0.88)",
-    boxShadow: hover ? rainbowShadowHover : rainbowShadowRest,
+    padding: "14px 28px", borderRadius: 6,
+    letterSpacing: "0.04em", textTransform: "uppercase",
+    background: hover ? "rgba(110,19,32,0.95)" : "var(--accent-oxblood, #6e1320)",
+    boxShadow: hover
+      ? "0 6px 20px -4px rgba(110,19,32,0.3)"
+      : "0 4px 16px -4px rgba(110,19,32,0.2)",
     transform: press ? "scale(0.97)" : (hover ? "translateY(-1px)" : "translateY(0)"),
     transition: "all 220ms cubic-bezier(0.32, 0.72, 0, 1)",
     width: fullWidth ? "100%" : "auto",
@@ -833,44 +822,24 @@ function BlueButton({ children, onClick, style = {}, fullWidth = false }) {
 function RainbowButton({ children, onClick, style = {}, fullWidth = false }) {
   const [hover, setHover] = useState(false);
   const [press, setPress] = useState(false);
-  // Transparent fill with a masked rainbow border ring.
-  const wrapStyle = {
-    position: "relative", display: fullWidth ? "block" : "inline-block",
-    width: fullWidth ? "100%" : "auto",
-    borderRadius: 980,
-    transform: press ? "scale(0.97)" : (hover ? "translateY(-1px)" : "translateY(0)"),
-    transition: "transform 220ms cubic-bezier(0.32, 0.72, 0, 1)",
-    filter: hover
-      ? "drop-shadow(0 14px 30px rgba(122,92,255,0.32)) drop-shadow(0 6px 14px rgba(255,79,154,0.26))"
-      : "drop-shadow(0 8px 20px rgba(122,92,255,0.18)) drop-shadow(0 4px 10px rgba(255,79,154,0.14))",
-  };
-  const ringStyle = {
-    content: "''", position: "absolute", inset: 0,
-    borderRadius: 980, padding: 1.5,
-    background: "linear-gradient(100deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
-    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-    mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-    WebkitMaskComposite: "xor", maskComposite: "exclude",
-    pointerEvents: "none",
-  };
   const btnStyle = {
-    position: "relative",
-    fontFamily: "var(--font-text)", fontSize: 16, fontWeight: 500,
-    color: "#1d1d1f", border: "none", cursor: "pointer",
-    padding: "14px 28px", borderRadius: 980,
-    letterSpacing: "-0.011em",
-    background: "transparent",
+    fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 13, fontWeight: 600,
+    color: "var(--accent-gold, #c79a3a)", cursor: "pointer",
+    padding: "14px 28px", borderRadius: 6,
+    letterSpacing: "0.04em", textTransform: "uppercase",
+    background: hover ? "rgba(199,154,58,0.06)" : "transparent",
+    border: "1.5px solid var(--accent-gold, #c79a3a)",
+    boxShadow: hover ? "0 4px 12px -3px rgba(199,154,58,0.2)" : "0 2px 8px -2px rgba(199,154,58,0.12)",
+    transform: press ? "scale(0.97)" : (hover ? "translateY(-1px)" : "translateY(0)"),
+    transition: "all 220ms cubic-bezier(0.32, 0.72, 0, 1)",
     width: fullWidth ? "100%" : "auto",
     ...style,
   };
   return (
-    <span style={wrapStyle}>
-      <span style={ringStyle}></span>
-      <button style={btnStyle}
-        onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setPress(false); }}
-        onMouseDown={() => setPress(true)} onMouseUp={() => setPress(false)}
-        onClick={onClick}>{children}</button>
-    </span>
+    <button style={btnStyle}
+      onMouseEnter={() => setHover(true)} onMouseLeave={() => { setHover(false); setPress(false); }}
+      onMouseDown={() => setPress(true)} onMouseUp={() => setPress(false)}
+      onClick={onClick}>{children}</button>
   );
 }
 
@@ -887,13 +856,13 @@ function GlassButton({ children, onClick, style = {} }) {
       onClick={onClick}
       style={{
         fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
-        color: "#1d1d1f", cursor: "pointer",
-        padding: "10px 18px", borderRadius: 980,
-        background: hover ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.85)",
-        border: "1px solid rgba(0,0,0,0.06)",
-        backdropFilter: "blur(40px) saturate(180%)",
-        WebkitBackdropFilter: "blur(40px) saturate(180%)",
-        boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 14px -6px rgba(60,60,90,0.12)",
+        color: "var(--ink, #1A1613)", cursor: "pointer",
+        padding: "10px 18px", borderRadius: 6,
+        background: hover ? "rgba(255,252,245,0.95)" : "rgba(255,252,245,0.85)",
+        border: "1px solid rgba(26,22,19,0.10)",
+        backdropFilter: "blur(40px)",
+        WebkitBackdropFilter: "blur(40px)",
+        boxShadow: "0 1px 3px rgba(26,22,19,0.08)",
         transform: press ? "scale(0.97)" : "scale(1)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
         ...style,
@@ -914,12 +883,12 @@ function NavPill({ active, onChange }) {
       <div className="bjj-navpill" style={{
         display: "inline-flex", alignItems: "center", gap: 16,
         padding: "10px 14px 10px 16px",
-        background: "rgba(255,255,255,0.85)",
-        border: "1px solid rgba(0,0,0,0.05)",
-        backdropFilter: "blur(40px) saturate(180%)",
-        WebkitBackdropFilter: "blur(40px) saturate(180%)",
+        background: "rgba(255,252,245,0.90)",
+        border: "1px solid rgba(26,22,19,0.08)",
+        backdropFilter: "blur(40px)",
+        WebkitBackdropFilter: "blur(40px)",
         borderRadius: 980,
-        boxShadow: "0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 24px -8px rgba(60,60,90,0.18)",
+        boxShadow: "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(26,22,19,0.14)",
       }}>
         <SparkleLogo size={26}/>
         <div style={{ display: "flex", gap: 4 }}>
@@ -929,12 +898,13 @@ function NavPill({ active, onChange }) {
               <div key={t} onClick={() => onChange(t)}
                 className="nav-pill-tab"
                 style={{
-                  padding: "7px 16px", borderRadius: 980,
-                  fontSize: 13.5, fontWeight: 500,
-                  color: isActive ? "#1d1d1f" : "rgba(29,29,31,0.62)",
-                  background: isActive ? "rgba(0,0,0,0.05)" : "transparent",
-                  cursor: "pointer", textTransform: "capitalize",
-                  letterSpacing: "-0.011em",
+                  padding: "7px 16px", borderRadius: 6,
+                  fontSize: 11, fontWeight: 600,
+                  fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+                  color: isActive ? "var(--ink, #1A1613)" : "rgba(26,22,19,0.45)",
+                  background: isActive ? "rgba(26,22,19,0.06)" : "transparent",
+                  cursor: "pointer", textTransform: "uppercase",
+                  letterSpacing: "0.14em",
                   transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
                 }}>{t}</div>
             );
@@ -950,16 +920,16 @@ function NavPill({ active, onChange }) {
 // =====================================================
 function StatusPill({ tone = "ok", children, dot = false }) {
   const tones = {
-    ok:     { bg: "rgba(21,168,107,0.10)", fg: "#15a86b", bd: "rgba(21,168,107,0.28)" },
-    warn:   { bg: "rgba(201,122,0,0.10)",  fg: "#c97a00", bd: "rgba(201,122,0,0.28)" },
-    danger: { bg: "rgba(224,38,74,0.08)",  fg: "#e0264a", bd: "rgba(224,38,74,0.28)" },
-    you:    { bg: "transparent",          fg: "#0066cc", bd: "rgba(0,102,204,0.45)" },
+    ok:     { bg: "rgba(74,122,58,0.10)", fg: "#4a7a3a", bd: "rgba(74,122,58,0.25)" },
+    warn:   { bg: "rgba(199,154,58,0.10)",  fg: "#c79a3a", bd: "rgba(199,154,58,0.25)" },
+    danger: { bg: "rgba(110,19,32,0.08)",  fg: "#6e1320", bd: "rgba(110,19,32,0.25)" },
+    you:    { bg: "transparent",          fg: "#1c2c5a", bd: "rgba(28,44,90,0.35)" },
   };
   const t = tones[tone] || tones.ok;
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 6,
-      padding: "5px 11px", borderRadius: 980,
+      padding: "5px 11px", borderRadius: 4,
       fontSize: 12, fontWeight: 600, letterSpacing: "0.01em",
       background: t.bg, color: t.fg, border: `1px solid ${t.bd}`,
     }}>
@@ -973,21 +943,14 @@ function StatusPill({ tone = "ok", children, dot = false }) {
 function ClaudePill({ children = "Claude" }) {
   return (
     <span style={{
-      position: "relative", display: "inline-flex", alignItems: "center",
-      padding: "5px 11px", borderRadius: 980,
+      display: "inline-flex", alignItems: "center",
+      padding: "5px 11px", borderRadius: 4,
       fontSize: 12, fontWeight: 600, letterSpacing: "0.01em",
-      color: "#1d1d1f", background: "#ffffff",
+      color: "var(--accent-gold, #c79a3a)",
+      background: "var(--bg-paper, #FAF5EC)",
+      border: "1px solid var(--accent-gold, #c79a3a)",
     }}>
-      <span style={{
-        content: "''", position: "absolute", inset: -1,
-        borderRadius: 980, padding: 1.5,
-        background: "linear-gradient(100deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff)",
-        WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-        mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-        WebkitMaskComposite: "xor", maskComposite: "exclude",
-        pointerEvents: "none",
-      }}></span>
-      <span style={{ position: "relative" }}>{children}</span>
+      {children}
     </span>
   );
 }
@@ -998,7 +961,7 @@ function ClaudePill({ children = "Claude" }) {
 function Rainbow({ children, style = {} }) {
   return (
     <span style={{
-      background: "linear-gradient(100deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)",
+      background: "linear-gradient(100deg, #6e1320 0%, #1c2c5a 50%, #c79a3a 100%)",
       WebkitBackgroundClip: "text", backgroundClip: "text",
       WebkitTextFillColor: "transparent", color: "transparent",
       ...style,
@@ -1011,8 +974,9 @@ function Rainbow({ children, style = {} }) {
 // =====================================================
 function Eyebrow({ children, style = {} }) {
   return <div style={{
-    fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-    textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+    fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+    fontSize: 10, fontWeight: 600, letterSpacing: "0.18em",
+    textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)",
     ...style,
   }}>{children}</div>;
 }
@@ -1043,25 +1007,26 @@ function SortMenu({ value, onChange, options }) {
         onClick={() => setOpen((v) => !v)}
         style={{
           display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "8px 14px", borderRadius: 980,
-          fontSize: 13, fontWeight: 500,
-          fontFamily: "var(--font-text)",
-          color: "#1d1d1f",
-          background: "#ffffff",
-          border: "1px solid rgba(0,0,0,0.10)",
+          padding: "8px 14px", borderRadius: 6,
+          fontSize: 11, fontWeight: 600,
+          fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+          letterSpacing: "0.06em", textTransform: "uppercase",
+          color: "var(--ink, #1A1613)",
+          background: "var(--bg-paper, #FAF5EC)",
+          border: "1px solid rgba(26,22,19,0.10)",
           cursor: "pointer",
           transition: "all 160ms ease",
-          boxShadow: open ? "0 4px 14px -4px rgba(0,0,0,0.10)" : "none",
+          boxShadow: open ? "0 4px 14px -4px rgba(26,22,19,0.10)" : "none",
         }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(29,29,31,0.55)" }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(26,22,19,0.45)" }}>
           <line x1="3" y1="6" x2="21" y2="6"/>
           <line x1="6" y1="12" x2="18" y2="12"/>
           <line x1="10" y1="18" x2="14" y2="18"/>
         </svg>
-        <span style={{ color: "rgba(29,29,31,0.62)" }}>Sort:</span>
+        <span style={{ color: "rgba(26,22,19,0.50)" }}>Sort:</span>
         <span>{current.label}</span>
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
-             style={{ color: "rgba(29,29,31,0.45)", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 160ms ease" }}>
+             style={{ color: "rgba(26,22,19,0.40)", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 160ms ease" }}>
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
@@ -1070,10 +1035,10 @@ function SortMenu({ value, onChange, options }) {
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 30,
           minWidth: 200,
-          background: "#ffffff",
-          border: "1px solid rgba(0,0,0,0.08)",
-          borderRadius: 14,
-          boxShadow: "0 16px 40px -12px rgba(20,20,40,0.22), 0 4px 12px rgba(0,0,0,0.06)",
+          background: "var(--bg-paper, #FAF5EC)",
+          border: "1px solid rgba(26,22,19,0.10)",
+          borderRadius: 8,
+          boxShadow: "0 16px 40px -12px rgba(26,22,19,0.18), 0 4px 12px rgba(26,22,19,0.05)",
           padding: 6,
           animation: "sortMenuPop 160ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -1088,8 +1053,8 @@ function SortMenu({ value, onChange, options }) {
                   padding: "9px 12px", borderRadius: 9,
                   fontSize: 13.5, fontWeight: active ? 600 : 500,
                   fontFamily: "var(--font-text)",
-                  color: active ? "#0066cc" : "#1d1d1f",
-                  background: active ? "rgba(0,113,227,0.08)" : "transparent",
+                  color: active ? "#6e1320" : "var(--ink, #1A1613)",
+                  background: active ? "rgba(110,19,32,0.06)" : "transparent",
                   border: "none", cursor: "pointer", textAlign: "left",
                   transition: "background 120ms ease",
                 }}
@@ -3015,15 +2980,15 @@ function RainbowIcon({ children, size = 36 }) {
     <div style={{
       width: size, height: size, borderRadius: "50%",
       padding: 1.5,
-      background: "linear-gradient(120deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff)",
+      background: "linear-gradient(120deg, #6e1320, #1c2c5a, #c79a3a)",
       flexShrink: 0,
-      boxShadow: "0 4px 14px -4px rgba(122,92,255,0.35)",
+      boxShadow: "0 3px 10px -3px rgba(199,154,58,0.3)",
     }}>
       <div style={{
         width: "100%", height: "100%", borderRadius: "50%",
-        background: "#ffffff",
+        background: "var(--bg-paper, #FAF5EC)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        color: "#1d1d1f",
+        color: "var(--ink, #1A1613)",
       }}>{children}</div>
     </div>
   );
