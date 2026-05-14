@@ -2,91 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>BJJ Dashboard — UI Kit</title>
+  <title>BJJ — Editorial</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
 /* =============================================================
    BJJ Dashboard — Colors & Type
    Apple Intelligence × Liquid Glass × LIGHT MODE
    ============================================================= */
 
-/* SF Pro — full family loaded from local OTF files */
+/* Editorial × Fluid — jewel tones on cream, with cursor-driven WebGL fluid bg */
 :root {
   /* =========================================================
-     COLOR — Surfaces (light, parchment-led)
+     COLOR — Surfaces (warm paper)
      ========================================================= */
-  --bg-paper:       #ffffff;   /* pure white — login card, hero card */
-  --bg-canvas:      #f7f7fa;   /* page floor — slightly cool parchment */
-  --bg-parchment:   #f2f2f5;   /* secondary surface, subtle separation */
-  --bg-tint:        #ebebf0;   /* nested surface */
-  --bg-hairline:    rgba(0, 0, 0, 0.08);
+  --bg-paper:       #f7f1e3;   /* ivory — login card, hero card */
+  --bg-canvas:      #f3eee5;   /* page floor — cream */
+  --bg-parchment:   #ece4d3;   /* secondary surface, warm sand */
+  --bg-tint:        #e5dcc6;   /* nested surface */
+  --bg-hairline:    rgba(26, 24, 20, 0.10);
 
-  /* Glass tints (sit on the rainbow mesh — frosted white) */
-  --glass-1:        rgba(255, 255, 255, 0.55);  /* lightest glass */
-  --glass-2:        rgba(255, 255, 255, 0.65);  /* default card */
-  --glass-3:        rgba(255, 255, 255, 0.78);  /* hover / focused */
-  --glass-4:        rgba(255, 255, 255, 0.88);  /* active surface */
-  --glass-stroke:   rgba(255, 255, 255, 0.7);   /* bright inner highlight */
-  --glass-stroke-2: rgba(0, 0, 0, 0.06);        /* hairline border */
+  /* Glass tints — warmer, paper-tinted */
+  --glass-1:        rgba(247, 241, 227, 0.55);
+  --glass-2:        rgba(247, 241, 227, 0.66);
+  --glass-3:        rgba(247, 241, 227, 0.78);
+  --glass-4:        rgba(247, 241, 227, 0.88);
+  --glass-stroke:   rgba(255, 250, 240, 0.7);
+  --glass-stroke-2: rgba(26, 24, 20, 0.08);
 
   /* =========================================================
-     COLOR — Foreground (dark ink on light)
-     Apple's signature near-black, never pure
+     COLOR — Foreground (charcoal ink on paper)
      ========================================================= */
-  --fg-1:           #1d1d1f;                 /* primary text / headings */
-  --fg-2:           rgba(29, 29, 31, 0.78);  /* body text */
-  --fg-3:           rgba(29, 29, 31, 0.55);  /* secondary / meta */
-  --fg-4:           rgba(29, 29, 31, 0.36);  /* placeholder / disabled */
-  --fg-5:           rgba(29, 29, 31, 0.18);  /* faintest hint */
-  --fg-on-gradient: #ffffff;                 /* white over rainbow fills */
+  --ink:            #1a1814;
+  --ink-muted:      rgba(26, 24, 20, 0.62);
+  --ink-faint:      rgba(26, 24, 20, 0.36);
+  --ink-hairline:   rgba(26, 24, 20, 0.10);
+  --fg-1:           #1a1814;
+  --fg-2:           rgba(26, 24, 20, 0.78);
+  --fg-3:           rgba(26, 24, 20, 0.55);
+  --fg-4:           rgba(26, 24, 20, 0.36);
+  --fg-5:           rgba(26, 24, 20, 0.18);
+  --fg-on-gradient: #f7f1e3;
 
   /* =========================================================
-     COLOR — The Rainbow (Apple Intelligence / Siri halo)
+     COLOR — Jewel-tone accents (replaces the rainbow)
+     Variable names kept so existing component code still works.
      ========================================================= */
-  --ai-pink:        #ff4f9a;
-  --ai-magenta:     #c862ff;
-  --ai-purple:      #7a5cff;
-  --ai-blue:        #3b82ff;
-  --ai-cyan:        #4cd6ff;
+  --accent-oxblood: #6e1320;
+  --accent-cobalt:  #1c2c5a;
+  --accent-gold:    #c79a3a;
+  --accent-ivory:   #f7f1e3;
 
-  --ai-pink-soft:    rgba(255, 79, 154, 0.45);
-  --ai-purple-soft:  rgba(122, 92, 255, 0.45);
-  --ai-cyan-soft:    rgba(76, 214, 255, 0.45);
+  /* Old rainbow names → mapped to jewel tones */
+  --ai-pink:        #6e1320;   /* oxblood */
+  --ai-magenta:     #8b1f37;   /* mulled wine */
+  --ai-purple:      #1c2c5a;   /* cobalt */
+  --ai-blue:        #2b3f7a;   /* lighter cobalt */
+  --ai-cyan:        #c79a3a;   /* gold */
+
+  --ai-pink-soft:    rgba(110, 19, 32, 0.30);
+  --ai-purple-soft:  rgba(28, 44, 90, 0.30);
+  --ai-cyan-soft:    rgba(199, 154, 58, 0.30);
 
   --ai-gradient: linear-gradient(
-    100deg,
-    var(--ai-pink) 0%,
-    var(--ai-magenta) 28%,
-    var(--ai-purple) 52%,
-    var(--ai-blue) 76%,
-    var(--ai-cyan) 100%
+    120deg,
+    var(--accent-oxblood) 0%,
+    var(--accent-cobalt) 50%,
+    var(--accent-gold) 100%
   );
 
   --ai-conic: conic-gradient(
     from 0deg,
-    var(--ai-pink),
-    var(--ai-magenta),
-    var(--ai-purple),
-    var(--ai-blue),
-    var(--ai-cyan),
-    var(--ai-purple),
-    var(--ai-pink)
+    var(--accent-oxblood),
+    var(--accent-cobalt),
+    var(--accent-gold),
+    var(--accent-cobalt),
+    var(--accent-oxblood)
   );
 
-  /* Mesh — softer on white (lower opacity, more bloom) */
-  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(255, 79, 154, 0.32), transparent 70%);
-  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(122, 92, 255, 0.30), transparent 70%);
-  --mesh-blob-blue:    radial-gradient(50% 50% at 30% 82%, rgba(59, 130, 255, 0.26), transparent 70%);
-  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(76, 214, 255, 0.26), transparent 70%);
+  /* Mesh — far softer, jewel-tone blooms */
+  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(110, 19, 32, 0.22), transparent 70%);
+  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(28, 44, 90, 0.18), transparent 70%);
+  --mesh-blob-blue:    radial-gradient(50% 50% at 30% 82%, rgba(28, 44, 90, 0.14), transparent 70%);
+  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.18), transparent 70%);
 
   /* =========================================================
-     COLOR — Semantic (muted on white)
+     COLOR — Semantic
      ========================================================= */
-  --accent-blue:    #2997ff;   /* Lighter Apple system blue */
-  --accent-blue-2:  #0071e3;   /* Deeper variant */
-  --accent-success: #15a86b;
-  --accent-warn:    #c97a00;
-  --accent-danger:  #e0264a;
+  --accent-blue:    #2b3f7a;
+  --accent-blue-2:  #1c2c5a;
+  --accent-success: #2e6d4a;
+  --accent-warn:    #b87f1f;
+  --accent-danger:  #8b1f1f;
 
   --chat-user-tint:    rgba(41, 151, 255, 0.08);
   --chat-user-stroke:  rgba(41, 151, 255, 0.22);
@@ -2345,12 +2354,13 @@ function MiniStat({ label, value, accent }) {
   return (
     <div>
       <div style={{
+        fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
         fontSize: 10, fontWeight: 600, textTransform: "uppercase",
-        letterSpacing: "0.08em", color: "rgba(29,29,31,0.5)", marginBottom: 4,
+        letterSpacing: "0.12em", color: "rgba(26,22,19,0.5)", marginBottom: 4,
       }}>{label}</div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600,
-        letterSpacing: "-0.02em", color: accent || "#1d1d1f",
+        letterSpacing: "-0.02em", color: accent || "var(--ink, #1A1613)",
         fontVariantNumeric: "tabular-nums",
       }}>{value}</div>
     </div>
@@ -3319,12 +3329,13 @@ function MiniStatHero({ label, value, accent }) {
   return (
     <div>
       <div style={{
+        fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
         fontSize: 10, fontWeight: 600, textTransform: "uppercase",
-        letterSpacing: "0.08em", color: "rgba(29,29,31,0.5)", marginBottom: 3,
+        letterSpacing: "0.12em", color: "rgba(26,22,19,0.5)", marginBottom: 3,
       }}>{label}</div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600,
-        letterSpacing: "-0.02em", color: accent || "#1d1d1f",
+        letterSpacing: "-0.02em", color: accent || "var(--ink, #1A1613)",
         fontVariantNumeric: "tabular-nums",
       }}>{value}</div>
     </div>
@@ -3339,7 +3350,7 @@ function StatTile({ eyebrow, value, meta, valueStyle = {}, icon, onClick }) {
       cursor: onClick ? "pointer" : "default",
       transform: onClick && hover ? "translateY(-2px)" : "translateY(0)",
       boxShadow: onClick && hover
-        ? "0 1px 0 rgba(255,255,255,0.9) inset, 0 14px 36px -10px rgba(60,60,90,0.22), 0 1px 2px rgba(0,0,0,0.04)"
+        ? "0 1px 0 rgba(255,252,245,0.9) inset, 0 14px 36px -10px rgba(26,22,19,0.16), 0 1px 2px rgba(26,22,19,0.03)"
         : undefined,
       transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
     }}
@@ -3352,10 +3363,10 @@ function StatTile({ eyebrow, value, meta, valueStyle = {}, icon, onClick }) {
       </div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 500,
-        letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.3,
+        letterSpacing: "-0.02em", color: "var(--ink, #1A1613)", lineHeight: 1.3,
         ...valueStyle,
       }}>{value}</div>
-      <div style={{ fontSize: 13, color: "rgba(29,29,31,0.55)", marginTop: "auto" }}>{meta}</div>
+      <div style={{ fontSize: 13, color: "rgba(26,22,19,0.50)", marginTop: "auto" }}>{meta}</div>
     </GlassCard>
   );
 }
@@ -3781,8 +3792,8 @@ function MiniStat({ label, value, accent }) {
     <div style={{
       padding: "8px 10px",
       borderRadius: 12,
-      background: "rgba(0,0,0,0.025)",
-      border: "1px solid rgba(0,0,0,0.05)",
+      background: "rgba(26,22,19,0.025)",
+      border: "1px solid rgba(26,22,19,0.06)",
       position: "relative",
       overflow: "hidden",
     }}>
@@ -3791,12 +3802,14 @@ function MiniStat({ label, value, accent }) {
         background: accent,
       }}></div>
       <div style={{
-        fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
-        color: "rgba(29,29,31,0.45)", marginBottom: 3, paddingLeft: 6,
+        fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+        fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase",
+        color: "rgba(26,22,19,0.45)", marginBottom: 3, paddingLeft: 6,
       }}>{label}</div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600,
-        letterSpacing: "-0.01em", color: "#1d1d1f", paddingLeft: 6,
+        letterSpacing: "-0.01em", color: "var(--ink, #1A1613)", paddingLeft: 6,
+        fontVariantNumeric: "tabular-nums",
         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         textTransform: typeof value === "string" && value.length > 4 ? "capitalize" : "none",
       }}>{value}</div>
@@ -3809,8 +3822,8 @@ function BodySilhouette({ injuries }) {
     <svg viewBox="0 0 100 200" style={{ width: "100%", height: 220, display: "block" }}>
       <defs>
         <linearGradient id="bodyFillDash" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(122,92,255,0.10)"/>
-          <stop offset="100%" stopColor="rgba(76,214,255,0.08)"/>
+          <stop offset="0%" stopColor="rgba(28,44,90,0.10)"/>
+          <stop offset="100%" stopColor="rgba(199,154,58,0.08)"/>
         </linearGradient>
       </defs>
       <ellipse cx="50" cy="14" rx="9" ry="10" fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
@@ -3911,14 +3924,14 @@ function MessageRow({ role, body, time }) {
   return (
     <div style={{
       display: "flex", gap: 14, padding: "14px 18px",
-      borderBottom: "1px solid rgba(0,0,0,0.04)",
+      borderBottom: "1px solid rgba(26,22,19,0.06)",
       alignItems: "flex-start",
     }}>
       <div style={{ paddingTop: 2, flexShrink: 0 }}>
         {role === "claude" ? <ClaudePill /> : <StatusPill tone="you">You</StatusPill>}
       </div>
-      <div style={{ flex: 1, fontSize: 14.5, color: "rgba(29,29,31,0.78)", lineHeight: 1.5 }}>{body}</div>
-      <div style={{ fontSize: 12, color: "rgba(29,29,31,0.45)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
+      <div style={{ flex: 1, fontSize: 14.5, color: "rgba(26,22,19,0.78)", lineHeight: 1.5 }}>{body}</div>
+      <div style={{ fontSize: 12, color: "rgba(26,22,19,0.40)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
     </div>
   );
 }
