@@ -1,20 +1,21 @@
-"""Regression check for _infer_injury_time_bucket precedence.
+"""Regression check for _infer_injury_time_bucket — 3-bucket version.
 
 Run with:
     python3 tests/test_injury_time_bucket.py
 
-Covers the bug Codex QA caught: generic "pm" matching ahead of evening words
-caused "7:45 PM competition class" to bucket as afternoon.
+Only three categories are kept on the dashboard:
+  - morning      → morning drilling
+  - afternoon    → Bruno
+  - evening      → night class (also catches text labeled "late"/"night"
+                   and any time at or after 5 PM / overnight)
 """
 import os
 import sys
 
-# Import bot.py directly without triggering scheduler / network calls.
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, os.pardir))
 sys.path.insert(0, ROOT)
 
-# Stub minimal env so bot.py imports cleanly without real credentials.
 os.environ.setdefault("DB_PATH", os.path.join(ROOT, "tests", "_throwaway.db"))
 
 from bot import _infer_injury_time_bucket, scheduler  # noqa: E402
@@ -22,27 +23,24 @@ from bot import _infer_injury_time_bucket, scheduler  # noqa: E402
 
 CASES = [
     # (when_happened, created_at_or_None, expected_bucket)
-    # --- explicit night beats everything ---
-    ("got hurt late night during open mat", None, "night"),
-    ("late roll", None, "night"),
 
-    # --- evening words win over generic pm ---
+    # --- night/late + evening words → evening ---
+    ("got hurt late night during open mat", None, "evening"),
+    ("late roll", None, "evening"),
     ("7:45 PM competition class", None, "evening"),
     ("evening class 7 PM", None, "evening"),
     ("open mat at 8pm", None, "evening"),
     ("rolls after class", None, "evening"),
     ("competition class felt rough", None, "evening"),
 
-    # --- 5-9 PM with no words → evening ---
+    # --- 5 PM onward (no words) → evening ---
     ("hurt around 6 pm", None, "evening"),
     ("hurt around 7:45 PM", None, "evening"),
     ("9pm", None, "evening"),
     ("5pm session", None, "evening"),
-
-    # --- 10/11 PM → night ---
-    ("10 pm wind down", None, "night"),
-    ("10:30pm wind down", None, "night"),
-    ("11pm late", None, "night"),
+    ("10 pm wind down", None, "evening"),
+    ("10:30pm wind down", None, "evening"),
+    ("11pm late", None, "evening"),
 
     # --- afternoon words ---
     ("bruno private", None, "afternoon"),
@@ -50,7 +48,7 @@ CASES = [
     ("noon roll", None, "afternoon"),
     ("midday drill", None, "afternoon"),
 
-    # --- 12-4 PM with no words → afternoon ---
+    # --- 12-4 PM (no words) → afternoon ---
     ("1pm", None, "afternoon"),
     ("2:15 PM", None, "afternoon"),
     ("4 PM", None, "afternoon"),
@@ -66,19 +64,19 @@ CASES = [
     ("6:30am drill", None, "morning"),
     ("11 am stretch", None, "morning"),
 
-    # --- 12 AM → night ---
-    ("12 am late roll", None, "night"),
+    # --- 12 AM (overnight) → evening (closest session is night class) ---
+    ("12 am late roll", None, "evening"),
 
-    # --- "am"/"pm" not spoofed by casual phrasing ---
-    ("I am hurt", "2026-04-29T14:30:00", "afternoon"),  # falls back to created_at hour 14 → afternoon
-    ("spammed too hard", "2026-04-29T06:00:00", "morning"),  # falls back to 06 → morning
+    # --- spoof guard — bare "am"/"pm" not in digit context ---
+    ("I am hurt", "2026-04-29T14:30:00", "afternoon"),
+    ("spammed too hard", "2026-04-29T06:00:00", "morning"),
 
     # --- pure fallback to created_at ---
     (None, "2026-04-29T08:00:00", "morning"),
     ("", "2026-04-29T13:00:00", "afternoon"),
     (None, "2026-04-29T19:00:00", "evening"),
-    (None, "2026-04-29T23:00:00", "night"),
-    (None, "2026-04-29T02:00:00", "night"),
+    (None, "2026-04-29T23:00:00", "evening"),  # was "night"
+    (None, "2026-04-29T02:00:00", "evening"),  # overnight → evening
 
     # --- bad created_at falls through to None ---
     (None, "garbage", None),

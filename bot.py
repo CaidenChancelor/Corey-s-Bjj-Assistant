@@ -425,26 +425,24 @@ def get_all_injuries():
 
 
 def _infer_injury_time_bucket(when_happened, created_at):
-    """Prefer Corey's written timing, then fall back to log time.
+    """Map an injury to one of three session buckets: morning / afternoon / evening.
+
+    Night/late text and overnight timestamps fold into "evening" (night class
+    window) — Corey only wants three categories on the dashboard.
 
     Precedence:
-      1. night/late wins outright
-      2. evening words (evening/class/competition/rolls/open mat) or 5-9 PM
-      3. afternoon words (afternoon/private/bruno/lunch/midday/noon) or 12-4 PM
-      4. morning words (morning/drilling/strength/s&c) or 1-11 AM
-    "am"/"pm" only count when attached to a digit so phrases like
-    "I am hurt" or "spammed" can't spoof a bucket.
+      1. evening words (evening/class/competition/rolls/open mat/night/late) or 5 PM onward
+      2. afternoon words (afternoon/private/bruno/lunch/midday/noon) or 12-4 PM
+      3. morning words (morning/drilling/strength/s&c) or 1-11 AM
+    "am"/"pm" only count when attached to a digit.
     """
     text = (when_happened or "").lower().strip()
     if text:
-        if re.search(r"\b(night|late)\b", text):
-            return "night"
-        if re.search(r"\b(evening|class|competition|rolls|open\s*mat)\b", text):
+        # Night/late + evening words + 5 PM onward all fold to "evening"
+        if re.search(r"\b(night|late|evening|class|competition|rolls|open\s*mat)\b", text):
             return "evening"
-        if re.search(r"\b([5-9])(?::[0-5]\d)?\s*pm\b", text):
+        if re.search(r"\b([5-9]|1[01])(?::[0-5]\d)?\s*pm\b", text):
             return "evening"
-        if re.search(r"\b(10|11)(?::[0-5]\d)?\s*pm\b", text):
-            return "night"
         if re.search(r"\b(afternoon|private|bruno|lunch|midday|noon)\b", text):
             return "afternoon"
         if re.search(r"\b(12|[1-4])(?::[0-5]\d)?\s*pm\b", text):
@@ -453,17 +451,17 @@ def _infer_injury_time_bucket(when_happened, created_at):
             return "morning"
         if re.search(r"\b(1[0-1]|[1-9])(?::[0-5]\d)?\s*am\b", text):
             return "morning"
+        # 12 AM (overnight) → evening (closest session window)
         if re.search(r"\b12(?::[0-5]\d)?\s*am\b", text):
-            return "night"
+            return "evening"
     try:
         hour = datetime.fromisoformat(created_at).hour
         if 5 <= hour < 12:
             return "morning"
         if 12 <= hour < 17:
             return "afternoon"
-        if 17 <= hour < 22:
-            return "evening"
-        return "night"
+        # 5 PM onward (including overnight) folds into evening
+        return "evening"
     except Exception:
         return None
 
@@ -485,7 +483,7 @@ def get_injury_stats():
             time_rows = conn.execute(
                 "SELECT when_happened, created_at FROM injuries WHERE created_at IS NOT NULL OR when_happened IS NOT NULL"
             ).fetchall()
-            time_buckets = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
+            time_buckets = {"morning": 0, "afternoon": 0, "evening": 0}
             for when_happened, created_at in time_rows:
                 bucket = _infer_injury_time_bucket(when_happened, created_at)
                 if bucket:
@@ -502,7 +500,7 @@ def get_injury_stats():
             "time_buckets": time_buckets,
         }
     except Exception:
-        return {"total": 0, "active": 0, "resolved": 0, "top_partners": [], "top_body_parts": [], "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}}
+        return {"total": 0, "active": 0, "resolved": 0, "top_partners": [], "top_body_parts": [], "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0}}
 
 
 def _infer_allergy_time_bucket(time_text, created_at):
@@ -602,7 +600,7 @@ def get_allergy_stats():
                 "GROUP BY LOWER(COALESCE(NULLIF(TRIM(training_impact), ''), 'none'))"
             ).fetchall()
             time_rows = conn.execute("SELECT time, created_at FROM allergies").fetchall()
-        time_buckets = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
+        time_buckets = {"morning": 0, "afternoon": 0, "evening": 0}
         for time_text, created_at in time_rows:
             bucket = _infer_allergy_time_bucket(time_text, created_at)
             if bucket:
@@ -626,7 +624,7 @@ def get_allergy_stats():
             "categories": [],
             "severity_counts": [],
             "impact_counts": [],
-            "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0},
+            "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0},
         }
 
 

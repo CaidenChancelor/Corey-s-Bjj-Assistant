@@ -4008,7 +4008,7 @@ function AllergyTrackerCard({ onClick }) {
   const logs = window.__bjjdata && Array.isArray(window.__bjjdata.allergies) ? window.__bjjdata.allergies : [];
   const total = stats.total || logs.length || 0;
   const missed = stats.missed_training || logs.filter((l) => l.missed_training).length;
-  const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0, night: 0 };
+  const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0 };
   const topTrigger = stats.top_triggers && stats.top_triggers[0] ? stats.top_triggers[0].name : "No cause trend";
   const maxBucket = Math.max(1, ...Object.values(buckets));
 
@@ -7355,22 +7355,17 @@ window.Problems = Problems;
 const { useState: useStateMI, useEffect: useEffectMI } = React;
 
 function microInjuryTimeBucketFromText(whenHappened) {
+  // Three buckets only: morning / afternoon / evening.
+  // Night & late text fold into "evening" (night class window).
   const text = String(whenHappened || "").toLowerCase().trim();
   if (!text) return null;
-  // 1. Explicit night/late wins outright.
-  if (/\b(night|late)\b/.test(text)) return "night";
-  // 2. Evening words OR 5-9 PM time stamps.
-  if (/\b(evening|class|competition|rolls|open\s*mat)\b/.test(text)) return "evening";
-  if (/\b([5-9])(?::[0-5]\d)?\s*pm\b/.test(text)) return "evening";
-  if (/\b(10|11)(?::[0-5]\d)?\s*pm\b/.test(text)) return "night";
-  // 3. Afternoon words OR 12-4 PM.
+  if (/\b(night|late|evening|class|competition|rolls|open\s*mat)\b/.test(text)) return "evening";
+  if (/\b([5-9]|1[01])(?::[0-5]\d)?\s*pm\b/.test(text)) return "evening";
   if (/\b(afternoon|private|bruno|lunch|midday|noon)\b/.test(text)) return "afternoon";
   if (/\b(12|[1-4])(?::[0-5]\d)?\s*pm\b/.test(text)) return "afternoon";
-  // 4. Morning words / 1-11 AM. "am"/"pm" only count when prefixed by digits
-  //    so casual phrases ("I am sore") can't spoof a bucket.
   if (/\b(morning|drilling|strength)\b/.test(text) || text.includes("s&c")) return "morning";
   if (/\b(1[0-1]|[1-9])(?::[0-5]\d)?\s*am\b/.test(text)) return "morning";
-  if (/\b12(?::[0-5]\d)?\s*am\b/.test(text)) return "night";
+  if (/\b12(?::[0-5]\d)?\s*am\b/.test(text)) return "evening";
   return null;
 }
 
@@ -7384,7 +7379,7 @@ function buildMicroInjuryStats(injuries, serverStats) {
       resolved: safeStats.resolved ?? normalized.filter((i) => i.resolved).length,
       top_partners: safeStats.top_partners || [],
       top_body_parts: safeStats.top_body_parts || [],
-      time_buckets: safeStats.time_buckets || { morning: 0, afternoon: 0, evening: 0, night: 0 },
+      time_buckets: safeStats.time_buckets || { morning: 0, afternoon: 0, evening: 0 },
     };
   }
 
@@ -7401,7 +7396,7 @@ function buildMicroInjuryStats(injuries, serverStats) {
     return Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 5);
   };
 
-  const timeBuckets = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+  const timeBuckets = { morning: 0, afternoon: 0, evening: 0 };
   normalized.forEach((injury) => {
     const bucket = microInjuryTimeBucketFromText(injury.when_happened);
     if (bucket) timeBuckets[bucket] += 1;
@@ -7485,22 +7480,22 @@ const MICRO_INJURY_TIME_LABELS = {
   morning: "Morning drilling",
   afternoon: "Bruno",
   evening: "Night class",
-  night: "Late",
 };
 
 function MicroInjuryTimeChart({ buckets }) {
+  // Three buckets only: morning / afternoon / evening (night folds in).
+  // Colors map to oxblood / cobalt / gold instead of the old rainbow.
   const rows = [
-    { key: "morning",   color: "#ff4f9a" },
-    { key: "afternoon", color: "#c862ff" },
-    { key: "evening",   color: "#3b82ff" },
-    { key: "night",     color: "#4cd6ff" },
+    { key: "morning",   color: "#6e1320" },  // oxblood
+    { key: "afternoon", color: "#1c2c5a" },  // cobalt
+    { key: "evening",   color: "#c79a3a" },  // gold
   ];
   const counts = rows.map((r) => buckets[r.key] || 0);
   const maxCount = Math.max(...counts);
   return (
     <div style={{
       display: "grid",
-      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
       gap: 10,
       paddingTop: 4,
     }}>
@@ -7551,7 +7546,7 @@ function MicroInjuryTimeChart({ buckets }) {
 
 function MicroInjuryStatsPanel({ stats, open, onToggle }) {
   const total = stats.total || 0;
-  const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0, night: 0 };
+  const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0 };
   const partnerLeader = stats.top_partners?.[0]?.name || "No partner pattern yet";
   const bodyLeader = stats.top_body_parts?.[0]?.name || "No body pattern yet";
   const timeLeaderEntry = Object.entries(buckets).sort((a, b) => b[1] - a[1])[0] || ["none", 0];
@@ -8550,7 +8545,7 @@ function allergyTimeBucket(timeText, createdAt) {
   return null;
 }
 function allergyStatsFromLogs(logs) {
-  const timeBuckets = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+  const timeBuckets = { morning: 0, afternoon: 0, evening: 0 };
   const triggerCounts = {};
   const categoryCounts = {};
   const severityCounts = {};
