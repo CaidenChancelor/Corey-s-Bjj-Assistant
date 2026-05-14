@@ -267,25 +267,50 @@ def interpret_debrief_reply(step, user_reply, context=None):
 
 
 def classify_message(text):
-    """One Claude call → structured intents. Returns dict with water_l, meal, injury keys."""
-    empty = {"water_l": None, "meal": None, "injury": None}
+    """One Claude call → structured intents.
+
+    Returns a dict with these top-level keys:
+      - water_l: float | None — user logging water intake
+      - meal: {name, calories, kind} | None — user logging a meal
+      - injury: {body_part, severity, notes} | None — user reporting an injury
+      - allergy: bool — user reporting an allergy flare-up / symptoms
+      - bruno_lesson: bool — user spontaneously talking about a Bruno private/class
+      - problem: {position, hint} | None — user mentioning a technique they're stuck on
+    """
+    empty = {
+        "water_l": None, "meal": None, "injury": None,
+        "allergy": False, "bruno_lesson": False, "problem": None,
+    }
     if not claude or not text:
         return empty
     try:
         response = claude.messages.create(
             model=CLAUDE_MODEL,
-            max_tokens=200,
+            max_tokens=320,
             system=(
                 "You are an intent classifier for a BJJ training assistant. "
                 "Given a user message, output JSON with these fields:\n"
-                '- water_l: number of liters of water if user is logging water intake, else null. '
+                '- water_l: liters of water if user is logging water intake, else null. '
                 'Examples: "drank 1L"→1.0, "had 500ml"→0.5, "just finished a glass"→0.25, '
                 '"chugged a bottle"→0.5, "drank 2 bottles of water"→1.0.\n'
                 '- meal: object {name, calories, kind} if user is logging a meal/food, else null. '
                 'kind ∈ {"breakfast","lunch","dinner","snack","pre-training","post-training","other"}. '
                 'Estimate calories (integer) if not given.\n'
-                '- injury: object {body_part, severity, notes} if user is reporting an injury, tweak, or pain, else null. '
-                'severity ∈ {"minor","moderate","severe"}. Body part should be specific (e.g. "left knee", "lower back").\n\n'
+                '- injury: object {body_part, severity, notes} if user is reporting a NEW injury, tweak, or pain, else null. '
+                'severity ∈ {"minor","moderate","severe"}. Body part should be specific (e.g. "left knee", "lower back"). '
+                'Only set when there is clear injury intent — not when they mention an old/known injury in passing.\n'
+                '- allergy: true if user is reporting allergy symptoms or a flare-up (sneezing, itchy eyes, hives, asthma, '
+                'allergic reaction, anaphylaxis, "allergies acting up", "stuffed up", congestion from allergies, etc.). '
+                'Otherwise false.\n'
+                '- bruno_lesson: true if the user is spontaneously talking about a private session with Bruno '
+                '(e.g. "had a sick private today", "bruno worked me hard", "private felt great", "got the most out of bruno today"). '
+                'NOT true for general training talk or other classes.\n'
+                '- problem: object {position, hint} if the user is mentioning a SPECIFIC technique or position they keep '
+                'getting stuck on / struggle with / want flagged. position = the technique name, hint = a short summary '
+                'of the issue if they gave one. Examples: "I keep getting stuck in half guard"→{position:"half guard",hint:"keeps getting stuck"}, '
+                '"spider lasso has been killing me"→{position:"spider lasso",hint:"struggling"}. '
+                'Else null. Do NOT set this just because they mention a technique in passing.\n\n'
+                "Set at most one of {allergy, bruno_lesson, problem, injury} to a positive value — pick the strongest signal. "
                 "Return ONLY valid JSON. No markdown, no explanation."
             ),
             messages=[{"role": "user", "content": text}],
@@ -293,11 +318,13 @@ def classify_message(text):
         raw = response.content[0].text.strip()
         raw = re.sub(r'^```\w*\s*|\s*```$', '', raw).strip()
         data = json.loads(raw)
-        # Normalize keys we expect
         return {
             "water_l": data.get("water_l"),
             "meal": data.get("meal"),
             "injury": data.get("injury"),
+            "allergy": bool(data.get("allergy")),
+            "bruno_lesson": bool(data.get("bruno_lesson")),
+            "problem": data.get("problem"),
         }
     except Exception as e:
         logging.error(f"classify_message error: {e}")
@@ -367,6 +394,35 @@ def save_injury(body_part, severity, notes):
         logging.info(f"INJURY: {body_part} ({severity})")
     except Exception as e:
         logging.error(f"Injury save error: {e}")
+
+
+def save_allergy(trigger, symptoms, severity="mild", category="general",
+                 medication=None, training_impact="none", missed_training=False, notes=None):
+    """Insert an allergy log into the allergies table."""
+    now = datetime.now(TZ)
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute(
+                'INSERT INTO allergies (date, time, severity, category, trigger_name, symptoms, medication, training_impact, missed_training, notes, created_at) '
+                'VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                (
+                    now.strftime('%Y-%m-%d'),
+                    now.strftime('%H:%M'),
+                    (severity or 'mild').strip().lower(),
+                    (category or 'general').strip().lower(),
+                    (trigger or '').strip(),
+                    (symptoms or '').strip(),
+                    (medication or '').strip() or None,
+                    (training_impact or 'none').strip().lower(),
+                    1 if missed_training else 0,
+                    (notes or '').strip() or None,
+                    now.isoformat(),
+                ),
+            )
+            conn.commit()
+        logging.info(f"ALLERGY: {trigger} ({severity})")
+    except Exception as e:
+        logging.error(f"Allergy save error: {e}")
 
 
 def map_body_region(body_part_text):
@@ -991,6 +1047,18 @@ state = {
     "_injury_description": None,
     "_injury_partner": None,
     "_injury_when": None,
+    # Allergy intake (NEW — standalone interview when user reports allergy symptoms)
+    "_allergy_trigger": None,
+    "_allergy_symptoms": None,
+    "_allergy_severity": None,
+    "_allergy_medication": None,
+    "_allergy_training_impact": None,
+    "_allergy_missed_training": None,
+    # Standalone intake mode: when user spontaneously reports something
+    # without being mid-debrief. Set to a label like "injury", "problem",
+    # "allergy" so the existing debrief handlers can short-circuit cleanup
+    # back to general chat instead of flowing into the next debrief step.
+    "intake_mode": None,
     "flag_for_bruno": None,      # technique to flag in the next private reminder
     "rest_day": False,           # if True, suppress all session reminders for today
     "rest_day_date": None,       # date the rest day was set
@@ -1589,7 +1657,7 @@ def webhook():
 
     else:
         # Multi-step debrief interview
-        if state.get("debrief_session") and state.get("debrief_step"):
+        if (state.get("debrief_session") or state.get("intake_mode")) and state.get("debrief_step"):
             _dbt = state.get("debrief_time")
             if _dbt and (datetime.now(TZ) - _dbt).total_seconds() > 14400:
                 state["debrief_session"] = None
@@ -1842,6 +1910,7 @@ def webhook():
                 state["debrief_step"] = None
                 state["debrief_headline"] = None
                 state["debrief_time"] = None
+                state["intake_mode"] = None
                 severity_emoji = {"managing": "🩹", "watch": "👀", "fresh": "🩼", "critical": "🚨"}.get(severity, "🩹")
                 resp.message(f"logged {body_part} ({severity}) {severity_emoji} all good, everything's saved 💪")
 
@@ -1923,13 +1992,129 @@ def webhook():
                     logging.error(f"Problem save error: {e}")
                 state["_problem_position"] = None
                 state["_problem_issue"] = None
-                # Move to video_check next
-                state["debrief_step"] = "video_check"
+                if state.get("intake_mode") == "problem":
+                    # Standalone problem report — end here, do not chain into video/injury check
+                    state["intake_mode"] = None
+                    state["debrief_session"] = None
+                    state["debrief_step"] = None
+                    state["debrief_headline"] = None
+                    state["debrief_time"] = None
+                    resp.message(f"flagged — {position} ({tier}) 📌 noted for next time")
+                else:
+                    # Post-session debrief — continue into the video check
+                    state["debrief_step"] = "video_check"
+                    state["debrief_time"] = datetime.now(TZ)
+                    state["_injury_body_part"] = None
+                    state["_injury_severity"] = None
+                    state["_injury_description"] = None
+                    resp.message(f"flagged — {position} ({tier}) 📌\n\nyou got any video from today? send it or say skip")
+
+            # ── ALLERGY INTAKE (standalone — when user reports symptoms) ───────
+            elif step == "intake_allergy_trigger":
+                interp = interpret_debrief_reply("intake_allergy_trigger", raw_body)
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "what set it off? (pollen, dust, food, weather, dog, etc.)"))
+                    return str(resp)
+                state["_allergy_trigger"] = interp.get("value", raw_body).strip()
+                state["debrief_step"] = "intake_allergy_symptoms"
                 state["debrief_time"] = datetime.now(TZ)
-                state["_injury_body_part"] = None
-                state["_injury_severity"] = None
-                state["_injury_description"] = None
-                resp.message(f"flagged — {position} ({tier}) 📌\n\nyou got any video from today? send it or say skip")
+                resp.message("what symptoms are you having? (sneezing, itchy eyes, congestion, hives, shortness of breath, throat tightness, etc.)")
+
+            elif step == "intake_allergy_symptoms":
+                interp = interpret_debrief_reply("intake_allergy_symptoms", raw_body)
+                if interp.get("unclear"):
+                    resp.message(interp.get("ask", "what's bothering you exactly? list anything you're feeling"))
+                    return str(resp)
+                state["_allergy_symptoms"] = interp.get("value", raw_body).strip()
+                state["debrief_step"] = "intake_allergy_severity"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("how bad is it?\n\n• *Mild* — annoying, can train through it\n• *Moderate* — slowing you down\n• *Severe* — really hurting performance\n• *Critical* — can't function, EpiPen / ER territory")
+
+            elif step == "intake_allergy_severity":
+                lower = raw_body.lower().strip()
+                severity_map = {
+                    "mild": "mild", "annoying": "mild", "light": "mild",
+                    "moderate": "moderate", "medium": "moderate", "med": "moderate", "okay": "moderate",
+                    "severe": "severe", "bad": "severe", "rough": "severe",
+                    "critical": "critical", "emergency": "critical", "er": "critical", "anaphylaxis": "critical",
+                }
+                severity = next((v for k, v in severity_map.items() if k in lower), None)
+                if severity is None:
+                    resp.message("just pick one: mild, moderate, severe, or critical")
+                    return str(resp)
+                state["_allergy_severity"] = severity
+                state["debrief_step"] = "intake_allergy_medication"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("did you take anything for it? (e.g. Claritin, Zyrtec, Benadryl, inhaler, EpiPen) — or say 'none'")
+
+            elif step == "intake_allergy_medication":
+                lower = raw_body.lower().strip()
+                if lower in ("none", "no", "nothing", "n/a", "na", "nope", "nah"):
+                    state["_allergy_medication"] = None
+                else:
+                    interp = interpret_debrief_reply("intake_allergy_medication", raw_body)
+                    if interp.get("unclear"):
+                        resp.message(interp.get("ask", "name the meds or say none"))
+                        return str(resp)
+                    state["_allergy_medication"] = interp.get("value", raw_body).strip()
+                state["debrief_step"] = "intake_allergy_training_impact"
+                state["debrief_time"] = datetime.now(TZ)
+                resp.message("did this mess with training today?\n\n• *None* — no impact\n• *Reduced* — trained but slowed down\n• *Missed* — skipped a session entirely")
+
+            elif step == "intake_allergy_training_impact":
+                lower = raw_body.lower().strip()
+                impact = None
+                missed = False
+                if any(w in lower for w in ("missed", "skipped", "couldn't", "didn't train", "no training")):
+                    impact = "missed"
+                    missed = True
+                elif any(w in lower for w in ("reduced", "slowed", "limited", "less", "half", "lighter", "partial")):
+                    impact = "reduced"
+                elif any(w in lower for w in ("none", "no", "fine", "normal", "trained", "full")):
+                    impact = "none"
+                if impact is None:
+                    resp.message("just pick one: none / reduced / missed")
+                    return str(resp)
+                state["_allergy_training_impact"] = impact
+                # Save and end
+                trigger = state.get("_allergy_trigger", "")
+                symptoms = state.get("_allergy_symptoms", "")
+                severity = state.get("_allergy_severity", "mild")
+                meds = state.get("_allergy_medication")
+                # Try to infer category from trigger text
+                category = "general"
+                trig_lower = (trigger or "").lower()
+                if any(w in trig_lower for w in ("pollen", "tree", "grass", "ragweed", "season")):
+                    category = "seasonal"
+                elif any(w in trig_lower for w in ("dust", "mold", "mildew", "cat", "dog", "pet")):
+                    category = "environmental"
+                elif any(w in trig_lower for w in ("nut", "peanut", "shellfish", "fish", "egg", "milk", "dairy", "gluten", "wheat", "soy", "food")):
+                    category = "food"
+                elif any(w in trig_lower for w in ("med", "drug", "antibiotic", "penicillin", "aspirin")):
+                    category = "medication"
+                save_allergy(
+                    trigger=trigger,
+                    symptoms=symptoms,
+                    severity=severity,
+                    category=category,
+                    medication=meds,
+                    training_impact=impact,
+                    missed_training=missed,
+                )
+                # Clean up
+                state["_allergy_trigger"] = None
+                state["_allergy_symptoms"] = None
+                state["_allergy_severity"] = None
+                state["_allergy_medication"] = None
+                state["_allergy_training_impact"] = None
+                state["_allergy_missed_training"] = None
+                state["intake_mode"] = None
+                state["debrief_session"] = None
+                state["debrief_step"] = None
+                state["debrief_time"] = None
+                state["debrief_headline"] = None
+                emoji = {"mild": "🌼", "moderate": "🤧", "severe": "🚨", "critical": "🆘"}.get(severity, "🤧")
+                resp.message(f"logged {trigger} · {severity} {emoji} feel better")
 
             return str(resp)
 
@@ -1983,13 +2168,58 @@ def webhook():
             resp.message(f"+{cals} cal logged 🍚 ({meal['name']}) · {total:,}/{CALORIE_GOAL:,} today · {remaining} to go")
             return str(resp)
 
+        # ── On-demand structured intake ────────────────────────────────────
+        # If the message looks like a NEW injury report, start the full
+        # multi-step injury interview (body part → severity → description →
+        # partner → when → rest plan). Same fields the dashboard form has.
         injury = intents.get("injury")
         if injury and injury.get("body_part"):
-            sev = injury.get("severity", "minor")
-            notes = injury.get("notes") or raw_body
-            save_injury(injury["body_part"], sev, notes)
-            emoji = {"minor": "🩹", "moderate": "🩼", "severe": "🚨"}.get(sev, "🩹")
-            resp.message(f"Logged {injury['body_part']} ({sev}) {emoji} Take it easy bro — anything I should flag for tomorrow?")
+            state["_injury_body_part"] = injury["body_part"]
+            # Severity asked next — use the dashboard's vocabulary (managing/watch/fresh/critical)
+            state["intake_mode"] = "injury"
+            state["debrief_step"] = "injury_severity"
+            state["debrief_time"] = datetime.now(TZ)
+            resp.message(
+                f"got it — {injury['body_part']}. how bad is it?\n\n"
+                "• *Managing* — minor, barely noticeable\n"
+                "• *Watch* — noticeable, keeping an eye on it\n"
+                "• *Fresh* — happened recently, needs attention\n"
+                "• *Critical* — serious, may need to stop training"
+            )
+            return str(resp)
+
+        # If the message reports an allergy flare-up, start the allergy interview
+        if intents.get("allergy"):
+            state["intake_mode"] = "allergy"
+            state["debrief_step"] = "intake_allergy_trigger"
+            state["debrief_time"] = datetime.now(TZ)
+            resp.message("damn, what set it off? (pollen, dust, food, weather, dog, etc.)")
+            return str(resp)
+
+        # If the user spontaneously talks about a Bruno private — start the same
+        # debrief flow the post-class checkin uses.
+        if intents.get("bruno_lesson"):
+            state["debrief_session"] = "Private with Bruno"
+            state["debrief_step"] = "headline"
+            state["debrief_time"] = datetime.now(TZ)
+            state["debrief_headline"] = None
+            state["debrief_one_liner"] = None
+            resp.message("dope — what'd you and Bruno work on?")
+            return str(resp)
+
+        # If the user flags a technique problem, start the problem interview
+        prob = intents.get("problem")
+        if prob and prob.get("position"):
+            state["_problem_position"] = prob["position"]
+            state["intake_mode"] = "problem"
+            state["debrief_step"] = "problem_issue"
+            state["debrief_time"] = datetime.now(TZ)
+            hint = (prob.get("hint") or "").strip()
+            opener = f"got it, {prob['position']}"
+            if hint:
+                opener += f" — {hint}"
+            opener += ". what's the issue with it? where does it break down?"
+            resp.message(opener)
             return str(resp)
 
         # Nothing structured — full chat
