@@ -7207,62 +7207,201 @@ const MICRO_INJURY_TIME_LABELS = {
 };
 
 function MicroInjuryTimeChart({ buckets }) {
+  // 4-axis radar laid out like a clock face:
+  //   North = Morning drilling, East = Bruno, South = Night class, West = Late
   const rows = [
-    { key: "morning",   color: "#ff4f9a" },
-    { key: "afternoon", color: "#c862ff" },
-    { key: "evening",   color: "#3b82ff" },
-    { key: "night",     color: "#4cd6ff" },
+    { key: "morning",   angle: -90, color: "#ff4f9a" },  // top
+    { key: "afternoon", angle:   0, color: "#c862ff" },  // right
+    { key: "evening",   angle:  90, color: "#3b82ff" },  // bottom
+    { key: "night",     angle: 180, color: "#4cd6ff" },  // left
   ];
+
+  // Geometry
+  const size = 260;
+  const cx = size / 2;
+  const cy = size / 2;
+  const rMax = 78;             // outermost data ring
+  const rings = [0.25, 0.5, 0.75, 1];
+
   const counts = rows.map((r) => buckets[r.key] || 0);
-  const maxCount = Math.max(...counts);
+  const maxData = Math.max(...counts);
+  const scale = maxData > 0 ? rMax / maxData : 0;
+
+  const polar = (radius, angleDeg) => {
+    const rad = (angleDeg * Math.PI) / 180;
+    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+  };
+
+  // Data points
+  const points = rows.map((r) => {
+    const v = buckets[r.key] || 0;
+    const radius = maxData > 0 ? v * scale : 0;
+    return { ...r, value: v, ...polar(radius, r.angle) };
+  });
+  const polygon = points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+
+  // Label positions just outside the outermost ring
+  const labelPad = 18;
+  const labels = rows.map((r) => {
+    const p = polar(rMax + labelPad, r.angle);
+    let anchor = "middle";
+    if (Math.cos((r.angle * Math.PI) / 180) > 0.5) anchor = "start";
+    else if (Math.cos((r.angle * Math.PI) / 180) < -0.5) anchor = "end";
+    return { ...r, ...p, anchor };
+  });
+
+  const gradientId = "miRadarFill";
+  const glowId = "miRadarGlow";
+
   return (
     <div style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-      gap: 10,
-      paddingTop: 4,
+      position: "relative",
+      paddingTop: 8,
+      paddingBottom: 4,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
     }}>
-      {rows.map((row) => {
-        const count = buckets[row.key] || 0;
-        const isPeak = maxCount > 0 && count === maxCount;
-        const isZero = count === 0;
-        return (
-          <div key={row.key} style={{
-            position: "relative",
-            padding: "14px 14px 13px",
-            borderRadius: 16,
-            background: "rgba(255,255,255,0.78)",
-            border: `1px solid ${isPeak ? row.color + "55" : "rgba(0,0,0,0.05)"}`,
-            boxShadow: isPeak
-              ? `0 1px 0 rgba(255,255,255,0.9) inset, 0 0 0 1px ${row.color}22, 0 8px 22px -14px ${row.color}66`
-              : "0 1px 0 rgba(255,255,255,0.9) inset",
-            transition: "box-shadow 200ms ease, border-color 200ms ease",
-            minWidth: 0,
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
-              <div style={{
-                width: 8, height: 8, borderRadius: 999, flexShrink: 0,
-                background: `linear-gradient(135deg, ${row.color}, ${row.color}99)`,
-                boxShadow: `0 0 8px ${row.color}66`,
-                opacity: isZero ? 0.4 : 1,
-              }}/>
-              <div style={{
-                fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
-                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-              }}>{MICRO_INJURY_TIME_LABELS[row.key]}</div>
-            </div>
-            <div style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 28, fontWeight: 600, lineHeight: 1,
-              letterSpacing: "-0.02em",
-              color: isZero ? "rgba(29,29,31,0.32)" : "#1d1d1f",
-              fontVariantNumeric: "tabular-nums",
-            }}>{count}</div>
-          </div>
-        );
-      })}
+      {/* ambient halo behind the chart */}
+      <div style={{
+        position: "absolute",
+        width: size + 60,
+        height: size + 60,
+        borderRadius: "50%",
+        background: "radial-gradient(circle at 50% 50%, rgba(122,92,255,0.10), rgba(255,255,255,0) 70%)",
+        filter: "blur(6px)",
+        zIndex: 0,
+      }}/>
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        width="100%"
+        style={{ maxWidth: 320, height: "auto", position: "relative", zIndex: 1, overflow: "visible" }}
+        aria-label="Injury timing radar"
+      >
+        <defs>
+          <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor="#ff4f9a" stopOpacity="0.55"/>
+            <stop offset="40%"  stopColor="#c862ff" stopOpacity="0.45"/>
+            <stop offset="75%"  stopColor="#3b82ff" stopOpacity="0.40"/>
+            <stop offset="100%" stopColor="#4cd6ff" stopOpacity="0.35"/>
+          </radialGradient>
+          <filter id={glowId} x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          {/* conic stroke for the outer perimeter */}
+          <linearGradient id="miRadarStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor="#ff4f9a"/>
+            <stop offset="33%"  stopColor="#c862ff"/>
+            <stop offset="66%"  stopColor="#3b82ff"/>
+            <stop offset="100%" stopColor="#4cd6ff"/>
+          </linearGradient>
+        </defs>
+
+        {/* concentric guide rings */}
+        {rings.map((r, i) => (
+          <circle
+            key={i}
+            cx={cx}
+            cy={cy}
+            r={rMax * r}
+            fill="none"
+            stroke="rgba(29,29,31,0.06)"
+            strokeWidth="1"
+            strokeDasharray={i === rings.length - 1 ? "0" : "2 3"}
+          />
+        ))}
+
+        {/* axes (cross) */}
+        {rows.map((r, i) => {
+          const end = polar(rMax + 4, r.angle);
+          return (
+            <line
+              key={i}
+              x1={cx}
+              y1={cy}
+              x2={end.x}
+              y2={end.y}
+              stroke="rgba(29,29,31,0.10)"
+              strokeWidth="1"
+            />
+          );
+        })}
+
+        {/* rainbow outer ring (subtle, premium) */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={rMax}
+          fill="none"
+          stroke={`url(#miRadarStroke)`}
+          strokeWidth="1.25"
+          opacity="0.55"
+        />
+
+        {/* data polygon */}
+        {maxData > 0 && (
+          <>
+            <polygon
+              points={polygon}
+              fill={`url(#${gradientId})`}
+              stroke="url(#miRadarStroke)"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+              filter={`url(#${glowId})`}
+            />
+            {points.map((p, i) => (
+              <g key={i}>
+                <circle cx={p.x} cy={p.y} r={p.value === maxData ? 5 : 3.5} fill="#fff" stroke={p.color} strokeWidth="2"/>
+                <circle cx={p.x} cy={p.y} r={1.6} fill={p.color}/>
+              </g>
+            ))}
+          </>
+        )}
+
+        {/* center dot */}
+        <circle cx={cx} cy={cy} r="2.5" fill="rgba(29,29,31,0.35)"/>
+
+        {/* labels */}
+        {labels.map((l) => {
+          const v = buckets[l.key] || 0;
+          const isPeak = maxData > 0 && v === maxData;
+          const isZero = v === 0;
+          return (
+            <g key={l.key}>
+              <text
+                x={l.x}
+                y={l.y - 4}
+                textAnchor={l.anchor}
+                style={{
+                  fontFamily: "var(--font-text), system-ui",
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  fill: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
+                }}
+              >{MICRO_INJURY_TIME_LABELS[l.key]}</text>
+              <text
+                x={l.x}
+                y={l.y + 12}
+                textAnchor={l.anchor}
+                style={{
+                  fontFamily: "var(--font-display), system-ui",
+                  fontSize: isPeak ? 18 : 16,
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                  fontVariantNumeric: "tabular-nums",
+                  fill: isZero ? "rgba(29,29,31,0.32)" : (isPeak ? l.color : "#1d1d1f"),
+                }}
+              >{v}</text>
+            </g>
+          );
+        })}
+      </svg>
     </div>
   );
 }
