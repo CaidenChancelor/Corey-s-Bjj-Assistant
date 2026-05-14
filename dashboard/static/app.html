@@ -7207,93 +7207,119 @@ const MICRO_INJURY_TIME_LABELS = {
 };
 
 function MicroInjuryTimeChart({ buckets }) {
-  // 4-axis radar laid out like a clock face:
-  //   North = Morning drilling, East = Bruno, South = Night class, West = Late
-  const rows = [
-    { key: "morning",   angle: -90, color: "#ff4f9a" },  // top
-    { key: "afternoon", angle:   0, color: "#c862ff" },  // right
-    { key: "evening",   angle:  90, color: "#3b82ff" },  // bottom
-    { key: "night",     angle: 180, color: "#4cd6ff" },  // left
+  // Each session occupies a 90° wedge of a donut, ordered clockwise from top.
+  //   Top → Morning drilling, Right → Bruno, Bottom → Night class, Left → Late
+  const segments = [
+    { key: "morning",   color: "#ff4f9a", colorEnd: "#ff8fbf" },
+    { key: "afternoon", color: "#c862ff", colorEnd: "#a78bfa" },
+    { key: "evening",   color: "#3b82ff", colorEnd: "#60a5fa" },
+    { key: "night",     color: "#4cd6ff", colorEnd: "#93e6ff" },
   ];
 
-  // Geometry
-  const size = 260;
+  const size = 280;
   const cx = size / 2;
   const cy = size / 2;
-  const rMax = 78;             // outermost data ring
-  const rings = [0.25, 0.5, 0.75, 1];
+  const rOuter = 112;
+  const rInner = 70;
+  const trackInset = 0.5;
+  const gapDeg = 5; // spacing between segments
 
-  const counts = rows.map((r) => buckets[r.key] || 0);
+  const counts = segments.map((s) => buckets[s.key] || 0);
   const maxData = Math.max(...counts);
-  const scale = maxData > 0 ? rMax / maxData : 0;
+  const total = counts.reduce((a, b) => a + b, 0);
 
-  const polar = (radius, angleDeg) => {
-    const rad = (angleDeg * Math.PI) / 180;
+  // Peak metadata for the centre readout
+  let peakIdx = -1;
+  if (maxData > 0) peakIdx = counts.findIndex((c) => c === maxData);
+  const peakColor = peakIdx >= 0 ? segments[peakIdx].color : "#1d1d1f";
+  const peakLabel = peakIdx >= 0 ? MICRO_INJURY_TIME_LABELS[segments[peakIdx].key] : "No data yet";
+
+  // Convert polar → cartesian (0° at top, clockwise)
+  const toXY = (radius, angleDeg) => {
+    const rad = ((angleDeg - 90) * Math.PI) / 180;
     return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
   };
 
-  // Data points
-  const points = rows.map((r) => {
-    const v = buckets[r.key] || 0;
-    const radius = maxData > 0 ? v * scale : 0;
-    return { ...r, value: v, ...polar(radius, r.angle) };
-  });
-  const polygon = points.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ");
+  // Build a thick arc path between start & end angles at outer/inner radii.
+  const arcPath = (startDeg, endDeg, rO, rI) => {
+    const largeArc = endDeg - startDeg > 180 ? 1 : 0;
+    const p1 = toXY(rO, startDeg);
+    const p2 = toXY(rO, endDeg);
+    const p3 = toXY(rI, endDeg);
+    const p4 = toXY(rI, startDeg);
+    return [
+      `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`,
+      `A ${rO} ${rO} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
+      `L ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`,
+      `A ${rI} ${rI} 0 ${largeArc} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
+      "Z",
+    ].join(" ");
+  };
 
-  // Label positions just outside the outermost ring
-  const labelPad = 18;
-  const labels = rows.map((r) => {
-    const p = polar(rMax + labelPad, r.angle);
+  // Each segment gets a 90° slice. Apply gap by inseting start/end.
+  const segments_geom = segments.map((seg, i) => {
+    const segStart = i * 90 + gapDeg / 2;
+    const segEnd = (i + 1) * 90 - gapDeg / 2;
+    const value = buckets[seg.key] || 0;
+    const fillRatio = maxData > 0 ? value / maxData : 0;
+    // Fill expands from inner radius outward (like a thermometer)
+    const fillRadius = rInner + (rOuter - rInner) * fillRatio;
+    return { ...seg, segStart, segEnd, value, fillRatio, fillRadius };
+  });
+
+  // Label position: outside the donut at the midpoint of each segment
+  const labelOffset = 26;
+  const labels = segments_geom.map((seg) => {
+    const midDeg = (seg.segStart + seg.segEnd) / 2;
+    const p = toXY(rOuter + labelOffset, midDeg);
+    const ang = ((midDeg - 90) * Math.PI) / 180;
+    const cosA = Math.cos(ang);
     let anchor = "middle";
-    if (Math.cos((r.angle * Math.PI) / 180) > 0.5) anchor = "start";
-    else if (Math.cos((r.angle * Math.PI) / 180) < -0.5) anchor = "end";
-    return { ...r, ...p, anchor };
+    if (cosA > 0.35) anchor = "start";
+    else if (cosA < -0.35) anchor = "end";
+    return { ...seg, x: p.x, y: p.y, anchor };
   });
-
-  const gradientId = "miRadarFill";
-  const glowId = "miRadarGlow";
 
   return (
     <div style={{
       position: "relative",
       paddingTop: 8,
-      paddingBottom: 4,
+      paddingBottom: 8,
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
     }}>
-      {/* ambient halo behind the chart */}
+      {/* ambient halo */}
       <div style={{
         position: "absolute",
-        width: size + 60,
-        height: size + 60,
+        width: size + 80,
+        height: size + 80,
         borderRadius: "50%",
-        background: "radial-gradient(circle at 50% 50%, rgba(122,92,255,0.10), rgba(255,255,255,0) 70%)",
-        filter: "blur(6px)",
+        background: "radial-gradient(circle at 50% 50%, rgba(122,92,255,0.12), rgba(255,255,255,0) 70%)",
+        filter: "blur(10px)",
         zIndex: 0,
       }}/>
       <svg
         viewBox={`0 0 ${size} ${size}`}
         width="100%"
-        style={{ maxWidth: 320, height: "auto", position: "relative", zIndex: 1, overflow: "visible" }}
-        aria-label="Injury timing radar"
+        style={{ maxWidth: 340, height: "auto", position: "relative", zIndex: 1, overflow: "visible" }}
+        aria-label="Injury timing by session"
       >
         <defs>
-          <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="#ff4f9a" stopOpacity="0.55"/>
-            <stop offset="40%"  stopColor="#c862ff" stopOpacity="0.45"/>
-            <stop offset="75%"  stopColor="#3b82ff" stopOpacity="0.40"/>
-            <stop offset="100%" stopColor="#4cd6ff" stopOpacity="0.35"/>
-          </radialGradient>
-          <filter id={glowId} x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="4" result="blur"/>
+          {segments.map((s, i) => (
+            <linearGradient key={i} id={`miSeg${i}`} x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%"  stopColor={s.color}    stopOpacity="0.95"/>
+              <stop offset="100%" stopColor={s.colorEnd} stopOpacity="0.85"/>
+            </linearGradient>
+          ))}
+          <filter id="miSegGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="3.5" result="blur"/>
             <feMerge>
               <feMergeNode in="blur"/>
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
-          {/* conic stroke for the outer perimeter */}
-          <linearGradient id="miRadarStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="miSegRing" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%"   stopColor="#ff4f9a"/>
             <stop offset="33%"  stopColor="#c862ff"/>
             <stop offset="66%"  stopColor="#3b82ff"/>
@@ -7301,80 +7327,109 @@ function MicroInjuryTimeChart({ buckets }) {
           </linearGradient>
         </defs>
 
-        {/* concentric guide rings */}
-        {rings.map((r, i) => (
-          <circle
-            key={i}
-            cx={cx}
-            cy={cy}
-            r={rMax * r}
-            fill="none"
-            stroke="rgba(29,29,31,0.06)"
+        {/* faint track behind each segment (full radial range) */}
+        {segments_geom.map((seg, i) => (
+          <path
+            key={`track-${i}`}
+            d={arcPath(seg.segStart, seg.segEnd, rOuter, rInner)}
+            fill={`${seg.color}10`}
+            stroke={`${seg.color}22`}
             strokeWidth="1"
-            strokeDasharray={i === rings.length - 1 ? "0" : "2 3"}
           />
         ))}
 
-        {/* axes (cross) */}
-        {rows.map((r, i) => {
-          const end = polar(rMax + 4, r.angle);
+        {/* filled portion of each segment (thermometer style) */}
+        {segments_geom.map((seg, i) => {
+          if (seg.fillRatio <= 0) return null;
           return (
-            <line
-              key={i}
-              x1={cx}
-              y1={cy}
-              x2={end.x}
-              y2={end.y}
-              stroke="rgba(29,29,31,0.10)"
-              strokeWidth="1"
+            <path
+              key={`fill-${i}`}
+              d={arcPath(seg.segStart, seg.segEnd, seg.fillRadius, rInner + 1)}
+              fill={`url(#miSeg${i})`}
+              stroke={seg.color}
+              strokeWidth="0.75"
+              filter="url(#miSegGlow)"
             />
           );
         })}
 
-        {/* rainbow outer ring (subtle, premium) */}
+        {/* subtle concentric guide rings inside the donut for "scale" feel */}
+        {[0.33, 0.66].map((t, i) => (
+          <circle
+            key={`grid-${i}`}
+            cx={cx}
+            cy={cy}
+            r={rInner + (rOuter - rInner) * t}
+            fill="none"
+            stroke="rgba(29,29,31,0.06)"
+            strokeWidth="1"
+            strokeDasharray="2 4"
+          />
+        ))}
+
+        {/* outer rainbow trim */}
         <circle
           cx={cx}
           cy={cy}
-          r={rMax}
+          r={rOuter + trackInset}
           fill="none"
-          stroke={`url(#miRadarStroke)`}
+          stroke="url(#miSegRing)"
           strokeWidth="1.25"
-          opacity="0.55"
+          opacity="0.5"
         />
+        {/* inner soft edge */}
+        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="rgba(29,29,31,0.08)" strokeWidth="1"/>
 
-        {/* data polygon */}
-        {maxData > 0 && (
-          <>
-            <polygon
-              points={polygon}
-              fill={`url(#${gradientId})`}
-              stroke="url(#miRadarStroke)"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-              filter={`url(#${glowId})`}
-            />
-            {points.map((p, i) => (
-              <g key={i}>
-                <circle cx={p.x} cy={p.y} r={p.value === maxData ? 5 : 3.5} fill="#fff" stroke={p.color} strokeWidth="2"/>
-                <circle cx={p.x} cy={p.y} r={1.6} fill={p.color}/>
-              </g>
-            ))}
-          </>
-        )}
+        {/* centre readout */}
+        <g>
+          <text
+            x={cx}
+            y={cy - 14}
+            textAnchor="middle"
+            style={{
+              fontFamily: "var(--font-text), system-ui",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              fill: "rgba(29,29,31,0.45)",
+            }}
+          >Peak session</text>
+          <text
+            x={cx}
+            y={cy + 12}
+            textAnchor="middle"
+            style={{
+              fontFamily: "var(--font-display), system-ui",
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              fill: maxData > 0 ? peakColor : "rgba(29,29,31,0.32)",
+            }}
+          >{peakLabel}</text>
+          <text
+            x={cx}
+            y={cy + 30}
+            textAnchor="middle"
+            style={{
+              fontFamily: "var(--font-text), system-ui",
+              fontSize: 11.5,
+              fontWeight: 600,
+              fill: "rgba(29,29,31,0.45)",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >{maxData > 0 ? `${maxData} of ${total}` : "—"}</text>
+        </g>
 
-        {/* center dot */}
-        <circle cx={cx} cy={cy} r="2.5" fill="rgba(29,29,31,0.35)"/>
-
-        {/* labels */}
+        {/* labels around the perimeter */}
         {labels.map((l) => {
-          const v = buckets[l.key] || 0;
-          const isPeak = maxData > 0 && v === maxData;
-          const isZero = v === 0;
+          const isPeak = maxData > 0 && l.value === maxData;
+          const isZero = l.value === 0;
           return (
             <g key={l.key}>
               <text
                 x={l.x}
-                y={l.y - 4}
+                y={l.y - 5}
                 textAnchor={l.anchor}
                 style={{
                   fontFamily: "var(--font-text), system-ui",
@@ -7397,7 +7452,7 @@ function MicroInjuryTimeChart({ buckets }) {
                   fontVariantNumeric: "tabular-nums",
                   fill: isZero ? "rgba(29,29,31,0.32)" : (isPeak ? l.color : "#1d1d1f"),
                 }}
-              >{v}</text>
+              >{l.value}</text>
             </g>
           );
         })}
