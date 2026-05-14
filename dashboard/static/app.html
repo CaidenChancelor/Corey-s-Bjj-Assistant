@@ -7209,34 +7209,57 @@ const MICRO_INJURY_TIME_LABELS = {
 function MicroInjuryTimeChart({ buckets }) {
   const rows = [
     { key: "morning",   color: "#ff4f9a" },
-    { key: "afternoon", color: "#7a5cff" },
+    { key: "afternoon", color: "#c862ff" },
     { key: "evening",   color: "#3b82ff" },
     { key: "night",     color: "#4cd6ff" },
   ];
-  const maxCount = Math.max(1, ...rows.map((row) => buckets[row.key] || 0));
+  const counts = rows.map((r) => buckets[r.key] || 0);
+  const maxCount = Math.max(...counts);
   return (
-    <div style={{ height: 180, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, alignItems: "end", paddingTop: 8 }}>
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+      gap: 10,
+      paddingTop: 4,
+    }}>
       {rows.map((row) => {
         const count = buckets[row.key] || 0;
-        const height = Math.max(10, Math.round((count / maxCount) * 128));
+        const isPeak = maxCount > 0 && count === maxCount;
+        const isZero = count === 0;
         return (
-          <div key={row.key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, minWidth: 0 }}>
-            <div style={{
-              width: "100%", maxWidth: 44, height: 132, borderRadius: 999,
-              background: "rgba(29,29,31,0.045)", display: "flex", alignItems: "flex-end", overflow: "hidden",
-              boxShadow: "0 1px 0 rgba(255,255,255,0.85) inset",
-            }}>
+          <div key={row.key} style={{
+            position: "relative",
+            padding: "14px 14px 13px",
+            borderRadius: 16,
+            background: "rgba(255,255,255,0.78)",
+            border: `1px solid ${isPeak ? row.color + "55" : "rgba(0,0,0,0.05)"}`,
+            boxShadow: isPeak
+              ? `0 1px 0 rgba(255,255,255,0.9) inset, 0 0 0 1px ${row.color}22, 0 8px 22px -14px ${row.color}66`
+              : "0 1px 0 rgba(255,255,255,0.9) inset",
+            transition: "box-shadow 200ms ease, border-color 200ms ease",
+            minWidth: 0,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
               <div style={{
-                width: "100%", height, borderRadius: 999,
-                background: `linear-gradient(180deg, ${row.color}, ${row.color}66)`,
-                boxShadow: `0 0 24px ${row.color}40`,
+                width: 8, height: 8, borderRadius: 999, flexShrink: 0,
+                background: `linear-gradient(135deg, ${row.color}, ${row.color}99)`,
+                boxShadow: `0 0 8px ${row.color}66`,
+                opacity: isZero ? 0.4 : 1,
               }}/>
+              <div style={{
+                fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              }}>{MICRO_INJURY_TIME_LABELS[row.key]}</div>
             </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: "#1d1d1f", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{count}</div>
             <div style={{
-              fontSize: 11, fontWeight: 600, color: "rgba(29,29,31,0.55)", textAlign: "center",
-              letterSpacing: "-0.005em", lineHeight: 1.2,
-            }}>{MICRO_INJURY_TIME_LABELS[row.key]}</div>
+              fontFamily: "var(--font-display)",
+              fontSize: 28, fontWeight: 600, lineHeight: 1,
+              letterSpacing: "-0.02em",
+              color: isZero ? "rgba(29,29,31,0.32)" : "#1d1d1f",
+              fontVariantNumeric: "tabular-nums",
+            }}>{count}</div>
           </div>
         );
       })}
@@ -8146,7 +8169,7 @@ const ALLERGY_SEVERITIES = [
   { id: "bad", label: "Bad", color: "#e0264a" },
   { id: "severe", label: "Severe", color: "#c4324f" },
 ];
-const ALLERGY_CATEGORIES = ["nasal/sinus", "eyes", "breathing", "skin", "fatigue", "general"];
+const ALLERGY_CATEGORIES = ["shortness of breath", "coughing", "chest tightness", "lightheaded", "all of the above"];
 const ALLERGY_IMPACTS = [
   { id: "none", label: "No impact" },
   { id: "modified", label: "Modified training" },
@@ -8213,7 +8236,6 @@ function allergyTimeBucket(timeText, createdAt) {
   return null;
 }
 function allergyStatsFromLogs(logs) {
-  const base = (window.__bjjdata && window.__bjjdata.allergy_stats) || {};
   const timeBuckets = { morning: 0, afternoon: 0, evening: 0, night: 0 };
   const triggerCounts = {};
   const categoryCounts = {};
@@ -8226,13 +8248,13 @@ function allergyStatsFromLogs(logs) {
     severityCounts[log.severity || "mild"] = (severityCounts[log.severity || "mild"] || 0) + 1;
   });
   return {
-    total: base.total || logs.length,
-    last_7_days: base.last_7_days || logs.filter((l) => Date.parse(l.date) >= Date.now() - 7 * 86400000).length,
-    missed_training: base.missed_training || logs.filter((l) => l.missed_training).length,
-    time_buckets: logs.length ? timeBuckets : (base.time_buckets || timeBuckets),
-    top_triggers: base.top_triggers && base.top_triggers.length ? base.top_triggers : Object.entries(triggerCounts).map(([name, count]) => ({ name, count })).slice(0, 5),
-    categories: base.categories && base.categories.length ? base.categories : Object.entries(categoryCounts).map(([name, count]) => ({ name, count })),
-    severity_counts: base.severity_counts && base.severity_counts.length ? base.severity_counts : Object.entries(severityCounts).map(([name, count]) => ({ name, count })),
+    total: logs.length,
+    last_7_days: logs.filter((l) => Date.parse(l.date) >= Date.now() - 7 * 86400000).length,
+    missed_training: logs.filter((l) => l.missed_training).length,
+    time_buckets: timeBuckets,
+    top_triggers: Object.entries(triggerCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
+    categories: Object.entries(categoryCounts).map(([name, count]) => ({ name, count })),
+    severity_counts: Object.entries(severityCounts).map(([name, count]) => ({ name, count })),
   };
 }
 function syncAllergyData(logs) {
