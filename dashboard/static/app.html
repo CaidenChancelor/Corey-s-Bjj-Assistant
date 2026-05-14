@@ -5556,27 +5556,42 @@ function Schedule({ onBack }) {
           Back to dashboard
         </button>
 
-        {/* Header — date + live time */}
-        <div style={{ marginBottom: 28, paddingLeft: 4 }}>
-          <Eyebrow style={{ marginBottom: 10 }}>today's schedule</Eyebrow>
+        {/* Editorial mast — date + live time */}
+        <div style={{ marginBottom: 36, paddingLeft: 4 }}>
           <div style={{
-            display: "flex", alignItems: "baseline", flexWrap: "wrap",
-            columnGap: 18, rowGap: 4, marginBottom: 12,
+            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
           }}>
             <div style={{
-              fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600,
-              letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1.1,
-            }}>{fmtDate(now)}</div>
+              fontFamily: "var(--font-text)",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              textTransform: "uppercase", color: "var(--ink-faint)",
+            }}>The schedule</div>
+            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
             <div style={{
-              fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 500,
-              letterSpacing: "-0.02em", color: "#2997ff", lineHeight: 1.1,
+              fontFamily: "var(--font-display)",
+              fontSize: 18, fontStyle: "italic",
+              color: "var(--ink-muted)",
+              letterSpacing: "0.005em",
               fontVariantNumeric: "tabular-nums",
             }}>{fmtTime(now)}</div>
           </div>
-          <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", lineHeight: 1.5, maxWidth: 560 }}>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(40px, 6vw, 68px)",
+            fontWeight: 500, fontStyle: "italic",
+            letterSpacing: "-0.03em",
+            color: "var(--ink, #1a1814)",
+            lineHeight: 0.96,
+          }}>{fmtDate(now)}</div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 17, fontStyle: "italic",
+            color: "var(--ink-muted)", marginTop: 14, maxWidth: 580,
+            letterSpacing: "0.005em", lineHeight: 1.45,
+          }}>
             {nextIdx === -1
-              ? "Day's done — log the session and wind down."
-              : <>Next up: <span style={{ color: "#1d1d1f", fontWeight: 500 }}>{TODAY_SCHEDULE[nextIdx].label}</span> at {TODAY_SCHEDULE[nextIdx].time}</>}
+              ? "The day is closed. Log the session and wind down."
+              : <>Next on the bill — <span style={{ color: "var(--ink)", fontStyle: "normal", fontWeight: 500 }}>{TODAY_SCHEDULE[nextIdx].label}</span> at {TODAY_SCHEDULE[nextIdx].time}.</>}
           </div>
         </div>
 
@@ -5856,20 +5871,43 @@ function Meals({ onBack }) {
           Back to dashboard
         </button>
 
-        {/* Header */}
+        {/* Editorial mast */}
         <div style={{ marginBottom: 28, paddingLeft: 4 }}>
-          <Eyebrow style={{ marginBottom: 10 }}>nutrition · today</Eyebrow>
           <div style={{
-            display: "flex", alignItems: "baseline", flexWrap: "wrap",
-            columnGap: 18, rowGap: 4, marginBottom: 12,
+            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
           }}>
             <div style={{
-              fontFamily: "var(--font-display)", fontSize: 40, fontWeight: 600,
-              letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1.1,
-            }}>{total} <span style={{ color: "rgba(29,29,31,0.55)", fontWeight: 400, fontSize: 28 }}>cal</span></div>
-            <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", fontVariantNumeric: "tabular-nums" }}>
-              of {CAL_GOAL} goal · {remaining} remaining
-            </div>
+              fontFamily: "var(--font-text)",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              textTransform: "uppercase", color: "var(--ink-faint)",
+            }}>The menu · Today</div>
+            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
+          </div>
+          <div style={{
+            display: "flex", alignItems: "baseline", flexWrap: "wrap",
+            columnGap: 22, rowGap: 8, marginBottom: 14,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(48px, 7.5vw, 80px)",
+              fontWeight: 500, fontStyle: "italic",
+              letterSpacing: "-0.035em",
+              color: "var(--ink, #1a1814)", lineHeight: 0.95,
+              fontVariantNumeric: "tabular-nums",
+            }}>{total}<span style={{
+              fontStyle: "italic",
+              color: "var(--ink-muted)",
+              fontWeight: 400,
+              fontSize: "0.45em",
+              marginLeft: 6,
+            }}>kcal</span></div>
+            <div style={{
+              fontFamily: "var(--font-display)",
+              fontSize: 17, fontStyle: "italic",
+              color: "var(--ink-muted)",
+              fontVariantNumeric: "tabular-nums",
+              letterSpacing: "0.005em",
+            }}>of {CAL_GOAL} · {remaining} remaining</div>
           </div>
 
           {/* Calorie progress bar */}
@@ -6656,12 +6694,39 @@ function Problems({ onBack }) {
             Back
           </button>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 38, fontWeight: 600,
-            letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 8,
-          }}>Upcoming problems</div>
-          <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", lineHeight: 1.5, maxWidth: 560 }}>
-            The positions you keep getting stuck in. Tap a row to read the breakdown — hover to pin, edit, or delete.
+            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-text)",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              textTransform: "uppercase", color: "var(--ink-faint)",
+            }}>The dossier · Problems</div>
+            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
           </div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(40px, 7vw, 72px)",
+            fontWeight: 500, fontStyle: "italic",
+            letterSpacing: "-0.035em",
+            color: "var(--ink, #1a1814)",
+            lineHeight: 0.95, marginBottom: 4,
+          }}>Where you get</div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(40px, 7vw, 72px)",
+            fontWeight: 500,
+            letterSpacing: "-0.035em",
+            lineHeight: 0.95,
+            background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
+            WebkitBackgroundClip: "text", backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>stuck.</div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 17, fontStyle: "italic",
+            color: "var(--ink-muted)", marginTop: 16, maxWidth: 560,
+            letterSpacing: "0.005em", lineHeight: 1.45,
+          }}>The positions on file. Tap a row to read the breakdown.</div>
         </div>
 
         {/* Sort */}
@@ -7907,12 +7972,39 @@ function MicroInjuries({ onBack }) {
             Back
           </button>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 38, fontWeight: 600,
-            letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 8,
-          }}>Micro-Injuries</div>
-          <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", lineHeight: 1.5, maxWidth: 560 }}>
-            The little things — tweaks, strains, anything you're managing this week. Tap a row to read the breakdown — hover to pin, edit, or delete.
+            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-text)",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              textTransform: "uppercase", color: "var(--ink-faint)",
+            }}>The infirmary</div>
+            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
           </div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(40px, 7vw, 72px)",
+            fontWeight: 500, fontStyle: "italic",
+            letterSpacing: "-0.035em",
+            color: "var(--ink, #1a1814)",
+            lineHeight: 0.95, marginBottom: 4,
+          }}>Small notes,</div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(40px, 7vw, 72px)",
+            fontWeight: 500,
+            letterSpacing: "-0.035em",
+            lineHeight: 0.95,
+            background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
+            WebkitBackgroundClip: "text", backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>real damage.</div>
+          <div style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 17, fontStyle: "italic",
+            color: "var(--ink-muted)", marginTop: 16, maxWidth: 560,
+            letterSpacing: "0.005em", lineHeight: 1.45,
+          }}>Tweaks, strains, anything you&rsquo;re managing this week.</div>
         </div>
 
         {displayStats.total > 0 && (
@@ -9047,12 +9139,40 @@ function TechniqueLibrary({ onBack }) {
           </svg>
           Back
         </button>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 38, fontWeight: 600, letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 8 }}>
-          Technique Library
+        <div style={{
+          display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
+        }}>
+          <div style={{
+            fontFamily: "var(--font-text)",
+            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+            textTransform: "uppercase", color: "var(--ink-faint)",
+          }}>Section III · The library</div>
+          <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
         </div>
-        <div style={{ fontSize: 16, color: "rgba(29,29,31,0.62)", lineHeight: 1.5, maxWidth: 520, marginBottom: 36 }}>
-          Every technique folder the bot has logged from your sessions.
-        </div>
+        <div style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(40px, 7vw, 72px)",
+          fontWeight: 500, fontStyle: "italic",
+          letterSpacing: "-0.035em",
+          color: "var(--ink, #1a1814)",
+          lineHeight: 0.95, marginBottom: 4,
+        }}>Techniques,</div>
+        <div style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(40px, 7vw, 72px)",
+          fontWeight: 500,
+          letterSpacing: "-0.035em",
+          lineHeight: 0.95,
+          background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
+          WebkitBackgroundClip: "text", backgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+        }}>filed.</div>
+        <div style={{
+          fontFamily: "var(--font-display)",
+          fontSize: 17, fontStyle: "italic",
+          color: "var(--ink-muted)", marginTop: 16, marginBottom: 36, maxWidth: 520,
+          letterSpacing: "0.005em", lineHeight: 1.45,
+        }}>Every folder the bot has logged from your sessions.</div>
 
         {richTechniques === null && !loadError && (
           <div style={{ fontSize: 14, color: "rgba(29,29,31,0.38)", marginBottom: 20 }}>Loading...</div>
