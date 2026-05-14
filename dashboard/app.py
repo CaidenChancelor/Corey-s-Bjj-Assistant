@@ -283,6 +283,25 @@ def proxy_injuries_item(injury_id):
     return body, status
 
 
+# Allergies
+@app.route("/api/allergies", methods=["POST"])
+@require_login
+def proxy_allergies_create():
+    body, status = _bot("POST", "/api/allergies", request.get_json(force=True))
+    return body, status
+
+
+@app.route("/api/allergies/<int:allergy_id>", methods=["PATCH", "DELETE"])
+@require_login
+def proxy_allergies_item(allergy_id):
+    body, status = _bot(
+        request.method,
+        f"/api/allergies/{allergy_id}",
+        request.get_json(force=True) if request.method == "PATCH" else None,
+    )
+    return body, status
+
+
 # Problems
 @app.route("/api/problems", methods=["POST"])
 @require_login

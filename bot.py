@@ -88,6 +88,19 @@ def init_db():
             when_happened TEXT,
             created_at    TEXT
         )''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS allergies (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            date            TEXT,
+            time            TEXT,
+            severity        TEXT,
+            category        TEXT,
+            trigger_name    TEXT,
+            symptoms        TEXT,
+            medication      TEXT,
+            training_impact TEXT,
+            missed_training INTEGER DEFAULT 0,
+            created_at      TEXT
+        )''')
         try:
             conn.execute('ALTER TABLE injuries ADD COLUMN partner TEXT')
         except Exception: pass
@@ -392,11 +405,12 @@ def get_all_injuries():
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT id, date, body_part, severity, notes, resolved, partner, when_happened '
+                'SELECT id, date, body_part, severity, notes, resolved, partner, when_happened, created_at '
                 'FROM injuries ORDER BY created_at DESC LIMIT 20'
             ).fetchall()
         return [{"id": r[0], "date": r[1], "body_part": r[2], "severity": r[3],
-                 "notes": r[4], "resolved": bool(r[5]), "partner": r[6], "when_happened": r[7]} for r in rows]
+                 "notes": r[4], "resolved": bool(r[5]), "partner": r[6],
+                 "when_happened": r[7], "created_at": r[8]} for r in rows]
     except Exception:
         return []
 
@@ -480,6 +494,131 @@ def get_injury_stats():
         }
     except Exception:
         return {"total": 0, "active": 0, "resolved": 0, "top_partners": [], "top_body_parts": [], "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}}
+
+
+def _infer_allergy_time_bucket(time_text, created_at):
+    text = (time_text or "").lower().strip()
+    if text:
+        if re.search(r"\b(night|late)\b", text):
+            return "night"
+        if re.search(r"\b(evening|class|training|rolls|open\s*mat)\b", text):
+            return "evening"
+        if re.search(r"\b([5-9])(?::[0-5]\d)?\s*pm\b", text):
+            return "evening"
+        if re.search(r"\b(10|11)(?::[0-5]\d)?\s*pm\b", text):
+            return "night"
+        if re.search(r"\b(afternoon|lunch|midday|noon)\b", text):
+            return "afternoon"
+        if re.search(r"\b(12|[1-4])(?::[0-5]\d)?\s*pm\b", text):
+            return "afternoon"
+        if re.search(r"\b(morning|wake|breakfast)\b", text):
+            return "morning"
+        if re.search(r"\b(1[0-1]|[1-9])(?::[0-5]\d)?\s*am\b", text):
+            return "morning"
+        if re.search(r"\b12(?::[0-5]\d)?\s*am\b", text):
+            return "night"
+        if re.search(r"\b([01]?\d|2[0-3]):[0-5]\d\b", text):
+            hour = int(re.search(r"\b([01]?\d|2[0-3]):[0-5]\d\b", text).group(1))
+            if 5 <= hour < 12:
+                return "morning"
+            if 12 <= hour < 17:
+                return "afternoon"
+            if 17 <= hour < 22:
+                return "evening"
+            return "night"
+    try:
+        hour = datetime.fromisoformat(created_at).hour
+        if 5 <= hour < 12:
+            return "morning"
+        if 12 <= hour < 17:
+            return "afternoon"
+        if 17 <= hour < 22:
+            return "evening"
+        return "night"
+    except Exception:
+        return None
+
+
+def get_all_allergies(limit=30):
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            rows = conn.execute(
+                'SELECT id, date, time, severity, category, trigger_name, symptoms, medication, '
+                'training_impact, missed_training, created_at '
+                'FROM allergies ORDER BY date DESC, created_at DESC LIMIT ?',
+                (limit,)
+            ).fetchall()
+        return [
+            {
+                "id": r[0],
+                "date": r[1],
+                "time": r[2],
+                "severity": r[3],
+                "category": r[4],
+                "trigger": r[5],
+                "symptoms": r[6],
+                "medication": r[7],
+                "training_impact": r[8],
+                "missed_training": bool(r[9]),
+                "created_at": r[10],
+            }
+            for r in rows
+        ]
+    except Exception:
+        return []
+
+
+def get_allergy_stats():
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            total = conn.execute("SELECT COUNT(*) FROM allergies").fetchone()[0]
+            since_7 = (datetime.now(TZ) - timedelta(days=7)).strftime('%Y-%m-%d')
+            last_7_days = conn.execute("SELECT COUNT(*) FROM allergies WHERE date >= ?", (since_7,)).fetchone()[0]
+            missed_training = conn.execute("SELECT COUNT(*) FROM allergies WHERE missed_training = 1").fetchone()[0]
+            trigger_rows = conn.execute(
+                "SELECT LOWER(TRIM(trigger_name)), COUNT(*) FROM allergies "
+                "WHERE trigger_name IS NOT NULL AND TRIM(trigger_name) != '' "
+                "GROUP BY LOWER(TRIM(trigger_name)) ORDER BY COUNT(*) DESC LIMIT 5"
+            ).fetchall()
+            category_rows = conn.execute(
+                "SELECT COALESCE(NULLIF(TRIM(category), ''), 'general'), COUNT(*) FROM allergies "
+                "GROUP BY LOWER(COALESCE(NULLIF(TRIM(category), ''), 'general')) ORDER BY COUNT(*) DESC"
+            ).fetchall()
+            severity_rows = conn.execute(
+                "SELECT COALESCE(NULLIF(TRIM(severity), ''), 'mild'), COUNT(*) FROM allergies "
+                "GROUP BY LOWER(COALESCE(NULLIF(TRIM(severity), ''), 'mild'))"
+            ).fetchall()
+            impact_rows = conn.execute(
+                "SELECT COALESCE(NULLIF(TRIM(training_impact), ''), 'none'), COUNT(*) FROM allergies "
+                "GROUP BY LOWER(COALESCE(NULLIF(TRIM(training_impact), ''), 'none'))"
+            ).fetchall()
+            time_rows = conn.execute("SELECT time, created_at FROM allergies").fetchall()
+        time_buckets = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
+        for time_text, created_at in time_rows:
+            bucket = _infer_allergy_time_bucket(time_text, created_at)
+            if bucket:
+                time_buckets[bucket] += 1
+        return {
+            "total": total,
+            "last_7_days": last_7_days,
+            "missed_training": missed_training,
+            "top_triggers": [{"name": r[0], "count": r[1]} for r in trigger_rows],
+            "categories": [{"name": r[0], "count": r[1]} for r in category_rows],
+            "severity_counts": [{"name": r[0], "count": r[1]} for r in severity_rows],
+            "impact_counts": [{"name": r[0], "count": r[1]} for r in impact_rows],
+            "time_buckets": time_buckets,
+        }
+    except Exception:
+        return {
+            "total": 0,
+            "last_7_days": 0,
+            "missed_training": 0,
+            "top_triggers": [],
+            "categories": [],
+            "severity_counts": [],
+            "impact_counts": [],
+            "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0},
+        }
 
 
 def get_all_problems():
@@ -1911,6 +2050,8 @@ def api_status():
         "injuries_count": len(injuries),
         "all_injuries": get_all_injuries(),
         "injury_stats": get_injury_stats(),
+        "allergies": get_all_allergies(),
+        "allergy_stats": get_allergy_stats(),
         "all_problems": get_all_problems(),
         "techniques": get_all_techniques(),
         # logs
@@ -2073,19 +2214,22 @@ def api_injuries_create():
     if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
         return {"error": "unauthorized"}, 401
     data = request.get_json(force=True) or {}
-    body_part = data.get('body_part', '')
-    severity = data.get('severity', 'minor')
+    body_part = (data.get('body_part') or '').strip()
+    if not body_part:
+        return {"error": "body_part required"}, 400
+    severity = (data.get('severity') or 'minor').strip()
     notes = data.get('notes', '')
     partner = data.get('partner') or None
     when_happened = data.get('when_happened') or None
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            now = datetime.now(TZ)
+            cursor = conn.execute(
                 'INSERT INTO injuries (date, body_part, severity, notes, partner, when_happened, created_at) VALUES (?,?,?,?,?,?,?)',
-                (datetime.now(TZ).strftime('%Y-%m-%d'), body_part, severity, notes, partner, when_happened, datetime.now(TZ).isoformat())
+                (now.strftime('%Y-%m-%d'), body_part, severity, notes, partner, when_happened, now.isoformat())
             )
             conn.commit()
-        return {"ok": True}
+        return {"ok": True, "id": cursor.lastrowid, "date": now.strftime('%Y-%m-%d'), "created_at": now.isoformat()}
     except Exception as e:
         return {"error": str(e)}, 500
 
@@ -2097,11 +2241,15 @@ def api_injuries_update(injury_id):
     data = request.get_json(force=True) or {}
     try:
         with sqlite3.connect(DB_PATH) as conn:
+            exists = conn.execute('SELECT 1 FROM injuries WHERE id=?', (injury_id,)).fetchone()
+            if not exists:
+                return {"error": "injury not found"}, 404
+            changed = 0
             for field in ('body_part', 'severity', 'notes', 'partner', 'when_happened'):
                 if field in data:
-                    conn.execute(f'UPDATE injuries SET {field}=? WHERE id=?', (data[field], injury_id))
+                    changed += conn.execute(f'UPDATE injuries SET {field}=? WHERE id=?', (data[field], injury_id)).rowcount
             if 'resolved' in data:
-                conn.execute('UPDATE injuries SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, injury_id))
+                changed += conn.execute('UPDATE injuries SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, injury_id)).rowcount
             conn.commit()
         return {"ok": True}
     except Exception as e:
@@ -2114,8 +2262,90 @@ def api_injuries_delete(injury_id):
         return {"error": "unauthorized"}, 401
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute('DELETE FROM injuries WHERE id=?', (injury_id,))
+            changed = conn.execute('DELETE FROM injuries WHERE id=?', (injury_id,)).rowcount
             conn.commit()
+        if changed == 0:
+            return {"error": "injury not found"}, 404
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@app.route('/api/allergies', methods=['POST'])
+def api_allergies_create():
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    category = (data.get('category') or 'general').strip()
+    symptoms = (data.get('symptoms') or '').strip()
+    trigger_name = (data.get('trigger') or '').strip()
+    if not symptoms and not trigger_name:
+        return {"error": "symptoms or trigger required"}, 400
+    now = datetime.now(TZ)
+    date = (data.get('date') or now.strftime('%Y-%m-%d')).strip()
+    time_text = (data.get('time') or now.strftime('%H:%M')).strip()
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            cursor = conn.execute(
+                'INSERT INTO allergies (date, time, severity, category, trigger_name, symptoms, medication, training_impact, missed_training, created_at) '
+                'VALUES (?,?,?,?,?,?,?,?,?,?)',
+                (
+                    date,
+                    time_text,
+                    (data.get('severity') or 'mild').strip(),
+                    category or 'general',
+                    trigger_name,
+                    symptoms,
+                    (data.get('medication') or '').strip(),
+                    (data.get('training_impact') or 'none').strip(),
+                    1 if data.get('missed_training') else 0,
+                    now.isoformat(),
+                )
+            )
+            conn.commit()
+        return {"ok": True, "id": cursor.lastrowid, "date": date, "created_at": now.isoformat()}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@app.route('/api/allergies/<int:allergy_id>', methods=['PATCH'])
+def api_allergies_update(allergy_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    data = request.get_json(force=True) or {}
+    allowed = ('date', 'time', 'severity', 'category', 'symptoms', 'medication', 'training_impact')
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            exists = conn.execute('SELECT 1 FROM allergies WHERE id=?', (allergy_id,)).fetchone()
+            if not exists:
+                return {"error": "allergy log not found"}, 404
+            changed = 0
+            for field in allowed:
+                if field in data:
+                    changed += conn.execute(f'UPDATE allergies SET {field}=? WHERE id=?', ((data.get(field) or '').strip(), allergy_id)).rowcount
+            if 'trigger' in data:
+                changed += conn.execute('UPDATE allergies SET trigger_name=? WHERE id=?', ((data.get('trigger') or '').strip(), allergy_id)).rowcount
+            if 'missed_training' in data:
+                changed += conn.execute('UPDATE allergies SET missed_training=? WHERE id=?', (1 if data['missed_training'] else 0, allergy_id)).rowcount
+            conn.commit()
+        return {"ok": True}
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+@app.route('/api/allergies/<int:allergy_id>', methods=['DELETE'])
+def api_allergies_delete(allergy_id):
+    auth = request.headers.get('Authorization', '')
+    if not os.environ.get('API_TOKEN') or auth != f"Bearer {os.environ.get('API_TOKEN')}":
+        return {"error": "unauthorized"}, 401
+    try:
+        with sqlite3.connect(DB_PATH) as conn:
+            changed = conn.execute('DELETE FROM allergies WHERE id=?', (allergy_id,)).rowcount
+            conn.commit()
+        if changed == 0:
+            return {"error": "allergy log not found"}, 404
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
