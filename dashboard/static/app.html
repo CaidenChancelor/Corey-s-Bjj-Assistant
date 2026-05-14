@@ -295,9 +295,13 @@ body {
   50%      { transform: translate3d(-2%, 1%, 0) scale(1.05); }
 }
 
+/* Page wrapper — now lets the fluid canvas do the heavy lifting.
+   The mesh blobs become a very subtle static bloom and the rotating
+   halo is dialed way back so it never competes with the fluid sim. */
 .page-halo {
-  position: relative; isolation: isolate; overflow: hidden;
-  background: var(--bg-canvas);
+  position: relative;
+  isolation: isolate;
+  background: transparent;
 }
 .page-halo::before {
   content: ""; position: fixed; inset: -10%;
@@ -306,23 +310,14 @@ body {
     var(--mesh-blob-purple),
     var(--mesh-blob-blue),
     var(--mesh-blob-cyan);
-  background-color: var(--bg-canvas);
-  filter: blur(40px) saturate(150%);
-  z-index: -2;
+  filter: blur(60px) saturate(110%);
+  opacity: 0.55;
+  z-index: 0;
   animation: mesh-drift var(--d-mesh) ease-in-out infinite;
   pointer-events: none;
+  mix-blend-mode: multiply;
 }
-.page-halo::after {
-  content: ""; position: fixed; inset: -50vmax;
-  background: var(--ai-conic);
-  filter: blur(120px) saturate(160%);
-  opacity: 0.5;
-  -webkit-mask: radial-gradient(closest-side, transparent 62%, black 78%);
-          mask: radial-gradient(closest-side, transparent 62%, black 78%);
-  z-index: -1;
-  animation: halo-rotate var(--d-halo) linear infinite;
-  pointer-events: none;
-}
+.page-halo::after { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .page-halo::before, .page-halo::after { animation: none; }
@@ -8537,7 +8532,7 @@ function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 110,
-        background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)",
+        background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
         animation: "miFadeIn 160ms ease both",
       }}>
@@ -8545,34 +8540,29 @@ function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 400,
-          background: "#fff", borderRadius: 22, padding: 28,
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
+          background: "var(--bg-paper, #FAF5EC)", borderRadius: 16, padding: 28,
+          boxShadow: "0 24px 64px -16px rgba(26,22,19,0.25)",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.2, marginBottom: 8,
+          letterSpacing: "-0.02em", color: "var(--ink, #1A1613)", lineHeight: 1.2, marginBottom: 8,
         }}>Delete this injury?</div>
-        <div style={{ fontSize: 15, color: "rgba(29,29,31,0.65)", lineHeight: 1.5, marginBottom: 22 }}>
-          <strong style={{ color: "#1d1d1f", fontWeight: 600 }}>{injury.name}</strong> will be removed from your list.
+        <div style={{ fontSize: 15, color: "rgba(26,22,19,0.60)", lineHeight: 1.5, marginBottom: 22 }}>
+          <strong style={{ color: "var(--ink, #1A1613)", fontWeight: 600 }}>{injury.name}</strong> will be removed from your list.
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            border: "1px solid rgba(26,22,19,0.12)", borderRadius: 6,
+            background: "var(--bg-paper, #FAF5EC)", color: "var(--ink, #1A1613)", cursor: "pointer",
           }}>Cancel</button>
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 11.5,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
-          }}>
-            <button onClick={onConfirm} style={{
-              padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
-              border: "none", borderRadius: 10, cursor: "pointer",
-              color: "#7a5cff", background: "#fff",
-            }}>Delete</button>
-          </span>
+          <button onClick={onConfirm} style={{
+            padding: "10px 18px", fontSize: 14, fontWeight: 600,
+            border: "none", borderRadius: 6, cursor: "pointer",
+            color: "#fff", background: "#6e1320",
+            boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)",
+          }}>Delete</button>
         </div>
       </div>
     </div>
@@ -8797,37 +8787,37 @@ function AllergyStatsPanel({ stats }) {
     <div style={{ background: "#fff", borderRadius: 22, border: "1px solid rgba(0,0,0,0.06)", padding: 22, boxShadow: "0 10px 28px -18px rgba(21,168,107,0.28)" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 22 }}>
         <MiniStat label="Total logs" value={stats.total || 0} accent="#15a86b" />
-        <MiniStat label="Last 7 days" value={stats.last_7_days || 0} accent="#2997ff" />
-        <MiniStat label="Missed class" value={stats.missed_training || 0} accent="#e0264a" />
+        <MiniStat label="Last 7 days" value={stats.last_7_days || 0} accent="#1c2c5a" />
+        <MiniStat label="Missed class" value={stats.missed_training || 0} accent="#6e1320" />
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(29,29,31,0.45)", marginBottom: 10 }}>Time pattern</div>
+          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Time pattern</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, height: 150, alignItems: "end" }}>
             {["morning", "afternoon", "evening", "night"].map((key) => (
               <div key={key} style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-                <div style={{ width: "100%", height: 112, borderRadius: 12, background: "rgba(21,168,107,0.06)", border: "1px solid rgba(0,0,0,0.05)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
-                  <div style={{ width: "100%", height: `${Math.max(8, ((buckets[key] || 0) / maxBucket) * 100)}%`, background: "linear-gradient(180deg, #15a86b, #2997ff)", borderRadius: "12px 12px 0 0" }}></div>
+                <div style={{ width: "100%", height: 112, borderRadius: 12, background: "rgba(199,154,58,0.06)", border: "1px solid rgba(26,22,19,0.06)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: `${Math.max(8, ((buckets[key] || 0) / maxBucket) * 100)}%`, background: "linear-gradient(180deg, #c79a3a, #6e1320)", borderRadius: "12px 12px 0 0" }}></div>
                 </div>
-                <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(29,29,31,0.48)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
               </div>
             ))}
           </div>
         </div>
         <div>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(29,29,31,0.45)", marginBottom: 10 }}>Top Causes</div>
+          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Top Causes</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {bars.slice(0, 5).map((bar) => (
               <div key={bar.name}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#1d1d1f", marginBottom: 5 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--ink, #1A1613)", marginBottom: 5 }}>
                   <span style={{ textTransform: "capitalize" }}>{bar.name}</span><span>{bar.count}</span>
                 </div>
-                <div style={{ height: 9, borderRadius: 999, background: "rgba(0,0,0,0.05)", overflow: "hidden" }}>
-                  <div style={{ width: `${(bar.count / maxBar) * 100}%`, height: "100%", background: "linear-gradient(90deg, #15a86b, #2997ff)", borderRadius: 999 }}></div>
+                <div style={{ height: 9, borderRadius: 999, background: "rgba(26,22,19,0.06)", overflow: "hidden" }}>
+                  <div style={{ width: `${(bar.count / maxBar) * 100}%`, height: "100%", background: "linear-gradient(90deg, #c79a3a, #6e1320)", borderRadius: 999 }}></div>
                 </div>
               </div>
             ))}
-            {bars.length === 0 && <div style={{ fontSize: 14, color: "rgba(29,29,31,0.55)" }}>No cause data yet.</div>}
+            {bars.length === 0 && <div style={{ fontSize: 14, color: "rgba(26,22,19,0.50)" }}>No cause data yet.</div>}
           </div>
         </div>
       </div>
@@ -8838,18 +8828,18 @@ function AllergyStatsPanel({ stats }) {
 function AllergyRow({ log, onEdit, onDelete }) {
   const sev = ALLERGY_SEVERITIES.find((s) => s.id === log.severity) || ALLERGY_SEVERITIES[0];
   return (
-    <div style={{ background: "#fff", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 18, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-      <div style={{ width: 10, height: 42, borderRadius: 999, background: allergyColor(log.severity), boxShadow: `0 0 12px ${allergyColor(log.severity)}55`, flexShrink: 0 }}></div>
+    <div style={{ background: "var(--bg-paper, #FAF5EC)", border: "1px solid rgba(26,22,19,0.08)", borderRadius: 12, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ width: 4, height: 42, borderRadius: 999, background: allergyColor(log.severity), flexShrink: 0 }}></div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 15.5, fontWeight: 650, color: "#1d1d1f", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {log.trigger || log.category || "Allergy log"} <span style={{ color: "rgba(29,29,31,0.42)", fontWeight: 500 }}>· {sev.label}</span>
+        <div style={{ fontSize: 15.5, fontWeight: 650, color: "var(--ink, #1A1613)", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {log.trigger || log.category || "Allergy log"} <span style={{ color: "rgba(26,22,19,0.40)", fontWeight: 500 }}>· {sev.label}</span>
         </div>
-        <div style={{ fontSize: 13, color: "rgba(29,29,31,0.60)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: 13, color: "rgba(26,22,19,0.55)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {log.date} {log.time ? `· ${log.time}` : ""} · {log.training_impact || "no impact"}{log.missed_training ? " · missed class" : ""}{log.symptoms ? ` · ${log.symptoms}` : ""}
         </div>
       </div>
-      <button onClick={onEdit} style={{ border: "1px solid rgba(0,0,0,0.10)", background: "#fff", borderRadius: 10, padding: "8px 12px", cursor: "pointer", color: "#1d1d1f", fontWeight: 600 }}>Edit</button>
-      <button onClick={onDelete} style={{ border: "1px solid rgba(224,38,74,0.20)", background: "#fff", borderRadius: 10, padding: "8px 12px", cursor: "pointer", color: "#e0264a", fontWeight: 600 }}>Delete</button>
+      <button onClick={onEdit} style={{ border: "1px solid rgba(26,22,19,0.12)", background: "var(--bg-paper, #FAF5EC)", borderRadius: 6, padding: "8px 12px", cursor: "pointer", color: "var(--ink, #1A1613)", fontWeight: 600, fontSize: 13 }}>Edit</button>
+      <button onClick={onDelete} style={{ border: "1px solid rgba(110,19,32,0.20)", background: "var(--bg-paper, #FAF5EC)", borderRadius: 6, padding: "8px 12px", cursor: "pointer", color: "#6e1320", fontWeight: 600, fontSize: 13 }}>Delete</button>
     </div>
   );
 }
@@ -8866,11 +8856,11 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const [missed, setMissed] = React.useState(!!initial?.missed_training);
   const submit = () => onSubmit({ date, time, severity, category, trigger: trigger.trim(), symptoms: symptoms.trim(), medication: medication.trim(), training_impact: impact, missed_training: missed });
   const canSubmit = !!(trigger.trim() || symptoms.trim());
-  const field = { width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "#fff" };
+  const field = { width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid rgba(26,22,19,0.12)", borderRadius: 8, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "var(--bg-paper, #FAF5EC)" };
   return (
-    <div onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: "#fff", borderRadius: 22, padding: 28, boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
-        <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "#1d1d1f", marginBottom: 18 }}>{initial ? "Edit allergy log" : "Log allergy symptoms"}</div>
+    <div onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: "var(--bg-paper, #FAF5EC)", borderRadius: 16, padding: 28, boxShadow: "0 24px 64px -16px rgba(26,22,19,0.25)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink, #1A1613)", marginBottom: 18 }}>{initial ? "Edit allergy log" : "Log allergy symptoms"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={field} />
           <input value={time} onChange={(e) => setTime(e.target.value)} placeholder="time or context" style={field} />
