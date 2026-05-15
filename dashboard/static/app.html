@@ -2393,6 +2393,7 @@ function Login({ onContinue }) {
             onChange={(e) => setPw(e.target.value)}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
+            onKeyDown={(e) => { if (e.key === "Enter") onContinue(); }}
             placeholder="••••••••"
             style={{
               width: "100%", boxSizing: "border-box",
@@ -2465,11 +2466,15 @@ function Hydration({ onBack }) {
     addAmount(amount, time);
     setCustomOpen(false);
   };
+  const [goalError, setGoalError] = useStateH("");
   const saveGoal = () => {
     const n = parseInt(goalDraft, 10);
-    if (!isNaN(n) && n >= 500 && n <= 8000) {
-      setGoal(n);
+    if (isNaN(n) || n < 500 || n > 8000) {
+      setGoalError("Enter a value between 500 and 8,000 ml");
+      return;
     }
+    setGoal(n);
+    setGoalError("");
     setGoalEditing(false);
   };
 
@@ -2804,9 +2809,10 @@ function Hydration({ onBack }) {
       {goalEditing && (
         <GoalEditModal
           goal={goalDraft}
-          onChange={setGoalDraft}
-          onCancel={() => setGoalEditing(false)}
+          onChange={(v) => { setGoalDraft(v); setGoalError(""); }}
+          onCancel={() => { setGoalEditing(false); setGoalError(""); }}
           onSave={saveGoal}
+          error={goalError}
         />
       )}
 
@@ -3464,7 +3470,7 @@ function LogRow({ entry, isLast, onDelete }) {
 }
 
 // ---------- Goal edit modal ----------
-function GoalEditModal({ goal, onChange, onCancel, onSave }) {
+function GoalEditModal({ goal, onChange, onCancel, onSave, error }) {
   const trapRef = useModalTrap(true, onCancel);
   return (
     <div
@@ -3510,6 +3516,7 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
           />
           <span style={{ fontSize: 15, color: "var(--ink-muted)" }}>ml</span>
         </div>
+        {error && <div style={{ fontSize: 13, color: "var(--accent-danger)", marginBottom: 12 }}>{error}</div>}
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
