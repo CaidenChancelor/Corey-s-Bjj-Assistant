@@ -1866,12 +1866,16 @@ function subscribeHydration(fn) {
 }
 
 async function apiCall(method, path, body) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
   try {
     const response = await fetch(path, {
       method,
       headers: body ? { "Content-Type": "application/json" } : {},
       body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     let data = {};
     try { data = await response.json(); } catch {}
     if (!response.ok) {
@@ -1880,8 +1884,9 @@ async function apiCall(method, path, body) {
     }
     return data;
   } catch (err) {
+    clearTimeout(timeout);
     console.warn("Dashboard API call failed", method, path, err);
-    return { ok: false, error: err.message || String(err) };
+    return { ok: false, error: err.name === "AbortError" ? "Request timed out" : (err.message || String(err)) };
   }
 }
 
