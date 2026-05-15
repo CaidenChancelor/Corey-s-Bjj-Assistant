@@ -37,12 +37,12 @@
      ========================================================= */
   --ink:            #1a1814;
   --ink-muted:      rgba(26, 24, 20, 0.62);
-  --ink-faint:      rgba(26, 24, 20, 0.36);
+  --ink-faint:      rgba(26, 24, 20, 0.55);
   --ink-hairline:   rgba(26, 24, 20, 0.10);
   --fg-1:           #1a1814;
   --fg-2:           rgba(26, 24, 20, 0.78);
   --fg-3:           rgba(26, 24, 20, 0.55);
-  --fg-4:           rgba(26, 24, 20, 0.36);
+  --fg-4:           rgba(26, 24, 20, 0.55);
   --fg-5:           rgba(26, 24, 20, 0.18);
   --fg-on-gradient: #f7f1e3;
 
@@ -168,10 +168,10 @@
                    0 2px 8px rgba(0, 0, 0, 0.06);
 
   --glow-ai:       0 0 0 1px rgba(255,255,255,0.6),
-                   0 14px 40px -8px rgba(122,92,255,0.40),
-                   0 4px 14px -4px rgba(255,79,154,0.32);
+                   0 14px 40px -8px rgba(28,44,90,0.30),
+                   0 4px 14px -4px rgba(110,19,32,0.22);
   --glow-ai-soft:  0 0 0 1px rgba(255,255,255,0.5),
-                   0 8px 24px -6px rgba(122,92,255,0.28);
+                   0 8px 24px -6px rgba(28,44,90,0.22);
 
   /* =========================================================
      MOTION
@@ -221,10 +221,10 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(48% 38% at 18% 22%, rgba(110, 19, 32, 0.42), transparent 65%),
-    radial-gradient(52% 42% at 80% 28%, rgba(28, 44, 90, 0.36), transparent 65%),
-    radial-gradient(46% 38% at 28% 78%, rgba(199, 154, 58, 0.36), transparent 65%),
-    radial-gradient(50% 42% at 84% 78%, rgba(110, 19, 32, 0.26), transparent 65%);
+    radial-gradient(48% 38% at 18% 22%, rgba(110, 19, 32, 0.12), transparent 65%),
+    radial-gradient(52% 42% at 80% 28%, rgba(28, 44, 90, 0.08), transparent 65%),
+    radial-gradient(46% 38% at 28% 78%, rgba(199, 154, 58, 0.08), transparent 65%),
+    radial-gradient(50% 42% at 84% 78%, rgba(110, 19, 32, 0.06), transparent 65%);
   filter: blur(60px) saturate(125%);
   animation: aurora-drift 32s ease-in-out infinite;
 }
@@ -277,22 +277,6 @@ body::after {
   transform: translateY(0);
 }
 
-/* Cursor spotlight — soft jewel-tone glow that follows the cursor.
-   Off on touch devices. */
-@media (hover: hover) and (pointer: fine) {
-  body {
-    --spot-x: 50%;
-    --spot-y: 30%;
-  }
-  body::before {
-    background-image:
-      radial-gradient(36% 32% at var(--spot-x, 50%) var(--spot-y, 30%), rgba(199, 154, 58, 0.30), transparent 60%),
-      radial-gradient(48% 38% at 18% 22%, rgba(110, 19, 32, 0.42), transparent 65%),
-      radial-gradient(52% 42% at 80% 28%, rgba(28, 44, 90, 0.36), transparent 65%),
-      radial-gradient(46% 38% at 28% 78%, rgba(199, 154, 58, 0.30), transparent 65%),
-      radial-gradient(50% 42% at 84% 78%, rgba(110, 19, 32, 0.26), transparent 65%);
-  }
-}
 
 /* =============================================================
    SEMANTIC TYPE CLASSES
@@ -847,26 +831,7 @@ html, body {
   <div id="root"></div>
   <script>
   (function() {
-    // Cursor spotlight — moves a soft glow with the pointer (desktop only).
-    if (window.matchMedia && window.matchMedia('(pointer: fine) and (hover: hover)').matches) {
-      let rx = 50, ry = 30, tx = 50, ty = 30, raf = null;
-      function loop() {
-        rx += (tx - rx) * 0.08;
-        ry += (ty - ry) * 0.08;
-        document.body.style.setProperty('--spot-x', rx.toFixed(2) + '%');
-        document.body.style.setProperty('--spot-y', ry.toFixed(2) + '%');
-        if (Math.abs(tx - rx) > 0.05 || Math.abs(ty - ry) > 0.05) {
-          raf = requestAnimationFrame(loop);
-        } else {
-          raf = null;
-        }
-      }
-      window.addEventListener('mousemove', function(e) {
-        tx = (e.clientX / window.innerWidth) * 100;
-        ty = (e.clientY / window.innerHeight) * 100;
-        if (!raf) raf = requestAnimationFrame(loop);
-      }, { passive: true });
-    }
+
 
     // Scroll reveal — auto-tag direct children of common page wrappers and
     // observe them with IntersectionObserver.
@@ -1380,7 +1345,7 @@ function Rainbow({ children, style = {} }) {
 function Eyebrow({ children, style = {} }) {
   return <div style={{
     fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
-    fontSize: 10, fontWeight: 600, letterSpacing: "0.18em",
+    fontSize: 12, fontWeight: 500, letterSpacing: "0.06em",
     textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)",
     ...style,
   }}>{children}</div>;
@@ -2836,7 +2801,7 @@ function MiniStat({ label, value, accent }) {
       <div style={{
         fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
         fontSize: 10, fontWeight: 600, textTransform: "uppercase",
-        letterSpacing: "0.12em", color: "rgba(26,22,19,0.5)", marginBottom: 4,
+        letterSpacing: "0.06em", color: "rgba(26,22,19,0.5)", marginBottom: 4,
       }}>{label}</div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600,
@@ -3811,7 +3776,7 @@ function MiniStatHero({ label, value, accent }) {
       <div style={{
         fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
         fontSize: 10, fontWeight: 600, textTransform: "uppercase",
-        letterSpacing: "0.12em", color: "rgba(26,22,19,0.5)", marginBottom: 3,
+        letterSpacing: "0.06em", color: "rgba(26,22,19,0.5)", marginBottom: 3,
       }}>{label}</div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600,
@@ -4283,7 +4248,7 @@ function MiniStat({ label, value, accent }) {
       }}></div>
       <div style={{
         fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
-        fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase",
+        fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
         color: "rgba(26,22,19,0.45)", marginBottom: 3, paddingLeft: 6,
       }}>{label}</div>
       <div style={{
@@ -4412,205 +4377,6 @@ function MessageRow({ role, body, time }) {
       </div>
       <div style={{ flex: 1, fontSize: 14.5, color: "rgba(26,22,19,0.78)", lineHeight: 1.5 }}>{body}</div>
       <div style={{ fontSize: 12, color: "rgba(26,22,19,0.40)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
-    </div>
-  );
-}
-
-function LegacyDashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary }) {
-  const botError = window.__bjjdata && window.__bjjdata.error;
-  return (
-    <div className="dash-page" style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto" }}>
-        {/* Editorial masthead */}
-        <div style={{ marginBottom: 36, paddingLeft: 4 }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
-          }}>
-            <div style={{
-              fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
-              textTransform: "uppercase", color: "var(--ink-faint)",
-            }}>{(() => {
-              const d = new Date();
-              const weekday = d.toLocaleDateString(undefined, { weekday: "long" });
-              const day = d.toLocaleDateString(undefined, { month: "long", day: "numeric" });
-              return `${weekday} · ${day}`;
-            })()}</div>
-            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
-            <div style={{
-              fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
-              textTransform: "uppercase", color: "var(--ink-faint)",
-            }}>Edition I</div>
-          </div>
-          <div className="dash-greeting" style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(44px, 7vw, 84px)",
-            fontWeight: 800,
-            fontStyle: "normal",
-            letterSpacing: "-0.035em",
-            color: "var(--ink, #1a1814)",
-            lineHeight: 0.95,
-          }}>Today&apos;s training,</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(44px, 7vw, 84px)",
-            fontWeight: 800,
-            letterSpacing: "-0.045em",
-            lineHeight: 0.95,
-            background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
-            WebkitBackgroundClip: "text", backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            marginTop: 2,
-          }}>composed.</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: 18, fontStyle: "normal",
-            color: "var(--ink-muted)", marginTop: 14,
-            letterSpacing: "0.005em",
-          }}>{(() => {
-            const d = window.__bjjdata || {};
-            const next = d.next_up;
-            if (next) return `Next on the card · ${next}`;
-            return "An open day — rest like you mean it.";
-          })()}</div>
-        </div>
-
-        {botError && (
-          <div style={{
-            marginBottom: 24,
-            padding: "14px 16px",
-            borderRadius: 16,
-            background: "rgba(224,38,74,0.06)",
-            border: "1px solid rgba(224,38,74,0.18)",
-            color: "#8a1f35",
-            fontSize: 14,
-            lineHeight: 1.45,
-          }}>
-            Bot data is temporarily unavailable. The dashboard is still open, but live stats may be empty until the bot reconnects.
-          </div>
-        )}
-
-        {/* hero + side stats */}
-        <div className="dash-hero-row" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 24, marginBottom: 24 }}>
-          <WaterHero onClick={onOpenHydration} />
-          <div style={{ display: "grid", gridTemplateRows: "1fr 1fr", gap: 24 }}>
-            <StatTile
-              icon={Icons.bot}
-              eyebrow="bruno lesson feedback"
-              value={(() => {
-                const b = window.__bjjdata && window.__bjjdata.bruno_recent;
-                if (!b) return "No Bruno session logged yet — text me after your next private.";
-                return b.summary || b.notes || "";
-              })()}
-              meta={(() => {
-                const b = window.__bjjdata && window.__bjjdata.bruno_recent;
-                if (!b) return "tap to see all private lessons →";
-                return `${b.date} · tap to read full note →`;
-              })()}
-              onClick={onOpenLessons}
-            />
-            <StatTile
-              icon={Icons.clock}
-              eyebrow="next up today"
-              value={(() => {
-                const n = window.__bjjdata && window.__bjjdata.next_up;
-                return n || "Nothing scheduled — rest day vibes 🥋";
-              })()}
-              meta="tap to see today's schedule →"
-              valueStyle={{ fontSize: 22, fontWeight: 600 }}
-              onClick={onOpenSchedule}
-            />
-          </div>
-        </div>
-
-        {/* secondary stat row */}
-        <div className="dash-stat-row" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, marginBottom: 40 }}>
-          {(() => {
-            const d = window.__bjjdata || {};
-            const meal = d.recent_meal;
-            return (
-              <CalorieTile
-                total={typeof d.calorie_today === "number" ? d.calorie_today : 0}
-                goal={typeof d.calorie_goal === "number" ? d.calorie_goal : 2800}
-                lastMeal={meal && meal.name ? meal.name : "No meals logged yet"}
-                lastMealCal={meal && meal.calories ? meal.calories : 0}
-                lastMealTime={meal ? `${meal.time} · ${meal.kind || ''}` : "text me what you ate"}
-                onClick={onOpenMeals}
-              />
-            );
-          })()}
-          <ProblemsTile onClick={onOpenProblems} />
-          <StatTile
-            icon={Icons.flame}
-            eyebrow="water streak"
-            value={(() => {
-              const d = window.__bjjdata;
-              const days = d && typeof d.streak_days === "number" ? d.streak_days : 0;
-              return (
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--accent-cobalt, #1c2c5a)" }}>
-                  {days} {days === 1 ? "day" : "days"}
-                </span>
-              );
-            })()}
-            meta={(() => {
-              const d = window.__bjjdata;
-              const days = d && typeof d.streak_days === "number" ? d.streak_days : 0;
-              return days >= 3 ? "stay locked in 🔥" : "hit 3 L every day to build it";
-            })()}
-          />
-          <StatTile
-            icon={<span style={{ fontSize: 22 }}>📚</span>}
-            eyebrow="technique library"
-            value={(() => {
-              const count = window.__bjjdata && Array.isArray(window.__bjjdata.techniques) ? window.__bjjdata.techniques.length : 0;
-              return (
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ai-purple)" }}>
-                  {count} {count === 1 ? "folder" : "folders"}
-                </span>
-              );
-            })()}
-            meta="tap to browse all folders →"
-            onClick={onOpenTechniqueLibrary}
-          />
-        </div>
-
-        <div className="dash-two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
-          {/* micro-injuries watch */}
-          <div>
-            <Eyebrow style={{ marginBottom: 14, paddingLeft: 4 }}>Micro-Injuries</Eyebrow>
-            <MicroInjuriesCard onClick={onOpenMicroInjuries} />
-          </div>
-
-          <div>
-            <Eyebrow style={{ marginBottom: 14, paddingLeft: 4 }}>Allergy Tracker</Eyebrow>
-            <AllergyTrackerCard onClick={onOpenAllergies} />
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 24 }}>
-          {/* messages */}
-          <div>
-            <Eyebrow style={{ marginBottom: 14, paddingLeft: 4 }}>recent messages</Eyebrow>
-            <GlassCard rainbow radius={22} padding={0} style={{ overflow: "hidden" }}>
-              {(() => {
-                const live = window.__bjjdata && Array.isArray(window.__bjjdata.recent_messages)
-                  ? window.__bjjdata.recent_messages.slice(-8)
-                  : null;
-                const msgs = (live && live.length > 0) ? live : [];
-                return msgs.map((m, i) => (
-                  <MessageRow
-                    key={i}
-                    role={m.role === "assistant" ? "claude" : "you"}
-                    body={m.content}
-                    time=""
-                  />
-                ));
-              })()}
-            </GlassCard>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -8177,7 +7943,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           }}/>
           <div style={{ minWidth: 0, paddingLeft: 8 }}>
             <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
+              fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
               fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
               color: "var(--accent-gold, #c79a3a)", marginBottom: 6,
             }}>Injury Statistics</div>
@@ -8212,7 +7978,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
                 borderRight: i < arr.length - 1 ? "1px solid rgba(26,22,19,0.06)" : "none",
                 minWidth: 0,
               }}>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)", marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)", marginBottom: 4 }}>{item.label}</div>
                 <div style={{
                   fontSize: 13.5, fontWeight: 600, color: "var(--ink, #1A1613)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
@@ -8246,7 +8012,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>Who it happens with</div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.12em" }}>partner</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.06em" }}>partner</div>
               </div>
               <MicroInjuryBars rows={stats.top_partners || []} emptyText="Add partner names to unlock this chart" color="#6e1320" />
             </div>
@@ -8257,7 +8023,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>When it happens</div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.12em" }}>by session</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.06em" }}>by session</div>
               </div>
               <MicroInjuryTimeChart buckets={buckets} />
             </div>
@@ -9335,7 +9101,7 @@ function AllergyStatsPanel({ stats }) {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
         <div>
-          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Time pattern</div>
+          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Time pattern</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, height: 150, alignItems: "end" }}>
             {["morning", "afternoon", "evening", "night"].map((key) => (
               <div key={key} style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
@@ -9348,7 +9114,7 @@ function AllergyStatsPanel({ stats }) {
           </div>
         </div>
         <div>
-          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Top Causes</div>
+          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Top Causes</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {bars.slice(0, 5).map((bar) => (
               <div key={bar.name}>
