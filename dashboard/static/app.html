@@ -9125,28 +9125,32 @@ function AllergyStatsPanel({ stats }) {
   const bars = stats.top_triggers && stats.top_triggers.length ? stats.top_triggers : stats.categories || [];
   const maxBar = Math.max(1, ...bars.map((b) => b.count));
   return (
-    <div style={{ background: "#fff", borderRadius: 22, border: "1px solid rgba(0,0,0,0.06)", padding: 22, boxShadow: "0 10px 28px -18px rgba(21,168,107,0.28)" }}>
+    <div style={{ background: "var(--bg-paper)", borderRadius: 18, border: "1px solid var(--bg-hairline)", padding: 22, boxShadow: "var(--shadow-card)" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 22 }}>
-        <MiniStat label="Total logs" value={stats.total || 0} accent="#15a86b" />
-        <MiniStat label="Last 7 days" value={stats.last_7_days || 0} accent="#1c2c5a" />
-        <MiniStat label="Missed class" value={stats.missed_training || 0} accent="#6e1320" />
+        <MiniStat label="Total logs" value={stats.total || 0} accent="var(--accent-cobalt)" />
+        <MiniStat label="Last 7 days" value={stats.last_7_days || 0} accent="var(--accent-cobalt)" />
+        <MiniStat label="Missed class" value={stats.missed_training || 0} accent="var(--accent-oxblood)" />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+      <div className="allergy-stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+        <style>{`.allergy-stats-grid { grid-template-columns: 1fr 1fr !important; } @media (max-width: 500px) { .allergy-stats-grid { grid-template-columns: 1fr !important; } }`}</style>
         <div>
-          <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Time pattern</div>
+          <div style={{ fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: 10 }}>Time pattern</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, height: 150, alignItems: "end" }}>
-            {["morning", "afternoon", "evening", "night"].map((key) => (
-              <div key={key} style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-                <div style={{ width: "100%", height: 112, borderRadius: 12, background: "rgba(199,154,58,0.06)", border: "1px solid rgba(26,22,19,0.06)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
-                  <div style={{ width: "100%", height: `${Math.max(8, ((buckets[key] || 0) / maxBucket) * 100)}%`, background: "linear-gradient(180deg, #c79a3a, #6e1320)", borderRadius: "12px 12px 0 0" }}></div>
+            {["morning", "afternoon", "evening", "night"].map((key) => {
+              const count = buckets[key] || 0;
+              return (
+              <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: "var(--ink-faint)" }}>{count}</div>
+                <div style={{ width: "100%", height: 100, borderRadius: 10, background: "rgba(28,44,90,0.04)", border: "1px solid var(--bg-hairline)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: `${Math.max(6, (count / maxBucket) * 100)}%`, background: "linear-gradient(180deg, var(--accent-cobalt), var(--accent-oxblood))", borderRadius: "10px 10px 0 0" }}></div>
                 </div>
-                <div style={{ fontFamily: "var(--font-text)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)" }}>{({ morning: "AM", afternoon: "PM", evening: "EVE", night: "NT" }[key])}</div>
               </div>
-            ))}
+            );})}
           </div>
         </div>
         <div>
-          <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Top Causes</div>
+          <div style={{ fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: 10 }}>Top Causes</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {bars.slice(0, 5).map((bar) => (
               <div key={bar.name}>
