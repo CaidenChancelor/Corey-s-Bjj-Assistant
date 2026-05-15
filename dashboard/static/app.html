@@ -2583,7 +2583,7 @@ function Hydration({ onBack }) {
                 <Eyebrow>hydration · today</Eyebrow>
                 {streak > 0 && (
                   <div style={{
-                    display: "inline-flex", alignItems: "center", gap: 5,
+                    display: "inline-flex", alignItems: "center", gap: 6,
                     padding: "3px 10px 3px 8px", borderRadius: 999,
                     background: "linear-gradient(120deg, rgba(110,19,32,0.15), rgba(28,44,90,0.15) 60%, rgba(199,154,58,0.15))",
                     border: "1px solid rgba(28,44,90,0.25)",
@@ -2711,7 +2711,7 @@ function Hydration({ onBack }) {
           <div className="hy-hero-stats" style={{
             marginTop: 26, paddingTop: 22,
             borderTop: "1px solid rgba(0,0,0,0.06)",
-            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18,
+            display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16,
           }}>
             <MiniStat label="Last sip" value={lastSip === "—" ? "—" : formatTimeFriendly(lastSip)} accent="var(--accent-cobalt)" />
             <MiniStat label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="var(--accent-cobalt)" />
@@ -3448,7 +3448,7 @@ function LogRow({ entry, isLast, onDelete }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        display: "flex", alignItems: "center", gap: 14,
+        display: "flex", alignItems: "center", gap: 16,
         padding: "12px 0",
         borderBottom: isLast ? "none" : "1px solid rgba(0,0,0,0.05)",
       }}>
@@ -3683,14 +3683,14 @@ function WaterHero({ onClick }) {
       }}></div>
 
       {/* 2-column: stats left, mini bottle right */}
-      <div className="dash-hero-inner" style={{ position: "relative", display: "grid", gridTemplateColumns: "minmax(0,1fr) 130px", gap: 22, alignItems: "stretch" }}>
+      <div className="dash-hero-inner" style={{ position: "relative", display: "grid", gridTemplateColumns: "minmax(0,1fr) 130px", gap: 24, alignItems: "stretch" }}>
         <div style={{ minWidth: 0 }}>
           {/* Eyebrow + streak chip */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
             <Eyebrow>hydration · today</Eyebrow>
             {streak > 0 && (
               <div style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
+                display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "3px 10px 3px 8px", borderRadius: 999,
                 background: "linear-gradient(120deg, rgba(110,19,32,0.15), rgba(28,44,90,0.15) 60%, rgba(199,154,58,0.15))",
                 border: "1px solid rgba(28,44,90,0.25)",
@@ -3822,7 +3822,7 @@ function WaterHero({ onClick }) {
       <div className="dash-hero-stats" style={{
         marginTop: 22, paddingTop: 18,
         borderTop: "1px solid rgba(0,0,0,0.06)",
-        display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14,
+        display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16,
       }}>
         <MiniStatHero label="Sips today" value={log.length ? `${log.length}` : "0"} accent="var(--accent-cobalt)" />
         <MiniStatHero label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="var(--accent-cobalt)" />
@@ -3960,7 +3960,7 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
 
   return (
     <GlassCard tier="primary" style={{
-      display: "flex", flexDirection: "column", gap: 14, minHeight: 130,
+      display: "flex", flexDirection: "column", gap: 16, minHeight: 130,
       cursor: "pointer",
       transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       overflow: "hidden",
@@ -4008,7 +4008,7 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
         animation: "ctSlideInRight 560ms cubic-bezier(0.32,0.72,0,1) 140ms both",
       }}>
         <div style={{
-          display: "flex", alignItems: "baseline", gap: 5,
+          display: "flex", alignItems: "baseline", gap: 6,
           fontVariantNumeric: "tabular-nums",
         }}>
           <span style={{
@@ -4299,7 +4299,7 @@ function MicroInjuriesCard({ onClick }) {
           const isCritical = inj.severity === "critical";
           return (
             <div key={inj.id} style={{
-              display: "flex", alignItems: "flex-start", gap: 14,
+              display: "flex", alignItems: "flex-start", gap: 16,
               padding: "14px 18px",
               borderBottom: i < decorated.length - 1 ? "1px solid rgba(0,0,0,0.04)" : "none",
               background: isCritical ? "rgba(196,50,79,0.04)" : "transparent",
@@ -4339,7 +4339,7 @@ function MicroInjuriesCard({ onClick }) {
 function LegendDot({ color, label }) {
   return (
     <div style={{
-      display: "inline-flex", alignItems: "center", gap: 5,
+      display: "inline-flex", alignItems: "center", gap: 6,
       fontSize: 11, fontWeight: 600, letterSpacing: "0.02em",
       color: "var(--ink-muted)",
     }}>
@@ -4438,7 +4438,7 @@ function AllergyTrackerCard({ onClick }) {
         transition: "all 220ms cubic-bezier(0.32,0.72,0,1)",
         overflow: "hidden",
       }}>
-      <div style={{ padding: 22, display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 18, alignItems: "stretch" }}>
+      <div style={{ padding: 22, display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 16, alignItems: "stretch" }}>
         <div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 8 }}>
             {total} logged
@@ -4485,7 +4485,7 @@ function AllergyTrackerCard({ onClick }) {
 function MessageRow({ role, body, time }) {
   return (
     <div style={{
-      display: "flex", gap: 14, padding: "14px 18px",
+      display: "flex", gap: 16, padding: "14px 18px",
       borderBottom: "1px solid var(--bg-hairline)",
       alignItems: "flex-start",
     }}>
@@ -4529,7 +4529,7 @@ function OpsHealthModule({ title, status, statusTone, meta, rows, chart, onClick
   return (
     <div className="ops-card ops-card-click" {...opsActionProps(onClick)}>
       <div className="ops-card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "flex-start" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start" }}>
           <div>
             <div className="ops-eyebrow" style={{ marginBottom: 7 }}>{title}</div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: statusTone }}>
@@ -4567,7 +4567,7 @@ function OpsTimeBars({ buckets, keys = ["morning", "afternoon", "evening", "nigh
           <div key={key} style={{ height: `${Math.max(8, ((safeBuckets[key] || 0) / maxBucket) * 100)}%` }} />
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${keys.length}, 1fr)`, gap: 7, marginTop: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${keys.length}, 1fr)`, gap: 8, marginTop: 6 }}>
         {keys.map((key) => (
           <div key={key} className="ops-eyebrow" style={{ fontSize: 9.5, letterSpacing: "0.04em", textAlign: "center" }}>
             {({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}
@@ -5185,7 +5185,7 @@ function Editor() {
             <div style={{
               height: "100%", minHeight: 360,
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-              gap: 14,
+              gap: 16,
             }}>
               <SparkleLogo size={48} glow />
               <div style={{
@@ -5717,7 +5717,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         borderRadius: isPinned ? 18.5 : 20,
         padding: "22px 24px",
         border: isPinned ? "none" : "1px solid var(--bg-hairline)",
-        display: "flex", alignItems: "flex-start", gap: 18,
+        display: "flex", alignItems: "flex-start", gap: 16,
         position: "relative",
       }}>
         {/* Date column */}
@@ -6505,7 +6505,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
         transform: hover ? "translateY(-1px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
-        display: "flex", alignItems: "flex-start", gap: 18,
+        display: "flex", alignItems: "flex-start", gap: 16,
       }}>
       {/* (actions in detail modal) */}
       {/* Time */}
@@ -6551,7 +6551,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
             </li>
           ))}
         </ul>
-        <div style={{ display: "flex", gap: 14, marginTop: 10, fontSize: 12, color: "var(--ink-faint)", fontVariantNumeric: "tabular-nums" }}>
+        <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 12, color: "var(--ink-faint)", fontVariantNumeric: "tabular-nums" }}>
           <span>P {meal.macros?.p ?? 0}g</span>
           <span>C {meal.macros?.c ?? 0}g</span>
           <span>F {meal.macros?.f ?? 0}g</span>
@@ -6644,7 +6644,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
               <div style={{ width: `${cPct}%`, background: "var(--accent-cobalt)" }} />
               <div style={{ width: `${fPct}%`, background: "var(--accent-gold)" }} />
             </div>
-            <div style={{ display: "flex", gap: 18, marginTop: 10, fontVariantNumeric: "tabular-nums" }}>
+            <div style={{ display: "flex", gap: 16, marginTop: 10, fontVariantNumeric: "tabular-nums" }}>
               <MacroLegend color="var(--accent-oxblood)" label="protein" value={meal.macros?.p || 0} pct={pPct} />
               <MacroLegend color="var(--accent-cobalt)" label="carbs"   value={meal.macros?.c || 0} pct={cPct} />
               <MacroLegend color="var(--accent-gold)" label="fat"     value={meal.macros?.f || 0} pct={fPct} />
@@ -7250,7 +7250,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         borderRadius: isPinned ? 16.5 : 18,
         padding: "20px 24px",
         border: isPinned ? "none" : "1px solid var(--bg-hairline)",
-        display: "flex", alignItems: "center", gap: 14,
+        display: "flex", alignItems: "center", gap: 16,
         position: "relative",
         minHeight: 60,
         overflow: "hidden",
@@ -7769,7 +7769,7 @@ function MicroInjuryTimeChart({ buckets }) {
             transition: "box-shadow 200ms ease, border-color 200ms ease",
             minWidth: 0,
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
               <div style={{
                 width: 8, height: 8, borderRadius: 999, flexShrink: 0,
                 background: `linear-gradient(135deg, ${row.color}, ${row.color}99)`,
@@ -8261,7 +8261,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
             ? "1px solid rgba(196,50,79,0.55)"
             : "1px solid rgba(0,0,0,0.06)",
         boxShadow: isCritical && !isPinned ? "0 0 10px rgba(196,50,79,0.18)" : "none",
-        display: "flex", alignItems: "center", gap: 14,
+        display: "flex", alignItems: "center", gap: 16,
         position: "relative",
         minHeight: 60,
         overflow: "hidden",
