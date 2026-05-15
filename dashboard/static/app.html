@@ -258,11 +258,11 @@ body::after {
   min-height: 100vh;
 }
 
-/* Cards lift on hover with a futuristic gold edge */
+/* Card transition base — hero cards get lift, others just smooth shadow changes */
 [class*="GlassCard"], .glass-card,
-.hy-hero-card, .dash-hero, .dash-stat-row > * {
+.hy-hero-card, .dash-hero {
   transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1),
-              box-shadow 380ms cubic-bezier(0.32, 0.72, 0, 1) !important;
+              box-shadow 380ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* Scroll reveal — sections fade in + lift on enter */
@@ -1052,30 +1052,57 @@ function HaloBackground() {
 }
 
 // =====================================================
-// GlassCard — frosted white card
+// GlassCard — 3-tier card system
+//   tier="hero"    — solid paper bg, pop shadow, 28px radius, rainbow border, hover lift
+//   tier="primary" — slightly opaque glass, 20px radius, 24px pad, no hover lift
+//   tier="inline"  — no shadow, no blur, hairline bottom border only
+// Legacy props (hero, rainbow) still supported for backward compat.
 // =====================================================
-function GlassCard({ children, padding = 28, radius = 22, style = {}, hero = false, rainbow = false, className, ...rest }) {
+function GlassCard({ children, padding, radius, style = {}, hero = false, rainbow = false, tier: tierProp, className, ...rest }) {
   const [hover, setHover] = useState(false);
-  const baseShadow = hero
-    ? "0 1px 0 rgba(255,252,245,0.95) inset, 0 0 0 0.5px rgba(26,22,19,0.04) inset, 0 28px 70px -18px rgba(26,22,19,0.22), 0 8px 20px -10px rgba(199,154,58,0.10)"
-    : "0 1px 0 rgba(255,252,245,0.9) inset, 0 12px 28px -10px rgba(26,22,19,0.16), 0 2px 4px rgba(26,22,19,0.04)";
-  const hoverShadow = hero
-    ? "0 1px 0 rgba(255,252,245,0.95) inset, 0 0 0 0.5px rgba(199,154,58,0.18) inset, 0 36px 84px -16px rgba(26,22,19,0.28), 0 10px 30px -8px rgba(199,154,58,0.22)"
-    : "0 1px 0 rgba(255,252,245,0.92) inset, 0 18px 36px -10px rgba(26,22,19,0.20), 0 3px 8px rgba(26,22,19,0.05)";
+  // Resolve tier: explicit prop wins, then legacy hero flag, then default "primary"
+  const tier = tierProp || (hero ? "hero" : "primary");
+  const isHero = tier === "hero";
+  const isInline = tier === "inline";
+
+  // Tier-specific defaults
+  const resolvedRadius = radius != null ? radius : (isHero ? 28 : isInline ? 0 : 20);
+  const resolvedPadding = padding != null ? padding : (isHero ? 28 : isInline ? 0 : 24);
+
+  // Shadows per tier
+  const tierShadows = {
+    hero: {
+      base: "0 1px 0 rgba(255,252,245,0.95) inset, 0 0 0 0.5px rgba(26,22,19,0.04) inset, 0 24px 60px -16px rgba(60,60,90,0.22), 0 2px 6px rgba(0,0,0,0.05)",
+      hover: "0 1px 0 rgba(255,252,245,0.95) inset, 0 0 0 0.5px rgba(199,154,58,0.18) inset, 0 36px 84px -16px rgba(26,22,19,0.28), 0 10px 30px -8px rgba(199,154,58,0.22)",
+    },
+    primary: {
+      base: "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(60,60,90,0.16), 0 1px 2px rgba(0,0,0,0.04)",
+      hover: "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(60,60,90,0.16), 0 1px 2px rgba(0,0,0,0.04)",
+    },
+    inline: { base: "none", hover: "none" },
+  };
+  const shadows = tierShadows[tier] || tierShadows.primary;
+
   const cardStyle = {
     position: "relative",
-    background: hero
-      ? "linear-gradient(180deg, rgba(255,252,245,0.92), rgba(247,241,227,0.78))"
-      : "linear-gradient(180deg, rgba(255,252,245,0.82), rgba(247,241,227,0.66))",
-    border: rainbow ? "1px solid transparent" : "1px solid rgba(26,22,19,0.07)",
-    backdropFilter: "blur(48px) saturate(140%)",
-    WebkitBackdropFilter: "blur(48px) saturate(140%)",
-    borderRadius: radius,
-    padding,
-    boxShadow: hover ? hoverShadow : baseShadow,
-    transform: hover ? "translateY(-3px)" : "translateY(0)",
+    background: isHero
+      ? "var(--bg-paper, #f7f1e3)"
+      : isInline
+        ? "transparent"
+        : "rgba(255,252,245,0.78)",
+    border: isInline
+      ? "none"
+      : rainbow ? "1px solid transparent" : "1px solid rgba(26,22,19,0.07)",
+    borderBottom: isInline ? "1px solid var(--bg-hairline)" : undefined,
+    backdropFilter: isInline ? "none" : (isHero ? "blur(48px) saturate(140%)" : "blur(32px) saturate(130%)"),
+    WebkitBackdropFilter: isInline ? "none" : (isHero ? "blur(48px) saturate(140%)" : "blur(32px) saturate(130%)"),
+    borderRadius: resolvedRadius,
+    padding: resolvedPadding,
+    boxShadow: hover ? shadows.hover : shadows.base,
+    // Only hero cards lift on hover
+    transform: (isHero && hover) ? "translateY(-3px)" : "translateY(0)",
     transition: "transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1)",
-    overflow: "hidden",
+    overflow: isInline ? "visible" : "hidden",
     ...style,
   };
   // Corner accent for hero cards — soft gold bloom in the top-right
@@ -3790,13 +3817,9 @@ function MiniStatHero({ label, value, accent }) {
 function StatTile({ eyebrow, value, meta, valueStyle = {}, icon, onClick }) {
   const [hover, setHover] = React.useState(false);
   return (
-    <GlassCard radius={22} padding={24} style={{
+    <GlassCard tier="primary" style={{
       display: "flex", flexDirection: "column", gap: 10, minHeight: 130,
       cursor: onClick ? "pointer" : "default",
-      transform: onClick && hover ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: onClick && hover
-        ? "0 1px 0 rgba(255,252,245,0.9) inset, 0 14px 36px -10px rgba(26,22,19,0.16), 0 1px 2px rgba(26,22,19,0.03)"
-        : undefined,
       transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
     }}
     onClick={onClick}
@@ -3822,13 +3845,9 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
   const remaining = Math.max(0, goal - total);
 
   return (
-    <GlassCard radius={22} padding={22} style={{
+    <GlassCard tier="primary" style={{
       display: "flex", flexDirection: "column", gap: 14, minHeight: 130,
       cursor: "pointer",
-      transform: hover ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: hover
-        ? "0 1px 0 rgba(255,255,255,0.9) inset, 0 14px 36px -10px rgba(60,60,90,0.22), 0 1px 2px rgba(0,0,0,0.04)"
-        : undefined,
       transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       overflow: "hidden",
     }}
@@ -3932,13 +3951,9 @@ function ProblemsTile({ onClick }) {
   }[tier]);
 
   return (
-    <GlassCard radius={22} padding={22} style={{
+    <GlassCard tier="primary" style={{
       display: "flex", flexDirection: "column", gap: 12, minHeight: 130,
       cursor: "pointer",
-      transform: hover ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: hover
-        ? "0 1px 0 rgba(255,255,255,0.9) inset, 0 14px 36px -10px rgba(60,60,90,0.22), 0 1px 2px rgba(0,0,0,0.04)"
-        : undefined,
       transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       overflow: "hidden",
     }}
