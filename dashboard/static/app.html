@@ -8524,6 +8524,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
 
 // ---------- Detail modal ----------
 function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit, onRequestDelete }) {
+  const trapRef = useModalTrap(true, onClose);
   const isFresh = injury.severity === "fresh";
   const isCritical = injury.severity === "critical";
   const tierLabel = MICRO_INJURIES_TIERS.find((t) => t.id === injury.severity)?.label.toLowerCase() || injury.severity;
@@ -8531,6 +8532,9 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
 
   return (
     <div
+      ref={trapRef}
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
