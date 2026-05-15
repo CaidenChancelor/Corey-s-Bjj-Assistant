@@ -3588,7 +3588,7 @@ function WaterHero({ onClick }) {
                   if (last) {
                     setLog((prev) => prev.filter((x) => x.id !== last.id));
                     const entryId = parseInt(last.id, 10);
-                    if (!isNaN(entryId)) apiCall("DELETE", \`/api/water/entry/\${entryId}\`);
+                    if (!isNaN(entryId)) apiCall("DELETE", `/api/water/entry/${entryId}`);
                   }
                 }}
                 style={{
