@@ -4897,22 +4897,13 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 18 }}>
-        <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
+        <div style={{ maxWidth: "min(75%, 520px)" }}>
           <div style={{
-            position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
-            background: "var(--ai-gradient)",
-            WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-            mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-            WebkitMaskComposite: "xor", maskComposite: "exclude",
-            pointerEvents: "none",
-          }}></div>
-          <div style={{
-            padding: "14px 20px", borderRadius: 22,
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(40px) saturate(180%)",
-            WebkitBackdropFilter: "blur(40px) saturate(180%)",
+            padding: "14px 20px", borderRadius: 16,
+            background: "var(--bg-paper)",
+            border: "1px solid var(--bg-hairline)",
             color: "var(--ink-faint)",
-            fontSize: 15.5, lineHeight: 1.5,
+            fontSize: 15, lineHeight: 1.6,
             letterSpacing: "-0.011em",
             display: "flex", alignItems: "center", gap: 6,
           }}>
