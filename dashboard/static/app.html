@@ -1351,20 +1351,6 @@ function ClaudePill({ children = "Claude" }) {
 }
 
 // =====================================================
-// Rainbow text helper
-// =====================================================
-function Rainbow({ children, style = {} }) {
-  return (
-    <span style={{
-      background: "linear-gradient(100deg, #6e1320 0%, #1c2c5a 50%, #c79a3a 100%)",
-      WebkitBackgroundClip: "text", backgroundClip: "text",
-      WebkitTextFillColor: "transparent", color: "transparent",
-      ...style,
-    }}>{children}</span>
-  );
-}
-
-// =====================================================
 // Eyebrow — uppercase tracked label
 // =====================================================
 function Eyebrow({ children, style = {} }) {
@@ -3400,7 +3386,7 @@ function RainbowIcon({ children, size = 36 }) {
     <div style={{
       width: size, height: size, borderRadius: "50%",
       padding: 1.5,
-      background: "linear-gradient(120deg, #6e1320, #1c2c5a, #c79a3a)",
+      background: "var(--ai-gradient)",
       flexShrink: 0,
       boxShadow: "0 3px 10px -3px rgba(199,154,58,0.3)",
     }}>
