@@ -169,6 +169,9 @@
   --shadow-press:  0 1px 0 rgba(255,255,255,0.6) inset,
                    0 2px 8px rgba(0, 0, 0, 0.06);
 
+  --shadow-btn:    0 4px 12px -3px rgba(28,44,90,0.3);
+  --shadow-modal:  0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08);
+
   --glow-ai:       0 0 0 1px rgba(255,255,255,0.6),
                    0 14px 40px -8px rgba(28,44,90,0.30),
                    0 4px 14px -4px rgba(110,19,32,0.22);
@@ -3282,7 +3285,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
             border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)",
             background: "var(--accent-cobalt)",
-            boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+            boxShadow: "var(--shadow-btn)",
           }}>Save</button>
         </div>
       </div>
@@ -3545,7 +3548,7 @@ function GoalEditModal({ goal, onChange, onCancel, onSave, error }) {
             border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)",
             background: "var(--accent-cobalt)",
-            boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+            boxShadow: "var(--shadow-btn)",
           }}>Save</button>
         </div>
       </div>
@@ -5555,7 +5558,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
                 border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
-                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+                boxShadow: "var(--shadow-btn)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add lesson"}</button>
           ) : (
@@ -5629,7 +5632,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
           borderRadius: 20,
           padding: "28px 28px 22px",
           border: "1px solid var(--bg-hairline)",
-          boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
+          boxShadow: "var(--shadow-modal)",
           animation: "blPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
@@ -6587,7 +6590,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
           overflowY: "auto",
           background: "var(--bg-paper)", borderRadius: 20, padding: "28px 32px 24px",
           border: "1px solid var(--bg-hairline)",
-          boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
+          boxShadow: "var(--shadow-modal)",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
           position: "relative",
         }}>
@@ -6869,7 +6872,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
                 border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
-                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+                boxShadow: "var(--shadow-btn)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add meal"}</button>
           ) : (
@@ -6969,7 +6972,7 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
           borderRadius: 20,
           padding: "28px 28px 22px",
           border: "1px solid var(--bg-hairline)",
-          boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
+          boxShadow: "var(--shadow-modal)",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
@@ -7523,7 +7526,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
                 border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
-                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+                boxShadow: "var(--shadow-btn)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add"}</button>
           ) : (
@@ -8659,7 +8662,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                 border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
-                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+                boxShadow: "var(--shadow-btn)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add"}</button>
           ) : (
