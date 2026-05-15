@@ -209,6 +209,16 @@ html, body {
   font-feature-settings: "ss01", "cv11", "calt";
 }
 
+/* Focus-visible ring — accessible keyboard focus indicator */
+*:focus-visible {
+  outline: 2px solid var(--accent-cobalt);
+  outline-offset: 2px;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--accent-cobalt);
+  outline-offset: 0;
+}
+
 /* =============================================================
    AURORA BACKGROUND — animated jewel-tone bloom that drifts slowly
    Not interactive (user nixed the fluid sim). Pure CSS.
