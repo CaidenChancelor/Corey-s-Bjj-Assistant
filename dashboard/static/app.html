@@ -6026,11 +6026,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
           borderRadius: 24,
           padding: "28px 32px",
           border: "1px solid var(--bg-hairline)",
-          boxShadow:
-            "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 8px 24px -10px rgba(110,19,32,0.18)," +
-            " 0 10px 28px -12px rgba(28,44,90,0.18)," +
-            " 0 12px 32px -10px rgba(199,154,58,0.16)",
+          boxShadow: "var(--shadow-card)",
         }}>
           <Eyebrow style={{ marginBottom: 18 }}>full notes</Eyebrow>
           {lesson.notes && lesson.notes.length > 0 ? (
@@ -6174,11 +6170,7 @@ function Schedule({ onBack }) {
           borderRadius: 24,
           padding: "10px 8px",
           border: "1px solid var(--bg-hairline)",
-          boxShadow:
-            "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 8px 24px -10px rgba(110,19,32,0.18)," +
-            " 0 10px 28px -12px rgba(28,44,90,0.18)," +
-            " 0 12px 32px -10px rgba(199,154,58,0.16)",
+          boxShadow: "var(--shadow-card)",
         }}>
           {TODAY_SCHEDULE.map((s, i) => {
             const mins = toMins(s.time);
@@ -6192,7 +6184,7 @@ function Schedule({ onBack }) {
                 {i < TODAY_SCHEDULE.length - 1 && (
                   <div style={{
                     height: 1, marginLeft: 96, marginRight: 16,
-                    background: "rgba(0,0,0,0.05)",
+                    background: "var(--bg-hairline)",
                   }}></div>
                 )}
               </React.Fragment>
@@ -6218,7 +6210,7 @@ function NowRule({ time }) {
       }}>now · {time}</div>
       <div style={{
         flex: 1, height: 2, borderRadius: 2,
-        background: "linear-gradient(90deg, #6e1320 0%, #8b1f37 30%, #1c2c5a 60%, transparent 100%)",
+        background: "linear-gradient(90deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, transparent 100%)",
       }}></div>
     </div>
   );
@@ -6236,7 +6228,7 @@ function ScheduleRow({ item, isPast, isNext }) {
       <div style={{
         flexShrink: 0, minWidth: 64,
         fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
-        color: isNext ? "#1d1d1f" : "var(--ink-muted)",
+        color: isNext ? "var(--ink)" : "var(--ink-muted)",
         letterSpacing: "-0.01em", paddingTop: 2,
         fontVariantNumeric: "tabular-nums",
       }}>{item.time}</div>
