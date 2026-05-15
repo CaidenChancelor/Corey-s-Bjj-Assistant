@@ -55,17 +55,6 @@
   --accent-gold:    #c79a3a;
   --accent-ivory:   #f7f1e3;
 
-  /* Old rainbow names → mapped to jewel tones */
-  --ai-pink:        #6e1320;   /* oxblood */
-  --ai-magenta:     #8b1f37;   /* mulled wine */
-  --ai-purple:      #1c2c5a;   /* cobalt */
-  --ai-blue:        #2b3f7a;   /* lighter cobalt */
-  --ai-cyan:        #c79a3a;   /* gold */
-
-  --ai-pink-soft:    rgba(110, 19, 32, 0.30);
-  --ai-purple-soft:  rgba(28, 44, 90, 0.30);
-  --ai-cyan-soft:    rgba(199, 154, 58, 0.30);
-
   --ai-gradient: linear-gradient(
     120deg,
     var(--accent-oxblood) 0%,
@@ -73,25 +62,9 @@
     var(--accent-gold) 100%
   );
 
-  --ai-conic: conic-gradient(
-    from 0deg,
-    var(--accent-oxblood),
-    var(--accent-cobalt),
-    var(--accent-gold),
-    var(--accent-cobalt),
-    var(--accent-oxblood)
-  );
-
-  /* Mesh — barely-visible jewel-tone blooms (let the fluid canvas do the work) */
-  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(110, 19, 32, 0.06), transparent 70%);
-  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(28, 44, 90, 0.05), transparent 70%);
-  --mesh-blob-blue:    radial-gradient(50% 50% at 30% 82%, rgba(28, 44, 90, 0.04), transparent 70%);
-  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.05), transparent 70%);
-
   /* =========================================================
      COLOR — Semantic
      ========================================================= */
-  --accent-blue:    #2b3f7a;
   --accent-blue-2:  #1c2c5a;
   --accent-success: #2e6d4a;
   --accent-warn:    #b87f1f;
@@ -99,63 +72,18 @@
   --accent-danger-bright: #e0264a;
   --accent-critical: #c4324f;
 
-  --chat-user-tint:    rgba(28, 44, 90, 0.08);
-  --chat-user-stroke:  rgba(28, 44, 90, 0.22);
-  --chat-claude-tint:  rgba(255, 255, 255, 0.7);
-
   /* =========================================================
-     TYPOGRAPHY  — SF Pro first, Inter fallback
+     TYPOGRAPHY
      ========================================================= */
   --font-display: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-text:    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-rounded: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono:    "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
-  --font-serif:   "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 
   --type-hero:        clamp(48px, 6vw, 88px);
   --type-display-xl:  56px;
-  --type-display-lg:  40px;
-  --type-display-md:  32px;
-  --type-display-sm:  24px;
-  --type-lead:        20px;
   --type-body:        17px;
-  --type-body-sm:     15px;
-  --type-caption:     13px;
-  --type-fine:        12px;
-  --type-micro:       11px;
-
-  --w-thin: 200; --w-light: 300; --w-regular: 400;
-  --w-medium: 500; --w-semibold: 600; --w-bold: 700;
-
-  --track-hero:    -0.04em;
-  --track-display: -0.03em;
-  --track-tight:   -0.02em;
-  --track-body:    -0.011em;
-  --track-caps:    0.06em;
-
-  --leading-tight:  1.05;
-  --leading-snug:   1.18;
-  --leading-normal: 1.45;
-  --leading-loose:  1.7;
-
-  /* =========================================================
-     RADII
-     ========================================================= */
-  --r-xs:   8px;
-  --r-sm:   12px;
-  --r-md:   16px;
-  --r-lg:   22px;
-  --r-xl:   28px;
-  --r-2xl:  36px;
-  --r-pill: 980px;
-  --r-full: 9999px;
-
-  /* =========================================================
-     SPACING (8px base)
-     ========================================================= */
-  --s-1:   4px;  --s-2:   8px;  --s-3:   12px; --s-4:   16px;
-  --s-5:   20px; --s-6:   24px; --s-7:   32px; --s-8:   40px;
-  --s-9:   48px; --s-10:  64px; --s-11:  80px; --s-12:  120px;
+  --track-body:       -0.01em;
+  --leading-normal:   1.5;
 
   /* =========================================================
      SHADOWS — soft drops over light, keep glass airy
@@ -166,33 +94,14 @@
   --shadow-pop:    0 1px 0 rgba(255,255,255,0.95) inset,
                    0 24px 60px -16px rgba(60, 60, 90, 0.22),
                    0 2px 6px rgba(0, 0, 0, 0.05);
-  --shadow-press:  0 1px 0 rgba(255,255,255,0.6) inset,
-                   0 2px 8px rgba(0, 0, 0, 0.06);
-
   --shadow-btn:    0 4px 12px -3px rgba(28,44,90,0.3);
   --shadow-modal:  0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08);
 
-  --glow-ai:       0 0 0 1px rgba(255,255,255,0.6),
-                   0 14px 40px -8px rgba(28,44,90,0.30),
-                   0 4px 14px -4px rgba(110,19,32,0.22);
-  --glow-ai-soft:  0 0 0 1px rgba(255,255,255,0.5),
-                   0 8px 24px -6px rgba(28,44,90,0.22);
-
-  /* =========================================================
-     MOTION
-     ========================================================= */
+  /* Motion */
   --ease-spring:   cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
-  --d-fast: 160ms; --d-base: 260ms; --d-slow: 420ms;
-  --d-halo: 14s;   --d-mesh: 28s;
-
-  /* =========================================================
-     BLUR
-     ========================================================= */
+  --d-fast: 160ms;
   --blur-sm:  blur(20px) saturate(160%);
-  --blur-md:  blur(16px) saturate(160%);
-  --blur-lg:  blur(80px) saturate(200%);
 }
 
 /* =============================================================
