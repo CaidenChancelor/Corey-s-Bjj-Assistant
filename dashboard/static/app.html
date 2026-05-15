@@ -1667,7 +1667,7 @@ const problemsTierColor = (tier) => ({
   urgent: "var(--accent-critical)",
   high:   "#8b1f37",
   med:    "#1c2c5a",
-  low:    "rgba(29,29,31,0.55)",
+  low:    "var(--ink-faint)",
 }[tier]);
 
 const problemsTierRank = (tier) => ({ urgent: 0, high: 1, med: 2, low: 3 }[tier]);
@@ -2773,7 +2773,7 @@ function Hydration({ onBack }) {
                       </div>
                       <div style={{
                         fontSize: 11, fontWeight: isToday ? 600 : 500,
-                        color: isToday ? "var(--accent-cobalt, #1c2c5a)" : "rgba(29,29,31,0.55)",
+                        color: isToday ? "var(--accent-cobalt, #1c2c5a)" : "var(--ink-faint)",
                         letterSpacing: "0.02em",
                       }}>{d.date}</div>
                     </div>
@@ -2876,7 +2876,7 @@ function BottleVisual({ pct }) {
         <path
           d="M70 50 L70 30 Q70 22 78 22 L122 22 Q130 22 130 30 L130 50 L150 70 Q160 80 160 95 L160 220 Q160 240 140 240 L60 240 Q40 240 40 220 L40 95 Q40 80 50 70 Z"
           fill="url(#bottleGlass)"
-          stroke="rgba(29,29,31,0.18)"
+          stroke="var(--fg-5)"
           strokeWidth="2"
         />
 
@@ -3234,7 +3234,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
               borderRadius: 999, cursor: "pointer",
               border: "1px solid rgba(0,0,0,0.10)",
               background: draft === p ? "rgba(28,44,90,0.10)" : "#fff",
-              color: draft === p ? "var(--accent-cobalt, #1c2c5a)" : "rgba(29,29,31,0.7)",
+              color: draft === p ? "var(--accent-cobalt, #1c2c5a)" : "var(--ink-muted)",
             }}>{formatTimeFriendly(p)}</button>
           ))}
         </div>
@@ -3346,7 +3346,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
                   <svg width="22" height="26" viewBox="0 0 22 26" fill="none">
                     <path d="M3 3 L19 3 L17 23 Q17 25 15 25 L7 25 Q5 25 5 23 Z"
                       fill={active ? "rgba(28,44,90,0.18)" : "rgba(0,0,0,0.04)"}
-                      stroke={active ? "var(--accent-cobalt, #1c2c5a)" : "rgba(29,29,31,0.4)"} strokeWidth="1.4"/>
+                      stroke={active ? "var(--accent-cobalt, #1c2c5a)" : "var(--fg-4)"} strokeWidth="1.4"/>
                     <path d={`M5.4 ${25 - (ml/1000)*16} Q11 ${23 - (ml/1000)*16} 16.6 ${25 - (ml/1000)*16} L17 23 Q17 25 15 25 L7 25 Q5 25 5 23 Z`}
                       fill={active ? "var(--accent-cobalt, #1c2c5a)" : "rgba(28,44,90,0.55)"}/>
                   </svg>
@@ -3416,7 +3416,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
             position: "relative",
             padding: "11px 22px", fontSize: 14, fontWeight: 700,
             borderRadius: 12, cursor: amount ? "pointer" : "not-allowed",
-            color: amount ? "#1d1d1f" : "rgba(29,29,31,0.4)",
+            color: amount ? "#1d1d1f" : "var(--fg-4)",
             background: "var(--bg-paper)",
             border: "none",
             backgroundImage: amount
@@ -3887,7 +3887,7 @@ function MiniBottle({ pct, hit }) {
         </defs>
         <path
           d="M38 28 L38 16 Q38 11 42 11 L68 11 Q72 11 72 16 L72 28 L82 40 Q88 46 88 56 L88 138 Q88 150 76 150 L34 150 Q22 150 22 138 L22 56 Q22 46 28 40 Z"
-          fill="url(#miniGlass)" stroke="rgba(29,29,31,0.18)" strokeWidth="1.5"
+          fill="url(#miniGlass)" stroke="var(--fg-5)" strokeWidth="1.5"
         />
         <g clipPath="url(#miniClip)">
           <rect x="22" y={150 - fillH} width="66" height={fillH} fill="url(#miniWater)"/>
@@ -4074,7 +4074,7 @@ function ProblemsTile({ onClick }) {
     urgent: "var(--accent-critical)",
     high:   "#8b1f37",
     med:    "#1c2c5a",
-    low:    "rgba(29,29,31,0.55)",
+    low:    "var(--ink-faint)",
   }[tier]);
 
   return (
@@ -4404,18 +4404,18 @@ function BodySilhouette({ injuries }) {
           <stop offset="100%" stopColor="rgba(199,154,58,0.08)"/>
         </linearGradient>
       </defs>
-      <ellipse cx="50" cy="14" rx="9" ry="10" fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
-      <rect x="46" y="22" width="8" height="6" fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
+      <ellipse cx="50" cy="14" rx="9" ry="10" fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
+      <rect x="46" y="22" width="8" height="6" fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
       <path d="M30,28 Q30,26 34,26 L66,26 Q70,26 70,28 L72,60 Q72,72 68,82 L62,98 L38,98 L32,82 Q28,72 28,60 Z"
-            fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
+            fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
       <path d="M30,30 Q22,38 20,52 Q18,68 19,82 Q19,90 22,94 L26,94 Q26,86 26,78 Q27,64 28,52 Q29,42 30,36 Z"
-            fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
+            fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
       <path d="M70,30 Q78,38 80,52 Q82,68 81,82 Q81,90 78,94 L74,94 Q74,86 74,78 Q73,64 72,52 Q71,42 70,36 Z"
-            fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
+            fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
       <path d="M38,98 L36,140 Q35,160 36,180 Q37,188 41,188 L46,188 Q47,176 48,160 Q49,138 49,118 L48,98 Z"
-            fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
+            fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
       <path d="M62,98 L64,140 Q65,160 64,180 Q63,188 59,188 L54,188 Q53,176 52,160 Q51,138 51,118 L52,98 Z"
-            fill="url(#bodyFillDash)" stroke="rgba(29,29,31,0.18)" strokeWidth="0.6"/>
+            fill="url(#bodyFillDash)" stroke="var(--fg-5)" strokeWidth="0.6"/>
       {injuries.map((inj) => (
         <g key={inj.id}>
           <circle cx={inj.x} cy={inj.y} r="4.5" fill={inj.color} opacity="0.18"/>
@@ -5847,7 +5847,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
               background: isPinned ? "rgba(255,159,28,0.12)" : "transparent",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: isPinned ? "var(--accent-gold)" : "rgba(29,29,31,0.4)",
+              color: isPinned ? "var(--accent-gold)" : "var(--fg-4)",
               transition: "all 150ms ease",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -5954,7 +5954,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: isPinned ? "rgba(255,159,28,0.10)" : "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: isPinned ? "var(--accent-gold)" : "rgba(29,29,31,0.55)",
+                color: isPinned ? "var(--accent-gold)" : "var(--ink-faint)",
                 transition: "all 160ms ease",
               }}>
               <svg width="20" height="20" viewBox="0 0 24 24"
@@ -6226,7 +6226,7 @@ function ScheduleRow({ item, isPast, isNext }) {
       <div style={{
         flexShrink: 0, minWidth: 64,
         fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
-        color: isNext ? "#1d1d1f" : "rgba(29,29,31,0.62)",
+        color: isNext ? "#1d1d1f" : "var(--ink-muted)",
         letterSpacing: "-0.01em", paddingTop: 2,
         fontVariantNumeric: "tabular-nums",
       }}>{item.time}</div>
@@ -6659,7 +6659,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
             }}>
               <span style={{
                 position: "absolute", left: 0, top: 9, width: 4, height: 4, borderRadius: "50%",
-                background: "rgba(29,29,31,0.30)",
+                background: "var(--fg-5)",
               }}></span>
               {it}
             </li>
@@ -7507,7 +7507,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
               background: "var(--bg-paper)",
-              color: isPinned ? "var(--accent-gold)" : "rgba(29,29,31,0.78)",
+              color: isPinned ? "var(--accent-gold)" : "var(--fg-2)",
               cursor: "pointer",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24"
@@ -7644,7 +7644,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
                   border: active ? `1.5px solid ${problemsTierColor(t.id)}` : "1px solid rgba(0,0,0,0.10)",
                   borderRadius: 10,
                   background: "transparent",
-                  color: active ? problemsTierColor(t.id) : "rgba(29,29,31,0.55)",
+                  color: active ? problemsTierColor(t.id) : "var(--ink-faint)",
                   cursor: "pointer",
                   transition: "all 140ms ease",
                 }}>{t.label}</button>
@@ -7928,7 +7928,7 @@ function MicroInjuryTimeChart({ buckets }) {
               <div style={{
                 fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em",
                 textTransform: "uppercase",
-                color: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
+                color: isZero ? "var(--fg-4)" : "var(--ink-faint)",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>{MICRO_INJURY_TIME_LABELS[row.key]}</div>
             </div>
@@ -7936,7 +7936,7 @@ function MicroInjuryTimeChart({ buckets }) {
               fontFamily: "var(--font-display)",
               fontSize: 28, fontWeight: 600, lineHeight: 1,
               letterSpacing: "-0.02em",
-              color: isZero ? "rgba(29,29,31,0.32)" : "var(--ink)",
+              color: isZero ? "var(--fg-5)" : "var(--ink)",
               fontVariantNumeric: "tabular-nums",
             }}>{count}</div>
           </div>
@@ -8575,7 +8575,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
               background: "var(--bg-paper)",
-              color: isPinned ? "var(--accent-gold)" : "rgba(29,29,31,0.78)",
+              color: isPinned ? "var(--accent-gold)" : "var(--fg-2)",
               cursor: "pointer",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24"
@@ -8768,7 +8768,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                   border: active ? `1.5px solid ${microInjuriesTierColor(t.id)}` : "1px solid rgba(0,0,0,0.10)",
                   borderRadius: 10,
                   background: "transparent",
-                  color: active ? microInjuriesTierColor(t.id) : "rgba(29,29,31,0.55)",
+                  color: active ? microInjuriesTierColor(t.id) : "var(--ink-faint)",
                   cursor: "pointer",
                   transition: "all 140ms ease",
                 }}>{t.label}</button>
@@ -9489,7 +9489,7 @@ function TechniqueLibrary({ onBack }) {
                     {t.count} {t.count === 1 ? "session" : "sessions"}{t.video_count > 0 ? ` · ${t.video_count} ${t.video_count === 1 ? "video" : "videos"} 🎥` : ""} · last worked {formatDate(t.last_seen)}
                   </div>
                 </div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(29,29,31,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fg-4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </div>
