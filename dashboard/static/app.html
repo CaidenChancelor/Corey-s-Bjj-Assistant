@@ -7456,10 +7456,14 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
 
 // ---------- Detail modal ----------
 function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, onRequestDelete }) {
+  const trapRef = useModalTrap(true, onClose);
   const isUrgent = problem.tier === "urgent";
 
   return (
     <div
+      ref={trapRef}
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
