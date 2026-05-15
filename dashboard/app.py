@@ -242,7 +242,10 @@ def _bot(method, path, json_body=None):
             json=json_body,
             timeout=8,
         )
-        return r.json(), r.status_code
+        try:
+            return r.json(), r.status_code
+        except ValueError:
+            return {"error": f"Bot returned non-JSON (HTTP {r.status_code})"}, 502
     except Exception as e:
         return {"error": str(e)}, 502
 
