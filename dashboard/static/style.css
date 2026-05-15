@@ -250,7 +250,7 @@ body::after {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--fg-on-gradient);
   font-size: 14px;
   font-weight: var(--w-bold);
   flex-shrink: 0;
@@ -703,7 +703,7 @@ body.auth-bg {
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  color: white;
+  color: var(--fg-on-gradient);
   margin: 0 auto var(--s-5);
   box-shadow: 0 12px 40px -8px rgba(28, 44, 90, 0.40),
               0 4px 16px -4px rgba(110, 19, 32, 0.28);
@@ -785,7 +785,7 @@ input:focus, textarea:focus {
 
 .btn-blue {
   background: var(--accent-blue);
-  color: white;
+  color: var(--fg-on-gradient);
   border: none;
   border-radius: var(--r-pill);
   padding: 12px 22px;
@@ -898,7 +898,7 @@ input:focus, textarea:focus {
   align-items: center;
   justify-content: center;
   font-size: 26px;
-  color: white;
+  color: var(--fg-on-gradient);
   margin: 0 auto var(--s-4);
   box-shadow: 0 12px 40px -8px rgba(122,92,255,0.4);
   animation: logo-float 4s ease-in-out infinite;
