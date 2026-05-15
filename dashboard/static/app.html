@@ -675,7 +675,7 @@ html, body {
 .ops-eyebrow {
   font-family: var(--font-text);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -715,7 +715,7 @@ html, body {
 .ops-value {
   font-family: var(--font-display);
   font-size: clamp(24px, 3.5vw, 32px);
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: -0.04em;
   line-height: 0.95;
   color: var(--ink);
@@ -4532,7 +4532,7 @@ function OpsHealthModule({ title, status, statusTone, meta, rows, chart, onClick
         <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "flex-start" }}>
           <div>
             <div className="ops-eyebrow" style={{ marginBottom: 7 }}>{title}</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 760, letterSpacing: "-0.035em", color: statusTone }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, letterSpacing: "-0.035em", color: statusTone }}>
               {status}
             </div>
           </div>
@@ -4546,7 +4546,7 @@ function OpsHealthModule({ title, status, statusTone, meta, rows, chart, onClick
           <div style={{ display: "grid", gap: 8 }}>
             {rows.slice(0, 2).map((row) => (
               <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}>
-                <span style={{ color: "var(--ink)", fontWeight: 650, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.label}</span>
+                <span style={{ color: "var(--ink)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.label}</span>
                 <span className="ops-muted" style={{ flexShrink: 0 }}>{row.value}</span>
               </div>
             ))}
@@ -4716,7 +4716,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
                 <div>
                   <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Health intelligence</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 760, letterSpacing: "-0.035em" }}>Patterns before problems</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.035em" }}>Patterns before problems</div>
                 </div>
                 <div className="ops-pill">Decision support</div>
               </div>
@@ -4749,7 +4749,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
                   <div>
                     <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Activity feed</div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 730, letterSpacing: "-0.03em" }}>Recent bot conversation</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>Recent bot conversation</div>
                   </div>
                   <div className="ops-pill">{messages.length} items</div>
                 </div>
@@ -7679,7 +7679,7 @@ function MicroInjuryMetric({ label, value, tone = "var(--ink)" }) {
         fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
         textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: 5,
       }}>{label}</div>
-      <div style={{ fontSize: 24, lineHeight: 1, fontWeight: 650, color: tone, fontVariantNumeric: "tabular-nums" }}>{value}</div>
+      <div style={{ fontSize: 24, lineHeight: 1, fontWeight: 600, color: tone, fontVariantNumeric: "tabular-nums" }}>{value}</div>
     </div>
   );
 }
@@ -9007,7 +9007,7 @@ function AllergyRow({ log, onEdit, onDelete }) {
     <div style={{ background: "var(--bg-paper)", border: "1px solid var(--bg-hairline)", borderRadius: 12, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
       <div style={{ width: 4, height: 42, borderRadius: 999, background: allergyColor(log.severity), flexShrink: 0 }}></div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 15, fontWeight: 650, color: "var(--ink)", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {log.trigger || log.category || "Allergy log"} <span style={{ color: "var(--ink-faint)", fontWeight: 500 }}>· {sev.label}</span>
         </div>
         <div style={{ fontSize: 13, color: "var(--ink-faint)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
