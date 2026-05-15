@@ -319,13 +319,6 @@ body::after {
 }
 
 
-/* The rainbow text fill */
-.t-rainbow {
-  background: var(--ai-gradient);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-
 /* =============================================================
    THE VIEWPORT HALO — wraps every page edge, slow rotation
    ============================================================= */
@@ -333,21 +326,6 @@ body::after {
 @keyframes mesh-drift {
   0%, 100% { transform: translate3d(0,0,0) scale(1); }
   50%      { transform: translate3d(-2%, 1%, 0) scale(1.05); }
-}
-
-/* Page wrapper — now lets the fluid canvas do the heavy lifting.
-   The mesh blobs become a very subtle static bloom and the rotating
-   halo is dialed way back so it never competes with the fluid sim. */
-.page-halo {
-  position: relative;
-  isolation: isolate;
-  background: transparent;
-}
-.page-halo::before { display: none; }
-.page-halo::after { display: none; }
-
-@media (prefers-reduced-motion: reduce) {
-  .page-halo::before, .page-halo::after { animation: none; }
 }
 
 /* =============================================================
@@ -607,13 +585,6 @@ html, body {
   max-width: 1240px;
   margin: 0 auto;
 }
-.ops-topbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
-  gap: 16px;
-  align-items: stretch;
-  margin-bottom: 80px;
-}
 .ops-panel {
   background: rgba(255, 252, 245, 0.92);
   border: 1px solid rgba(26, 24, 20, 0.10);
@@ -748,7 +719,6 @@ html, body {
   scrollbar-color: rgba(26,24,20,0.15) transparent;
 }
 @media (max-width: 1000px) {
-  .ops-topbar { grid-template-columns: 1fr; }
   .ops-span-3,
   .ops-span-4,
   .ops-span-5,
