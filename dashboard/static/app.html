@@ -476,9 +476,163 @@ html, body {
    Dense SaaS-style dashboard primitives for the main training view.
    ============================================================= */
 .ops-console {
-  max-width: 1240px;
+  max-width: 800px;
   margin: 0 auto;
 }
+
+/* ---- editorial section spacing ---- */
+.ed-section {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: ed-fade-in 0.6s var(--ease-out) forwards;
+}
+.ed-section:nth-child(1) { animation-delay: 0s; }
+.ed-section:nth-child(2) { animation-delay: 0.08s; }
+.ed-section:nth-child(3) { animation-delay: 0.16s; }
+.ed-section:nth-child(4) { animation-delay: 0.24s; }
+.ed-section:nth-child(5) { animation-delay: 0.32s; }
+.ed-section:nth-child(6) { animation-delay: 0.40s; }
+@keyframes ed-fade-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- key metrics row ---- */
+.ed-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.ed-metric {
+  text-align: center;
+  cursor: pointer;
+  padding: 12px 8px;
+  transition: opacity 0.15s ease;
+}
+.ed-metric:hover { opacity: 0.7; }
+.ed-metric-value {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 56px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink);
+}
+.ed-metric-label {
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  margin-top: 8px;
+}
+.ed-metric-sub {
+  font-family: var(--font-text);
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* ---- thin progress bar ---- */
+.ed-progress {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(26,24,20,0.06);
+  overflow: hidden;
+  margin-top: 10px;
+  max-width: 80px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ed-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-cobalt);
+  transition: width 600ms cubic-bezier(0.32,0.72,0,1);
+}
+
+/* ---- divider ---- */
+.ed-divider {
+  height: 1px;
+  background: rgba(26,24,20,0.08);
+  border: none;
+  margin: 0;
+}
+
+/* ---- health two-col ---- */
+.ed-health-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.ed-health-col {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.ed-health-col:hover { opacity: 0.7; }
+
+/* ---- activity list ---- */
+.ed-activity-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(26,24,20,0.05);
+  align-items: flex-start;
+}
+.ed-activity-item:last-child { border-bottom: none; }
+
+/* ---- quick nav row ---- */
+.ed-nav-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.ed-nav-link {
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+  letter-spacing: -0.01em;
+}
+.ed-nav-link:hover { color: var(--ink); }
+
+/* ---- header action buttons ---- */
+.ed-action-btn {
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  background: none;
+  border: 1px solid rgba(26,24,20,0.10);
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  letter-spacing: -0.01em;
+}
+.ed-action-btn:hover {
+  color: var(--ink);
+  border-color: rgba(26,24,20,0.22);
+}
+
+/* ---- keep eyebrow/muted reusable ---- */
+.ops-eyebrow {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.ops-muted { color: var(--ink-faint); }
+
+/* ---- legacy ops classes (kept for sub-views that still use them) ---- */
 .ops-panel {
   background: rgba(255, 252, 245, 0.92);
   border: 1px solid rgba(26, 24, 20, 0.10);
@@ -492,20 +646,10 @@ html, body {
 .ops-panel::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   height: 2px;
   background: var(--ai-gradient);
   border-radius: 16px 18px 0 0;
-}
-.ops-eyebrow {
-  font-family: var(--font-text);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
 }
 .ops-grid {
   display: grid;
@@ -547,7 +691,6 @@ html, body {
   line-height: 0.95;
   color: var(--ink);
 }
-.ops-muted { color: var(--ink-faint); }
 .ops-pill-row {
   display: flex;
   flex-wrap: wrap;
@@ -587,12 +730,8 @@ html, body {
   grid-template-columns: 1.02fr 0.98fr;
   gap: 14px;
 }
-.ops-health-grid > :first-child {
-  border-left: 2px solid var(--accent-oxblood);
-}
-.ops-health-grid > :last-child {
-  border-left: 2px solid var(--accent-gold);
-}
+.ops-health-grid > :first-child { border-left: 2px solid var(--accent-oxblood); }
+.ops-health-grid > :last-child { border-left: 2px solid var(--accent-gold); }
 .ops-spark-bars {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -631,6 +770,8 @@ html, body {
   .ops-span-12 { grid-column: 1; }
   .ops-health-grid { grid-template-columns: 1fr; }
   .ops-card-body { padding: 14px; }
+  .ed-metrics { grid-template-columns: 1fr; gap: 32px; }
+  .ed-health-grid { grid-template-columns: 1fr; gap: 32px; }
 }
 
 
@@ -4425,162 +4566,141 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const messages = Array.isArray(d.recent_messages) ? d.recent_messages.slice(-6).reverse() : [];
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
+  const openProblems = Array.isArray(d.problems) ? d.problems.filter((p) => !p.resolved).length : 0;
+  const techCount = Array.isArray(d.techniques) ? d.techniques.length : 0;
+  const streakDays = typeof d.streak_days === "number" ? d.streak_days : 0;
+
   return (
     <div className="dash-page" style={{ paddingTop: 96, paddingBottom: 88, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div className="ops-console">
-        <div style={{ marginBottom: 80, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--ink)" }}>
-              Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
+
+        {/* === HERO: greeting + next session === */}
+        <div className="ed-section" style={{ marginBottom: 96 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap", marginBottom: 48 }}>
+            <div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px, 5vw, 38px)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1.1 }}>
+                Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
+              </div>
+              <div style={{ fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500, letterSpacing: "0.02em", color: "var(--ink-faint)", marginTop: 8 }}>{todayLabel}</div>
             </div>
-            <div style={{ fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", color: "var(--ink-faint)", textTransform: "uppercase" }}>{todayLabel}</div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <button onClick={onOpenHydration} className="ed-action-btn">Log water</button>
+              <button onClick={onOpenMeals} className="ed-action-btn">Log meal</button>
+              <button onClick={onOpenMicroInjuries} className="ed-action-btn">Health check</button>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <div className="ops-pill" style={{ color: botError ? "var(--accent-danger)" : "var(--accent-success)" }}>
-              {botError ? "Bot data delayed" : "Live"}
+
+          {botError && (
+            <div style={{ padding: "12px 0", marginBottom: 24, color: "var(--accent-danger)", fontSize: 14, fontFamily: "var(--font-text)" }}>
+              Bot data is temporarily unavailable. Live stats may be stale.
             </div>
-            <button onClick={onOpenHydration} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log water</button>
-            <button onClick={onOpenMeals} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log meal</button>
-            <button onClick={onOpenMicroInjuries} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Health check</button>
-            <button onClick={onOpenTechniqueLibrary} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Library</button>
+          )}
+
+          <div onClick={onOpenSchedule} style={{ cursor: "pointer" }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSchedule(); } }}>
+            <div className="ops-eyebrow" style={{ marginBottom: 10 }}>Next up</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(22px, 3.5vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1.2 }}>
+              {next}
+            </div>
+            {bruno && (
+              <div style={{ fontFamily: "var(--font-text)", fontSize: 14, color: "var(--ink-faint)", marginTop: 8, lineHeight: 1.5 }}>
+                Last private: {bruno.summary || bruno.notes || "Logged"}
+              </div>
+            )}
           </div>
         </div>
 
-        {botError && (
-          <div className="ops-panel" style={{ padding: 14, marginBottom: 18, color: "var(--accent-danger)", fontSize: 14 }}>
-            Bot data is temporarily unavailable. The dashboard is still usable, but live stats may be stale.
-          </div>
-        )}
+        <hr className="ed-divider ed-section" style={{ marginBottom: 96 }} />
 
-        <div className="ops-grid">
-          <div className="ops-span-12">
-            <div className="ops-card ops-card-click" {...opsActionProps(onOpenSchedule)}>
-              <div className="ops-card-body" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
-                <div>
-                  <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Next up</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
-                    {next}
-                  </div>
-                </div>
-                <div className="ops-muted" style={{ fontSize: 13, maxWidth: 300, textAlign: "right" }}>
-                  {bruno ? `Last private: ${bruno.summary || bruno.notes || "Logged"}` : "Schedule or lessons when the next block changes."}
-                </div>
+        {/* === KEY METRICS: 3 large numbers === */}
+        <div className="ed-section ed-metrics" style={{ marginBottom: 96 }}>
+          <div className="ed-metric" onClick={onOpenHydration}>
+            <div className="ed-metric-value" style={{ color: "var(--accent-cobalt)" }}>{Math.round(waterToday * 1000)}</div>
+            <div className="ed-metric-label">ml water</div>
+            <div className="ed-metric-sub">{waterPct}% of {waterGoal}L goal</div>
+            <div className="ed-progress"><span style={{ width: `${waterPct}%` }} /></div>
+          </div>
+          <div className="ed-metric" onClick={onOpenMeals}>
+            <div className="ed-metric-value" style={{ color: caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)" }}>{calorieToday}</div>
+            <div className="ed-metric-label">calories</div>
+            <div className="ed-metric-sub">{calorieGoal - calorieToday > 0 ? `${calorieGoal - calorieToday} to goal` : "Goal hit"}</div>
+            <div className="ed-progress"><span style={{ width: `${caloriePct}%`, background: "var(--accent-gold)" }} /></div>
+          </div>
+          <div className="ed-metric" onClick={onOpenSchedule}>
+            <div className="ed-metric-value" style={{ color: readiness.tone }}>{readiness.label === "Clear to build" ? "Clear" : readiness.label === "Train smart" ? "Caution" : "Modify"}</div>
+            <div className="ed-metric-label">readiness</div>
+            <div className="ed-metric-sub">{readiness.meta}</div>
+          </div>
+        </div>
+
+        <hr className="ed-divider ed-section" style={{ marginBottom: 96 }} />
+
+        {/* === HEALTH: injuries + allergies side by side === */}
+        <div className="ed-section" style={{ marginBottom: 96 }}>
+          <div className="ops-eyebrow" style={{ marginBottom: 24 }}>Health</div>
+          <div className="ed-health-grid">
+            <div className="ed-health-col" onClick={onOpenMicroInjuries} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenMicroInjuries(); } }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", color: criticalInjuries > 0 ? "var(--accent-danger)" : injuries.length > 0 ? "var(--accent-warn)" : "var(--accent-success)", marginBottom: 6 }}>
+                {injuries.length} {injuries.length === 1 ? "injury" : "injuries"}
               </div>
+              <div style={{ fontSize: 14, color: "var(--ink-faint)", lineHeight: 1.5, marginBottom: 16 }}>
+                Hot spot: {hotSpot}. Partner trend: {topPartner}.
+              </div>
+              {allInjuries.slice(0, 3).map((inj) => (
+                <div key={inj.body_part || inj.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(26,24,20,0.04)", fontSize: 14 }}>
+                  <span style={{ color: "var(--ink)", fontWeight: 500 }}>{inj.body_part || "Injury"}</span>
+                  <span style={{ color: "var(--ink-faint)", fontSize: 13 }}>{inj.severity || "watch"}</span>
+                </div>
+              ))}
             </div>
-          </div>
-          <div className="ops-span-4">
-            <div className="ops-card ops-card-click" {...opsActionProps(onOpenSchedule)}>
-              <div className="ops-card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div className="ops-eyebrow">Readiness</div>
-                <div className="ops-value" style={{ color: readiness.tone }}>{readiness.label}</div>
-                <div className="ops-muted" style={{ fontSize: 14 }}>{readiness.meta}</div>
-                <div className="ops-pill-row">
-                  <span className="ops-pill">{injuries.length} active injuries</span>
-                  <span className="ops-pill">{missedAllergy} allergy misses</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="ops-span-5">
-            <div className="ops-card ops-card-click" {...opsActionProps(onOpenHydration)}>
-              <div className="ops-card-body" style={{ display: "grid", gap: 18 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
-                  <div>
-                    <div className="ops-eyebrow" style={{ marginBottom: 8 }}>Hydration</div>
-                    <div className="ops-value" style={{ color: "var(--accent-cobalt)" }}>{Math.round(waterToday * 1000)} ml</div>
-                  </div>
-                  <div className="ops-muted" style={{ fontSize: 14 }}>{waterPct}% of {waterGoal} L</div>
+            <div className="ed-health-col" onClick={onOpenAllergies} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenAllergies(); } }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", color: missedAllergy > 0 ? "var(--accent-danger)" : allergies.length > 0 ? "var(--accent-warn)" : "var(--accent-success)", marginBottom: 6 }}>
+                {missedAllergy > 0 ? `${missedAllergy} missed` : allergies.length > 0 ? "Tracked" : "Clear"}
+              </div>
+              <div style={{ fontSize: 14, color: "var(--ink-faint)", lineHeight: 1.5, marginBottom: 16 }}>
+                {allergyStats.last_7_days || 0} reactions in last 7 days. Trigger: {topTrigger}.
+              </div>
+              {(allergyStats.top_triggers || []).slice(0, 3).map((row) => (
+                <div key={row.name} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(26,24,20,0.04)", fontSize: 14 }}>
+                  <span style={{ color: "var(--ink)", fontWeight: 500 }}>{row.name}</span>
+                  <span style={{ color: "var(--ink-faint)", fontSize: 13 }}>{row.count}x</span>
                 </div>
-                <div className="ops-progress"><span style={{ width: `${waterPct}%` }} /></div>
-                <div className="ops-pill-row">
-                  <span className="ops-pill">{Math.max(0, Math.round((waterGoal - waterToday) * 1000))} ml left</span>
-                  <span className="ops-pill">{typeof d.streak_days === "number" ? d.streak_days : 0} day streak</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="ops-span-3">
-            <div className="ops-card ops-card-click" {...opsActionProps(onOpenMeals)}>
-              <div className="ops-card-body" style={{ display: "grid", gap: 14 }}>
-                <div className="ops-eyebrow">Fuel</div>
-                <div className="ops-value" style={{ color: caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)" }}>{calorieToday}</div>
-                <div className="ops-muted" style={{ fontSize: 13 }}>{calorieGoal - calorieToday > 0 ? `${calorieGoal - calorieToday} cal to goal` : "Goal hit"}</div>
-                <div className="ops-progress"><span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--accent-gold), var(--accent-oxblood))" }} /></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="ops-span-3">
-            <OpsMetric label="Problems" value={(Array.isArray(d.problems) ? d.problems.filter((p) => !p.resolved).length : 0)} meta="Open positions to clean up" tone="var(--accent-oxblood)" onClick={onOpenProblems} />
-          </div>
-          <div className="ops-span-3">
-            <OpsMetric label="Library" value={(Array.isArray(d.techniques) ? d.techniques.length : 0)} meta="Technique folders" tone="var(--accent-cobalt)" onClick={onOpenTechniqueLibrary} />
-          </div>
-          <div className="ops-span-6">
-            <OpsMetric
-              label="Latest lesson note"
-              value={bruno ? "Private lesson logged" : "No private logged"}
-              meta={bruno ? (bruno.summary || bruno.notes || bruno.date) : "Add the next Bruno note after training."}
-              tone="var(--ink)"
-              onClick={onOpenLessons}
-            />
-          </div>
-
-          <div className="ops-span-12" style={{ marginTop: 56 }}>
-            <div className="ops-panel" style={{ padding: 18 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
-                <div>
-                  <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Health intelligence</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>Patterns before problems</div>
-                </div>
-                <div className="ops-pill">Decision support</div>
-              </div>
-              <div className="ops-health-grid">
-                <OpsHealthModule
-                  title="Micro-injuries"
-                  status={criticalInjuries > 0 ? "Modify" : injuries.length > 0 ? "Watch" : "Clear"}
-                  statusTone={criticalInjuries > 0 ? "var(--accent-danger)" : injuries.length > 0 ? "var(--accent-warn)" : "var(--accent-success)"}
-                  meta={`${injuries.length} active. Hot spot: ${hotSpot}. Partner trend: ${topPartner}.`}
-                  rows={allInjuries.slice(0, 2).map((inj) => ({ label: inj.body_part || "Injury", value: inj.severity || "watch" }))}
-                  chart={<OpsTimeBars buckets={(injuryStats && injuryStats.time_buckets) || {}} keys={["morning", "afternoon", "evening"]} />}
-                  onClick={onOpenMicroInjuries}
-                />
-                <OpsHealthModule
-                  title="Allergy load"
-                  status={missedAllergy > 0 ? "Impacting" : allergies.length > 0 ? "Tracked" : "Clear"}
-                  statusTone={missedAllergy > 0 ? "var(--accent-danger)" : allergies.length > 0 ? "var(--accent-warn)" : "var(--accent-success)"}
-                  meta={`${allergyStats.last_7_days || 0} in the last 7 days. Top trigger: ${topTrigger}.`}
-                  rows={(allergyStats.top_triggers || []).slice(0, 2).map((row) => ({ label: row.name, value: row.count }))}
-                  chart={<OpsTimeBars buckets={(allergyStats && allergyStats.time_buckets) || {}} />}
-                  onClick={onOpenAllergies}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="ops-span-12" style={{ marginTop: 56 }}>
-            <div className="ops-card">
-              <div className="ops-card-body" style={{ paddingBottom: 0 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
-                  <div>
-                    <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Activity feed</div>
-                    <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>Recent bot conversation</div>
-                  </div>
-                  <div className="ops-pill">{messages.length} items</div>
-                </div>
-              </div>
-              <div className="ops-activity">
-                {messages.length > 0 ? messages.map((m, i) => (
-                  <MessageRow key={i} role={m.role === "assistant" ? "claude" : "you"} body={m.content} time="" />
-                )) : (
-                  <div style={{ padding: "24px 18px", color: "var(--ink-faint)", fontSize: 14 }}>No recent messages yet.</div>
-                )}
-              </div>
+              ))}
             </div>
           </div>
         </div>
+
+        <hr className="ed-divider ed-section" style={{ marginBottom: 96 }} />
+
+        {/* === ACTIVITY: recent messages as a clean list === */}
+        <div className="ed-section" style={{ marginBottom: 96 }}>
+          <div className="ops-eyebrow" style={{ marginBottom: 24 }}>Recent activity</div>
+          {messages.length > 0 ? messages.map((m, i) => (
+            <div key={i} className="ed-activity-item">
+              <div style={{ flexShrink: 0, paddingTop: 2 }}>
+                {m.role === "assistant"
+                  ? <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: "var(--accent-cobalt)", letterSpacing: "0.02em" }}>BOT</span>
+                  : <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: "var(--ink-faint)", letterSpacing: "0.02em" }}>YOU</span>
+                }
+              </div>
+              <div style={{ flex: 1, fontSize: 15, color: "var(--fg-2)", lineHeight: 1.5 }}>{m.content}</div>
+            </div>
+          )) : (
+            <div style={{ fontSize: 14, color: "var(--ink-faint)" }}>No recent messages yet.</div>
+          )}
+        </div>
+
+        <hr className="ed-divider ed-section" style={{ marginBottom: 48 }} />
+
+        {/* === QUICK NAV: text links to sub-views === */}
+        <div className="ed-section ed-nav-row">
+          <button className="ed-nav-link" onClick={onOpenSchedule}>Schedule</button>
+          <button className="ed-nav-link" onClick={onOpenLessons}>Bruno lessons{bruno ? "" : " (none logged)"}</button>
+          <button className="ed-nav-link" onClick={onOpenProblems}>Problems ({openProblems})</button>
+          <button className="ed-nav-link" onClick={onOpenTechniqueLibrary}>Library ({techCount})</button>
+          <button className="ed-nav-link" onClick={onOpenHydration}>Hydration{streakDays > 0 ? ` (${streakDays}d streak)` : ""}</button>
+        </div>
+
       </div>
     </div>
   );
