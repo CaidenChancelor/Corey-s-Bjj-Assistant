@@ -2671,7 +2671,7 @@ function Hydration({ onBack }) {
                     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                     color: log.length === 0
                       ? "rgba(224,38,74,0.45)"
-                      : (clearArmed ? "#fff" : "var(--accent-danger-bright)"),
+                      : (clearArmed ? "var(--fg-on-gradient)" : "var(--accent-danger-bright)"),
                     background: clearArmed && log.length > 0 ? "var(--accent-danger-bright)" : "transparent",
                     border: clearArmed && log.length > 0
                       ? "1px solid #e0264a"
@@ -9177,7 +9177,7 @@ function TechniqueLibrary({ onBack }) {
   }
 
   if (selected !== null) {
-    const t = listTechniques[selected];
+    const t = listTechniques.find((tech) => (tech.id || listTechniques.indexOf(tech)) === selected) || listTechniques[selected];
     const entries = (t && Array.isArray(t.entries)) ? t.entries : [];
     return (
       <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
@@ -9303,7 +9303,7 @@ function TechniqueLibrary({ onBack }) {
             {listTechniques.map((t, i) => (
               <div
                 key={t.id || i}
-                onClick={() => setSelected(i)}
+                onClick={() => setSelected(t.id || i)}
                 style={{
                   background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
                   border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
