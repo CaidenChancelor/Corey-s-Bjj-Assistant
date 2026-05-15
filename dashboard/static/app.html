@@ -600,6 +600,158 @@ html, body {
   overflow-x: hidden;
 }
 
+/* =============================================================
+   OPERATING CONSOLE UX PASS
+   Dense SaaS-style dashboard primitives for the main training view.
+   ============================================================= */
+.ops-console {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.ops-topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+.ops-panel {
+  background: rgba(247, 241, 227, 0.82);
+  border: 1px solid rgba(26, 24, 20, 0.09);
+  border-radius: 18px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.72) inset, 0 18px 44px -28px rgba(26,24,20,0.26);
+  backdrop-filter: blur(28px) saturate(145%);
+  -webkit-backdrop-filter: blur(28px) saturate(145%);
+}
+.ops-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4.8vw, 54px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  color: var(--ink);
+}
+.ops-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(26,24,20,0.44);
+}
+.ops-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+.ops-span-3 { grid-column: span 3; }
+.ops-span-4 { grid-column: span 4; }
+.ops-span-5 { grid-column: span 5; }
+.ops-span-6 { grid-column: span 6; }
+.ops-span-7 { grid-column: span 7; }
+.ops-span-8 { grid-column: span 8; }
+.ops-span-12 { grid-column: span 12; }
+.ops-card {
+  background: rgba(255, 252, 245, 0.76);
+  border: 1px solid rgba(26,24,20,0.08);
+  border-radius: 16px;
+  min-height: 100%;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.75) inset, 0 12px 30px -24px rgba(26,24,20,0.28);
+  overflow: hidden;
+}
+.ops-card-click {
+  cursor: pointer;
+  transition: transform 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring), border-color 180ms ease;
+}
+.ops-card-click:hover {
+  transform: translateY(-2px);
+  border-color: rgba(28,44,90,0.20);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.82) inset, 0 18px 42px -26px rgba(28,44,90,0.30);
+}
+.ops-card-body { padding: 18px; }
+.ops-value {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink);
+}
+.ops-muted { color: rgba(26,24,20,0.58); }
+.ops-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.ops-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(26,24,20,0.045);
+  border: 1px solid rgba(26,24,20,0.07);
+  color: rgba(26,24,20,0.70);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.ops-progress {
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(26,24,20,0.08);
+  overflow: hidden;
+}
+.ops-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-cobalt), var(--accent-gold));
+}
+.ops-health-grid {
+  display: grid;
+  grid-template-columns: 1.02fr 0.98fr;
+  gap: 14px;
+}
+.ops-spark-bars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  align-items: end;
+  height: 74px;
+}
+.ops-spark-bars div {
+  border-radius: 9px 9px 4px 4px;
+  background: linear-gradient(180deg, rgba(199,154,58,0.92), rgba(110,19,32,0.92));
+  min-height: 8px;
+}
+.ops-activity {
+  max-height: 360px;
+  overflow: auto;
+}
+@media (max-width: 1000px) {
+  .ops-topbar { grid-template-columns: 1fr; }
+  .ops-span-3,
+  .ops-span-4,
+  .ops-span-5,
+  .ops-span-6,
+  .ops-span-7,
+  .ops-span-8 { grid-column: span 6; }
+}
+@media (max-width: 700px) {
+  .ops-grid { grid-template-columns: 1fr; gap: 14px; }
+  .ops-span-3,
+  .ops-span-4,
+  .ops-span-5,
+  .ops-span-6,
+  .ops-span-7,
+  .ops-span-8,
+  .ops-span-12 { grid-column: 1; }
+  .ops-health-grid { grid-template-columns: 1fr; }
+}
+
 
 
 /* =============================================================
@@ -1084,7 +1236,20 @@ function GlassButton({ children, onClick, style = {} }) {
 // NavPill — top-centre floating nav
 // =====================================================
 function NavPill({ active, onChange }) {
-  const tabs = ["dashboard", "editor"];
+  const activeParent = {
+    bruno: "dashboard",
+    schedule: "dashboard",
+    meals: "dashboard",
+    problems: "dashboard",
+    hydration: "dashboard",
+  }[active] || active;
+  const tabs = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "micro-injuries", label: "Injuries" },
+    { id: "allergies", label: "Allergies" },
+    { id: "techniquelibrary", label: "Library" },
+    { id: "editor", label: "Editor" },
+  ];
   return (
     <div className="bjj-navpill-wrap" style={{
       position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)",
@@ -1101,22 +1266,27 @@ function NavPill({ active, onChange }) {
         boxShadow: "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(26,22,19,0.14)",
       }}>
         <SparkleLogo size={26}/>
-        <div style={{ display: "flex", gap: 4 }}>
+        <div role="tablist" aria-label="Primary dashboard sections" style={{ display: "flex", gap: 4, overflowX: "auto", maxWidth: "min(72vw, 620px)", scrollbarWidth: "none" }}>
           {tabs.map(t => {
-            const isActive = active === t;
+            const isActive = activeParent === t.id;
             return (
-              <div key={t} onClick={() => onChange(t)}
+              <button key={t.id} onClick={() => onChange(t.id)}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
                 className="nav-pill-tab"
                 style={{
-                  padding: "7px 16px", borderRadius: 6,
-                  fontSize: 11, fontWeight: 600,
-                  fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+                  padding: "8px 14px", borderRadius: 6,
+                  fontSize: 12.5, fontWeight: 650,
+                  fontFamily: "var(--font-text)",
                   color: isActive ? "var(--ink, #1A1613)" : "rgba(26,22,19,0.45)",
                   background: isActive ? "rgba(26,22,19,0.06)" : "transparent",
-                  cursor: "pointer", textTransform: "uppercase",
-                  letterSpacing: "0.14em",
+                  border: "none",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  letterSpacing: "0",
                   transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
-                }}>{t}</div>
+                }}>{t.label}</button>
             );
           })}
         </div>
@@ -4221,7 +4391,7 @@ function MessageRow({ role, body, time }) {
   );
 }
 
-function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary }) {
+function LegacyDashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary }) {
   const botError = window.__bjjdata && window.__bjjdata.error;
   return (
     <div className="dash-page" style={{ paddingTop: 100, paddingBottom: 80, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
@@ -4413,6 +4583,274 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 ));
               })()}
             </GlassCard>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function opsActionProps(onClick) {
+  if (!onClick) return {};
+  return {
+    role: "button",
+    tabIndex: 0,
+    onClick,
+    onKeyDown: (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onClick(e);
+      }
+    },
+  };
+}
+
+function OpsMetric({ label, value, meta, tone = "var(--accent-cobalt)", onClick }) {
+  return (
+    <div className={`ops-card ${onClick ? "ops-card-click" : ""}`} {...opsActionProps(onClick)}>
+      <div className="ops-card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="ops-eyebrow">{label}</div>
+        <div className="ops-value" style={{ color: tone, fontSize: 30 }}>{value}</div>
+        {meta && <div className="ops-muted" style={{ fontSize: 13, lineHeight: 1.35 }}>{meta}</div>}
+      </div>
+    </div>
+  );
+}
+
+function OpsHealthModule({ title, status, statusTone, meta, rows, chart, onClick }) {
+  return (
+    <div className="ops-card ops-card-click" {...opsActionProps(onClick)}>
+      <div className="ops-card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "flex-start" }}>
+          <div>
+            <div className="ops-eyebrow" style={{ marginBottom: 7 }}>{title}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 760, letterSpacing: "-0.035em", color: statusTone }}>
+              {status}
+            </div>
+          </div>
+          <div className="ops-pill" style={{ color: statusTone }}>
+            View
+          </div>
+        </div>
+        <div className="ops-muted" style={{ fontSize: 13.5, lineHeight: 1.45 }}>{meta}</div>
+        {chart}
+        {rows && rows.length > 0 && (
+          <div style={{ display: "grid", gap: 8 }}>
+            {rows.slice(0, 2).map((row) => (
+              <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13.5 }}>
+                <span style={{ color: "var(--ink)", fontWeight: 650, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.label}</span>
+                <span className="ops-muted" style={{ flexShrink: 0 }}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function OpsTimeBars({ buckets, keys = ["morning", "afternoon", "evening", "night"] }) {
+  const safeBuckets = buckets || {};
+  const maxBucket = Math.max(1, ...keys.map((key) => safeBuckets[key] || 0));
+  return (
+    <div>
+      <div className="ops-spark-bars">
+        {keys.map((key) => (
+          <div key={key} style={{ height: `${Math.max(8, ((safeBuckets[key] || 0) / maxBucket) * 100)}%` }} />
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${keys.length}, 1fr)`, gap: 7, marginTop: 6 }}>
+        {keys.map((key) => (
+          <div key={key} className="ops-eyebrow" style={{ fontSize: 9.5, letterSpacing: "0.08em", textAlign: "center" }}>
+            {({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary }) {
+  const d = window.__bjjdata || {};
+  const botError = d && d.error;
+  const waterGoal = typeof d.water_goal === "number" ? d.water_goal : 3;
+  const waterToday = typeof d.water_today === "number" ? d.water_today : 0;
+  const waterPct = Math.max(0, Math.min(100, Math.round((waterToday / Math.max(0.1, waterGoal)) * 100)));
+  const calorieGoal = typeof d.calorie_goal === "number" ? d.calorie_goal : 2800;
+  const calorieToday = typeof d.calorie_today === "number" ? d.calorie_today : 0;
+  const caloriePct = Math.max(0, Math.min(100, Math.round((calorieToday / Math.max(1, calorieGoal)) * 100)));
+  const injuries = Array.isArray(d.injuries_active) ? d.injuries_active : [];
+  const allInjuries = Array.isArray(d.all_injuries) ? d.all_injuries : injuries;
+  const allergies = Array.isArray(d.allergies) ? d.allergies : [];
+  const allergyStats = d.allergy_stats || {};
+  const injuryStats = d.injury_stats || {};
+  const criticalInjuries = injuries.filter((inj) => ["severe", "critical"].includes(String(inj.severity || "").toLowerCase())).length;
+  const moderateInjuries = injuries.filter((inj) => ["moderate", "fresh", "managing"].includes(String(inj.severity || "").toLowerCase())).length;
+  const readiness = criticalInjuries > 0
+    ? { label: "Modify training", tone: "var(--accent-danger)", meta: `${criticalInjuries} high-risk item${criticalInjuries === 1 ? "" : "s"} active` }
+    : moderateInjuries > 0
+      ? { label: "Train smart", tone: "var(--accent-warn)", meta: `${moderateInjuries} item${moderateInjuries === 1 ? "" : "s"} need attention` }
+      : { label: "Clear to build", tone: "var(--accent-success)", meta: "No major health blockers logged" };
+  const next = d.next_up || "Open training block";
+  const bruno = d.bruno_recent;
+  const topPartner = injuryStats.top_partners && injuryStats.top_partners[0] ? injuryStats.top_partners[0].name : "No partner trend";
+  const hotSpot = injuryStats.top_body_parts && injuryStats.top_body_parts[0] ? injuryStats.top_body_parts[0].name : (injuries[0]?.body_part || "No hot spot");
+  const topTrigger = allergyStats.top_triggers && allergyStats.top_triggers[0] ? allergyStats.top_triggers[0].name : "No trigger trend";
+  const missedAllergy = allergyStats.missed_training || allergies.filter((log) => log.missed_training).length || 0;
+  const messages = Array.isArray(d.recent_messages) ? d.recent_messages.slice(-6).reverse() : [];
+  const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
+  return (
+    <div className="dash-page" style={{ paddingTop: 96, paddingBottom: 88, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
+      <div className="ops-console">
+        <div className="ops-topbar">
+          <div className="ops-panel" style={{ padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", marginBottom: 18 }}>
+              <div>
+                <div className="ops-eyebrow" style={{ marginBottom: 10 }}>{todayLabel}</div>
+                <div className="ops-page-title">Training console</div>
+              </div>
+              <div className="ops-pill" style={{ color: botError ? "var(--accent-danger)" : "var(--accent-success)" }}>
+                {botError ? "Bot data delayed" : "Live data"}
+              </div>
+            </div>
+            <div className="ops-pill-row">
+              <button onClick={onOpenHydration} className="ops-pill" style={{ cursor: "pointer" }}>Log water</button>
+              <button onClick={onOpenMeals} className="ops-pill" style={{ cursor: "pointer" }}>Log meal</button>
+              <button onClick={onOpenMicroInjuries} className="ops-pill" style={{ cursor: "pointer" }}>Health check</button>
+              <button onClick={onOpenTechniqueLibrary} className="ops-pill" style={{ cursor: "pointer" }}>Library</button>
+            </div>
+          </div>
+
+          <div className="ops-panel" style={{ padding: 20 }}>
+            <div className="ops-eyebrow" style={{ marginBottom: 10 }}>Next up</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 760, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 12 }}>
+              {next}
+            </div>
+            <div className="ops-muted" style={{ fontSize: 13.5, lineHeight: 1.4 }}>
+              {bruno ? `Last private: ${bruno.summary || bruno.notes || "Logged"}` : "Tap into schedule or lessons when the next block changes."}
+            </div>
+          </div>
+        </div>
+
+        {botError && (
+          <div className="ops-panel" style={{ padding: 14, marginBottom: 18, color: "var(--accent-danger)", fontSize: 14 }}>
+            Bot data is temporarily unavailable. The dashboard is still usable, but live stats may be stale.
+          </div>
+        )}
+
+        <div className="ops-grid">
+          <div className="ops-span-4">
+            <div className="ops-card ops-card-click" {...opsActionProps(onOpenSchedule)}>
+              <div className="ops-card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="ops-eyebrow">Readiness</div>
+                <div className="ops-value" style={{ color: readiness.tone }}>{readiness.label}</div>
+                <div className="ops-muted" style={{ fontSize: 14 }}>{readiness.meta}</div>
+                <div className="ops-pill-row">
+                  <span className="ops-pill">{injuries.length} active injuries</span>
+                  <span className="ops-pill">{missedAllergy} allergy misses</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="ops-span-5">
+            <div className="ops-card ops-card-click" {...opsActionProps(onOpenHydration)}>
+              <div className="ops-card-body" style={{ display: "grid", gap: 18 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
+                  <div>
+                    <div className="ops-eyebrow" style={{ marginBottom: 8 }}>Hydration</div>
+                    <div className="ops-value" style={{ color: "var(--accent-cobalt)" }}>{Math.round(waterToday * 1000)} ml</div>
+                  </div>
+                  <div className="ops-muted" style={{ fontSize: 14 }}>{waterPct}% of {waterGoal} L</div>
+                </div>
+                <div className="ops-progress"><span style={{ width: `${waterPct}%` }} /></div>
+                <div className="ops-pill-row">
+                  <span className="ops-pill">{Math.max(0, Math.round((waterGoal - waterToday) * 1000))} ml left</span>
+                  <span className="ops-pill">{typeof d.streak_days === "number" ? d.streak_days : 0} day streak</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="ops-span-3">
+            <div className="ops-card ops-card-click" {...opsActionProps(onOpenMeals)}>
+              <div className="ops-card-body" style={{ display: "grid", gap: 14 }}>
+                <div className="ops-eyebrow">Fuel</div>
+                <div className="ops-value" style={{ color: caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)" }}>{calorieToday}</div>
+                <div className="ops-muted" style={{ fontSize: 13 }}>{calorieGoal - calorieToday > 0 ? `${calorieGoal - calorieToday} cal to goal` : "Goal hit"}</div>
+                <div className="ops-progress"><span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--accent-gold), var(--accent-oxblood))" }} /></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="ops-span-3">
+            <OpsMetric label="Problems" value={(Array.isArray(d.problems) ? d.problems.filter((p) => !p.resolved).length : 0)} meta="Open positions to clean up" tone="var(--accent-oxblood)" onClick={onOpenProblems} />
+          </div>
+          <div className="ops-span-3">
+            <OpsMetric label="Library" value={(Array.isArray(d.techniques) ? d.techniques.length : 0)} meta="Technique folders" tone="var(--accent-cobalt)" onClick={onOpenTechniqueLibrary} />
+          </div>
+          <div className="ops-span-6">
+            <OpsMetric
+              label="Latest lesson note"
+              value={bruno ? "Private lesson logged" : "No private logged"}
+              meta={bruno ? (bruno.summary || bruno.notes || bruno.date) : "Add the next Bruno note after training."}
+              tone="var(--ink)"
+              onClick={onOpenLessons}
+            />
+          </div>
+
+          <div className="ops-span-12">
+            <div className="ops-panel" style={{ padding: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
+                <div>
+                  <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Health intelligence</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 760, letterSpacing: "-0.035em" }}>Patterns before problems</div>
+                </div>
+                <div className="ops-pill">Decision support</div>
+              </div>
+              <div className="ops-health-grid">
+                <OpsHealthModule
+                  title="Micro-injuries"
+                  status={criticalInjuries > 0 ? "Modify" : injuries.length > 0 ? "Watch" : "Clear"}
+                  statusTone={criticalInjuries > 0 ? "var(--accent-danger)" : injuries.length > 0 ? "var(--accent-warn)" : "var(--accent-success)"}
+                  meta={`${injuries.length} active. Hot spot: ${hotSpot}. Partner trend: ${topPartner}.`}
+                  rows={allInjuries.slice(0, 2).map((inj) => ({ label: inj.body_part || "Injury", value: inj.severity || "watch" }))}
+                  chart={<OpsTimeBars buckets={(injuryStats && injuryStats.time_buckets) || {}} keys={["morning", "afternoon", "evening"]} />}
+                  onClick={onOpenMicroInjuries}
+                />
+                <OpsHealthModule
+                  title="Allergy load"
+                  status={missedAllergy > 0 ? "Impacting" : allergies.length > 0 ? "Tracked" : "Clear"}
+                  statusTone={missedAllergy > 0 ? "var(--accent-danger)" : allergies.length > 0 ? "var(--accent-warn)" : "var(--accent-success)"}
+                  meta={`${allergyStats.last_7_days || 0} in the last 7 days. Top trigger: ${topTrigger}.`}
+                  rows={(allergyStats.top_triggers || []).slice(0, 2).map((row) => ({ label: row.name, value: row.count }))}
+                  chart={<OpsTimeBars buckets={(allergyStats && allergyStats.time_buckets) || {}} />}
+                  onClick={onOpenAllergies}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="ops-span-12">
+            <div className="ops-card">
+              <div className="ops-card-body" style={{ paddingBottom: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
+                  <div>
+                    <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Activity feed</div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 730, letterSpacing: "-0.03em" }}>Recent bot conversation</div>
+                  </div>
+                  <div className="ops-pill">{messages.length} items</div>
+                </div>
+              </div>
+              <div className="ops-activity">
+                {messages.length > 0 ? messages.map((m, i) => (
+                  <MessageRow key={i} role={m.role === "assistant" ? "claude" : "you"} body={m.content} time="" />
+                )) : (
+                  <div style={{ padding: "24px 18px", color: "rgba(26,24,20,0.52)", fontSize: 14 }}>No recent messages yet.</div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -7823,7 +8261,7 @@ function MicroInjuries({ onBack }) {
   const [adding, setAdding] = useStateMI(false);
   const [editingId, setEditingId] = useStateMI(null);
   const [detailId, setDetailId] = useStateMI(null);
-  const [analyticsOpen, setAnalyticsOpen] = useStateMI(false);
+  const [analyticsOpen, setAnalyticsOpen] = useStateMI(true);
   const [sortMode, setSortMode] = useStateMI(() => {
     try { return localStorage.getItem("micro_injuries_sort") || "severity"; } catch { return "severity"; }
   });
@@ -7923,7 +8361,7 @@ function MicroInjuries({ onBack }) {
 
   return (
     <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1120, margin: "0 auto" }}>
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
           <button onClick={onBack} style={{
@@ -8599,12 +9037,13 @@ window.MicroInjuries = MicroInjuries;
 const ALLERGY_SEVERITIES = [
   { id: "mild", label: "Mild", color: "#4a7a3a" },
   { id: "moderate", label: "Moderate", color: "#c79a3a" },
-  { id: "bad", label: "Bad", color: "#6e1320" },
-  { id: "severe", label: "Severe", color: "#4a1a10" },
+  { id: "severe", label: "Severe", color: "#6e1320" },
+  { id: "critical", label: "Critical", color: "#4a1a10" },
 ];
-const ALLERGY_CATEGORIES = ["Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "All of the Above"];
+const ALLERGY_CATEGORIES = ["General", "Seasonal", "Environmental", "Food", "Medication", "Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "All of the Above"];
 const ALLERGY_CAUSES = ["Food", "Pollen", "High Heart Rate", "All of the Above"];
 const ALLERGY_MEDICATIONS = [
+  "",
   "Albuterol Inhaler (Red Pumps)",
   "Albuterol Machine (Bubbles)",
   "Formoterol Inhaler (Blue Pumps)",
@@ -8620,7 +9059,8 @@ const ALLERGY_IMPACTS = [
 ];
 
 function allergyColor(severity) {
-  return (ALLERGY_SEVERITIES.find((s) => s.id === severity) || ALLERGY_SEVERITIES[0]).color;
+  const normalized = severity === "bad" ? "severe" : severity;
+  return (ALLERGY_SEVERITIES.find((s) => s.id === normalized) || ALLERGY_SEVERITIES[0]).color;
 }
 function allergyIdFrom(log) {
   return log.id && String(log.id).startsWith("allergy-") ? log.id : `allergy-${log.id}`;
@@ -8638,7 +9078,7 @@ function normalizeAllergy(log) {
     id: allergyIdFrom(log),
     date: log.date || allergyToday(),
     time: log.time || "",
-    severity: log.severity || "mild",
+    severity: log.severity === "bad" ? "severe" : (log.severity || "mild"),
     category: log.category || "general",
     trigger: log.trigger || "",
     symptoms: log.symptoms || "",
@@ -8678,7 +9118,7 @@ function allergyTimeBucket(timeText, createdAt) {
   return null;
 }
 function allergyStatsFromLogs(logs) {
-  const timeBuckets = { morning: 0, afternoon: 0, evening: 0 };
+  const timeBuckets = { morning: 0, afternoon: 0, evening: 0, night: 0 };
   const triggerCounts = {};
   const categoryCounts = {};
   const severityCounts = {};
@@ -8869,10 +9309,10 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const [date, setDate] = React.useState(initial?.date || allergyToday());
   const [time, setTime] = React.useState(initial?.time || allergyNowTime());
   const [severity, setSeverity] = React.useState(initial?.severity || "mild");
-  const [category, setCategory] = React.useState(initial?.category || "Shortness of Breath");
+  const [category, setCategory] = React.useState(initial?.category || "General");
   const [trigger, setTrigger] = React.useState(initial?.trigger || "Food");
   const [symptoms, setSymptoms] = React.useState(initial?.symptoms || "");
-  const [medication, setMedication] = React.useState(initial?.medication || ALLERGY_MEDICATIONS[0]);
+  const [medication, setMedication] = React.useState(initial?.medication || "");
   const [impact, setImpact] = React.useState(initial?.training_impact || "none");
   const [missed, setMissed] = React.useState(!!initial?.missed_training);
   const submit = () => onSubmit({ date, time, severity, category, trigger: trigger.trim(), symptoms: symptoms.trim(), medication: medication.trim(), training_impact: impact, missed_training: missed });
@@ -8895,7 +9335,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
         </div>
         <textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Symptoms and what it changed in training" rows={4} style={{ ...field, resize: "vertical", marginBottom: 12 }} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-          <select value={medication} onChange={(e) => setMedication(e.target.value)} style={field}>{ALLERGY_MEDICATIONS.map((m) => <option key={m} value={m}>{m}</option>)}</select>
+          <select value={medication} onChange={(e) => setMedication(e.target.value)} style={field}>{ALLERGY_MEDICATIONS.map((m) => <option key={m || "none"} value={m}>{m || "No medication"}</option>)}</select>
           <select value={impact} onChange={(e) => setImpact(e.target.value)} style={field}>{ALLERGY_IMPACTS.map((i) => <option key={i.id} value={i.id}>{i.label}</option>)}</select>
         </div>
         <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "rgba(26,22,19,0.70)", marginBottom: 22 }}>

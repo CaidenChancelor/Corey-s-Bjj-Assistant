@@ -659,7 +659,7 @@ def get_allergy_stats():
                 "GROUP BY LOWER(COALESCE(NULLIF(TRIM(training_impact), ''), 'none'))"
             ).fetchall()
             time_rows = conn.execute("SELECT time, created_at FROM allergies").fetchall()
-        time_buckets = {"morning": 0, "afternoon": 0, "evening": 0}
+        time_buckets = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
         for time_text, created_at in time_rows:
             bucket = _infer_allergy_time_bucket(time_text, created_at)
             if bucket:
@@ -683,7 +683,7 @@ def get_allergy_stats():
             "categories": [],
             "severity_counts": [],
             "impact_counts": [],
-            "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0},
+            "time_buckets": {"morning": 0, "afternoon": 0, "evening": 0, "night": 0},
         }
 
 

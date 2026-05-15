@@ -38,17 +38,23 @@ try:
             "VALUES (?,?,?,?,?,?,?,?,?,?)",
             ("2026-05-14", "evening class", "bad", "breathing", "dust", "wheezing", "inhaler", "skipped", 1, "2026-05-14T19:30:00-04:00"),
         )
+        conn.execute(
+            "INSERT INTO allergies (date, time, severity, category, trigger_name, symptoms, medication, training_impact, missed_training, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?)",
+            ("2026-05-14", "10:45 pm", "mild", "eyes", "mold", "itchy", "drops", "none", 0, "2026-05-14T22:45:00-04:00"),
+        )
         conn.commit()
 
     logs = bot.get_all_allergies()
-    assert len(logs) == 2
-    assert logs[0]["missed_training"] is True
+    assert len(logs) == 3
+    assert any(log["missed_training"] is True for log in logs)
 
     stats = bot.get_allergy_stats()
-    assert stats["total"] == 2
+    assert stats["total"] == 3
     assert stats["missed_training"] == 1
     assert stats["time_buckets"]["morning"] == 1
     assert stats["time_buckets"]["evening"] == 1
+    assert stats["time_buckets"]["night"] == 1
     assert stats["top_triggers"][0]["count"] == 1
     assert any(row["name"] == "breathing" for row in stats["categories"])
 
