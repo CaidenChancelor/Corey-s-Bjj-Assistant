@@ -2392,9 +2392,9 @@ function Login({ onContinue }) {
               width: "100%", boxSizing: "border-box",
               padding: "16px 20px",
               borderRadius: 16,
-              background: "#ffffff",
+              background: "var(--bg-paper)",
               border: "none",
-              color: "#1d1d1f",
+              color: "var(--ink)",
               fontFamily: "var(--font-text)", fontSize: 16,
               outline: "none",
               display: "block",
@@ -2404,7 +2404,7 @@ function Login({ onContinue }) {
 
         <BlueButton fullWidth onClick={onContinue}>Continue</BlueButton>
 
-        <div style={{ fontSize: 12, color: "rgba(29,29,31,0.55)" }}>
+        <div style={{ fontSize: 12, color: "var(--ink-faint)" }}>
           single user · personal training log
         </div>
       </GlassCard>
@@ -2502,7 +2502,7 @@ function Hydration({ onBack }) {
         {/* Header */}
         <button onClick={onBack} style={{
           border: "none", background: "transparent", padding: 0, cursor: "pointer",
-          fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 14,
+          fontSize: 14, color: "var(--ink-muted)", marginBottom: 14,
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -2576,11 +2576,11 @@ function Hydration({ onBack }) {
                   style={{
                     background: "transparent", border: "none", padding: 0, cursor: "pointer",
                     fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 400,
-                    color: "rgba(29,29,31,0.55)", letterSpacing: "-0.02em",
+                    color: "var(--ink-faint)", letterSpacing: "-0.02em",
                     whiteSpace: "nowrap",
                   }}>of {formatHydrationAmount(goal)} goal</button>
               </div>
-              <div style={{ fontSize: 15, color: "rgba(29,29,31,0.62)", marginBottom: 22 }}>
+              <div style={{ fontSize: 15, color: "var(--ink-muted)", marginBottom: 22 }}>
                 {remaining > 0
                   ? `${formatHydrationAmount(remaining)} to go · ${pct}%`
                   : `Goal hit — +${formatHydrationAmount(total - goal)} over`}
@@ -2708,11 +2708,11 @@ function Hydration({ onBack }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <Eyebrow>today's log</Eyebrow>
-                <span style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", letterSpacing: "0.04em" }}>{displayLog.length} entries</span>
+                <span style={{ fontSize: 11, color: "var(--ink-faint)", letterSpacing: "0.04em" }}>{displayLog.length} entries</span>
               </div>
 
               {displayLog.length === 0 ? (
-                <div style={{ padding: "20px 0", fontSize: 14, color: "rgba(29,29,31,0.55)" }}>
+                <div style={{ padding: "20px 0", fontSize: 14, color: "var(--ink-faint)" }}>
                   Nothing logged yet — tap a quick-add button to start.
                 </div>
               ) : (
@@ -2740,7 +2740,7 @@ function Hydration({ onBack }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <Eyebrow>last 7 days</Eyebrow>
-                <span style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", letterSpacing: "0.04em" }}>avg {formatHydrationAmount(avg)}</span>
+                <span style={{ fontSize: 11, color: "var(--ink-faint)", letterSpacing: "0.04em" }}>avg {formatHydrationAmount(avg)}</span>
               </div>
               <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 110 }}>
                 {historyDays.map((d, i) => {
@@ -2750,7 +2750,7 @@ function Hydration({ onBack }) {
                   return (
                     <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                       <div style={{
-                        fontSize: 10, fontWeight: 500, color: "rgba(29,29,31,0.55)",
+                        fontSize: 10, fontWeight: 500, color: "var(--ink-faint)",
                         fontVariantNumeric: "tabular-nums",
                       }}>{Math.round(d.total / 100) / 10}L</div>
                       <div style={{
@@ -3006,7 +3006,7 @@ function InsightsTile({ total, goal, avg, streak }) {
             }}>{b.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{
-                fontSize: 14, fontWeight: 600, color: "#1d1d1f",
+                fontSize: 14, fontWeight: 600, color: "var(--ink)",
                 letterSpacing: "-0.01em", marginBottom: 2,
               }}>{b.title}</div>
               <div style={{ fontSize: 12, color: "rgba(29,29,31,0.6)" }}>{b.detail}</div>
@@ -3070,9 +3070,9 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
             <React.Fragment>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600,
-                letterSpacing: "-0.025em", color: "#1d1d1f", lineHeight: 1.2,
+                letterSpacing: "-0.025em", color: "var(--ink)", lineHeight: 1.2,
               }}>You've hit your goal — nice.</div>
-              <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginTop: 6 }}>
+              <div style={{ fontSize: 14, color: "var(--ink-muted)", marginTop: 6 }}>
                 Keep sipping if you're heading to practice.
               </div>
             </React.Fragment>
@@ -3080,11 +3080,11 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
             <React.Fragment>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 600,
-                letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.25,
+                letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.25,
               }}>
                 {formatHydrationAmount(remaining)} to go · target was {formatTimeFriendly(paceTarget)}
               </div>
-              <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginTop: 6 }}>
+              <div style={{ fontSize: 14, color: "var(--ink-muted)", marginTop: 6 }}>
                 Tap edit to set a new finish time.
               </div>
             </React.Fragment>
@@ -3092,11 +3092,11 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
             <React.Fragment>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600,
-                letterSpacing: "-0.025em", color: "#1d1d1f", lineHeight: 1.25,
+                letterSpacing: "-0.025em", color: "var(--ink)", lineHeight: 1.25,
               }}>
                 Drink <span style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatHydrationAmount(remaining)}</span> by <span style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatTimeFriendly(paceTarget)}</span>
               </div>
-              <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginTop: 6 }}>
+              <div style={{ fontSize: 14, color: "var(--ink-muted)", marginTop: 6 }}>
                 {hoursLeft >= 1
                   ? `≈ ${formatHydrationAmount(perHour)} per hour for the next ${hoursLeft.toFixed(1)} h`
                   : `${minsLeft} min left — better get sipping`}
@@ -3108,7 +3108,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
         <button onClick={onEdit} aria-label="Edit finish time" style={{
           padding: "8px 12px", fontSize: 13, fontWeight: 500,
           border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-          background: "#fff", color: "#1d1d1f", cursor: "pointer",
+          background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0,
         }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -3148,7 +3148,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
                   background: "transparent",
                 }}>
                   <span style={{
-                    fontSize: 12, fontWeight: 600, color: "#1d1d1f",
+                    fontSize: 12, fontWeight: 600, color: "var(--ink)",
                     fontVariantNumeric: "tabular-nums",
                   }}>{formatTimeFriendly(s.time)}</span>
                   <span style={{
@@ -3198,15 +3198,15 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 440,
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "hyModalPop 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>I want to be done by…</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 20 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 20 }}>
           Pick a finish time and we'll back-calc your hourly pace.
         </div>
 
@@ -3248,11 +3248,11 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
             letterSpacing: "0.06em", color: "rgba(29,29,31,0.5)", marginBottom: 6,
           }}>Preview</div>
           {remaining === 0 ? (
-            <div style={{ fontSize: 14, color: "#1d1d1f" }}>Goal already hit. 🎉</div>
+            <div style={{ fontSize: 14, color: "var(--ink)" }}>Goal already hit. 🎉</div>
           ) : past ? (
-            <div style={{ fontSize: 14, color: "#1d1d1f" }}>That time is already past — pick something later.</div>
+            <div style={{ fontSize: 14, color: "var(--ink)" }}>That time is already past — pick something later.</div>
           ) : (
-            <div style={{ fontSize: 14, color: "#1d1d1f", lineHeight: 1.5 }}>
+            <div style={{ fontSize: 14, color: "var(--ink)", lineHeight: 1.5 }}>
               Drink <strong style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatHydrationAmount(remaining)}</strong> by <strong style={{ color: "var(--accent-cobalt, #1c2c5a)" }}>{formatTimeFriendly(draft)}</strong> · about <strong>{formatHydrationAmount(perHour)}/hour</strong>.
             </div>
           )}
@@ -3262,7 +3262,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
@@ -3273,7 +3273,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
               padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
               border: "none", borderRadius: 8.5, cursor: "pointer",
               color: "#1c2c5a",
-              background: "#ffffff",
+              background: "var(--bg-paper)",
             }}>Save</button>
           </span>
         </div>
@@ -3310,15 +3310,15 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 440,
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "hyModalPop 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>How much water did you drink?</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 22 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 22 }}>
           Tap a glass below, or type the exact amount.
         </div>
 
@@ -3353,7 +3353,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
                     color: active ? "var(--accent-cobalt, #1c2c5a)" : "#1d1d1f",
                   }}>{formatHydrationAmount(ml)}</div>
                   <div style={{
-                    fontSize: 10, color: "rgba(29,29,31,0.55)",
+                    fontSize: 10, color: "var(--ink-faint)",
                     textAlign: "center", lineHeight: 1.2,
                   }}>{label}</div>
                 </button>
@@ -3376,7 +3376,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
                 outline: "none", fontFamily: "inherit", boxSizing: "border-box",
               }}
             />
-            <span style={{ fontSize: 15, color: "rgba(29,29,31,0.62)" }}>ml</span>
+            <span style={{ fontSize: 15, color: "var(--ink-muted)" }}>ml</span>
           </div>
         </div>
 
@@ -3398,7 +3398,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
             <button type="button" onClick={() => setTime(nowTimeLabel())} style={{
               padding: "10px 16px", fontSize: 13, fontWeight: 600,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-              background: "#fff", color: "#1d1d1f", cursor: "pointer",
+              background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
               whiteSpace: "nowrap",
             }}>Just now</button>
           </div>
@@ -3408,14 +3408,14 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={submit} disabled={!amount} style={{
             position: "relative",
             padding: "11px 22px", fontSize: 14, fontWeight: 700,
             borderRadius: 12, cursor: amount ? "pointer" : "not-allowed",
             color: amount ? "#1d1d1f" : "rgba(29,29,31,0.4)",
-            background: "#fff",
+            background: "var(--bg-paper)",
             border: "none",
             backgroundImage: amount
               ? "linear-gradient(#fff, #fff), linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)"
@@ -3466,13 +3466,13 @@ function LogRow({ entry, isLast, onDelete }) {
         flexShrink: 0,
       }}></div>
       <div style={{
-        fontSize: 14, fontWeight: 500, color: "#1d1d1f",
+        fontSize: 14, fontWeight: 500, color: "var(--ink)",
         fontVariantNumeric: "tabular-nums", minWidth: 64,
       }}>{formatTimeFriendly(entry.time)}</div>
       <div style={{
         flex: 1,
         fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 500,
-        letterSpacing: "-0.01em", color: "#1d1d1f",
+        letterSpacing: "-0.01em", color: "var(--ink)",
       }}>{formatHydrationAmount(entry.amount)}</div>
       {!isBotEntry(entry.id) && <button
         onClick={onDelete}
@@ -3515,15 +3515,15 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 380,
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "hyModalPop 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>Daily goal</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 18 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18 }}>
           Set how much water you're aiming for each day.
         </div>
 
@@ -3541,14 +3541,14 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
               outline: "none", fontFamily: "inherit", boxSizing: "border-box",
             }}
           />
-          <span style={{ fontSize: 15, color: "rgba(29,29,31,0.62)" }}>ml</span>
+          <span style={{ fontSize: 15, color: "var(--ink-muted)" }}>ml</span>
         </div>
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
@@ -3677,7 +3677,7 @@ function WaterHero({ onClick }) {
     <React.Fragment>
     <GlassCard hero rainbow radius={28} padding={36} className="dash-hero-card" style={{
       position: "relative", overflow: "hidden", cursor: "pointer",
-      background: "#ffffff",
+      background: "var(--bg-paper)",
       backdropFilter: "none", WebkitBackdropFilter: "none",
       transform: hover ? "translateY(-2px)" : "translateY(0)",
       transition: "transform 200ms cubic-bezier(0.32,0.72,0,1)",
@@ -3723,11 +3723,11 @@ function WaterHero({ onClick }) {
             }}>{formatHydrationAmount(total)}</span>
             <span style={{
               fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 400,
-              color: "rgba(29,29,31,0.55)", letterSpacing: "-0.02em",
+              color: "var(--ink-faint)", letterSpacing: "-0.02em",
               whiteSpace: "nowrap",
             }}>of {formatHydrationAmount(goal)} goal</span>
           </div>
-          <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 18, width: "100%" }}>
+          <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18, width: "100%" }}>
             {remaining > 0
               ? `${formatHydrationAmount(remaining)} to go · ${pct}%`
               : `Goal hit — +${formatHydrationAmount(total - goal)} over`}
@@ -3989,11 +3989,11 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 19, fontWeight: 600,
-            letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.2,
+            letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2,
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}>{lastMeal}</div>
           <div style={{
-            fontSize: 12, color: "rgba(29,29,31,0.55)", marginTop: 3,
+            fontSize: 12, color: "var(--ink-faint)", marginTop: 3,
             fontVariantNumeric: "tabular-nums",
           }}>
             {lastMealTime}
@@ -4024,18 +4024,18 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
         }}>
           <span style={{
             fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 600,
-            letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1,
+            letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1,
             background: "linear-gradient(135deg, #1d1d1f 0%, var(--accent-cobalt, #1c2c5a) 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>{total.toLocaleString()}</span>
           <span style={{
-            fontSize: 13, color: "rgba(29,29,31,0.55)", fontWeight: 500,
+            fontSize: 13, color: "var(--ink-faint)", fontWeight: 500,
             letterSpacing: "-0.01em",
           }}>/ {goal.toLocaleString()} cal</span>
         </div>
         <div style={{
-          fontSize: 12, color: "rgba(29,29,31,0.55)",
+          fontSize: 12, color: "var(--ink-faint)",
           fontVariantNumeric: "tabular-nums",
         }}>
           {remaining > 0 ? `${remaining.toLocaleString()} cal to go` : "goal hit"} · {pct}%
@@ -4256,9 +4256,9 @@ function MicroInjuriesCard({ onClick }) {
           <div>
             <div style={{
               fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 600,
-              letterSpacing: "-0.025em", lineHeight: 1, color: "#1d1d1f",
+              letterSpacing: "-0.025em", lineHeight: 1, color: "var(--ink)",
             }}>{headline}</div>
-            <div style={{ fontSize: 13, color: "rgba(29,29,31,0.55)", marginTop: 8 }}>{sub}</div>
+            <div style={{ fontSize: 13, color: "var(--ink-faint)", marginTop: 8 }}>{sub}</div>
           </div>
 
           {/* Stat strip — 3 mini-cards */}
@@ -4300,7 +4300,7 @@ function MicroInjuriesCard({ onClick }) {
         {decorated.length === 0 && (
           <div style={{
             padding: "22px 18px", textAlign: "center",
-            fontSize: 14, color: "rgba(29,29,31,0.55)",
+            fontSize: 14, color: "var(--ink-faint)",
           }}>
             Nothing tracked. Tap to log a tweak.
           </div>
@@ -4323,7 +4323,7 @@ function MicroInjuriesCard({ onClick }) {
               }}></div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em", color: "#1d1d1f" }}>{inj.name}</span>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>{inj.name}</span>
                   <span style={{
                     padding: "3px 9px", borderRadius: 980,
                     fontSize: 11, fontWeight: 600, letterSpacing: "0.02em",
@@ -4336,7 +4336,7 @@ function MicroInjuriesCard({ onClick }) {
                   overflow: "hidden",
                 }}>{inj.description}</div>
               </div>
-              <div style={{ fontSize: 12, color: "rgba(29,29,31,0.55)", flexShrink: 0, paddingTop: 4, fontVariantNumeric: "tabular-nums" }}>
+              <div style={{ fontSize: 12, color: "var(--ink-faint)", flexShrink: 0, paddingTop: 4, fontVariantNumeric: "tabular-nums" }}>
                 {inj.rest}
               </div>
             </div>
@@ -4352,7 +4352,7 @@ function LegendDot({ color, label }) {
     <div style={{
       display: "inline-flex", alignItems: "center", gap: 5,
       fontSize: 11, fontWeight: 600, letterSpacing: "0.02em",
-      color: "rgba(29,29,31,0.62)",
+      color: "var(--ink-muted)",
     }}>
       <span style={{
         width: 6, height: 6, borderRadius: "50%",
@@ -4451,7 +4451,7 @@ function AllergyTrackerCard({ onClick }) {
       }}>
       <div style={{ padding: 22, display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 18, alignItems: "stretch" }}>
         <div>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 8 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 8 }}>
             {total} logged
           </div>
           <div style={{ fontSize: 13, color: "rgba(29,29,31,0.58)", lineHeight: 1.45, marginBottom: 14 }}>
@@ -4851,7 +4851,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           borderRadius: 22,
           background: "rgba(28,44,90,0.07)",
           border: "1px solid rgba(28,44,90,0.14)",
-          color: "#1d1d1f",
+          color: "var(--ink)",
           fontSize: 15.5, lineHeight: 1.5,
           letterSpacing: "-0.011em",
         }}>{body}</div>
@@ -4914,7 +4914,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
                 background: "rgba(28,44,90,0.07)",
                 border: "1px solid rgba(28,44,90,0.15)",
                 fontSize: 12,
-                color: "rgba(29,29,31,0.55)",
+                color: "var(--ink-faint)",
                 letterSpacing: "-0.008em",
                 fontFamily: "var(--font-text)",
               }}>{label}</div>
@@ -4983,7 +4983,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
       <div style={{
         position: "relative",
         display: "flex", alignItems: "flex-end", gap: 8,
-        background: "#ffffff",
+        background: "var(--bg-paper)",
         borderRadius: 22,
         padding: "12px 12px 12px 20px",
         border: focused ? "1px solid transparent" : "1px solid rgba(0,0,0,0.08)",
@@ -5005,7 +5005,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           style={{
             flex: 1, resize: "none", border: "none", outline: "none",
             background: "transparent",
-            fontFamily: "var(--font-text)", fontSize: 16, color: "#1d1d1f",
+            fontFamily: "var(--font-text)", fontSize: 16, color: "var(--ink)",
             letterSpacing: "-0.011em", lineHeight: 1.5,
             padding: "10px 0",
           }}
@@ -5317,7 +5317,7 @@ function Editor() {
           listening={listening}
           onVoice={handleVoice}
         />
-        <div style={{ fontSize: 12, color: "rgba(29,29,31,0.55)", textAlign: "center", marginTop: 12 }}>
+        <div style={{ fontSize: 12, color: "var(--ink-faint)", textAlign: "center", marginTop: 12 }}>
           Enter to send · Shift + Enter for a new line
         </div>
       </div>
@@ -5380,7 +5380,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             background: "transparent", border: "none", cursor: "pointer",
-            color: "rgba(29,29,31,0.62)", fontSize: 14, padding: "8px 0",
+            color: "var(--ink-muted)", fontSize: 14, padding: "8px 0",
             marginBottom: 18, fontFamily: "var(--font-text)",
           }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -5426,7 +5426,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
         {sorted.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "rgba(29,29,31,0.55)",
+            fontSize: 15, color: "var(--ink-faint)",
           }}>
             No lessons yet. Tap + to add one.
           </div>
@@ -5536,15 +5536,15 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
         style={{
           width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "blPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>{mode === "edit" ? "Edit lesson" : "Add a lesson"}</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 18 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18 }}>
           {mode === "edit" ? "Update any field below." : "Capture today's session with Bruno."}
         </div>
 
@@ -5608,7 +5608,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {summary.trim() ? (
             <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
@@ -5626,7 +5626,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
                 position: "relative",
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "#1d1d1f",
+                color: "var(--ink)",
                 background: "transparent",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add lesson"}</button>
@@ -5653,8 +5653,8 @@ const inputStyle = {
   width: "100%", padding: "11px 14px", fontSize: 16,
   border: "1px solid rgba(0,0,0,0.12)", borderRadius: 10,
   outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
-  color: "#1d1d1f",
-  background: "#fff",
+  color: "var(--ink)",
+  background: "var(--bg-paper)",
 };
 
 function FormField({ label, hint, children, style = {} }) {
@@ -5662,7 +5662,7 @@ function FormField({ label, hint, children, style = {} }) {
     <div style={style}>
       <div style={{
         fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-        textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+        textTransform: "uppercase", color: "var(--ink-faint)",
         marginBottom: 6,
       }}>{label}</div>
       {children}
@@ -5698,7 +5698,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 420, maxWidth: "100%",
-          background: "#ffffff",
+          background: "var(--bg-paper)",
           borderRadius: 22,
           padding: "28px 28px 22px",
           border: "1px solid rgba(0,0,0,0.06)",
@@ -5722,18 +5722,18 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
 
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.2,
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2,
           marginBottom: 8,
         }}>Delete this lesson note?</div>
         <div style={{ fontSize: 15, color: "rgba(29,29,31,0.65)", lineHeight: 1.5, marginBottom: 20 }}>
-          <strong style={{ color: "#1d1d1f", fontWeight: 600 }}>{lesson.week} — {lesson.summary}</strong> will be removed from your log. This can't be undone.
+          <strong style={{ color: "var(--ink)", fontWeight: 600 }}>{lesson.week} — {lesson.summary}</strong> will be removed from your log. This can't be undone.
         </div>
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 20px", borderRadius: 980,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
-            color: "#1d1d1f", background: "transparent",
+            color: "var(--ink)", background: "transparent",
             border: "1px solid rgba(0,0,0,0.12)",
             cursor: "pointer",
             transition: "all 160ms ease",
@@ -5790,7 +5790,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
       <div style={{
-        background: "#ffffff",
+        background: "var(--bg-paper)",
         borderRadius: isPinned ? 18.5 : 20,
         padding: "22px 24px",
         border: isPinned ? "none" : "1px solid rgba(0,0,0,0.06)",
@@ -5801,9 +5801,9 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         <div style={{ flexShrink: 0, paddingTop: 2, minWidth: 88 }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
-            letterSpacing: "-0.02em", color: "#1d1d1f",
+            letterSpacing: "-0.02em", color: "var(--ink)",
           }}>{lesson.week}</div>
-          <div style={{ fontSize: 13, color: "rgba(29,29,31,0.55)", marginTop: 2 }}>{lesson.date}</div>
+          <div style={{ fontSize: 13, color: "var(--ink-faint)", marginTop: 2 }}>{lesson.date}</div>
         </div>
 
         {/* Body column */}
@@ -5813,7 +5813,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
           }}>
             <div style={{
               fontFamily: "var(--font-display)", fontSize: 19, fontWeight: 600,
-              letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.25,
+              letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.25,
             }}>{lesson.summary}</div>
             {isPinned && (
               <span style={{
@@ -5858,7 +5858,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
                 width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
                 background: editHover ? "rgba(0,0,0,0.05)" : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: "rgba(29,29,31,0.55)",
+                color: "var(--ink-faint)",
               }}
               onMouseEnter={() => setEditHover(true)} onMouseLeave={() => setEditHover(false)}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -5908,8 +5908,8 @@ function BrunoLessonDetail({ lessonId, onBack }) {
   if (!lesson) {
     return (
       <div style={{ paddingTop: 100, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)", textAlign: "center" }}>
-        <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(29,29,31,0.62)" }}>← Back</button>
-        <div style={{ marginTop: 24, fontSize: 16, color: "rgba(29,29,31,0.55)" }}>This lesson was deleted.</div>
+        <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--ink-muted)" }}>← Back</button>
+        <div style={{ marginTop: 24, fontSize: 16, color: "var(--ink-faint)" }}>This lesson was deleted.</div>
       </div>
     );
   }
@@ -5919,7 +5919,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((p, i) =>
       p.startsWith("**") && p.endsWith("**")
-        ? <strong key={i} style={{ color: "#1d1d1f", fontWeight: 600 }}>{p.slice(2, -2)}</strong>
+        ? <strong key={i} style={{ color: "var(--ink)", fontWeight: 600 }}>{p.slice(2, -2)}</strong>
         : <React.Fragment key={i}>{p}</React.Fragment>
     );
   };
@@ -5934,7 +5934,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
             style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               background: "transparent", border: "none", cursor: "pointer",
-              color: "rgba(29,29,31,0.62)", fontSize: 14, padding: "8px 0",
+              color: "var(--ink-muted)", fontSize: 14, padding: "8px 0",
               fontFamily: "var(--font-text)",
             }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -5969,7 +5969,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: "rgba(29,29,31,0.55)",
+                color: "var(--ink-faint)",
                 transition: "all 160ms ease",
               }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -5983,7 +5983,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: "rgba(29,29,31,0.55)",
+                color: "var(--ink-faint)",
                 transition: "all 160ms ease",
               }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -6000,7 +6000,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
           <Eyebrow style={{ marginBottom: 10 }}>{lesson.week} · {lesson.date}</Eyebrow>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: "clamp(26px, 5vw, 36px)", fontWeight: 600,
-            letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1.15,
+            letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1.15,
             marginBottom: 14,
           }}>{lesson.summary}</div>
           <div style={{ fontSize: 17, color: "rgba(29,29,31,0.65)", lineHeight: 1.55, maxWidth: 600 }}>
@@ -6010,7 +6010,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
 
         {/* Notes card */}
         <div style={{
-          background: "#ffffff",
+          background: "var(--bg-paper)",
           borderRadius: 24,
           padding: "28px 32px",
           border: "1px solid rgba(0,0,0,0.06)",
@@ -6026,12 +6026,12 @@ function BrunoLessonDetail({ lessonId, onBack }) {
               {lesson.notes.map((n, i) => (
                 <div key={i} style={{
                   fontSize: 15.5, lineHeight: 1.65,
-                  color: "rgba(29,29,31,0.82)", letterSpacing: "-0.005em",
+                  color: "var(--fg-2)", letterSpacing: "-0.005em",
                 }}>{renderInline(n)}</div>
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 15, color: "rgba(29,29,31,0.55)", fontStyle: "normal" }}>
+            <div style={{ fontSize: 15, color: "var(--ink-faint)", fontStyle: "normal" }}>
               No detailed notes yet — tap edit to add some.
             </div>
           )}
@@ -6125,7 +6125,7 @@ function Schedule({ onBack }) {
           style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             background: "transparent", border: "none", cursor: "pointer",
-            color: "rgba(29,29,31,0.62)", fontSize: 14, padding: "8px 0",
+            color: "var(--ink-muted)", fontSize: 14, padding: "8px 0",
             marginBottom: 18, fontFamily: "var(--font-text)",
           }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -6158,7 +6158,7 @@ function Schedule({ onBack }) {
 
         {/* Schedule list */}
         <div style={{
-          background: "#ffffff",
+          background: "var(--bg-paper)",
           borderRadius: 24,
           padding: "10px 8px",
           border: "1px solid rgba(0,0,0,0.06)",
@@ -6245,7 +6245,7 @@ function ScheduleRow({ item, isPast, isNext }) {
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 16,
           fontWeight: isNext ? 700 : 500,
-          letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.3,
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.3,
           marginBottom: 2,
         }}>
           {item.label}
@@ -6423,7 +6423,7 @@ function Meals({ onBack }) {
           style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             background: "transparent", border: "none", cursor: "pointer",
-            color: "rgba(29,29,31,0.62)", fontSize: 14, padding: "8px 0",
+            color: "var(--ink-muted)", fontSize: 14, padding: "8px 0",
             marginBottom: 18, fontFamily: "var(--font-text)",
           }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -6495,7 +6495,7 @@ function Meals({ onBack }) {
         {meals.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "rgba(29,29,31,0.55)",
+            fontSize: 15, color: "var(--ink-faint)",
           }}>
             No meals logged today. Tap + to add one.
           </div>
@@ -6580,9 +6580,9 @@ function MacroChip({ label, value, unit, color }) {
       <div>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.1,
-        }}>{value}<span style={{ fontSize: 13, color: "rgba(29,29,31,0.55)", fontWeight: 400, marginLeft: 2 }}>{unit}</span></div>
-        <div style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2 }}>{label}</div>
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.1,
+        }}>{value}<span style={{ fontSize: 13, color: "var(--ink-faint)", fontWeight: 400, marginLeft: 2 }}>{unit}</span></div>
+        <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2 }}>{label}</div>
       </div>
     </div>
   );
@@ -6603,7 +6603,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         position: "relative",
         cursor: "pointer",
         borderRadius: 20,
-        background: "#ffffff",
+        background: "var(--bg-paper)",
         padding: "20px 24px",
         border: "1px solid rgba(0,0,0,0.06)",
         boxShadow: hover
@@ -6624,7 +6624,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
       <div style={{ flexShrink: 0, minWidth: 64, paddingTop: 2 }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
-          letterSpacing: "-0.01em", color: "#1d1d1f",
+          letterSpacing: "-0.01em", color: "var(--ink)",
           fontVariantNumeric: "tabular-nums",
         }}>{meal.time}</div>
       </div>
@@ -6637,7 +6637,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600,
-            letterSpacing: "-0.02em", color: "#1d1d1f", minWidth: 0,
+            letterSpacing: "-0.02em", color: "var(--ink)", minWidth: 0,
           }}>{meal.label}</div>
           <div style={{
             flexShrink: 0,
@@ -6663,7 +6663,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
             </li>
           ))}
         </ul>
-        <div style={{ display: "flex", gap: 14, marginTop: 10, fontSize: 12, color: "rgba(29,29,31,0.55)", fontVariantNumeric: "tabular-nums" }}>
+        <div style={{ display: "flex", gap: 14, marginTop: 10, fontSize: 12, color: "var(--ink-faint)", fontVariantNumeric: "tabular-nums" }}>
           <span>P {meal.macros?.p ?? 0}g</span>
           <span>C {meal.macros?.c ?? 0}g</span>
           <span>F {meal.macros?.f ?? 0}g</span>
@@ -6701,7 +6701,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         style={{
           width: "100%", maxWidth: 540, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "#fff", borderRadius: 24, padding: "28px 32px 24px",
+          background: "var(--bg-paper)", borderRadius: 24, padding: "28px 32px 24px",
           border: "1px solid rgba(0,0,0,0.06)",
           boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
@@ -6716,7 +6716,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "rgba(29,29,31,0.55)",
+            color: "var(--ink-faint)",
           }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -6727,7 +6727,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         <Eyebrow style={{ marginBottom: 10 }}>{meal.time} · today</Eyebrow>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600,
-          letterSpacing: "-0.025em", color: "#1d1d1f", lineHeight: 1.15,
+          letterSpacing: "-0.025em", color: "var(--ink)", lineHeight: 1.15,
           marginBottom: 6,
         }}>{meal.label}</div>
 
@@ -6737,9 +6737,9 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         }}>
           <div style={{
             fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600,
-            letterSpacing: "-0.03em", color: "#1d1d1f", lineHeight: 1,
+            letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1,
           }}>{meal.calories}</div>
-          <div style={{ fontSize: 15, color: "rgba(29,29,31,0.55)" }}>cal</div>
+          <div style={{ fontSize: 15, color: "var(--ink-faint)" }}>cal</div>
           <div style={{ fontSize: 13, color: "rgba(29,29,31,0.50)", marginLeft: 8, fontVariantNumeric: "tabular-nums" }}>
             ≈ {calGoalPct}% of daily goal
           </div>
@@ -6770,7 +6770,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
           <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
             {(meal.items || []).map((it, i) => (
               <li key={i} style={{
-                fontSize: 15, color: "rgba(29,29,31,0.82)", lineHeight: 1.5,
+                fontSize: 15, color: "var(--fg-2)", lineHeight: 1.5,
                 paddingLeft: 18, position: "relative",
               }}>
                 <span style={{
@@ -6816,7 +6816,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
               padding: "8.5px 18.5px", borderRadius: 978.5,
               fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
               color: "#1c2c5a",
-              background: "#fff",
+              background: "var(--bg-paper)",
               border: "none",
               cursor: "pointer",
             }}>Edit meal</button>
@@ -6836,7 +6836,7 @@ function MacroLegend({ color, label, value, pct }) {
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
       <div style={{ fontSize: 13, color: "rgba(29,29,31,0.78)" }}>
-        <span style={{ fontWeight: 600, color: "#1d1d1f" }}>{value}g</span>
+        <span style={{ fontWeight: 600, color: "var(--ink)" }}>{value}g</span>
         <span style={{ marginLeft: 4, color: "rgba(29,29,31,0.50)" }}>{label} · {pct}%</span>
       </div>
     </div>
@@ -6889,15 +6889,15 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         style={{
           width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>{mode === "edit" ? "Edit meal" : "Add a meal"}</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 18 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18 }}>
           {mode === "edit" ? "Update any field below." : "Log what you ate, when, and how much."}
         </div>
 
@@ -6952,7 +6952,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ marginBottom: 12 }}>
           <div style={{
             fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-            textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+            textTransform: "uppercase", color: "var(--ink-faint)",
             marginBottom: 6,
           }}>Macros (grams)</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
@@ -6977,7 +6977,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {label.trim() ? (
             <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
@@ -6995,7 +6995,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
                 position: "relative",
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "#1d1d1f",
+                color: "var(--ink)",
                 background: "transparent",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add meal"}</button>
@@ -7018,8 +7018,8 @@ const mealInputStyle = {
   width: "100%", padding: "11px 14px", fontSize: 16,
   border: "1px solid rgba(0,0,0,0.12)", borderRadius: 10,
   outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
-  color: "#1d1d1f",
-  background: "#fff",
+  color: "var(--ink)",
+  background: "var(--bg-paper)",
 };
 
 function MealField({ label, hint, children, style = {} }) {
@@ -7027,7 +7027,7 @@ function MealField({ label, hint, children, style = {} }) {
     <div style={style}>
       <div style={{
         fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-        textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+        textTransform: "uppercase", color: "var(--ink-faint)",
         marginBottom: 6,
       }}>{label}</div>
       {children}
@@ -7046,7 +7046,7 @@ function MacroInput({ color, label, value, onChange }) {
       <div style={{
         display: "flex", alignItems: "center", gap: 6,
         fontSize: 11, fontWeight: 500, letterSpacing: "0.04em",
-        color: "rgba(29,29,31,0.62)",
+        color: "var(--ink-muted)",
         marginBottom: 4,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: color }} />
@@ -7063,7 +7063,7 @@ function MacroInput({ color, label, value, onChange }) {
         />
         <span style={{
           position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-          fontSize: 12, color: "rgba(29,29,31,0.55)", pointerEvents: "none",
+          fontSize: 12, color: "var(--ink-faint)", pointerEvents: "none",
         }}>g</span>
       </div>
     </div>
@@ -7093,7 +7093,7 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 420, maxWidth: "100%",
-          background: "#ffffff",
+          background: "var(--bg-paper)",
           borderRadius: 22,
           padding: "28px 28px 22px",
           border: "1px solid rgba(0,0,0,0.06)",
@@ -7117,11 +7117,11 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
 
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.2,
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2,
           marginBottom: 8,
         }}>Delete this meal?</div>
         <div style={{ fontSize: 15, color: "rgba(29,29,31,0.65)", lineHeight: 1.5, marginBottom: 20 }}>
-          <strong style={{ color: "#1d1d1f", fontWeight: 600 }}>{meal.label} — {meal.calories} cal</strong> will be removed from today's log. This can't be undone.
+          <strong style={{ color: "var(--ink)", fontWeight: 600 }}>{meal.label} — {meal.calories} cal</strong> will be removed from today's log. This can't be undone.
         </div>
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
@@ -7130,7 +7130,7 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
             style={{
               padding: "10px 20px", borderRadius: 980,
               fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
-              color: "#1d1d1f",
+              color: "var(--ink)",
               background: "transparent",
               border: "1px solid rgba(0,0,0,0.12)",
               cursor: "pointer",
@@ -7276,7 +7276,7 @@ function Problems({ onBack }) {
         {sorted.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "rgba(29,29,31,0.55)",
+            fontSize: 15, color: "var(--ink-faint)",
           }}>
             No problems on the list. Tap + to add one.
           </div>
@@ -7381,7 +7381,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
       <div style={{
-        background: "#ffffff",
+        background: "var(--bg-paper)",
         borderRadius: isPinned ? 16.5 : 18,
         padding: "18px 22px",
         border: isPinned ? "none" : "1px solid rgba(0,0,0,0.06)",
@@ -7440,7 +7440,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 540,
-          background: "#fff", borderRadius: 24, padding: 32,
+          background: "var(--bg-paper)", borderRadius: 24, padding: 32,
           position: "relative",
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
@@ -7455,7 +7455,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "rgba(29,29,31,0.55)",
+            color: "var(--ink-faint)",
           }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -7489,7 +7489,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
           marginBottom: 24, whiteSpace: "pre-wrap",
         }}>
           {problem.description || (
-            <span style={{ color: "rgba(29,29,31,0.55)", fontStyle: "normal" }}>
+            <span style={{ color: "var(--ink-faint)", fontStyle: "normal" }}>
               No description yet — tap edit to add one.
             </span>
           )}
@@ -7504,7 +7504,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-              background: "#fff",
+              background: "var(--bg-paper)",
               color: isPinned ? "#ff9f1c" : "rgba(29,29,31,0.78)",
               cursor: "pointer",
             }}>
@@ -7523,7 +7523,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-              background: "#fff", color: "#e0264a", cursor: "pointer",
+              background: "var(--bg-paper)", color: "#e0264a", cursor: "pointer",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -7546,7 +7546,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
                 padding: "8.5px 16.5px", fontSize: 13, fontWeight: 600,
                 border: "none", borderRadius: 8.5, cursor: "pointer",
                 color: "#1c2c5a",
-                background: "#ffffff",
+                background: "var(--bg-paper)",
               }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9"/>
@@ -7588,15 +7588,15 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>{mode === "edit" ? "Edit problem" : "Add a problem"}</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 18 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18 }}>
           {mode === "edit" ? "Update the name, priority, or notes." : "What position keeps catching you?"}
         </div>
 
@@ -7654,7 +7654,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {name.trim() ? (
             <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
@@ -7672,7 +7672,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
                 position: "relative",
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "#1d1d1f",
+                color: "var(--ink)",
                 background: "transparent",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add"}</button>
@@ -7714,22 +7714,22 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 400,
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.2, marginBottom: 8,
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2, marginBottom: 8,
         }}>Delete this problem?</div>
         <div style={{ fontSize: 15, color: "rgba(29,29,31,0.65)", lineHeight: 1.5, marginBottom: 22 }}>
-          <strong style={{ color: "#1d1d1f", fontWeight: 600 }}>{problem.name}</strong> will be removed from your list.
+          <strong style={{ color: "var(--ink)", fontWeight: 600 }}>{problem.name}</strong> will be removed from your list.
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
             padding: "10px 20px", fontSize: 14, fontWeight: 700,
@@ -7852,7 +7852,7 @@ function MicroInjuryBars({ rows, emptyText, color = "#c4324f" }) {
             alignItems: "center", gap: 10, minHeight: 26,
           }}>
             <div style={{
-              fontSize: 13, fontWeight: 600, color: "#1d1d1f",
+              fontSize: 13, fontWeight: 600, color: "var(--ink)",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textTransform: "capitalize",
             }}>{row.name}</div>
             <div style={{
@@ -8073,8 +8073,8 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             border: "1px solid rgba(26,22,19,0.05)",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>Body parts taking damage</div>
-              <div style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>frequency</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.01em" }}>Body parts taking damage</div>
+              <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.06em" }}>frequency</div>
             </div>
             <MicroInjuryBars rows={stats.top_body_parts || []} emptyText="No body-part data yet" color="#1c2c5a" />
           </div>
@@ -8253,7 +8253,7 @@ function MicroInjuries({ onBack }) {
         <div style={{ marginBottom: 32 }}>
           <button onClick={onBack} style={{
             border: "none", background: "transparent", padding: 0, cursor: "pointer",
-            fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 12,
+            fontSize: 14, color: "var(--ink-muted)", marginBottom: 12,
             display: "inline-flex", alignItems: "center", gap: 6,
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -8303,7 +8303,7 @@ function MicroInjuries({ onBack }) {
         {sorted.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "rgba(29,29,31,0.55)",
+            fontSize: 15, color: "var(--ink-faint)",
           }}>
             No injuries tracked. Tap + to log one.
           </div>
@@ -8409,7 +8409,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
       <div style={{
-        background: "#ffffff",
+        background: "var(--bg-paper)",
         borderRadius: isPinned ? 16.5 : 18,
         padding: "18px 22px",
         border: isPinned
@@ -8437,7 +8437,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
             marginBottom: 2,
           }}>{injury.name}</div>
           <div style={{
-            fontSize: 12.5, color: "rgba(29,29,31,0.55)",
+            fontSize: 12.5, color: "var(--ink-faint)",
             fontVariantNumeric: "tabular-nums",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}>{injury.rest || "—"}</div>
@@ -8485,7 +8485,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 540,
-          background: "#fff", borderRadius: 24, padding: 32,
+          background: "var(--bg-paper)", borderRadius: 24, padding: 32,
           position: "relative",
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
@@ -8500,7 +8500,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "rgba(29,29,31,0.55)",
+            color: "var(--ink-faint)",
           }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -8525,7 +8525,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
             display: "inline-block",
             padding: "4px 10px",
             fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
-            color: "rgba(29,29,31,0.55)",
+            color: "var(--ink-faint)",
             border: "1px solid rgba(0,0,0,0.10)",
             borderRadius: 999,
           }}>{regionLabel}</div>
@@ -8542,7 +8542,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         {/* Rest meta */}
         {injury.rest && (
           <div style={{
-            fontSize: 13, color: "rgba(29,29,31,0.55)",
+            fontSize: 13, color: "var(--ink-faint)",
             fontVariantNumeric: "tabular-nums",
             marginBottom: 16,
           }}>Rest: {injury.rest}</div>
@@ -8554,13 +8554,13 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           marginBottom: (injury.partner || injury.when_happened) ? 10 : 24, whiteSpace: "pre-wrap",
         }}>
           {injury.description || (
-            <span style={{ color: "rgba(29,29,31,0.55)", fontStyle: "normal" }}>
+            <span style={{ color: "var(--ink-faint)", fontStyle: "normal" }}>
               No notes yet — tap edit to add details.
             </span>
           )}
         </div>
-        {injury.partner && <div style={{fontSize: 13, color: "rgba(29,29,31,0.55)"}}>With: {injury.partner}</div>}
-        {injury.when_happened && <div style={{fontSize: 13, color: "rgba(29,29,31,0.55)"}}>When: {injury.when_happened}</div>}
+        {injury.partner && <div style={{fontSize: 13, color: "var(--ink-faint)"}}>With: {injury.partner}</div>}
+        {injury.when_happened && <div style={{fontSize: 13, color: "var(--ink-faint)"}}>When: {injury.when_happened}</div>}
         {(injury.partner || injury.when_happened) && <div style={{ height: 14 }}/>}
 
         {/* Actions */}
@@ -8572,7 +8572,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-              background: "#fff",
+              background: "var(--bg-paper)",
               color: isPinned ? "#ff9f1c" : "rgba(29,29,31,0.78)",
               cursor: "pointer",
             }}>
@@ -8591,7 +8591,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
               border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-              background: "#fff", color: "#e0264a", cursor: "pointer",
+              background: "var(--bg-paper)", color: "#e0264a", cursor: "pointer",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6"/>
@@ -8614,7 +8614,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
                 padding: "8.5px 16.5px", fontSize: 13, fontWeight: 600,
                 border: "none", borderRadius: 8.5, cursor: "pointer",
                 color: "#1c2c5a",
-                background: "#ffffff",
+                background: "var(--bg-paper)",
               }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 20h9"/>
@@ -8660,16 +8660,16 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
-          background: "#fff", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
           maxHeight: "calc(100dvh - 48px)", overflowY: "auto",
         }}>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "#1d1d1f", marginBottom: 6,
+          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
         }}>{mode === "edit" ? "Edit injury" : "Log a micro-injury"}</div>
-        <div style={{ fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 18 }}>
+        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18 }}>
           {mode === "edit" ? "Update the details, severity, or notes." : "Track tweaks before they turn into something bigger."}
         </div>
 
@@ -8692,7 +8692,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           <div>
             <div style={{
               fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+              textTransform: "uppercase", color: "var(--ink-faint)",
               marginBottom: 6, paddingLeft: 2,
             }}>Body region</div>
             <select
@@ -8702,7 +8702,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                 width: "100%", padding: "11px 12px", fontSize: 16,
                 border: "1px solid rgba(0,0,0,0.10)", borderRadius: 12,
                 outline: "none", fontFamily: "inherit", boxSizing: "border-box",
-                background: "#fff", color: "#1d1d1f", cursor: "pointer",
+                background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
                 appearance: "none",
                 backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231d1d1f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")",
                 backgroundRepeat: "no-repeat",
@@ -8717,7 +8717,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           <div>
             <div style={{
               fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+              textTransform: "uppercase", color: "var(--ink-faint)",
               marginBottom: 6, paddingLeft: 2,
             }}>Rest plan</div>
             <input
@@ -8750,7 +8750,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         {/* Severity picker */}
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-          textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+          textTransform: "uppercase", color: "var(--ink-faint)",
           marginBottom: 6, paddingLeft: 2,
         }}>Severity</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
@@ -8777,7 +8777,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         {/* Partner */}
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-          textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+          textTransform: "uppercase", color: "var(--ink-faint)",
           marginBottom: 6, paddingLeft: 2,
         }}>Training partner</div>
         <input
@@ -8794,7 +8794,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         {/* When happened */}
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-          textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
+          textTransform: "uppercase", color: "var(--ink-faint)",
           marginBottom: 6, paddingLeft: 2,
         }}>When did it happen</div>
         <input
@@ -8812,7 +8812,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
-            background: "#fff", color: "#1d1d1f", cursor: "pointer",
+            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {name.trim() ? (
             <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
@@ -8830,7 +8830,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                 position: "relative",
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "#1d1d1f",
+                color: "var(--ink)",
                 background: "transparent",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add"}</button>
@@ -9079,7 +9079,7 @@ function Allergies({ onBack }) {
   return (
     <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 860, margin: "0 auto" }}>
-        <button onClick={onBack} style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
+        <button onClick={onBack} style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer", fontSize: 14, color: "var(--ink-muted)", marginBottom: 12, display: "inline-flex", alignItems: "center", gap: 6 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           Back
         </button>
@@ -9101,7 +9101,7 @@ function Allergies({ onBack }) {
             <AllergyRow key={log.id} log={log} onEdit={() => setEditing(log)} onDelete={() => setConfirm(log)} />
           ))}
           {sorted.length === 0 && (
-            <div style={{ textAlign: "center", padding: "48px 24px", fontSize: 15, color: "rgba(29,29,31,0.55)", background: "#fff", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 18 }}>
+            <div style={{ textAlign: "center", padding: "48px 24px", fontSize: 15, color: "var(--ink-faint)", background: "var(--bg-paper)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 18 }}>
               No allergy logs yet. Tap + to add the first one.
             </div>
           )}
@@ -9344,7 +9344,7 @@ function TechniqueLibrary({ onBack }) {
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <button onClick={() => setSelected(null)} style={{
             border: "none", background: "transparent", padding: 0, cursor: "pointer",
-            fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 16,
+            fontSize: 14, color: "var(--ink-muted)", marginBottom: 16,
             display: "inline-flex", alignItems: "center", gap: 6,
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -9352,10 +9352,10 @@ function TechniqueLibrary({ onBack }) {
             </svg>
             Back to library
           </button>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600, letterSpacing: "-0.025em", color: "#1d1d1f", marginBottom: 6 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--ink)", marginBottom: 6 }}>
             {titleCase(t.name)}
           </div>
-          <div style={{ fontSize: 15, color: "rgba(29,29,31,0.55)", marginBottom: 24 }}>
+          <div style={{ fontSize: 15, color: "var(--ink-faint)", marginBottom: 24 }}>
             {(t.count || entries.length)} {(t.count || entries.length) === 1 ? "session" : "sessions"}{(t.video_count > 0) ? ` · ${t.video_count} ${t.video_count === 1 ? "video" : "videos"} 🎥` : ""} · last worked {formatDate(t.last_seen)}
           </div>
 
@@ -9367,11 +9367,11 @@ function TechniqueLibrary({ onBack }) {
             boxShadow: "var(--shadow-card)",
           }}>
             {t.summary ? (
-              <div style={{ fontSize: 15, color: "rgba(29,29,31,0.82)", lineHeight: 1.65, fontStyle: "normal" }}>
+              <div style={{ fontSize: 15, color: "var(--fg-2)", lineHeight: 1.65, fontStyle: "normal" }}>
                 {t.summary}
               </div>
             ) : (
-              <div style={{ fontSize: 14, color: "rgba(29,29,31,0.55)", lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: "var(--ink-faint)", lineHeight: 1.6 }}>
                 No summary yet — keep training this technique
               </div>
             )}
@@ -9383,7 +9383,7 @@ function TechniqueLibrary({ onBack }) {
               background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
               border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
               padding: "24px 28px", boxShadow: "var(--shadow-card)",
-              color: "rgba(29,29,31,0.55)", fontSize: 15, textAlign: "center",
+              color: "var(--ink-faint)", fontSize: 15, textAlign: "center",
             }}>
               No session entries yet
             </div>
@@ -9395,10 +9395,10 @@ function TechniqueLibrary({ onBack }) {
                   border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
                   padding: "18px 22px", boxShadow: "var(--shadow-card)",
                 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(29,29,31,0.55)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-faint)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
                     {formatDate(entry.date)}{entry.session ? ` · ${entry.session}` : ""}
                   </div>
-                  <div style={{ fontSize: 15, color: "rgba(29,29,31,0.82)", lineHeight: 1.65 }}>
+                  <div style={{ fontSize: 15, color: "var(--fg-2)", lineHeight: 1.65 }}>
                     {entry.notes}
                   </div>
                   {entry.sentiment && sentimentChip(entry.sentiment)}
@@ -9423,7 +9423,7 @@ function TechniqueLibrary({ onBack }) {
       <div style={{ maxWidth: 680, margin: "0 auto" }}>
         <button onClick={onBack} style={{
           border: "none", background: "transparent", padding: 0, cursor: "pointer",
-          fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 12,
+          fontSize: 14, color: "var(--ink-muted)", marginBottom: 12,
           display: "inline-flex", alignItems: "center", gap: 6,
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -9454,7 +9454,7 @@ function TechniqueLibrary({ onBack }) {
             background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
             border: "1px solid var(--glass-stroke-2)", borderRadius: 18,
             padding: "32px 28px", boxShadow: "var(--shadow-card)",
-            color: "rgba(29,29,31,0.55)", fontSize: 15, lineHeight: 1.6, textAlign: "center",
+            color: "var(--ink-faint)", fontSize: 15, lineHeight: 1.6, textAlign: "center",
           }}>
             No techniques yet — they'll appear here after your first session debrief
           </div>
@@ -9480,7 +9480,7 @@ function TechniqueLibrary({ onBack }) {
                   boxShadow: `0 0 0 3px ${recencyDot(t.last_seen)}22`,
                 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 16, color: "#1d1d1f", marginBottom: 2 }}>
+                  <div style={{ fontWeight: 600, fontSize: 16, color: "var(--ink)", marginBottom: 2 }}>
                     {titleCase(t.name)}
                   </div>
                   <div style={{ fontSize: 13, color: "rgba(29,29,31,0.52)" }}>
