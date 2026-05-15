@@ -483,9 +483,13 @@ body::after {
   gap: 20px !important;
 }
 
+/* Row actions — hidden by default, visible on hover or touch */
+.lesson-row-actions { opacity: 0; }
+.row-actions-visible { opacity: 1; }
+
 /* Touch-friendly: don't rely on hover for delete/secondary actions */
 @media (hover: none) {
-  .row-actions {
+  .row-actions, .lesson-row-actions {
     opacity: 1 !important;
   }
   .row-actions button {
@@ -5696,23 +5700,15 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         background: isPinned
           ? "var(--ai-gradient)"
           : "transparent",
-        boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 12px 32px -10px rgba(110,19,32,0.22)," +
-            " 0 14px 38px -12px rgba(28,44,90,0.22)," +
-            " 0 16px 42px -10px rgba(199,154,58,0.20)"
-          : "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 6px 18px -8px rgba(110,19,32,0.18)," +
-            " 0 8px 24px -10px rgba(28,44,90,0.18)," +
-            " 0 10px 28px -8px rgba(199,154,58,0.16)",
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
+        transform: hover ? "translateY(-1px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
       <div style={{
         background: "var(--bg-paper)",
         borderRadius: isPinned ? 18.5 : 20,
         padding: "22px 24px",
-        border: isPinned ? "none" : "1px solid rgba(0,0,0,0.06)",
+        border: isPinned ? "none" : "1px solid var(--bg-hairline)",
         display: "flex", alignItems: "flex-start", gap: 18,
         position: "relative",
       }}>
@@ -5754,9 +5750,8 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         <div style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
           flexShrink: 0, paddingTop: 2,
-          opacity: (showStar || showActions) ? 1 : 0,
           transition: "opacity 150ms ease",
-        }} className="lesson-row-actions">
+        }} className={`lesson-row-actions ${(showStar || showActions) ? "row-actions-visible" : ""}`}>
           <button
             onClick={(e) => { e.stopPropagation(); onTogglePin(); }}
             aria-label={isPinned ? "Unpin lesson" : "Pin lesson"}
@@ -6499,16 +6494,8 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         background: "var(--bg-paper)",
         padding: "20px 24px",
         border: "1px solid var(--bg-hairline)",
-        boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 12px 32px -10px rgba(110,19,32,0.22)," +
-            " 0 14px 38px -12px rgba(28,44,90,0.22)," +
-            " 0 16px 42px -10px rgba(199,154,58,0.20)"
-          : "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 6px 18px -8px rgba(110,19,32,0.18)," +
-            " 0 8px 24px -10px rgba(28,44,90,0.18)," +
-            " 0 10px 28px -8px rgba(199,154,58,0.16)",
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
+        transform: hover ? "translateY(-1px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
         display: "flex", alignItems: "flex-start", gap: 18,
       }}>
@@ -7256,7 +7243,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         background: "var(--bg-paper)",
         borderRadius: isPinned ? 16.5 : 18,
         padding: "18px 22px",
-        border: isPinned ? "none" : "1px solid rgba(0,0,0,0.06)",
+        border: isPinned ? "none" : "1px solid var(--bg-hairline)",
         display: "flex", alignItems: "center", gap: 14,
         position: "relative",
         minHeight: 60,
