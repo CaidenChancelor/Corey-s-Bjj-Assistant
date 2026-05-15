@@ -211,6 +211,8 @@ html, body {
   text-rendering: optimizeLegibility;
   font-feature-settings: "ss01", "cv11", "calt";
 }
+/* Selection highlight */
+::selection { background: rgba(28,44,90,0.15); color: var(--ink); }
 /* Custom scrollbar — thin, subtle */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -6468,22 +6470,12 @@ function Meals({ onBack }) {
             }}>{total}<span style={{ color: "var(--ink-faint)", fontWeight: 400, fontSize: 14, marginLeft: 4 }}>/ {CAL_GOAL}</span></div>
           </div>
 
-          {/* Calorie progress bar */}
-          <div style={{ position: "relative", height: 14, borderRadius: 980, marginTop: 16, marginBottom: 18, maxWidth: 520 }}>
+          {/* Calorie progress bar — clean, minimal */}
+          <div style={{ height: 6, borderRadius: 999, background: "rgba(26,24,20,0.06)", marginTop: 16, marginBottom: 18, maxWidth: 520, overflow: "hidden" }}>
             <div style={{
-              position: "absolute", inset: 0, borderRadius: 980,
-              padding: 1.5,
-              background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
-              WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-              mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-              WebkitMaskComposite: "xor", maskComposite: "exclude",
-              pointerEvents: "none",
-            }}></div>
-            <div style={{
-              position: "absolute", left: 2, top: 2, bottom: 2,
-              width: `calc(${pct}% - 4px)`, borderRadius: 980,
-              background: "linear-gradient(180deg, var(--accent-cobalt) 0%, var(--accent-cobalt) 50%, var(--accent-oxblood) 100%)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), 0 0 12px rgba(28,44,90,0.5)",
+              width: `${pct}%`, height: "100%", borderRadius: 999,
+              background: pct >= 75 ? "var(--accent-success)" : "var(--accent-cobalt)",
+              transition: "width 0.4s cubic-bezier(0.32,0.72,0,1)",
             }}></div>
           </div>
 
