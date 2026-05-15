@@ -5424,43 +5424,18 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           Back to dashboard
         </button>
 
-        {/* Editorial mast */}
-        <div style={{ marginBottom: 36, paddingLeft: 4 }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
-          }}>
+        {/* Compact header */}
+        <div style={{ marginBottom: 28, display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+          <div>
             <div style={{
-              fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "var(--ink-faint)",
-            }}>Section II · Private coaching</div>
-            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
+              fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
+              letterSpacing: "-0.02em", color: "var(--ink)",
+            }}>Bruno Lessons</div>
+            <div style={{
+              fontFamily: "var(--font-text)", fontSize: 14,
+              color: "var(--ink-faint)", marginTop: 4,
+            }}>{lessons.length} lesson{lessons.length !== 1 ? "s" : ""} logged</div>
           </div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(44px, 7vw, 76px)",
-            fontWeight: 800, fontStyle: "normal",
-            letterSpacing: "-0.035em",
-            color: "var(--ink, #1a1814)",
-            lineHeight: 0.96,
-          }}>Lessons with</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(44px, 7vw, 76px)",
-            fontWeight: 800,
-            letterSpacing: "-0.045em",
-            lineHeight: 0.96,
-            background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
-            WebkitBackgroundClip: "text", backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            marginTop: 2,
-          }}>Bruno.</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: 17, fontStyle: "normal",
-            color: "var(--ink-muted)", marginTop: 16, maxWidth: 580,
-            letterSpacing: "0.005em", lineHeight: 1.45,
-          }}>Every private, plated and filed. Tap a plate to read the full debrief — pin, edit, or delete from the row.</div>
         </div>
 
         {/* Sort */}
@@ -6492,43 +6467,24 @@ function Meals({ onBack }) {
           Back to dashboard
         </button>
 
-        {/* Editorial mast */}
-        <div style={{ marginBottom: 28, paddingLeft: 4 }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
-          }}>
+        {/* Compact header with key metric */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 14 }}>
+            <div>
+              <div style={{
+                fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
+                letterSpacing: "-0.02em", color: "var(--ink)",
+              }}>Meals</div>
+              <div style={{
+                fontFamily: "var(--font-text)", fontSize: 14,
+                color: "var(--ink-faint)", marginTop: 4,
+              }}>{remaining > 0 ? `${remaining} kcal remaining` : "Goal reached"}</div>
+            </div>
             <div style={{
-              fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "var(--ink-faint)",
-            }}>The menu · Today</div>
-            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
-          </div>
-          <div style={{
-            display: "flex", alignItems: "baseline", flexWrap: "wrap",
-            columnGap: 22, rowGap: 8, marginBottom: 14,
-          }}>
-            <div style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(48px, 7.5vw, 80px)",
-              fontWeight: 800, fontStyle: "normal",
-              letterSpacing: "-0.035em",
-              color: "var(--ink, #1a1814)", lineHeight: 0.95,
+              fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700,
+              letterSpacing: "-0.03em", color: "var(--ink)",
               fontVariantNumeric: "tabular-nums",
-            }}>{total}<span style={{
-              fontStyle: "normal",
-              color: "var(--ink-muted)",
-              fontWeight: 400,
-              fontSize: "0.45em",
-              marginLeft: 6,
-            }}>kcal</span></div>
-            <div style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 17, fontStyle: "normal",
-              color: "var(--ink-muted)",
-              fontVariantNumeric: "tabular-nums",
-              letterSpacing: "0.005em",
-            }}>of {CAL_GOAL} · {remaining} remaining</div>
+            }}>{total}<span style={{ color: "var(--ink-faint)", fontWeight: 400, fontSize: 14, marginLeft: 4 }}>/ {CAL_GOAL}</span></div>
           </div>
 
           {/* Calorie progress bar */}
@@ -6756,6 +6712,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
 // Detail modal — full breakdown of one meal
 // =====================================================
 function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
+  const trapRef = useModalTrap(true, onClose);
   const calGoalPct = Math.min(100, Math.round((meal.calories / CAL_GOAL) * 100));
   const macroTotal = (meal.macros?.p || 0) + (meal.macros?.c || 0) + (meal.macros?.f || 0);
   const pPct = macroTotal ? Math.round(((meal.macros?.p || 0) / macroTotal) * 100) : 0;
@@ -6764,6 +6721,9 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
 
   return (
     <div
+      ref={trapRef}
+      role="dialog"
+      aria-modal="true"
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -7301,52 +7261,31 @@ function Problems({ onBack }) {
   return (
     <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ marginBottom: 32 }}>
+        {/* Compact header */}
+        <div style={{ marginBottom: 24 }}>
           <button onClick={onBack} style={{
             border: "none", background: "transparent", padding: 0, cursor: "pointer",
-            fontSize: 14, color: "rgba(29,29,31,0.62)", marginBottom: 12,
+            fontSize: 14, color: "var(--ink-faint)", marginBottom: 14,
             display: "inline-flex", alignItems: "center", gap: 6,
+            fontFamily: "var(--font-text)",
           }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
             Back
           </button>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 14, marginBottom: 14,
-          }}>
-            <div style={{
-              fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "var(--ink-faint)",
-            }}>The dossier · Problems</div>
-            <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <div style={{
+                fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
+                letterSpacing: "-0.02em", color: "var(--ink)",
+              }}>Problems</div>
+              <div style={{
+                fontFamily: "var(--font-text)", fontSize: 14,
+                color: "var(--ink-faint)", marginTop: 4,
+              }}>{sorted.length} position{sorted.length !== 1 ? "s" : ""} tracked</div>
+            </div>
           </div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 800, fontStyle: "normal",
-            letterSpacing: "-0.035em",
-            color: "var(--ink, #1a1814)",
-            lineHeight: 0.95, marginBottom: 4,
-          }}>Where you get</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(40px, 7vw, 72px)",
-            fontWeight: 800,
-            letterSpacing: "-0.045em",
-            lineHeight: 0.95,
-            background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, var(--accent-gold) 100%)",
-            WebkitBackgroundClip: "text", backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>stuck.</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: 17, fontStyle: "normal",
-            color: "var(--ink-muted)", marginTop: 16, maxWidth: 560,
-            letterSpacing: "0.005em", lineHeight: 1.45,
-          }}>The positions on file. Tap a row to read the breakdown.</div>
         </div>
 
         {/* Sort */}
