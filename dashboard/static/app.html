@@ -261,6 +261,18 @@ body::after {
   body::before { animation: none; }
 }
 
+/* Subtle page-enter animation */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+[data-screen-label] {
+  animation: page-enter 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-screen-label] { animation: none; }
+}
+
 /* =============================================================
    PAGE-LEVEL CHROME
    ============================================================= */
