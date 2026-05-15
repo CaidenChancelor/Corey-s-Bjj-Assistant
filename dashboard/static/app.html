@@ -1428,7 +1428,7 @@ function NavPill({ active, onChange }) {
                               padding: "10px 14px", borderRadius: 8,
                               fontSize: 13, fontWeight: childActive ? 650 : 500,
                               fontFamily: "var(--font-text)",
-                              color: childActive ? "var(--ink)" : "rgba(26,22,19,0.70)",
+                              color: childActive ? "var(--ink)" : "var(--ink-muted)",
                               background: childActive ? "rgba(26,22,19,0.06)" : "transparent",
                               border: "none", cursor: "pointer",
                               transition: "all 120ms ease",
@@ -4474,7 +4474,7 @@ function MessageRow({ role, body, time }) {
   return (
     <div style={{
       display: "flex", gap: 14, padding: "14px 18px",
-      borderBottom: "1px solid rgba(26,22,19,0.06)",
+      borderBottom: "1px solid var(--bg-hairline)",
       alignItems: "flex-start",
     }}>
       <div style={{ paddingTop: 2, flexShrink: 0 }}>
@@ -9069,7 +9069,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
         </label>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
-          <button onClick={submit} disabled={!canSubmit} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: canSubmit ? "var(--accent-cobalt)" : "rgba(26,22,19,0.08)", color: canSubmit ? "var(--fg-on-gradient)" : "rgba(26,22,19,0.35)", cursor: canSubmit ? "pointer" : "not-allowed", boxShadow: canSubmit ? "0 4px 12px -3px rgba(28,44,90,0.3)" : "none" }}>{initial ? "Save" : "Add"}</button>
+          <button onClick={submit} disabled={!canSubmit} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: canSubmit ? "var(--accent-cobalt)" : "rgba(26,22,19,0.08)", color: canSubmit ? "var(--fg-on-gradient)" : "var(--fg-4)", cursor: canSubmit ? "pointer" : "not-allowed", boxShadow: canSubmit ? "0 4px 12px -3px rgba(28,44,90,0.3)" : "none" }}>{initial ? "Save" : "Add"}</button>
         </div>
       </div>
     </div>
