@@ -862,7 +862,7 @@ html, body {
             letter-spacing="-0.02em">BJJ Dashboard</text>
     </svg>
   </template>
-  <div id="root"></div>
+  <main id="root"></main>
   <script>
   (function() {
 
@@ -1370,7 +1370,7 @@ function NavPill({ active, onChange }) {
       position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)",
       zIndex: 50,
     }}>
-      <div className="bjj-navpill" ref={navRef} style={{
+      <nav className="bjj-navpill" ref={navRef} aria-label="Main navigation" style={{
         display: "inline-flex", alignItems: "center", gap: 16,
         padding: "10px 14px 10px 16px",
         background: "rgba(255,252,245,0.90)",
@@ -1456,7 +1456,7 @@ function NavPill({ active, onChange }) {
             );
           })}
         </div>
-      </div>
+      </nav>
       <style>{`
         @keyframes navDropIn {
           from { opacity: 0; transform: translateX(-50%) translateY(-4px) scale(0.96); }
