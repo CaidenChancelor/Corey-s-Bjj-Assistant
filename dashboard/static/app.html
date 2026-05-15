@@ -476,24 +476,83 @@ html, body {
    Dense SaaS-style dashboard primitives for the main training view.
    ============================================================= */
 .ops-console {
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
 /* ---- editorial section spacing ---- */
 .ed-section {
   opacity: 0;
-  transform: translateY(18px);
-  animation: ed-fade-in 0.6s var(--ease-out) forwards;
+  transform: translateY(24px);
+  animation: ed-reveal 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
 }
 .ed-section:nth-child(1) { animation-delay: 0s; }
-.ed-section:nth-child(2) { animation-delay: 0.08s; }
-.ed-section:nth-child(3) { animation-delay: 0.16s; }
-.ed-section:nth-child(4) { animation-delay: 0.24s; }
-.ed-section:nth-child(5) { animation-delay: 0.32s; }
-.ed-section:nth-child(6) { animation-delay: 0.40s; }
-@keyframes ed-fade-in {
+.ed-section:nth-child(2) { animation-delay: 0.1s; }
+.ed-section:nth-child(3) { animation-delay: 0.2s; }
+.ed-section:nth-child(4) { animation-delay: 0.3s; }
+.ed-section:nth-child(5) { animation-delay: 0.4s; }
+.ed-section:nth-child(6) { animation-delay: 0.5s; }
+.ed-section:nth-child(7) { animation-delay: 0.6s; }
+.ed-section:nth-child(8) { animation-delay: 0.7s; }
+.ed-section:nth-child(9) { animation-delay: 0.8s; }
+.ed-section:nth-child(10) { animation-delay: 0.9s; }
+.ed-section:nth-child(11) { animation-delay: 1.0s; }
+@keyframes ed-reveal {
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- dark hero section ---- */
+.ed-hero {
+  background: linear-gradient(135deg, #0f1724 0%, #1c2c5a 50%, #0f1724 100%);
+  color: #f7f1e3;
+  border-radius: 20px;
+  padding: 48px 40px;
+  margin-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.ed-hero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 60%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(199,154,58,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ed-hero::after {
+  content: "";
+  position: absolute;
+  bottom: -40%;
+  left: -10%;
+  width: 50%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(110,19,32,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ed-hero .ops-eyebrow {
+  color: rgba(247,241,227,0.5);
+}
+.ed-hero .ed-action-btn {
+  color: rgba(247,241,227,0.7);
+  border-color: rgba(247,241,227,0.15);
+}
+.ed-hero .ed-action-btn:hover {
+  color: #f7f1e3;
+  border-color: rgba(247,241,227,0.35);
+  background: rgba(247,241,227,0.06);
+}
+.ed-hero-next {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  background: linear-gradient(120deg, #d4707e 0%, #8fa4d4 50%, #d4b968 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* ---- key metrics row ---- */
@@ -503,34 +562,87 @@ html, body {
   gap: 0;
 }
 .ed-metric {
+  position: relative;
   text-align: center;
   cursor: pointer;
-  padding: 12px 8px;
-  transition: opacity 0.15s ease;
+  padding: 32px 8px;
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), opacity 0.15s ease;
 }
-.ed-metric:hover { opacity: 0.7; }
+.ed-metric::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+  opacity: 0.05;
+  pointer-events: none;
+  transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+.ed-metric:hover::before {
+  opacity: 0.09;
+  width: 160px;
+  height: 160px;
+}
+.ed-metric:hover { transform: translateY(-2px); }
 .ed-metric-value {
   font-family: var(--font-display);
-  font-size: clamp(40px, 6vw, 56px);
-  font-weight: 700;
+  font-size: clamp(48px, 8vw, 72px);
+  font-weight: 800;
   letter-spacing: -0.04em;
   line-height: 1;
   color: var(--ink);
+  position: relative;
 }
 .ed-metric-label {
   font-family: var(--font-text);
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink-faint);
-  margin-top: 8px;
+  margin-top: 10px;
 }
 .ed-metric-sub {
   font-family: var(--font-text);
   font-size: 12px;
   color: var(--ink-faint);
-  margin-top: 4px;
+  margin-top: 6px;
   opacity: 0.7;
+}
+
+/* ---- readiness pulse ---- */
+@keyframes ed-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.ed-pulse {
+  animation: ed-pulse 2.5s ease-in-out infinite;
+}
+
+/* ---- radial progress ring ---- */
+.ed-ring {
+  position: relative;
+  display: inline-block;
+}
+.ed-ring svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  pointer-events: none;
+}
+.ed-ring-track {
+  fill: none;
+  stroke: rgba(26,24,20,0.05);
+}
+.ed-ring-fill {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.22,1,0.36,1);
 }
 
 /* ---- thin progress bar ---- */
@@ -539,8 +651,8 @@ html, body {
   border-radius: 999px;
   background: rgba(26,24,20,0.06);
   overflow: hidden;
-  margin-top: 10px;
-  max-width: 80px;
+  margin-top: 12px;
+  max-width: 100px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -549,13 +661,13 @@ html, body {
   height: 100%;
   border-radius: inherit;
   background: var(--accent-cobalt);
-  transition: width 600ms cubic-bezier(0.32,0.72,0,1);
+  transition: width 1.2s cubic-bezier(0.32,0.72,0,1);
 }
 
 /* ---- divider ---- */
 .ed-divider {
   height: 1px;
-  background: rgba(26,24,20,0.08);
+  background: rgba(26,24,20,0.06);
   border: none;
   margin: 0;
 }
@@ -568,39 +680,61 @@ html, body {
 }
 .ed-health-col {
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  padding-left: 20px;
+  border-left: 3px solid var(--accent-cobalt);
+  transition: border-color 0.25s ease, transform 0.25s ease;
 }
-.ed-health-col:hover { opacity: 0.7; }
+.ed-health-col:hover {
+  border-left-color: var(--accent-gold);
+  transform: translateX(4px);
+}
 
 /* ---- activity list ---- */
 .ed-activity-item {
   display: flex;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(26,24,20,0.05);
+  gap: 16px;
+  padding: 14px 8px;
+  border-bottom: 1px solid rgba(26,24,20,0.04);
   align-items: flex-start;
+  border-radius: 8px;
+  transition: background 0.15s ease;
 }
 .ed-activity-item:last-child { border-bottom: none; }
+.ed-activity-item:hover { background: rgba(26,24,20,0.02); }
 
-/* ---- quick nav row ---- */
+/* ---- quick nav — vertical list with arrows ---- */
 .ed-nav-row {
   display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0;
 }
 .ed-nav-link {
-  font-family: var(--font-text);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
   background: none;
   border: none;
+  border-bottom: 1px solid rgba(26,24,20,0.06);
   cursor: pointer;
-  padding: 0;
-  transition: color 0.15s ease;
+  padding: 18px 0;
+  transition: color 0.2s ease;
   letter-spacing: -0.01em;
+  text-align: left;
 }
-.ed-nav-link:hover { color: var(--ink); }
+.ed-nav-link:last-child { border-bottom: none; }
+.ed-nav-link::after {
+  content: "\2192";
+  opacity: 0.2;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  font-size: 16px;
+}
+.ed-nav-link:hover { color: var(--accent-cobalt); }
+.ed-nav-link:hover::after { opacity: 0.8; transform: translateX(4px); }
 
 /* ---- header action buttons ---- */
 .ed-action-btn {
@@ -772,6 +906,8 @@ html, body {
   .ops-card-body { padding: 14px; }
   .ed-metrics { grid-template-columns: 1fr; gap: 32px; }
   .ed-health-grid { grid-template-columns: 1fr; gap: 32px; }
+  .ed-hero { padding: 32px 24px; border-radius: 16px; }
+  .ed-hero-next { font-size: clamp(20px, 4vw, 28px); }
 }
 
 
@@ -4536,6 +4672,42 @@ function OpsTimeBars({ buckets, keys = ["morning", "afternoon", "evening", "nigh
   );
 }
 
+function useCountUp(target, duration) {
+  duration = duration || 1200;
+  const ref = React.useRef(0);
+  const [value, setValue] = React.useState(0);
+  React.useEffect(() => {
+    if (!target && target !== 0) { setValue(0); return; }
+    const from = ref.current;
+    const startTime = performance.now();
+    const step = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(from + (target - from) * eased);
+      setValue(current);
+      if (progress < 1) requestAnimationFrame(step);
+      else ref.current = target;
+    };
+    requestAnimationFrame(step);
+  }, [target]);
+  return value;
+}
+
+function ProgressRing({ radius, stroke, progress, color }) {
+  const normalizedRadius = radius - stroke;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const offset = circumference - (Math.min(progress, 100) / 100) * circumference;
+  return (
+    <svg width={radius * 2} height={radius * 2} style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -55%)" }}>
+      <circle className="ed-ring-track" cx={radius} cy={radius} r={normalizedRadius} strokeWidth={stroke} />
+      <circle className="ed-ring-fill" cx={radius} cy={radius} r={normalizedRadius} strokeWidth={stroke} stroke={color}
+        strokeDasharray={circumference + " " + circumference}
+        strokeDashoffset={offset}
+        style={{ transform: "rotate(-90deg)", transformOrigin: "50% 50%" }} />
+    </svg>
+  );
+}
+
 function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary }) {
   const d = window.__bjjdata || {};
   const botError = d && d.error;
@@ -4570,62 +4742,71 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const techCount = Array.isArray(d.techniques) ? d.techniques.length : 0;
   const streakDays = typeof d.streak_days === "number" ? d.streak_days : 0;
 
+  const animWater = useCountUp(Math.round(waterToday * 1000), 1400);
+  const animCalories = useCountUp(calorieToday, 1400);
+
   return (
     <div className="dash-page" style={{ paddingTop: 96, paddingBottom: 88, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div className="ops-console">
 
-        {/* === HERO: greeting + next session === */}
-        <div className="ed-section" style={{ marginBottom: 96 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap", marginBottom: 48 }}>
-            <div>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px, 5vw, 38px)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1.1 }}>
-                Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
+        {/* === HERO: dark dramatic greeting + next session === */}
+        <div className="ed-section ed-hero">
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "wrap", marginBottom: 48 }}>
+              <div>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, letterSpacing: "-0.03em", color: "#f7f1e3", lineHeight: 1.1 }}>
+                  Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
+                </div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500, letterSpacing: "0.02em", color: "rgba(247,241,227,0.5)", marginTop: 10 }}>{todayLabel}</div>
               </div>
-              <div style={{ fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500, letterSpacing: "0.02em", color: "var(--ink-faint)", marginTop: 8 }}>{todayLabel}</div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <button onClick={onOpenHydration} className="ed-action-btn">Log water</button>
+                <button onClick={onOpenMeals} className="ed-action-btn">Log meal</button>
+                <button onClick={onOpenMicroInjuries} className="ed-action-btn">Health check</button>
+              </div>
             </div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-              <button onClick={onOpenHydration} className="ed-action-btn">Log water</button>
-              <button onClick={onOpenMeals} className="ed-action-btn">Log meal</button>
-              <button onClick={onOpenMicroInjuries} className="ed-action-btn">Health check</button>
-            </div>
-          </div>
 
-          {botError && (
-            <div style={{ padding: "12px 0", marginBottom: 24, color: "var(--accent-danger)", fontSize: 14, fontFamily: "var(--font-text)" }}>
-              Bot data is temporarily unavailable. Live stats may be stale.
-            </div>
-          )}
-
-          <div onClick={onOpenSchedule} style={{ cursor: "pointer" }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSchedule(); } }}>
-            <div className="ops-eyebrow" style={{ marginBottom: 10 }}>Next up</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "clamp(22px, 3.5vw, 30px)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1.2 }}>
-              {next}
-            </div>
-            {bruno && (
-              <div style={{ fontFamily: "var(--font-text)", fontSize: 14, color: "var(--ink-faint)", marginTop: 8, lineHeight: 1.5 }}>
-                Last private: {bruno.summary || bruno.notes || "Logged"}
+            {botError && (
+              <div style={{ padding: "12px 0", marginBottom: 24, color: "#e0264a", fontSize: 14, fontFamily: "var(--font-text)" }}>
+                Bot data is temporarily unavailable. Live stats may be stale.
               </div>
             )}
+
+            <div onClick={onOpenSchedule} style={{ cursor: "pointer" }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSchedule(); } }}>
+              <div className="ops-eyebrow" style={{ marginBottom: 12 }}>Next up</div>
+              <div className="ed-hero-next">
+                {next}
+              </div>
+              {bruno && (
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 14, color: "rgba(247,241,227,0.45)", marginTop: 10, lineHeight: 1.5 }}>
+                  Last private: {bruno.summary || bruno.notes || "Logged"}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <hr className="ed-divider ed-section" style={{ marginBottom: 96 }} />
-
-        {/* === KEY METRICS: 3 large numbers === */}
+        {/* === KEY METRICS: 3 large numbers with rings and count-up === */}
         <div className="ed-section ed-metrics" style={{ marginBottom: 96 }}>
-          <div className="ed-metric" onClick={onOpenHydration}>
-            <div className="ed-metric-value" style={{ color: "var(--accent-cobalt)" }}>{Math.round(waterToday * 1000)}</div>
+          <div className="ed-metric" onClick={onOpenHydration} style={{ color: "var(--accent-cobalt)" }}>
+            <div className="ed-ring">
+              <ProgressRing radius={64} stroke={4} progress={waterPct} color="var(--accent-cobalt)" />
+              <div className="ed-metric-value" style={{ color: "var(--accent-cobalt)" }}>{animWater}</div>
+            </div>
             <div className="ed-metric-label">ml water</div>
             <div className="ed-metric-sub">{waterPct}% of {waterGoal}L goal</div>
             <div className="ed-progress"><span style={{ width: `${waterPct}%` }} /></div>
           </div>
-          <div className="ed-metric" onClick={onOpenMeals}>
-            <div className="ed-metric-value" style={{ color: caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)" }}>{calorieToday}</div>
+          <div className="ed-metric" onClick={onOpenMeals} style={{ color: caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)" }}>
+            <div className="ed-ring">
+              <ProgressRing radius={64} stroke={4} progress={caloriePct} color={caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)"} />
+              <div className="ed-metric-value" style={{ color: caloriePct >= 75 ? "var(--accent-success)" : "var(--accent-warn)" }}>{animCalories}</div>
+            </div>
             <div className="ed-metric-label">calories</div>
             <div className="ed-metric-sub">{calorieGoal - calorieToday > 0 ? `${calorieGoal - calorieToday} to goal` : "Goal hit"}</div>
             <div className="ed-progress"><span style={{ width: `${caloriePct}%`, background: "var(--accent-gold)" }} /></div>
           </div>
-          <div className="ed-metric" onClick={onOpenSchedule}>
+          <div className="ed-metric ed-pulse" onClick={onOpenSchedule} style={{ color: readiness.tone }}>
             <div className="ed-metric-value" style={{ color: readiness.tone }}>{readiness.label === "Clear to build" ? "Clear" : readiness.label === "Train smart" ? "Caution" : "Modify"}</div>
             <div className="ed-metric-label">readiness</div>
             <div className="ed-metric-sub">{readiness.meta}</div>
