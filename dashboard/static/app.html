@@ -1296,7 +1296,7 @@ function NavPill({ active, onChange }) {
                   padding: "8px 14px", borderRadius: 6,
                   fontSize: 12.5, fontWeight: 650,
                   fontFamily: "var(--font-text)",
-                  color: isActive ? "var(--ink, #1A1613)" : "rgba(26,22,19,0.45)",
+                  color: isActive ? "var(--ink, #1A1613)" : "rgba(26,22,19,0.55)",
                   background: isActive ? "rgba(26,22,19,0.06)" : "transparent",
                   border: "none",
                   cursor: "pointer",
@@ -1415,7 +1415,7 @@ function SortMenu({ value, onChange, options }) {
           transition: "all 160ms ease",
           boxShadow: open ? "0 4px 14px -4px rgba(26,22,19,0.10)" : "none",
         }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(26,22,19,0.45)" }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "rgba(26,22,19,0.55)" }}>
           <line x1="3" y1="6" x2="21" y2="6"/>
           <line x1="6" y1="12" x2="18" y2="12"/>
           <line x1="10" y1="18" x2="14" y2="18"/>
@@ -1423,7 +1423,7 @@ function SortMenu({ value, onChange, options }) {
         <span style={{ color: "rgba(26,22,19,0.50)" }}>Sort:</span>
         <span>{current.label}</span>
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
-             style={{ color: "rgba(26,22,19,0.40)", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 160ms ease" }}>
+             style={{ color: "rgba(26,22,19,0.55)", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 160ms ease" }}>
           <polyline points="6 9 12 15 18 9"/>
         </svg>
       </button>
@@ -1524,7 +1524,7 @@ const problemsTierColor = (tier) => ({
   urgent: "#c4324f",
   high:   "#8b1f37",
   med:    "#1c2c5a",
-  low:    "rgba(29,29,31,0.45)",
+  low:    "rgba(29,29,31,0.55)",
 }[tier]);
 
 const problemsTierRank = (tier) => ({ urgent: 0, high: 1, med: 2, low: 3 }[tier]);
@@ -2261,7 +2261,7 @@ function Login({ onContinue }) {
 
         <BlueButton fullWidth onClick={onContinue}>Continue</BlueButton>
 
-        <div style={{ fontSize: 12, color: "rgba(29,29,31,0.45)" }}>
+        <div style={{ fontSize: 12, color: "rgba(29,29,31,0.55)" }}>
           single user · personal training log
         </div>
       </GlassCard>
@@ -2601,7 +2601,7 @@ function Hydration({ onBack }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <Eyebrow>today's log</Eyebrow>
-                <span style={{ fontSize: 11, color: "rgba(29,29,31,0.45)", letterSpacing: "0.04em" }}>{displayLog.length} entries</span>
+                <span style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", letterSpacing: "0.04em" }}>{displayLog.length} entries</span>
               </div>
 
               {displayLog.length === 0 ? (
@@ -2633,7 +2633,7 @@ function Hydration({ onBack }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <Eyebrow>last 7 days</Eyebrow>
-                <span style={{ fontSize: 11, color: "rgba(29,29,31,0.45)", letterSpacing: "0.04em" }}>avg {formatHydrationAmount(avg)}</span>
+                <span style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", letterSpacing: "0.04em" }}>avg {formatHydrationAmount(avg)}</span>
               </div>
               <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 110 }}>
                 {historyDays.map((d, i) => {
@@ -2643,7 +2643,7 @@ function Hydration({ onBack }) {
                   return (
                     <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                       <div style={{
-                        fontSize: 10, fontWeight: 500, color: "rgba(29,29,31,0.45)",
+                        fontSize: 10, fontWeight: 500, color: "rgba(29,29,31,0.55)",
                         fontVariantNumeric: "tabular-nums",
                       }}>{Math.round(d.total / 100) / 10}L</div>
                       <div style={{
@@ -3947,7 +3947,7 @@ function ProblemsTile({ onClick }) {
     urgent: "#c4324f",
     high:   "#8b1f37",
     med:    "#1c2c5a",
-    low:    "rgba(29,29,31,0.45)",
+    low:    "rgba(29,29,31,0.55)",
   }[tier]);
 
   return (
@@ -4211,7 +4211,7 @@ function MicroInjuriesCard({ onClick }) {
                   overflow: "hidden",
                 }}>{inj.description}</div>
               </div>
-              <div style={{ fontSize: 12, color: "rgba(29,29,31,0.45)", flexShrink: 0, paddingTop: 4, fontVariantNumeric: "tabular-nums" }}>
+              <div style={{ fontSize: 12, color: "rgba(29,29,31,0.55)", flexShrink: 0, paddingTop: 4, fontVariantNumeric: "tabular-nums" }}>
                 {inj.rest}
               </div>
             </div>
@@ -4255,7 +4255,7 @@ function MiniStat({ label, value, accent }) {
       <div style={{
         fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
         fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
-        color: "rgba(26,22,19,0.45)", marginBottom: 3, paddingLeft: 6,
+        color: "rgba(26,22,19,0.55)", marginBottom: 3, paddingLeft: 6,
       }}>{label}</div>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600,
@@ -4379,7 +4379,7 @@ function MessageRow({ role, body, time }) {
         {role === "claude" ? <ClaudePill /> : <StatusPill tone="you">You</StatusPill>}
       </div>
       <div style={{ flex: 1, fontSize: 14.5, color: "rgba(26,22,19,0.78)", lineHeight: 1.5 }}>{body}</div>
-      <div style={{ fontSize: 12, color: "rgba(26,22,19,0.40)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
+      <div style={{ fontSize: 12, color: "rgba(26,22,19,0.55)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
     </div>
   );
 }
@@ -5214,7 +5214,7 @@ function Editor() {
           listening={listening}
           onVoice={handleVoice}
         />
-        <div style={{ fontSize: 12, color: "rgba(29,29,31,0.45)", textAlign: "center", marginTop: 12 }}>
+        <div style={{ fontSize: 12, color: "rgba(29,29,31,0.55)", textAlign: "center", marginTop: 12 }}>
           Enter to send · Shift + Enter for a new line
         </div>
       </div>
@@ -5777,7 +5777,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
                 width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
                 background: editHover ? "rgba(0,0,0,0.05)" : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: "rgba(29,29,31,0.45)",
+                color: "rgba(29,29,31,0.55)",
               }}
               onMouseEnter={() => setEditHover(true)} onMouseLeave={() => setEditHover(false)}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -5871,7 +5871,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: isPinned ? "rgba(255,159,28,0.10)" : "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: isPinned ? "#ff9f1c" : "rgba(29,29,31,0.45)",
+                color: isPinned ? "#ff9f1c" : "rgba(29,29,31,0.55)",
                 transition: "all 160ms ease",
               }}>
               <svg width="20" height="20" viewBox="0 0 24 24"
@@ -5888,7 +5888,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: "rgba(29,29,31,0.45)",
+                color: "rgba(29,29,31,0.55)",
                 transition: "all 160ms ease",
               }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -5902,7 +5902,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: "rgba(29,29,31,0.45)",
+                color: "rgba(29,29,31,0.55)",
                 transition: "all 160ms ease",
               }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -5950,7 +5950,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 15, color: "rgba(29,29,31,0.45)", fontStyle: "normal" }}>
+            <div style={{ fontSize: 15, color: "rgba(29,29,31,0.55)", fontStyle: "normal" }}>
               No detailed notes yet — tap edit to add some.
             </div>
           )}
@@ -6667,7 +6667,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "rgba(29,29,31,0.45)",
+            color: "rgba(29,29,31,0.55)",
           }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -7014,7 +7014,7 @@ function MacroInput({ color, label, value, onChange }) {
         />
         <span style={{
           position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-          fontSize: 12, color: "rgba(29,29,31,0.45)", pointerEvents: "none",
+          fontSize: 12, color: "rgba(29,29,31,0.55)", pointerEvents: "none",
         }}>g</span>
       </div>
     </div>
@@ -7458,7 +7458,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
           marginBottom: 24, whiteSpace: "pre-wrap",
         }}>
           {problem.description || (
-            <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "normal" }}>
+            <span style={{ color: "rgba(29,29,31,0.55)", fontStyle: "normal" }}>
               No description yet — tap edit to add one.
             </span>
           )}
@@ -7983,7 +7983,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
                 borderRight: i < arr.length - 1 ? "1px solid rgba(26,22,19,0.06)" : "none",
                 minWidth: 0,
               }}>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)", marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)", marginBottom: 4 }}>{item.label}</div>
                 <div style={{
                   fontSize: 13.5, fontWeight: 600, color: "var(--ink, #1A1613)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
@@ -8017,7 +8017,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>Who it happens with</div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.06em" }}>partner</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>partner</div>
               </div>
               <MicroInjuryBars rows={stats.top_partners || []} emptyText="Add partner names to unlock this chart" color="#6e1320" />
             </div>
@@ -8028,7 +8028,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>When it happens</div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.40)", textTransform: "uppercase", letterSpacing: "0.06em" }}>by session</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>by session</div>
               </div>
               <MicroInjuryTimeChart buckets={buckets} />
             </div>
@@ -8040,7 +8040,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>Body parts taking damage</div>
-              <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.06em" }}>frequency</div>
+              <div style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>frequency</div>
             </div>
             <MicroInjuryBars rows={stats.top_body_parts || []} emptyText="No body-part data yet" color="#1c2c5a" />
           </div>
@@ -8542,7 +8542,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           marginBottom: (injury.partner || injury.when_happened) ? 10 : 24, whiteSpace: "pre-wrap",
         }}>
           {injury.description || (
-            <span style={{ color: "rgba(29,29,31,0.45)", fontStyle: "normal" }}>
+            <span style={{ color: "rgba(29,29,31,0.55)", fontStyle: "normal" }}>
               No notes yet — tap edit to add details.
             </span>
           )}
@@ -8676,7 +8676,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           <div>
             <div style={{
               fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+              textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
               marginBottom: 6, paddingLeft: 2,
             }}>Body region</div>
             <select
@@ -8701,7 +8701,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           <div>
             <div style={{
               fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-              textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+              textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
               marginBottom: 6, paddingLeft: 2,
             }}>Rest plan</div>
             <input
@@ -8734,7 +8734,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         {/* Severity picker */}
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-          textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+          textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
           marginBottom: 6, paddingLeft: 2,
         }}>Severity</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
@@ -8761,7 +8761,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         {/* Partner */}
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-          textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+          textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
           marginBottom: 6, paddingLeft: 2,
         }}>Training partner</div>
         <input
@@ -8778,7 +8778,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         {/* When happened */}
         <div style={{
           fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
-          textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
+          textTransform: "uppercase", color: "rgba(29,29,31,0.55)",
           marginBottom: 6, paddingLeft: 2,
         }}>When did it happen</div>
         <input
@@ -9113,7 +9113,7 @@ function AllergyStatsPanel({ stats }) {
                 <div style={{ width: "100%", height: 112, borderRadius: 12, background: "rgba(199,154,58,0.06)", border: "1px solid rgba(26,22,19,0.06)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
                   <div style={{ width: "100%", height: `${Math.max(8, ((buckets[key] || 0) / maxBucket) * 100)}%`, background: "linear-gradient(180deg, #c79a3a, #6e1320)", borderRadius: "12px 12px 0 0" }}></div>
                 </div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
               </div>
             ))}
           </div>
@@ -9146,7 +9146,7 @@ function AllergyRow({ log, onEdit, onDelete }) {
       <div style={{ width: 4, height: 42, borderRadius: 999, background: allergyColor(log.severity), flexShrink: 0 }}></div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 15.5, fontWeight: 650, color: "var(--ink, #1A1613)", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {log.trigger || log.category || "Allergy log"} <span style={{ color: "rgba(26,22,19,0.40)", fontWeight: 500 }}>· {sev.label}</span>
+          {log.trigger || log.category || "Allergy log"} <span style={{ color: "rgba(26,22,19,0.55)", fontWeight: 500 }}>· {sev.label}</span>
         </div>
         <div style={{ fontSize: 13, color: "rgba(26,22,19,0.55)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {log.date} {log.time ? `· ${log.time}` : ""} · {log.training_impact || "no impact"}{log.missed_training ? " · missed class" : ""}{log.symptoms ? ` · ${log.symptoms}` : ""}
@@ -9338,7 +9338,7 @@ function TechniqueLibrary({ onBack }) {
                 {t.summary}
               </div>
             ) : (
-              <div style={{ fontSize: 14, color: "rgba(29,29,31,0.42)", lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: "rgba(29,29,31,0.55)", lineHeight: 1.6 }}>
                 No summary yet — keep training this technique
               </div>
             )}
@@ -9350,7 +9350,7 @@ function TechniqueLibrary({ onBack }) {
               background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
               border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
               padding: "24px 28px", boxShadow: "var(--shadow-card)",
-              color: "rgba(29,29,31,0.45)", fontSize: 15, textAlign: "center",
+              color: "rgba(29,29,31,0.55)", fontSize: 15, textAlign: "center",
             }}>
               No session entries yet
             </div>
@@ -9362,7 +9362,7 @@ function TechniqueLibrary({ onBack }) {
                   border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
                   padding: "18px 22px", boxShadow: "var(--shadow-card)",
                 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(29,29,31,0.42)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(29,29,31,0.55)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
                     {formatDate(entry.date)}{entry.session ? ` · ${entry.session}` : ""}
                   </div>
                   <div style={{ fontSize: 15, color: "rgba(29,29,31,0.82)", lineHeight: 1.65 }}>
