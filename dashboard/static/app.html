@@ -703,12 +703,13 @@ html, body {
 }
 .ops-card-click {
   cursor: pointer;
-  transition: transform 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring), border-color 180ms ease;
+  transition: transform 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring), border-color 180ms ease, background 180ms ease;
 }
 .ops-card-click:hover {
   transform: translateY(-1px);
-  border-color: rgba(28,44,90,0.14);
-  box-shadow: 0 0 0 1px rgba(28,44,90,0.12) inset, 0 18px 42px -26px rgba(28,44,90,0.22);
+  background: rgba(255, 252, 245, 0.72);
+  border-color: rgba(28,44,90,0.12);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.60) inset, 0 12px 32px -18px rgba(28,44,90,0.22);
 }
 .ops-card-body { padding: 18px; }
 .ops-value {
