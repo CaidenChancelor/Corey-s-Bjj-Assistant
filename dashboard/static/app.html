@@ -797,14 +797,14 @@ html, body {
     <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#ff4f9a"/>
-          <stop offset="35%" stop-color="#c862ff"/>
-          <stop offset="65%" stop-color="#7a5cff"/>
-          <stop offset="100%" stop-color="#4cd6ff"/>
+          <stop offset="0%" stop-color="#6e1320"/>
+          <stop offset="35%" stop-color="#8b1f37"/>
+          <stop offset="65%" stop-color="#1c2c5a"/>
+          <stop offset="100%" stop-color="#c79a3a"/>
         </linearGradient>
         <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="60%" stop-color="rgba(122,92,255,0)"/>
-          <stop offset="100%" stop-color="rgba(122,92,255,0.35)"/>
+          <stop offset="60%" stop-color="rgba(28,44,90,0)"/>
+          <stop offset="100%" stop-color="rgba(28,44,90,0.35)"/>
         </radialGradient>
       </defs>
       <rect width="1200" height="800" fill="#f7f7fa"/>
@@ -894,10 +894,10 @@ function GiLogo({ size = 96 }) {
           <stop offset="100%" stopColor="#1f4dc8"/>
         </linearGradient>
         <linearGradient id={`${id}_collar`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ff4f9a"/>
-          <stop offset="35%" stopColor="#c862ff"/>
-          <stop offset="65%" stopColor="#7a5cff"/>
-          <stop offset="100%" stopColor="#4cd6ff"/>
+          <stop offset="0%" stopColor="#6e1320"/>
+          <stop offset="35%" stopColor="#8b1f37"/>
+          <stop offset="65%" stopColor="#1c2c5a"/>
+          <stop offset="100%" stopColor="#c79a3a"/>
         </linearGradient>
       </defs>
 
@@ -1522,8 +1522,8 @@ const PROBLEMS_TIERS = [
 
 const problemsTierColor = (tier) => ({
   urgent: "#c4324f",
-  high:   "#c862ff",
-  med:    "#7a5cff",
+  high:   "#8b1f37",
+  med:    "#1c2c5a",
   low:    "rgba(29,29,31,0.45)",
 }[tier]);
 
@@ -2231,10 +2231,10 @@ function Login({ onContinue }) {
           borderRadius: 17,
           padding: 1,
           background: focused
-            ? "linear-gradient(100deg, rgba(255,79,154,0.70) 0%, rgba(200,98,255,0.70) 28%, rgba(122,92,255,0.70) 52%, rgba(59,130,255,0.70) 76%, rgba(76,214,255,0.70) 100%)"
-            : "linear-gradient(100deg, rgba(255,79,154,0.40) 0%, rgba(200,98,255,0.40) 28%, rgba(122,92,255,0.40) 52%, rgba(59,130,255,0.40) 76%, rgba(76,214,255,0.40) 100%)",
+            ? "linear-gradient(100deg, rgba(110,19,32,0.70) 0%, rgba(139,31,55,0.70) 28%, rgba(28,44,90,0.70) 52%, rgba(43,63,122,0.70) 76%, rgba(199,154,58,0.70) 100%)"
+            : "linear-gradient(100deg, rgba(110,19,32,0.40) 0%, rgba(139,31,55,0.40) 28%, rgba(28,44,90,0.40) 52%, rgba(43,63,122,0.40) 76%, rgba(199,154,58,0.40) 100%)",
           boxShadow: focused
-            ? "0 0 0 4px rgba(122,92,255,0.10), 0 1px 2px rgba(0,0,0,0.03)"
+            ? "0 0 0 4px rgba(28,44,90,0.10), 0 1px 2px rgba(0,0,0,0.03)"
             : "0 1px 2px rgba(0,0,0,0.03)",
           transition: "all 260ms cubic-bezier(0.32, 0.72, 0, 1)",
         }}>
@@ -2447,10 +2447,10 @@ function Hydration({ onBack }) {
                   <div style={{
                     display: "inline-flex", alignItems: "center", gap: 5,
                     padding: "3px 10px 3px 8px", borderRadius: 999,
-                    background: "linear-gradient(120deg, rgba(255,79,154,0.15), rgba(122,92,255,0.15) 60%, rgba(76,214,255,0.15))",
-                    border: "1px solid rgba(122,92,255,0.25)",
+                    background: "linear-gradient(120deg, rgba(110,19,32,0.15), rgba(28,44,90,0.15) 60%, rgba(199,154,58,0.15))",
+                    border: "1px solid rgba(28,44,90,0.25)",
                     fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
-                    color: "#7a5cff", textTransform: "uppercase",
+                    color: "#1c2c5a", textTransform: "uppercase",
                   }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4-3 6-3 10a3 3 0 0 0 6 0c0-2-1-3-2-4 0 1.5-1 2-2 2.5C12 8 14 6 12 2z"/></svg>
                     {streak}-day streak
@@ -2576,9 +2576,9 @@ function Hydration({ onBack }) {
             display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 18,
           }}>
             <MiniStat label="Last sip" value={lastSip === "—" ? "—" : formatTimeFriendly(lastSip)} accent="var(--accent-cobalt, #1c2c5a)" />
-            <MiniStat label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="#7a5cff" />
-            <MiniStat label="Logs" value={displayLog.length} accent="#c862ff" />
-            <MiniStat label="7-day avg" value={formatHydrationAmount(avg)} accent="#ff4f9a" />
+            <MiniStat label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="#1c2c5a" />
+            <MiniStat label="Logs" value={displayLog.length} accent="#8b1f37" />
+            <MiniStat label="7-day avg" value={formatHydrationAmount(avg)} accent="#6e1320" />
           </div>
         </GlassCard>
 
@@ -2741,7 +2741,7 @@ function BottleVisual({ pct }) {
       {/* glow halo */}
       <div style={{
         position: "absolute", inset: -18,
-        background: "radial-gradient(closest-side, rgba(76,214,255,0.35), rgba(122,92,255,0.18) 50%, transparent 75%)",
+        background: "radial-gradient(closest-side, rgba(199,154,58,0.35), rgba(28,44,90,0.18) 50%, transparent 75%)",
         filter: "blur(8px)",
       }}></div>
 
@@ -2892,10 +2892,10 @@ function InsightsTile({ total, goal, avg, streak }) {
           <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <div style={{
               width: 30, height: 30, borderRadius: 10,
-              background: "linear-gradient(135deg, rgba(255,79,154,0.12), rgba(122,92,255,0.12) 60%, rgba(76,214,255,0.12))",
-              border: "1px solid rgba(122,92,255,0.18)",
+              background: "linear-gradient(135deg, rgba(110,19,32,0.12), rgba(28,44,90,0.12) 60%, rgba(199,154,58,0.12))",
+              border: "1px solid rgba(28,44,90,0.18)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#7a5cff", flexShrink: 0,
+              color: "#1c2c5a", flexShrink: 0,
             }}>{b.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{
@@ -3128,8 +3128,8 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
 
         {/* Live preview */}
         <div style={{
-          background: "linear-gradient(120deg, rgba(76,214,255,0.08), rgba(122,92,255,0.08) 60%, rgba(255,79,154,0.08))",
-          border: "1px solid rgba(122,92,255,0.18)",
+          background: "linear-gradient(120deg, rgba(199,154,58,0.08), rgba(28,44,90,0.08) 60%, rgba(110,19,32,0.08))",
+          border: "1px solid rgba(28,44,90,0.18)",
           borderRadius: 14, padding: 14, marginBottom: 22,
         }}>
           <div style={{
@@ -3155,13 +3155,13 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={() => onSave(draft)} style={{
               padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
               border: "none", borderRadius: 8.5, cursor: "pointer",
-              color: "#7a5cff",
+              color: "#1c2c5a",
               background: "#ffffff",
             }}>Save</button>
           </span>
@@ -3303,12 +3303,12 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
             background: "#fff",
             border: "none",
             backgroundImage: amount
-              ? "linear-gradient(#fff, #fff), linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)"
+              ? "linear-gradient(#fff, #fff), linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)"
               : "linear-gradient(#fff, #fff), linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12))",
             backgroundOrigin: "border-box",
             backgroundClip: "padding-box, border-box",
             boxShadow: amount
-              ? "0 1px 0 rgba(255,255,255,0.6) inset, 0 8px 22px -8px rgba(122,92,255,0.35)"
+              ? "0 1px 0 rgba(255,255,255,0.6) inset, 0 8px 22px -8px rgba(28,44,90,0.35)"
               : "none",
             outline: amount ? "1.5px solid transparent" : "1px solid rgba(0,0,0,0.10)",
           }}>
@@ -3316,7 +3316,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
               <span style={{
                 position: "absolute", inset: 0, borderRadius: 12,
                 padding: 1.5,
-                background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
+                background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
                 WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -3433,13 +3433,13 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onSave} style={{
               padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
               border: "none", borderRadius: 8.5, cursor: "pointer",
-              color: "#7a5cff",
+              color: "#1c2c5a",
               background: "transparent",
             }}>Save</button>
           </span>
@@ -3568,7 +3568,7 @@ function WaterHero({ onClick }) {
       {/* halo glow behind the number */}
       <div style={{
         position: "absolute", left: -40, top: -40, width: 360, height: 360,
-        background: "radial-gradient(closest-side, rgba(76,214,255,0.22), rgba(122,92,255,0.10) 50%, transparent 75%)",
+        background: "radial-gradient(closest-side, rgba(199,154,58,0.22), rgba(28,44,90,0.10) 50%, transparent 75%)",
         filter: "blur(8px)", pointerEvents: "none",
       }}></div>
 
@@ -3582,10 +3582,10 @@ function WaterHero({ onClick }) {
               <div style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
                 padding: "3px 10px 3px 8px", borderRadius: 999,
-                background: "linear-gradient(120deg, rgba(255,79,154,0.15), rgba(122,92,255,0.15) 60%, rgba(76,214,255,0.15))",
-                border: "1px solid rgba(122,92,255,0.25)",
+                background: "linear-gradient(120deg, rgba(110,19,32,0.15), rgba(28,44,90,0.15) 60%, rgba(199,154,58,0.15))",
+                border: "1px solid rgba(28,44,90,0.25)",
                 fontSize: 10, fontWeight: 600, letterSpacing: "0.04em",
-                color: "#7a5cff", textTransform: "uppercase",
+                color: "#1c2c5a", textTransform: "uppercase",
               }}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4-3 6-3 10a3 3 0 0 0 6 0c0-2-1-3-2-4 0 1.5-1 2-2 2.5C12 8 14 6 12 2z"/></svg>
                 {streak}-day streak
@@ -3711,8 +3711,8 @@ function WaterHero({ onClick }) {
         display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14,
       }}>
         <MiniStatHero label="Sips today" value={log.length ? `${log.length}` : "0"} accent="var(--accent-cobalt, #1c2c5a)" />
-        <MiniStatHero label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="#7a5cff" />
-        <MiniStatHero label="7-day avg" value={formatHydrationAmount(avg)} accent="#ff4f9a" />
+        <MiniStatHero label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="#1c2c5a" />
+        <MiniStatHero label="7-day avg" value={formatHydrationAmount(avg)} accent="#6e1320" />
       </div>
     </GlassCard>
     {customOpen && (
@@ -3739,7 +3739,7 @@ function MiniBottle({ pct, hit }) {
     }}>
       <div style={{
         position: "absolute", inset: -10,
-        background: "radial-gradient(closest-side, rgba(76,214,255,0.30), rgba(122,92,255,0.15) 55%, transparent 80%)",
+        background: "radial-gradient(closest-side, rgba(199,154,58,0.30), rgba(28,44,90,0.15) 55%, transparent 80%)",
         filter: "blur(6px)",
       }}></div>
       <svg viewBox="0 0 110 160" width="110" height="160" style={{ position: "relative", zIndex: 1, overflow: "visible" }}>
@@ -3945,8 +3945,8 @@ function ProblemsTile({ onClick }) {
 
   const tierTextColor = (tier) => ({
     urgent: "#c4324f",
-    high:   "#c862ff",
-    med:    "#7a5cff",
+    high:   "#8b1f37",
+    med:    "#1c2c5a",
     low:    "rgba(29,29,31,0.45)",
   }[tier]);
 
@@ -4090,36 +4090,27 @@ function MicroInjuriesCard({ onClick }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-      background: "#fff", borderRadius: 22,
-      border: "1px solid rgba(0,0,0,0.06)",
+      background: "rgba(255,252,245,0.78)", borderRadius: 20,
+      border: "1px solid rgba(26,22,19,0.07)",
       cursor: onClick ? "pointer" : "default",
-      transform: hover ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: hover
-        ? "0 1px 2px rgba(0,0,0,0.03)," +
-          " 0 12px 28px -10px rgba(255,79,154,0.24)," +
-          " 0 14px 36px -12px rgba(122,92,255,0.24)," +
-          " 0 16px 40px -10px rgba(76,214,255,0.20)"
-        : "0 1px 2px rgba(0,0,0,0.03)," +
-          " 0 6px 18px -8px rgba(255,79,154,0.18)," +
-          " 0 8px 24px -10px rgba(122,92,255,0.18)," +
-          " 0 10px 28px -8px rgba(76,214,255,0.16)",
+      boxShadow: "var(--shadow-card)",
       transition: "all 220ms cubic-bezier(0.32, 0.72, 0, 1)",
       overflow: "hidden",
     }}>
       <div className="mi-grid" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 0 }}>
         <div style={{
           position: "relative",
-          background: "linear-gradient(160deg, rgba(122,92,255,0.05), rgba(76,214,255,0.05))",
+          background: "linear-gradient(160deg, rgba(28,44,90,0.04), rgba(199,154,58,0.03))",
           padding: "18px 12px",
           borderRight: "1px solid rgba(0,0,0,0.05)",
           display: "flex", flexDirection: "column", alignItems: "center",
           overflow: "hidden",
         }}>
-          {/* soft rainbow halo behind silhouette */}
+          {/* soft cobalt halo behind silhouette */}
           <div style={{
             position: "absolute", top: "50%", left: "50%",
             width: 220, height: 220, transform: "translate(-50%, -50%)",
-            background: "radial-gradient(circle, rgba(255,79,154,0.10) 0%, rgba(122,92,255,0.06) 35%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(110,19,32,0.10) 0%, rgba(28,44,90,0.06) 35%, transparent 70%)",
             pointerEvents: "none",
           }}></div>
           <div style={{ position: "relative", width: "100%", flex: 1 }}>
@@ -4148,16 +4139,16 @@ function MicroInjuriesCard({ onClick }) {
           {/* Stat strip — 3 mini-cards */}
           {total > 0 && (
             <div className="mi-mini-stats" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-              <MiniStat label="Active" value={total} accent="#7a5cff" />
+              <MiniStat label="Active" value={total} accent="#1c2c5a" />
               <MiniStat
                 label="Most acute"
                 value={top ? (MICRO_INJURIES_TIERS.find((t) => t.id === top.severity)?.label || top.severity) : "—"}
-                accent={top ? microInjuriesTierColor(top.severity) : "#7a5cff"}
+                accent={top ? microInjuriesTierColor(top.severity) : "#1c2c5a"}
               />
               <MiniStat
                 label="Region"
                 value={top ? microInjuriesRegion(top.region).label : "—"}
-                accent="#4cd6ff"
+                accent="#c79a3a"
               />
             </div>
           )}
@@ -4325,14 +4316,11 @@ function AllergyTrackerCard({ onClick }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
-        background: "#fff",
-        borderRadius: 22,
-        border: "1px solid rgba(0,0,0,0.06)",
+        background: "rgba(255,252,245,0.78)",
+        borderRadius: 20,
+        border: "1px solid rgba(26,22,19,0.07)",
         cursor: "pointer",
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
-        boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03), 0 14px 34px -14px rgba(21,168,107,0.34), 0 16px 38px -16px rgba(28,44,90,0.24)"
-          : "0 1px 2px rgba(0,0,0,0.03), 0 8px 22px -12px rgba(21,168,107,0.22)",
+        boxShadow: "var(--shadow-card)",
         transition: "all 220ms cubic-bezier(0.32,0.72,0,1)",
         overflow: "hidden",
       }}>
@@ -4749,7 +4737,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
         <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
           <div style={{
             position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
-            background: "linear-gradient(120deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff)",
+            background: "linear-gradient(120deg, #6e1320, #8b1f37, #1c2c5a, #2b3f7a, #c79a3a)",
             WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -4794,8 +4782,8 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
                 display: "inline-block",
                 padding: "3px 10px",
                 borderRadius: 20,
-                background: "rgba(122,92,255,0.07)",
-                border: "1px solid rgba(122,92,255,0.15)",
+                background: "rgba(28,44,90,0.07)",
+                border: "1px solid rgba(28,44,90,0.15)",
                 fontSize: 12,
                 color: "rgba(29,29,31,0.55)",
                 letterSpacing: "-0.008em",
@@ -4810,7 +4798,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
       <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
         <div style={{
           position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
-          background: "linear-gradient(120deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff)",
+          background: "linear-gradient(120deg, #6e1320, #8b1f37, #1c2c5a, #2b3f7a, #c79a3a)",
           WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
           WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -4837,8 +4825,8 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           display: "inline-block",
           padding: "3px 12px",
           borderRadius: 20,
-          background: deployDone ? "rgba(52,199,89,0.10)" : "rgba(122,92,255,0.08)",
-          border: deployDone ? "1px solid rgba(52,199,89,0.28)" : "1px solid rgba(122,92,255,0.22)",
+          background: deployDone ? "rgba(52,199,89,0.10)" : "rgba(28,44,90,0.08)",
+          border: deployDone ? "1px solid rgba(52,199,89,0.28)" : "1px solid rgba(28,44,90,0.22)",
           fontSize: 12,
           color: deployDone ? "#1a7a35" : "#5a40cc",
           letterSpacing: "-0.008em",
@@ -4866,7 +4854,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
         }}>
           <div style={{
             position: "absolute", inset: -100,
-            background: "conic-gradient(from 0deg, #ff4f9a, #c862ff, #7a5cff, #3b82ff, #4cd6ff, #7a5cff, #ff4f9a)",
+            background: "conic-gradient(from 0deg, #6e1320, #8b1f37, #1c2c5a, #2b3f7a, #c79a3a, #1c2c5a, #6e1320)",
             filter: "blur(20px) saturate(180%)",
             animation: "composer-rot 4s linear infinite",
           }}></div>
@@ -4880,7 +4868,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
         padding: "12px 12px 12px 20px",
         border: focused ? "1px solid transparent" : "1px solid rgba(0,0,0,0.08)",
         boxShadow: focused
-          ? "0 12px 40px -12px rgba(122,92,255,0.35), 0 1px 2px rgba(0,0,0,0.04)"
+          ? "0 12px 40px -12px rgba(28,44,90,0.35), 0 1px 2px rgba(0,0,0,0.04)"
           : "0 1px 2px rgba(0,0,0,0.04)",
         transition: "border 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
@@ -4909,10 +4897,10 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           style={{
             flexShrink: 0,
             width: 40, height: 40, borderRadius: "50%",
-            border: listening ? "none" : "1px solid rgba(122,92,255,0.22)",
+            border: listening ? "none" : "1px solid rgba(28,44,90,0.22)",
             cursor: "pointer",
-            background: listening ? "rgba(220,38,38,0.10)" : "rgba(122,92,255,0.06)",
-            color: listening ? "#dc2626" : "#7a5cff",
+            background: listening ? "rgba(220,38,38,0.10)" : "rgba(28,44,90,0.06)",
+            color: listening ? "#dc2626" : "#1c2c5a",
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.2s ease",
             animation: listening ? "mic-pulse 1s ease-in-out infinite" : "none",
@@ -4932,7 +4920,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           <span style={{
             position: "absolute", inset: 0, borderRadius: "50%",
             padding: 1.5,
-            background: "linear-gradient(135deg, #ff4f9a, #7a5cff, #4cd6ff)",
+            background: "linear-gradient(135deg, #6e1320, #1c2c5a, #c79a3a)",
             WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
             WebkitMaskComposite: "xor",
             maskComposite: "exclude",
@@ -4945,7 +4933,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
               width: 40, height: 40, borderRadius: "50%",
               border: "none", cursor: "pointer",
               background: "transparent",
-              color: "#7a5cff",
+              color: "#1c2c5a",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -5185,7 +5173,7 @@ function Editor() {
             <style>{`
               .editor-chips::-webkit-scrollbar { display: none; }
               .editor-chips { -ms-overflow-style: none; scrollbar-width: none; }
-              .quick-chip:hover { background: rgba(122,92,255,0.12) !important; border-color: rgba(122,92,255,0.4) !important; }
+              .quick-chip:hover { background: rgba(28,44,90,0.12) !important; border-color: rgba(28,44,90,0.4) !important; }
             `}</style>
             {QUICK_ACTIONS.map((action) => (
               <button
@@ -5198,8 +5186,8 @@ function Editor() {
                   padding: "9px 16px",
                   minHeight: 36,
                   borderRadius: 980,
-                  background: "rgba(122,92,255,0.06)",
-                  border: "1px solid rgba(122,92,255,0.22)",
+                  background: "rgba(28,44,90,0.06)",
+                  border: "1px solid rgba(28,44,90,0.22)",
                   fontSize: 14,
                   color: "#5a40cc",
                   letterSpacing: "-0.01em",
@@ -5374,7 +5362,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
-          color: "#7a5cff",
+          color: "#1c2c5a",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
         }}
@@ -5383,7 +5371,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
         <span aria-hidden="true" style={{
           position: "absolute", inset: 0, borderRadius: "50%",
           padding: 1.5,
-          background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
+          background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
           WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
           WebkitMaskComposite: "xor",
           maskComposite: "exclude",
@@ -5664,13 +5652,13 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 980,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onConfirm} style={{
               padding: "8.5px 18.5px", borderRadius: 978.5,
               fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
-              color: "#7a5cff",
+              color: "#1c2c5a",
               background: "#fff",
               border: "none",
               cursor: "pointer",
@@ -5704,17 +5692,17 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         borderRadius: 20,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
-          ? "linear-gradient(120deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)"
+          ? "linear-gradient(120deg, #6e1320 0%, #8b1f37 28%, #1c2c5a 52%, #2b3f7a 76%, #c79a3a 100%)"
           : "transparent",
         boxShadow: hover
           ? "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 12px 32px -10px rgba(255,79,154,0.22)," +
-            " 0 14px 38px -12px rgba(122,92,255,0.22)," +
-            " 0 16px 42px -10px rgba(76,214,255,0.20)"
+            " 0 12px 32px -10px rgba(110,19,32,0.22)," +
+            " 0 14px 38px -12px rgba(28,44,90,0.22)," +
+            " 0 16px 42px -10px rgba(199,154,58,0.20)"
           : "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 6px 18px -8px rgba(255,79,154,0.18)," +
-            " 0 8px 24px -10px rgba(122,92,255,0.18)," +
-            " 0 10px 28px -8px rgba(76,214,255,0.16)",
+            " 0 6px 18px -8px rgba(110,19,32,0.18)," +
+            " 0 8px 24px -10px rgba(28,44,90,0.18)," +
+            " 0 10px 28px -8px rgba(199,154,58,0.16)",
         transform: hover ? "translateY(-2px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
@@ -5945,9 +5933,9 @@ function BrunoLessonDetail({ lessonId, onBack }) {
           border: "1px solid rgba(0,0,0,0.06)",
           boxShadow:
             "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 8px 24px -10px rgba(255,79,154,0.18)," +
-            " 0 10px 28px -12px rgba(122,92,255,0.18)," +
-            " 0 12px 32px -10px rgba(76,214,255,0.16)",
+            " 0 8px 24px -10px rgba(110,19,32,0.18)," +
+            " 0 10px 28px -12px rgba(28,44,90,0.18)," +
+            " 0 12px 32px -10px rgba(199,154,58,0.16)",
         }}>
           <Eyebrow style={{ marginBottom: 18 }}>full notes</Eyebrow>
           {lesson.notes && lesson.notes.length > 0 ? (
@@ -6004,7 +5992,7 @@ const TODAY_SCHEDULE = (
 );
 
 const KIND_DOT = {
-  training: "linear-gradient(135deg, #ff4f9a, #7a5cff, #4cd6ff)",
+  training: "linear-gradient(135deg, #6e1320, #1c2c5a, #c79a3a)",
   work:     "#0066cc",
   wellness: "#15a86b",
 };
@@ -6110,9 +6098,9 @@ function Schedule({ onBack }) {
           border: "1px solid rgba(0,0,0,0.06)",
           boxShadow:
             "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 8px 24px -10px rgba(255,79,154,0.18)," +
-            " 0 10px 28px -12px rgba(122,92,255,0.18)," +
-            " 0 12px 32px -10px rgba(76,214,255,0.16)",
+            " 0 8px 24px -10px rgba(110,19,32,0.18)," +
+            " 0 10px 28px -12px rgba(28,44,90,0.18)," +
+            " 0 12px 32px -10px rgba(199,154,58,0.16)",
         }}>
           {TODAY_SCHEDULE.map((s, i) => {
             const mins = toMins(s.time);
@@ -6147,12 +6135,12 @@ function NowRule({ time }) {
     }}>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 12, fontWeight: 600,
-        color: "#ff4f9a", letterSpacing: "0.08em", textTransform: "uppercase",
+        color: "#6e1320", letterSpacing: "0.08em", textTransform: "uppercase",
         flexShrink: 0,
       }}>now · {time}</div>
       <div style={{
         flex: 1, height: 2, borderRadius: 2,
-        background: "linear-gradient(90deg, #ff4f9a 0%, #c862ff 30%, #7a5cff 60%, transparent 100%)",
+        background: "linear-gradient(90deg, #6e1320 0%, #8b1f37 30%, #1c2c5a 60%, transparent 100%)",
       }}></div>
     </div>
   );
@@ -6182,7 +6170,7 @@ function ScheduleRow({ item, isPast, isNext }) {
         <div style={{
           width: 12, height: 12, borderRadius: "50%",
           background: KIND_DOT[item.kind] || KIND_DOT.work,
-          boxShadow: isNext ? "0 0 0 4px rgba(255,79,154,0.20), 0 0 14px rgba(122,92,255,0.55)" : "none",
+          boxShadow: isNext ? "0 0 0 4px rgba(110,19,32,0.20), 0 0 14px rgba(28,44,90,0.55)" : "none",
         }}></div>
       </div>
 
@@ -6199,9 +6187,9 @@ function ScheduleRow({ item, isPast, isNext }) {
             <span style={{
               marginLeft: 10,
               fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
-              textTransform: "uppercase", color: "#ff4f9a",
+              textTransform: "uppercase", color: "#6e1320",
               padding: "2px 8px", borderRadius: 980,
-              border: "1px solid rgba(255,79,154,0.40)",
+              border: "1px solid rgba(110,19,32,0.40)",
               background: "transparent",
               verticalAlign: "middle",
             }}>up next</span>
@@ -6438,9 +6426,9 @@ function Meals({ onBack }) {
 
           {/* Macros row */}
           <div style={{ display: "flex", gap: 24, fontVariantNumeric: "tabular-nums" }}>
-            <MacroChip label="protein" value={totalP} unit="g" color="#ff4f9a" />
-            <MacroChip label="carbs"   value={totalC} unit="g" color="#7a5cff" />
-            <MacroChip label="fat"     value={totalF} unit="g" color="#4cd6ff" />
+            <MacroChip label="protein" value={totalP} unit="g" color="#6e1320" />
+            <MacroChip label="carbs"   value={totalC} unit="g" color="#1c2c5a" />
+            <MacroChip label="fat"     value={totalF} unit="g" color="#c79a3a" />
           </div>
         </div>
 
@@ -6476,7 +6464,7 @@ function Meals({ onBack }) {
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
-          color: "#7a5cff",
+          color: "#1c2c5a",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
         }}
@@ -6485,7 +6473,7 @@ function Meals({ onBack }) {
         <span aria-hidden="true" style={{
           position: "absolute", inset: 0, borderRadius: "50%",
           padding: 1.5,
-          background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
+          background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
           WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
           WebkitMaskComposite: "xor",
           maskComposite: "exclude",
@@ -6573,13 +6561,13 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         border: "1px solid rgba(0,0,0,0.06)",
         boxShadow: hover
           ? "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 12px 32px -10px rgba(255,79,154,0.22)," +
-            " 0 14px 38px -12px rgba(122,92,255,0.22)," +
-            " 0 16px 42px -10px rgba(76,214,255,0.20)"
+            " 0 12px 32px -10px rgba(110,19,32,0.22)," +
+            " 0 14px 38px -12px rgba(28,44,90,0.22)," +
+            " 0 16px 42px -10px rgba(199,154,58,0.20)"
           : "0 1px 2px rgba(0,0,0,0.03)," +
-            " 0 6px 18px -8px rgba(255,79,154,0.18)," +
-            " 0 8px 24px -10px rgba(122,92,255,0.18)," +
-            " 0 10px 28px -8px rgba(76,214,255,0.16)",
+            " 0 6px 18px -8px rgba(110,19,32,0.18)," +
+            " 0 8px 24px -10px rgba(28,44,90,0.18)," +
+            " 0 10px 28px -8px rgba(199,154,58,0.16)",
         transform: hover ? "translateY(-2px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
         display: "flex", alignItems: "flex-start", gap: 18,
@@ -6713,14 +6701,14 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
               display: "flex", height: 10, borderRadius: 980, overflow: "hidden",
               border: "1px solid rgba(0,0,0,0.05)",
             }}>
-              <div style={{ width: `${pPct}%`, background: "#ff4f9a" }} />
-              <div style={{ width: `${cPct}%`, background: "#7a5cff" }} />
-              <div style={{ width: `${fPct}%`, background: "#4cd6ff" }} />
+              <div style={{ width: `${pPct}%`, background: "#6e1320" }} />
+              <div style={{ width: `${cPct}%`, background: "#1c2c5a" }} />
+              <div style={{ width: `${fPct}%`, background: "#c79a3a" }} />
             </div>
             <div style={{ display: "flex", gap: 18, marginTop: 10, fontVariantNumeric: "tabular-nums" }}>
-              <MacroLegend color="#ff4f9a" label="protein" value={meal.macros?.p || 0} pct={pPct} />
-              <MacroLegend color="#7a5cff" label="carbs"   value={meal.macros?.c || 0} pct={cPct} />
-              <MacroLegend color="#4cd6ff" label="fat"     value={meal.macros?.f || 0} pct={fPct} />
+              <MacroLegend color="#6e1320" label="protein" value={meal.macros?.p || 0} pct={pPct} />
+              <MacroLegend color="#1c2c5a" label="carbs"   value={meal.macros?.c || 0} pct={cPct} />
+              <MacroLegend color="#c79a3a" label="fat"     value={meal.macros?.f || 0} pct={fPct} />
             </div>
           </div>
         )}
@@ -6736,7 +6724,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
               }}>
                 <span style={{
                   position: "absolute", left: 2, top: 9, width: 5, height: 5, borderRadius: "50%",
-                  background: "linear-gradient(135deg, #7a5cff, #4cd6ff)",
+                  background: "linear-gradient(135deg, #1c2c5a, #c79a3a)",
                 }}></span>
                 {it}
               </li>
@@ -6748,8 +6736,8 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         {meal.notes && meal.notes.trim() && (
           <div style={{
             marginTop: 22, padding: "14px 16px",
-            background: "rgba(122,92,255,0.05)",
-            border: "1px solid rgba(122,92,255,0.14)",
+            background: "rgba(28,44,90,0.05)",
+            border: "1px solid rgba(28,44,90,0.14)",
             borderRadius: 14,
             fontSize: 14.5, color: "rgba(29,29,31,0.78)", lineHeight: 1.55,
           }}>
@@ -6770,13 +6758,13 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
           }}>Delete</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 980,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onEdit} style={{
               padding: "8.5px 18.5px", borderRadius: 978.5,
               fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
-              color: "#7a5cff",
+              color: "#1c2c5a",
               background: "#fff",
               border: "none",
               cursor: "pointer",
@@ -6917,9 +6905,9 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
             marginBottom: 6,
           }}>Macros (grams)</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            <MacroInput color="#ff4f9a" label="protein" value={protein} onChange={setProtein} />
-            <MacroInput color="#7a5cff" label="carbs"   value={carbs}   onChange={setCarbs}   />
-            <MacroInput color="#4cd6ff" label="fat"     value={fat}     onChange={setFat}     />
+            <MacroInput color="#6e1320" label="protein" value={protein} onChange={setProtein} />
+            <MacroInput color="#1c2c5a" label="carbs"   value={carbs}   onChange={setCarbs}   />
+            <MacroInput color="#c79a3a" label="fat"     value={fat}     onChange={setFat}     />
           </div>
         </div>
 
@@ -7095,15 +7083,15 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
             }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 980,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button
               onClick={onConfirm}
               style={{
                 padding: "8.5px 18.5px", borderRadius: 978.5,
                 fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
-                color: "#7a5cff",
+                color: "#1c2c5a",
                 background: "#fff",
                 border: "none",
                 cursor: "pointer",
@@ -7275,7 +7263,7 @@ function Problems({ onBack }) {
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
-          color: "#7a5cff",
+          color: "#1c2c5a",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
         }}
@@ -7285,7 +7273,7 @@ function Problems({ onBack }) {
         <span aria-hidden="true" style={{
           position: "absolute", inset: 0, borderRadius: "50%",
           padding: 1.5,
-          background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
+          background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
           WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
           WebkitMaskComposite: "xor",
           maskComposite: "exclude",
@@ -7355,11 +7343,11 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         borderRadius: 18,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
-          ? "linear-gradient(120deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)"
+          ? "linear-gradient(120deg, #6e1320 0%, #8b1f37 28%, #1c2c5a 52%, #2b3f7a 76%, #c79a3a 100%)"
           : "transparent",
         boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(122,92,255,0.20), 0 12px 32px -12px rgba(255,79,154,0.18)"
-          : "0 1px 2px rgba(0,0,0,0.03), 0 5px 14px -8px rgba(122,92,255,0.14)",
+          ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(28,44,90,0.20), 0 12px 32px -12px rgba(110,19,32,0.18)"
+          : "0 1px 2px rgba(0,0,0,0.03), 0 5px 14px -8px rgba(28,44,90,0.14)",
         transform: hover ? "translateY(-2px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
@@ -7515,8 +7503,8 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
 
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button
               onClick={onEdit}
@@ -7524,7 +7512,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "8.5px 16.5px", fontSize: 13, fontWeight: 600,
                 border: "none", borderRadius: 8.5, cursor: "pointer",
-                color: "#7a5cff",
+                color: "#1c2c5a",
                 background: "#ffffff",
               }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -7704,13 +7692,13 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 11.5,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onConfirm} style={{
               padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
               border: "none", borderRadius: 10, cursor: "pointer",
-              color: "#7a5cff", background: "#fff",
+              color: "#1c2c5a", background: "#fff",
             }}>Delete</button>
           </span>
         </div>
@@ -8321,7 +8309,7 @@ function MicroInjuries({ onBack }) {
           width: 56, height: 56, borderRadius: "50%",
           background: "transparent",
           border: "none", padding: 0, cursor: "pointer",
-          color: "#7a5cff",
+          color: "#1c2c5a",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
         }}
@@ -8330,7 +8318,7 @@ function MicroInjuries({ onBack }) {
         <span aria-hidden="true" style={{
           position: "absolute", inset: 0, borderRadius: "50%",
           padding: 1.5,
-          background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
+          background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
           WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
           WebkitMaskComposite: "xor",
           maskComposite: "exclude",
@@ -8402,11 +8390,11 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
         borderRadius: 18,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
-          ? "linear-gradient(120deg, #ff4f9a 0%, #c862ff 28%, #7a5cff 52%, #3b82ff 76%, #4cd6ff 100%)"
+          ? "linear-gradient(120deg, #6e1320 0%, #8b1f37 28%, #1c2c5a 52%, #2b3f7a 76%, #c79a3a 100%)"
           : "transparent",
         boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(122,92,255,0.20), 0 12px 32px -12px rgba(255,79,154,0.18)"
-          : "0 1px 2px rgba(0,0,0,0.03), 0 5px 14px -8px rgba(122,92,255,0.14)",
+          ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(28,44,90,0.20), 0 12px 32px -12px rgba(110,19,32,0.18)"
+          : "0 1px 2px rgba(0,0,0,0.03), 0 5px 14px -8px rgba(28,44,90,0.14)",
         transform: hover ? "translateY(-2px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
@@ -8602,8 +8590,8 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
 
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #ff4f9a 0%, #c862ff 35%, #7a5cff 65%, #4cd6ff 100%)",
-            boxShadow: "0 6px 18px -6px rgba(122,92,255,0.45)",
+            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button
               onClick={onEdit}
@@ -8611,7 +8599,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "8.5px 16.5px", fontSize: 13, fontWeight: 600,
                 border: "none", borderRadius: 8.5, cursor: "pointer",
-                color: "#7a5cff",
+                color: "#1c2c5a",
                 background: "#ffffff",
               }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
