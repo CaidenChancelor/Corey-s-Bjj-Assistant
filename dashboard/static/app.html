@@ -7237,10 +7237,8 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         background: isPinned
           ? "var(--ai-gradient)"
           : "transparent",
-        boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(28,44,90,0.20), 0 12px 32px -12px rgba(110,19,32,0.18)"
-          : "0 1px 2px rgba(0,0,0,0.03), 0 5px 14px -8px rgba(28,44,90,0.14)",
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
+        transform: hover ? "translateY(-1px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
       <div style={{
@@ -8245,10 +8243,8 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
         background: isPinned
           ? "var(--ai-gradient)"
           : "transparent",
-        boxShadow: hover
-          ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(28,44,90,0.20), 0 12px 32px -12px rgba(110,19,32,0.18)"
-          : "0 1px 2px rgba(0,0,0,0.03), 0 5px 14px -8px rgba(28,44,90,0.14)",
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
+        transform: hover ? "translateY(-1px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
       <div style={{
