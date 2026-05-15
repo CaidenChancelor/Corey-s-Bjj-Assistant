@@ -836,7 +836,7 @@ html, body {
       </g>
       <text x="600" y="700" text-anchor="middle"
             font-family="-apple-system, system-ui, sans-serif"
-            font-size="36" font-weight="500" fill="#1d1d1f"
+            font-size="36" font-weight="500" fill="var(--ink)"
             letter-spacing="-0.02em">BJJ Dashboard</text>
     </svg>
   </template>
@@ -955,7 +955,7 @@ function GiLogo({ size = 96 }) {
                L28 70
                L12 74
                Z"
-            fill="#ffffff" stroke="#1d1d1f" strokeWidth="1.6" strokeLinejoin="round"/>
+            fill="#ffffff" stroke="var(--ink)" strokeWidth="1.6" strokeLinejoin="round"/>
       {/* Right sleeve */}
       <path d="M90 36
                L74 26
@@ -963,7 +963,7 @@ function GiLogo({ size = 96 }) {
                L68 70
                L84 74
                Z"
-            fill="#ffffff" stroke="#1d1d1f" strokeWidth="1.6" strokeLinejoin="round"/>
+            fill="#ffffff" stroke="var(--ink)" strokeWidth="1.6" strokeLinejoin="round"/>
       {/* Main jacket torso (with crossed lapels) */}
       <path d="M22 26
                L34 18
@@ -975,7 +975,7 @@ function GiLogo({ size = 96 }) {
                L28 78
                L26 46
                Z"
-            fill="#ffffff" stroke="#1d1d1f" strokeWidth="1.8" strokeLinejoin="round"/>
+            fill="#ffffff" stroke="var(--ink)" strokeWidth="1.8" strokeLinejoin="round"/>
 
       {/* === LAPEL CROSS (right over left, traditional BJJ wrap) === */}
       {/* Left lapel band */}
@@ -985,7 +985,7 @@ function GiLogo({ size = 96 }) {
                L40 78
                L36 50
                Z"
-            fill="#fafafa" stroke="#1d1d1f" strokeWidth="1.4" strokeLinejoin="round"/>
+            fill="#fafafa" stroke="var(--ink)" strokeWidth="1.4" strokeLinejoin="round"/>
       {/* Right lapel band (on top) */}
       <path d="M62 18
                L48 30
@@ -993,14 +993,14 @@ function GiLogo({ size = 96 }) {
                L56 78
                L60 50
                Z"
-            fill="#f4f4f6" stroke="#1d1d1f" strokeWidth="1.4" strokeLinejoin="round"/>
+            fill="#f4f4f6" stroke="var(--ink)" strokeWidth="1.4" strokeLinejoin="round"/>
 
       {/* V-collar inner — small rainbow accent */}
       <path d="M40 18 L48 30 L56 18 L48 14 Z"
             fill={`url(#${id}_collar)`} opacity="0.9"/>
       {/* Tiny inner shadow on V */}
       <path d="M44 18 L48 24 L52 18 L48 16 Z"
-            fill="#1d1d1f" opacity="0.18"/>
+            fill="var(--ink)" opacity="0.18"/>
 
       {/* === BLUE BELT === */}
       <rect x="22" y="58" width="52" height="9" rx="1.5"
@@ -1014,8 +1014,8 @@ function GiLogo({ size = 96 }) {
       <line x1="48" y1="57" x2="48" y2="68" stroke="#1a3a8c" strokeWidth="1" opacity="0.6"/>
 
       {/* Sleeve cuffs (subtle gray edge) */}
-      <line x1="8" y1="66" x2="14" y2="71" stroke="#1d1d1f" strokeWidth="1" opacity="0.35"/>
-      <line x1="88" y1="66" x2="82" y2="71" stroke="#1d1d1f" strokeWidth="1" opacity="0.35"/>
+      <line x1="8" y1="66" x2="14" y2="71" stroke="var(--ink)" strokeWidth="1" opacity="0.35"/>
+      <line x1="88" y1="66" x2="82" y2="71" stroke="var(--ink)" strokeWidth="1" opacity="0.35"/>
     </svg>
   );
 }
@@ -2918,7 +2918,7 @@ function BottleVisual({ pct }) {
         <path d="M55 90 Q52 110 52 160 L52 200" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="3" strokeLinecap="round"/>
 
         {/* Cap */}
-        <rect x="70" y="14" width="60" height="14" rx="4" fill="#1d1d1f" opacity="0.85"/>
+        <rect x="70" y="14" width="60" height="14" rx="4" fill="var(--ink)" opacity="0.85"/>
       </svg>
 
       {/* Centered % readout */}
@@ -3426,7 +3426,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
             position: "relative",
             padding: "11px 22px", fontSize: 14, fontWeight: 700,
             borderRadius: 12, cursor: amount ? "pointer" : "not-allowed",
-            color: amount ? "#1d1d1f" : "var(--fg-4)",
+            color: amount ? "var(--ink)" : "var(--fg-4)",
             background: "var(--bg-paper)",
             border: "none",
             backgroundImage: amount
@@ -3909,7 +3909,7 @@ function MiniBottle({ pct, hit }) {
           </g>
         </g>
         <path d="M30 50 Q28 64 28 100 L28 130" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"/>
-        <rect x="38" y="6" width="34" height="9" rx="3" fill="#1d1d1f" opacity="0.85"/>
+        <rect x="38" y="6" width="34" height="9" rx="3" fill="var(--ink)" opacity="0.85"/>
       </svg>
       <div style={{
         position: "absolute", inset: 0,
@@ -4037,7 +4037,7 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
           <span style={{
             fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 600,
             letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1,
-            background: "linear-gradient(135deg, #1d1d1f 0%, var(--accent-cobalt) 100%)",
+            background: "linear-gradient(135deg, var(--ink) 0%, var(--accent-cobalt) 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}>{total.toLocaleString()}</span>
@@ -7816,7 +7816,7 @@ function buildMicroInjuryStats(injuries, serverStats) {
   };
 }
 
-function MicroInjuryMetric({ label, value, tone = "#1d1d1f" }) {
+function MicroInjuryMetric({ label, value, tone = "var(--ink)" }) {
   return (
     <div style={{
       minWidth: 0,
