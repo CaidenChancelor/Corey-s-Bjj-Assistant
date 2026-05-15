@@ -889,6 +889,8 @@ function useModalTrap(active, onClose) {
     const focusable = () => el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     const first = () => { const f = focusable(); return f.length ? f[0] : el; };
     const last = () => { const f = focusable(); return f.length ? f[f.length - 1] : el; };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const prev = document.activeElement;
     first().focus();
     const onKey = (e) => {
@@ -903,7 +905,7 @@ function useModalTrap(active, onClose) {
       }
     };
     document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("keydown", onKey); if (prev && prev.focus) prev.focus(); };
+    return () => { document.body.style.overflow = prevOverflow; document.removeEventListener("keydown", onKey); if (prev && prev.focus) prev.focus(); };
   }, [active, onClose]);
   return ref;
 }
@@ -4655,35 +4657,21 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   return (
     <div className="dash-page" style={{ paddingTop: 96, paddingBottom: 88, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div className="ops-console">
-        <div className="ops-topbar">
-          <div className="ops-panel" style={{ padding: "16px 20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center", marginBottom: 12 }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-                <div style={{ fontFamily: "var(--font-text)", fontSize: 16, fontWeight: 500, color: "var(--ink)" }}>
-                  Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
-                </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 500, letterSpacing: "0.04em", color: "var(--fg-3)", textTransform: "uppercase" }}>{todayLabel}</div>
-              </div>
-              <div className="ops-pill" style={{ color: botError ? "var(--accent-danger)" : "var(--accent-success)" }}>
-                {botError ? "Bot data delayed" : "Live"}
-              </div>
+        <div style={{ marginBottom: 80, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--ink)" }}>
+              Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
             </div>
-            <div className="ops-pill-row">
-              <button onClick={onOpenHydration} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log water</button>
-              <button onClick={onOpenMeals} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log meal</button>
-              <button onClick={onOpenMicroInjuries} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Health check</button>
-              <button onClick={onOpenTechniqueLibrary} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Library</button>
-            </div>
+            <div style={{ fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.06em", color: "var(--fg-3)", textTransform: "uppercase" }}>{todayLabel}</div>
           </div>
-
-          <div className="ops-panel" style={{ padding: 20 }}>
-            <div className="ops-eyebrow" style={{ marginBottom: 10 }}>Next up</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 760, letterSpacing: "-0.03em", lineHeight: 1.1, marginBottom: 12 }}>
-              {next}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <div className="ops-pill" style={{ color: botError ? "var(--accent-danger)" : "var(--accent-success)" }}>
+              {botError ? "Bot data delayed" : "Live"}
             </div>
-            <div className="ops-muted" style={{ fontSize: 13.5, lineHeight: 1.4 }}>
-              {bruno ? `Last private: ${bruno.summary || bruno.notes || "Logged"}` : "Tap into schedule or lessons when the next block changes."}
-            </div>
+            <button onClick={onOpenHydration} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log water</button>
+            <button onClick={onOpenMeals} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log meal</button>
+            <button onClick={onOpenMicroInjuries} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Health check</button>
+            <button onClick={onOpenTechniqueLibrary} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Library</button>
           </div>
         </div>
 
@@ -4694,6 +4682,21 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         )}
 
         <div className="ops-grid">
+          <div className="ops-span-12">
+            <div className="ops-card ops-card-click" {...opsActionProps(onOpenSchedule)}>
+              <div className="ops-card-body" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 }}>
+                <div>
+                  <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Next up</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.02em", lineHeight: 1.2 }}>
+                    {next}
+                  </div>
+                </div>
+                <div className="ops-muted" style={{ fontSize: 13, maxWidth: 300, textAlign: "right" }}>
+                  {bruno ? `Last private: ${bruno.summary || bruno.notes || "Logged"}` : "Schedule or lessons when the next block changes."}
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="ops-span-4">
             <div className="ops-card ops-card-click" {...opsActionProps(onOpenSchedule)}>
               <div className="ops-card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -4754,12 +4757,12 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             />
           </div>
 
-          <div className="ops-span-12">
+          <div className="ops-span-12" style={{ marginTop: 56 }}>
             <div className="ops-panel" style={{ padding: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
                 <div>
                   <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Health intelligence</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 760, letterSpacing: "-0.035em" }}>Patterns before problems</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 760, letterSpacing: "-0.035em" }}>Patterns before problems</div>
                 </div>
                 <div className="ops-pill">Decision support</div>
               </div>
