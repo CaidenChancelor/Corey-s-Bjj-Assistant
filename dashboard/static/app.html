@@ -3255,18 +3255,13 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
             border: "1px solid var(--bg-hairline)", borderRadius: 10,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "var(--ai-gradient)",
-            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
-          }}>
-            <button onClick={() => onSave(draft)} style={{
-              padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
-              border: "none", borderRadius: 8.5, cursor: "pointer",
-              color: "var(--accent-cobalt)",
-              background: "var(--bg-paper)",
-            }}>Save</button>
-          </span>
+          <button onClick={() => onSave(draft)} style={{
+            padding: "10px 20px", fontSize: 14, fontWeight: 600,
+            border: "none", borderRadius: 10, cursor: "pointer",
+            color: "var(--fg-on-gradient)",
+            background: "var(--accent-cobalt)",
+            boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+          }}>Save</button>
         </div>
       </div>
     </div>
@@ -3522,18 +3517,13 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
             border: "1px solid var(--bg-hairline)", borderRadius: 10,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "var(--ai-gradient)",
-            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
-          }}>
-            <button onClick={onSave} style={{
-              padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
-              border: "none", borderRadius: 8.5, cursor: "pointer",
-              color: "var(--accent-cobalt)",
-              background: "transparent",
-            }}>Save</button>
-          </span>
+          <button onClick={onSave} style={{
+            padding: "10px 20px", fontSize: 14, fontWeight: 600,
+            border: "none", borderRadius: 10, cursor: "pointer",
+            color: "var(--fg-on-gradient)",
+            background: "var(--accent-cobalt)",
+            boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
+          }}>Save</button>
         </div>
       </div>
     </div>
