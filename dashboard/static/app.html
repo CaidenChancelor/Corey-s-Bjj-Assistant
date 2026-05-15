@@ -6478,7 +6478,7 @@ function MacroChip({ label, value, unit, color }) {
           fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600,
           letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.1,
         }}>{value}<span style={{ fontSize: 13, color: "var(--ink-faint)", fontWeight: 400, marginLeft: 2 }}>{unit}</span></div>
-        <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: 2 }}>{label}</div>
+        <div style={{ fontSize: 12, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: 2 }}>{label}</div>
       </div>
     </div>
   );
@@ -7835,7 +7835,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           }}/>
           <div style={{ minWidth: 0, paddingLeft: 8 }}>
             <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase",
+              fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase",
               fontFamily: "var(--font-text)",
               color: "var(--accent-gold)", marginBottom: 6,
             }}>Injury Statistics</div>
@@ -7904,7 +7904,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.01em" }}>Who it happens with</div>
-                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em" }}>partner</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 12, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em" }}>partner</div>
               </div>
               <MicroInjuryBars rows={stats.top_partners || []} emptyText="Add partner names to unlock this chart" color="var(--accent-oxblood)" />
             </div>
@@ -7915,7 +7915,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.01em" }}>When it happens</div>
-                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em" }}>by session</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 12, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em" }}>by session</div>
               </div>
               <MicroInjuryTimeChart buckets={buckets} />
             </div>
@@ -7927,7 +7927,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.01em" }}>Body parts taking damage</div>
-              <div style={{ fontSize: 11, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em" }}>frequency</div>
+              <div style={{ fontSize: 12, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em" }}>frequency</div>
             </div>
             <MicroInjuryBars rows={stats.top_body_parts || []} emptyText="No body-part data yet" color="var(--accent-cobalt)" />
           </div>
@@ -8975,7 +8975,7 @@ function AllergyStatsPanel({ stats }) {
                 <div style={{ width: "100%", height: 100, borderRadius: 8, background: "rgba(28,44,90,0.04)", border: "1px solid var(--bg-hairline)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
                   <div style={{ width: "100%", height: `${Math.max(6, (count / maxBucket) * 100)}%`, background: "linear-gradient(180deg, var(--accent-cobalt), var(--accent-oxblood))", borderRadius: "10px 10px 0 0" }}></div>
                 </div>
-                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)" }}>{({ morning: "AM", afternoon: "PM", evening: "EVE", night: "NT" }[key])}</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)" }}>{({ morning: "AM", afternoon: "PM", evening: "EVE", night: "NT" }[key])}</div>
               </div>
             );})}
           </div>
