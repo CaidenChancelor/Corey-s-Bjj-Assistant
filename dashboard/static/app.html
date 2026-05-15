@@ -88,8 +88,8 @@
   --shadow-modal:  0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08);
 
   /* Motion */
-  --ease-spring:   cubic-bezier(0.32, 0.72, 0, 1);
-  --ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring:   cubic-bezier(0.32,0.72,0,1);
+  --ease-out:      cubic-bezier(0.22,1,0.36,1);
   --d-fast: 160ms;
   --blur-sm:  blur(20px) saturate(140%);
 }
@@ -179,7 +179,7 @@ body::after {
   to   { opacity: 1; transform: translateY(0); }
 }
 [data-screen-label] {
-  animation: page-enter 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+  animation: page-enter 0.28s cubic-bezier(0.32,0.72,0,1) both;
 }
 @media (prefers-reduced-motion: reduce) {
   [data-screen-label] { animation: none; }
@@ -201,16 +201,16 @@ body::after {
 /* Card transition base — hero cards get lift, others just smooth shadow changes */
 [class*="GlassCard"], .glass-card,
 .hy-hero-card, .dash-hero {
-  transition: transform 380ms cubic-bezier(0.32, 0.72, 0, 1),
-              box-shadow 380ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 380ms cubic-bezier(0.32,0.72,0,1),
+              box-shadow 380ms cubic-bezier(0.32,0.72,0,1);
 }
 
 /* Scroll reveal — sections fade in + lift on enter */
 .reveal {
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1),
-              transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 720ms cubic-bezier(0.22,1,0.36,1),
+              transform 720ms cubic-bezier(0.22,1,0.36,1);
 }
 .reveal.in {
   opacity: 1;
@@ -585,7 +585,7 @@ html, body {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--accent-cobalt), var(--accent-gold));
-  transition: width 600ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: width 600ms cubic-bezier(0.32,0.72,0,1);
 }
 .ops-health-grid {
   display: grid;
@@ -1020,7 +1020,7 @@ function GlassCard({ children, padding, radius, style = {}, hero = false, rainbo
     boxShadow: hover ? shadows.hover : shadows.base,
     // Only hero cards lift on hover
     transform: (isHero && hover) ? "translateY(-2px)" : "translateY(0)",
-    transition: "transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1)",
+    transition: "transform 380ms cubic-bezier(0.22,1,0.36,1), box-shadow 380ms cubic-bezier(0.22,1,0.36,1)",
     overflow: isInline ? "visible" : "hidden",
     ...style,
   };
@@ -1102,7 +1102,7 @@ function BlueButton({ children, onClick, style = {}, fullWidth = false }) {
       ? "0 6px 20px -4px rgba(110,19,32,0.3)"
       : "0 4px 16px -4px rgba(110,19,32,0.2)",
     transform: press ? "scale(0.97)" : (hover ? "translateY(-1px)" : "translateY(0)"),
-    transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+    transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
     width: fullWidth ? "100%" : "auto",
     ...style,
   };
@@ -1134,7 +1134,7 @@ function GlassButton({ children, onClick, style = {} }) {
         border: "1px solid var(--bg-hairline)",
         boxShadow: hover ? "0 2px 8px rgba(26,22,19,0.10)" : "0 1px 3px rgba(26,22,19,0.06)",
         transform: press ? "scale(0.97)" : "scale(1)",
-        transition: "all 160ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 160ms cubic-bezier(0.32,0.72,0,1)",
         ...style,
       }}>{children}</button>
   );
@@ -1203,7 +1203,7 @@ function NavPill({ active, onChange }) {
     cursor: "pointer",
     whiteSpace: "nowrap",
     letterSpacing: "0",
-    transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+    transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
     position: "relative",
     display: "inline-flex", alignItems: "center", gap: 4,
   });
@@ -2222,7 +2222,7 @@ function Login({ onContinue }) {
           boxShadow: focused
             ? "0 0 0 4px rgba(28,44,90,0.10), 0 1px 2px rgba(0,0,0,0.03)"
             : "0 1px 2px rgba(0,0,0,0.03)",
-          transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
         }}>
           <input
             type="password"
@@ -3750,7 +3750,7 @@ function StatTile({ eyebrow, value, meta, valueStyle = {}, icon, onClick }) {
     <GlassCard tier="primary" style={{
       display: "flex", flexDirection: "column", gap: 10, minHeight: 130,
       cursor: onClick ? "pointer" : "default",
-      transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+      transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
     }}
     onClick={onClick}
     onMouseEnter={() => setHover(true)}
@@ -3778,7 +3778,7 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
     <GlassCard tier="primary" style={{
       display: "flex", flexDirection: "column", gap: 16, minHeight: 130,
       cursor: "pointer",
-      transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+      transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       overflow: "hidden",
     }}
     onClick={onClick}
@@ -3884,7 +3884,7 @@ function ProblemsTile({ onClick }) {
     <GlassCard tier="primary" style={{
       display: "flex", flexDirection: "column", gap: 12, minHeight: 130,
       cursor: "pointer",
-      transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+      transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       overflow: "hidden",
     }}
     onMouseEnter={() => setHover(true)}
@@ -4024,7 +4024,7 @@ function MicroInjuriesCard({ onClick }) {
       border: "1px solid rgba(26,22,19,0.07)",
       cursor: onClick ? "pointer" : "default",
       boxShadow: "var(--shadow-card)",
-      transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+      transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       overflow: "hidden",
     }}>
       <div className="mi-grid" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 0 }}>
@@ -4771,7 +4771,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
         boxShadow: focused
           ? "0 0 0 3px rgba(28,44,90,0.08), 0 4px 16px -6px rgba(28,44,90,0.18)"
           : "0 1px 2px rgba(0,0,0,0.04)",
-        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
         <textarea
           rows={1}
@@ -5526,7 +5526,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
           : "transparent",
         boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
         transform: hover ? "translateY(-1px)" : "translateY(0)",
-        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
       <div style={{
         background: "var(--bg-paper)",
@@ -6320,7 +6320,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         border: "1px solid var(--bg-hairline)",
         boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
         transform: hover ? "translateY(-1px)" : "translateY(0)",
-        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
         display: "flex", alignItems: "flex-start", gap: 16,
       }}>
       {/* (actions in detail modal) */}
@@ -7059,7 +7059,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
           : "transparent",
         boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
         transform: hover ? "translateY(-1px)" : "translateY(0)",
-        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
       <div style={{
         background: "var(--bg-paper)",
@@ -8065,7 +8065,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
           : "transparent",
         boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
         transform: hover ? "translateY(-1px)" : "translateY(0)",
-        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
       <div style={{
         background: "var(--bg-paper)",
