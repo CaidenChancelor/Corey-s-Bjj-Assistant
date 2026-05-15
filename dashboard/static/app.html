@@ -91,7 +91,7 @@
   --ease-spring:   cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
   --d-fast: 160ms;
-  --blur-sm:  blur(20px) saturate(160%);
+  --blur-sm:  blur(20px) saturate(140%);
 }
 
 /* =============================================================
@@ -149,7 +149,7 @@ body::before {
     radial-gradient(52% 42% at 80% 28%, rgba(28, 44, 90, 0.08), transparent 65%),
     radial-gradient(46% 38% at 28% 78%, rgba(199, 154, 58, 0.08), transparent 65%),
     radial-gradient(50% 42% at 84% 78%, rgba(110, 19, 32, 0.06), transparent 65%);
-  filter: blur(60px) saturate(125%);
+  filter: blur(60px) saturate(140%);
   animation: aurora-drift 32s ease-in-out infinite;
 }
 body::after {
@@ -1102,7 +1102,7 @@ function BlueButton({ children, onClick, style = {}, fullWidth = false }) {
       ? "0 6px 20px -4px rgba(110,19,32,0.3)"
       : "0 4px 16px -4px rgba(110,19,32,0.2)",
     transform: press ? "scale(0.97)" : (hover ? "translateY(-1px)" : "translateY(0)"),
-    transition: "all 220ms cubic-bezier(0.32, 0.72, 0, 1)",
+    transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
     width: fullWidth ? "100%" : "auto",
     ...style,
   };
@@ -1247,7 +1247,7 @@ function NavPill({ active, onChange }) {
                     }}
                     style={tabStyle(isActive)}>
                     {t.label}
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5, transform: isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 150ms ease" }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5, transform: isOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 160ms ease" }}>
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
                   </button>
@@ -1274,7 +1274,7 @@ function NavPill({ active, onChange }) {
                               color: childActive ? "var(--ink)" : "var(--ink-muted)",
                               background: childActive ? "rgba(26,22,19,0.06)" : "transparent",
                               border: "none", cursor: "pointer",
-                              transition: "all 120ms ease",
+                              transition: "all 160ms ease",
                             }}>
                             {child.label}
                           </button>
@@ -1437,7 +1437,7 @@ function SortMenu({ value, onChange, options }) {
                   color: active ? "var(--accent-oxblood)" : "var(--ink)",
                   background: active ? "rgba(110,19,32,0.06)" : "transparent",
                   border: "none", cursor: "pointer", textAlign: "left",
-                  transition: "background 120ms ease",
+                  transition: "background 160ms ease",
                 }}
                 onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "rgba(0,0,0,0.04)"; }}
                 onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}>
@@ -2222,7 +2222,7 @@ function Login({ onContinue }) {
           boxShadow: focused
             ? "0 0 0 4px rgba(28,44,90,0.10), 0 1px 2px rgba(0,0,0,0.03)"
             : "0 1px 2px rgba(0,0,0,0.03)",
-          transition: "all 260ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
         }}>
           <input
             type="password"
@@ -4024,7 +4024,7 @@ function MicroInjuriesCard({ onClick }) {
       border: "1px solid rgba(26,22,19,0.07)",
       cursor: onClick ? "pointer" : "default",
       boxShadow: "var(--shadow-card)",
-      transition: "all 220ms cubic-bezier(0.32, 0.72, 0, 1)",
+      transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       overflow: "hidden",
     }}>
       <div className="mi-grid" style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: 0 }}>
@@ -5574,7 +5574,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         <div style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
           flexShrink: 0, paddingTop: 2,
-          transition: "opacity 150ms ease",
+          transition: "opacity 160ms ease",
         }} className={`lesson-row-actions ${(showStar || showActions) ? "row-actions-visible" : ""}`}>
           <button
             onClick={(e) => { e.stopPropagation(); onTogglePin(); }}
@@ -5584,7 +5584,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               background: isPinned ? "rgba(255,159,28,0.12)" : "transparent",
               display: "flex", alignItems: "center", justifyContent: "center",
               color: isPinned ? "var(--accent-gold)" : "var(--fg-4)",
-              transition: "all 150ms ease",
+              transition: "all 160ms ease",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </button>
@@ -7325,7 +7325,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
                   background: "transparent",
                   color: active ? problemsTierColor(t.id) : "var(--ink-faint)",
                   cursor: "pointer",
-                  transition: "all 140ms ease",
+                  transition: "all 160ms ease",
                 }}>{t.label}</button>
             );
           })}
@@ -8427,7 +8427,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                   background: "transparent",
                   color: active ? microInjuriesTierColor(t.id) : "var(--ink-faint)",
                   cursor: "pointer",
-                  transition: "all 140ms ease",
+                  transition: "all 160ms ease",
                 }}>{t.label}</button>
             );
           })}
