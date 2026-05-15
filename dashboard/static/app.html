@@ -195,6 +195,9 @@
 /* =============================================================
    GLOBAL BASE
    ============================================================= */
+html {
+  scroll-behavior: smooth;
+}
 html, body {
   margin: 0;
   background: var(--bg-canvas);
@@ -208,6 +211,11 @@ html, body {
   text-rendering: optimizeLegibility;
   font-feature-settings: "ss01", "cv11", "calt";
 }
+/* Custom scrollbar — thin, subtle */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(26,24,20,0.12); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(26,24,20,0.22); }
 
 /* Focus-visible ring — accessible keyboard focus indicator */
 *:focus-visible {
