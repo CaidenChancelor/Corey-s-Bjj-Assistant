@@ -5058,34 +5058,21 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           </svg>
         </button>
         {/* Send button */}
-        <span style={{
-          position: "relative", display: "inline-flex", flexShrink: 0,
-          width: 40, height: 40, borderRadius: "50%",
-        }}>
-          <span style={{
-            position: "absolute", inset: 0, borderRadius: "50%",
-            padding: 1.5,
-            background: "linear-gradient(135deg, #6e1320, #1c2c5a, #c79a3a)",
-            WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-            pointerEvents: "none",
-          }}></span>
-          <button
-            onClick={onSend}
-            style={{
-              position: "relative",
-              width: 40, height: 40, borderRadius: "50%",
-              border: "none", cursor: "pointer",
-              background: "transparent",
-              color: "var(--accent-cobalt)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M13 6l6 6-6 6"/>
-            </svg>
-          </button>
-        </span>
+        <button
+          onClick={onSend}
+          style={{
+            flexShrink: 0,
+            width: 40, height: 40, borderRadius: "50%",
+            border: "1px solid var(--bg-hairline)", cursor: "pointer",
+            background: "var(--accent-cobalt)",
+            color: "var(--fg-on-gradient)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "opacity 0.15s ease",
+          }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </button>
       </div>
       <style>{`
         @keyframes composer-rot { to { transform: rotate(360deg); } }
@@ -5628,26 +5615,14 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {summary.trim() ? (
-            <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
-              <span style={{
-                position: "absolute", inset: 0, borderRadius: 10,
-                padding: 1.5,
-                background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
-                WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                WebkitMaskComposite: "xor",
-                maskComposite: "exclude",
-                pointerEvents: "none",
-              }}></span>
-              <button onClick={submit} style={{
-                position: "relative",
+            <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "var(--ink)",
-                background: "transparent",
+                color: "var(--fg-on-gradient)",
+                background: "var(--accent-cobalt)",
+                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add lesson"}</button>
-            </span>
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
@@ -6971,26 +6946,14 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {label.trim() ? (
-            <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
-              <span style={{
-                position: "absolute", inset: 0, borderRadius: 10,
-                padding: 1.5,
-                background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
-                WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                WebkitMaskComposite: "xor",
-                maskComposite: "exclude",
-                pointerEvents: "none",
-              }}></span>
-              <button onClick={submit} style={{
-                position: "relative",
+            <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "var(--ink)",
-                background: "transparent",
+                color: "var(--fg-on-gradient)",
+                background: "var(--accent-cobalt)",
+                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add meal"}</button>
-            </span>
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
@@ -7648,26 +7611,14 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {name.trim() ? (
-            <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
-              <span style={{
-                position: "absolute", inset: 0, borderRadius: 10,
-                padding: 1.5,
-                background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
-                WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                WebkitMaskComposite: "xor",
-                maskComposite: "exclude",
-                pointerEvents: "none",
-              }}></span>
-              <button onClick={submit} style={{
-                position: "relative",
+            <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "var(--ink)",
-                background: "transparent",
+                color: "var(--fg-on-gradient)",
+                background: "var(--accent-cobalt)",
+                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add"}</button>
-            </span>
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
@@ -8798,26 +8749,14 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {name.trim() ? (
-            <span style={{ position: "relative", display: "inline-flex", borderRadius: 10 }}>
-              <span style={{
-                position: "absolute", inset: 0, borderRadius: 10,
-                padding: 1.5,
-                background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
-                WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                WebkitMaskComposite: "xor",
-                maskComposite: "exclude",
-                pointerEvents: "none",
-              }}></span>
-              <button onClick={submit} style={{
-                position: "relative",
+            <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
                 border: "none", borderRadius: 10, cursor: "pointer",
-                color: "var(--ink)",
-                background: "transparent",
+                color: "var(--fg-on-gradient)",
+                background: "var(--accent-cobalt)",
+                boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
                 transition: "all 160ms ease",
               }}>{mode === "edit" ? "Save" : "Add"}</button>
-            </span>
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
