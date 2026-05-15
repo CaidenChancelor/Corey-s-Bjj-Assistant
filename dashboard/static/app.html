@@ -5652,7 +5652,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
             padding: "10px 20px", borderRadius: 999,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
             color: "var(--ink)", background: "transparent",
-            border: "1px solid rgba(0,0,0,0.12)",
+            border: "1px solid var(--bg-hairline)",
             cursor: "pointer",
             transition: "all 160ms ease",
           }}>Cancel</button>
@@ -5660,7 +5660,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
             padding: "10px 20px", borderRadius: 999,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 700,
             color: "var(--fg-on-gradient)",
-            background: "#6e1320",
+            background: "var(--accent-oxblood)",
             border: "none",
             cursor: "pointer",
             boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
@@ -7593,7 +7593,7 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
           <button onClick={onConfirm} style={{
             padding: "10px 20px", fontSize: 14, fontWeight: 700,
             border: "none", borderRadius: 8, cursor: "pointer",
-            color: "var(--fg-on-gradient)", background: "#6e1320",
+            color: "var(--fg-on-gradient)", background: "var(--accent-oxblood)",
             boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
           }}>Delete</button>
         </div>
@@ -8731,7 +8731,7 @@ function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
           <button onClick={onConfirm} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 600,
             border: "none", borderRadius: 8, cursor: "pointer",
-            color: "var(--fg-on-gradient)", background: "#6e1320",
+            color: "var(--fg-on-gradient)", background: "var(--accent-oxblood)",
             boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)",
           }}>Delete</button>
         </div>
