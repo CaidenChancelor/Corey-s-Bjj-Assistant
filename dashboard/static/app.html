@@ -8969,7 +8969,7 @@ function TechniqueLibrary({ onBack }) {
     const map = {
       learned: { label: "learned", emoji: "💡", bg: "rgba(21,168,107,0.10)", color: "#0a7a4a" },
       struggled: { label: "struggled", emoji: "😤", bg: "rgba(220,60,60,0.10)", color: "var(--accent-danger)" },
-      worked_on: { label: "worked on", emoji: "🔄", bg: "rgba(90,100,240,0.10)", color: "#3a3aad" },
+      worked_on: { label: "worked on", emoji: "🔄", bg: "rgba(28,44,90,0.08)", color: "var(--accent-cobalt)" },
     };
     const s = map[sentiment] || map["worked_on"];
     return (
@@ -9009,8 +9009,8 @@ function TechniqueLibrary({ onBack }) {
 
           {/* Summary header card */}
           <div style={{
-            background: "linear-gradient(135deg, rgba(90,100,240,0.07) 0%, rgba(120,60,200,0.07) 100%)",
-            border: "1px solid rgba(90,100,240,0.18)",
+            background: "linear-gradient(135deg, rgba(28,44,90,0.06) 0%, rgba(110,19,32,0.04) 100%)",
+            border: "1px solid var(--glass-stroke-2)",
             borderRadius: 16, padding: "20px 24px", marginBottom: 24,
             boxShadow: "var(--shadow-card)",
           }}>
