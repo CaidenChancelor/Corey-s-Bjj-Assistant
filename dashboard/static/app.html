@@ -636,7 +636,7 @@ html, body {
 .ops-panel {
   background: rgba(255, 252, 245, 0.92);
   border: 1px solid rgba(26, 24, 20, 0.10);
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 24px 52px -28px rgba(26,24,20,0.30);
   backdrop-filter: blur(28px) saturate(145%);
   -webkit-backdrop-filter: blur(28px) saturate(145%);
@@ -651,7 +651,7 @@ html, body {
   right: 0;
   height: 2px;
   background: var(--ai-gradient);
-  border-radius: 18px 18px 0 0;
+  border-radius: 16px 18px 0 0;
 }
 .ops-page-title {
   font-family: var(--font-display);
@@ -762,7 +762,7 @@ html, body {
   height: 74px;
 }
 .ops-spark-bars div {
-  border-radius: 9px 9px 4px 4px;
+  border-radius: 8px 9px 4px 4px;
   background: linear-gradient(180deg, rgba(199,154,58,0.92), rgba(110,19,32,0.92));
   min-height: 8px;
 }
@@ -1245,7 +1245,7 @@ function BlueButton({ children, onClick, style = {}, fullWidth = false }) {
   const btnStyle = {
     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 600,
     color: "var(--fg-on-gradient)", border: "none", cursor: "pointer",
-    padding: "14px 28px", borderRadius: 6,
+    padding: "14px 28px", borderRadius: 8,
     letterSpacing: "0.04em", textTransform: "uppercase",
     background: hover ? "rgba(110,19,32,0.95)" : "var(--accent-oxblood)",
     boxShadow: hover
@@ -1343,7 +1343,7 @@ function NavPill({ active, onChange }) {
   };
 
   const tabStyle = (isActive) => ({
-    padding: "8px 14px", borderRadius: 6,
+    padding: "8px 14px", borderRadius: 8,
     fontSize: 12.5, fontWeight: 650,
     fontFamily: "var(--font-text)",
     color: isActive ? "var(--ink)" : "rgba(26,22,19,0.55)",
@@ -1369,7 +1369,7 @@ function NavPill({ active, onChange }) {
         border: "1px solid rgba(26,22,19,0.08)",
         backdropFilter: "blur(40px)",
         WebkitBackdropFilter: "blur(40px)",
-        borderRadius: 980,
+        borderRadius: 999,
         boxShadow: "0 1px 0 rgba(255,252,245,0.9) inset, 0 8px 24px -8px rgba(26,22,19,0.14)",
       }}>
         <SparkleLogo size={26}/>
@@ -1551,7 +1551,7 @@ function SortMenu({ value, onChange, options }) {
         onClick={() => setOpen((v) => !v)}
         style={{
           display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "8px 14px", borderRadius: 6,
+          padding: "8px 14px", borderRadius: 8,
           fontSize: 11, fontWeight: 600,
           fontFamily: "var(--font-text)",
           letterSpacing: "0.04em", textTransform: "uppercase",
@@ -1594,7 +1594,7 @@ function SortMenu({ value, onChange, options }) {
                 onClick={() => { onChange(o.id); setOpen(false); }}
                 style={{
                   display: "flex", alignItems: "center", gap: 8, width: "100%",
-                  padding: "9px 12px", borderRadius: 9,
+                  padding: "9px 12px", borderRadius: 8,
                   fontSize: 13.5, fontWeight: active ? 600 : 500,
                   fontFamily: "var(--font-text)",
                   color: active ? "#6e1320" : "var(--ink)",
@@ -2377,7 +2377,7 @@ function Login({ onContinue }) {
 
         <div style={{
           position: "relative", width: "100%",
-          borderRadius: 17,
+          borderRadius: 16,
           padding: 1,
           background: focused
             ? "linear-gradient(100deg, rgba(110,19,32,0.70) 0%, rgba(139,31,55,0.70) 28%, rgba(28,44,90,0.70) 52%, rgba(43,63,122,0.70) 76%, rgba(199,154,58,0.70) 100%)"
@@ -2593,9 +2593,9 @@ function Hydration({ onBack }) {
               </div>
 
               {/* Progress bar */}
-              <div style={{ position: "relative", height: 16, borderRadius: 980 }}>
+              <div style={{ position: "relative", height: 16, borderRadius: 999 }}>
                 <div style={{
-                  position: "absolute", inset: 0, borderRadius: 980,
+                  position: "absolute", inset: 0, borderRadius: 999,
                   padding: 1.5,
                   background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
                   WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
@@ -2605,7 +2605,7 @@ function Hydration({ onBack }) {
                 }}></div>
                 <div style={{
                   position: "absolute", left: 2, top: 2, bottom: 2,
-                  width: `calc(${pct}% - 4px)`, borderRadius: 980,
+                  width: `calc(${pct}% - 4px)`, borderRadius: 999,
                   background: "linear-gradient(180deg, var(--accent-cobalt) 0%, var(--accent-oxblood) 60%, var(--accent-gold) 100%)",
                   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35), 0 0 14px rgba(28,44,90,0.45)",
                   transition: "width 320ms cubic-bezier(0.32,0.72,0,1)",
@@ -2635,7 +2635,7 @@ function Hydration({ onBack }) {
                   }}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "9px 14px", borderRadius: 980,
+                    padding: "9px 14px", borderRadius: 999,
                     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                     color: "var(--ink-muted)",
                     background: "transparent",
@@ -2654,7 +2654,7 @@ function Hydration({ onBack }) {
                   disabled={log.length === 0}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "9px 14px", borderRadius: 980,
+                    padding: "9px 14px", borderRadius: 999,
                     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                     color: log.length === 0
                       ? "rgba(224,38,74,0.45)"
@@ -2710,7 +2710,7 @@ function Hydration({ onBack }) {
             <div style={{
               background: "rgba(255,255,255,0.7)",
               border: "1px solid var(--bg-hairline)",
-              borderRadius: 22, padding: 22,
+              borderRadius: 20, padding: 22,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <Eyebrow>today's log</Eyebrow>
@@ -2742,7 +2742,7 @@ function Hydration({ onBack }) {
             <div style={{
               background: "rgba(255,255,255,0.7)",
               border: "1px solid var(--bg-hairline)",
-              borderRadius: 22, padding: 22,
+              borderRadius: 20, padding: 22,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <Eyebrow>last 7 days</Eyebrow>
@@ -2771,7 +2771,7 @@ function Hydration({ onBack }) {
                           background: hit
                             ? "linear-gradient(180deg, var(--accent-cobalt) 0%, var(--accent-cobalt) 50%, var(--accent-oxblood) 100%)"
                             : "linear-gradient(180deg, rgba(78,163,255,0.55) 0%, rgba(28,44,90,0.55) 100%)",
-                          borderRadius: 6,
+                          borderRadius: 8,
                           transition: "height 320ms cubic-bezier(0.32,0.72,0,1)",
                         }}></div>
                       </div>
@@ -2996,7 +2996,7 @@ function InsightsTile({ total, goal, avg, streak }) {
       position: "relative",
       background: "rgba(255,255,255,0.7)",
       border: "1px solid var(--bg-hairline)",
-      borderRadius: 22, padding: 22,
+      borderRadius: 20, padding: 22,
       overflow: "hidden",
     }}>
       <Eyebrow style={{ marginBottom: 14 }}>insights</Eyebrow>
@@ -3004,7 +3004,7 @@ function InsightsTile({ total, goal, avg, streak }) {
         {bullets.map((b, i) => (
           <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
             <div style={{
-              width: 30, height: 30, borderRadius: 10,
+              width: 30, height: 30, borderRadius: 8,
               background: "linear-gradient(135deg, rgba(110,19,32,0.12), rgba(28,44,90,0.12) 60%, rgba(199,154,58,0.12))",
               border: "1px solid rgba(28,44,90,0.18)",
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -3063,7 +3063,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
       position: "relative",
       background: "rgba(255,255,255,0.7)",
       border: "1px solid var(--bg-hairline)",
-      borderRadius: 22, padding: 22,
+      borderRadius: 20, padding: 22,
       overflow: "hidden",
     }}>
       {/* rainbow stripe removed per user request */}
@@ -3113,7 +3113,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
 
         <button onClick={onEdit} aria-label="Edit finish time" style={{
           padding: "8px 12px", fontSize: 13, fontWeight: 500,
-          border: "1px solid var(--bg-hairline)", borderRadius: 10,
+          border: "1px solid var(--bg-hairline)", borderRadius: 8,
           background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0,
         }}>
@@ -3189,7 +3189,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 440,
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "hyModalPop 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -3232,7 +3232,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
         <div style={{
           background: "linear-gradient(120deg, rgba(199,154,58,0.08), rgba(28,44,90,0.08) 60%, rgba(110,19,32,0.08))",
           border: "1px solid rgba(28,44,90,0.18)",
-          borderRadius: 14, padding: 14, marginBottom: 22,
+          borderRadius: 12, padding: 14, marginBottom: 22,
         }}>
           <div style={{
             fontSize: 12, fontWeight: 600, textTransform: "uppercase",
@@ -3252,12 +3252,12 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={() => onSave(draft)} style={{
             padding: "10px 20px", fontSize: 14, fontWeight: 600,
-            border: "none", borderRadius: 10, cursor: "pointer",
+            border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)",
             background: "var(--accent-cobalt)",
             boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
@@ -3296,7 +3296,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 440,
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "hyModalPop 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -3321,7 +3321,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
               const active = amount === String(ml);
               return (
                 <button key={ml} type="button" onClick={() => setAmount(String(ml))} style={{
-                  padding: "14px 8px", borderRadius: 14, cursor: "pointer",
+                  padding: "14px 8px", borderRadius: 12, cursor: "pointer",
                   border: active ? "1.5px solid var(--accent-cobalt)" : "1px solid var(--bg-hairline)",
                   background: active ? "rgba(28,44,90,0.08)" : "var(--bg-paper)",
                   display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
@@ -3383,7 +3383,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
             />
             <button type="button" onClick={() => setTime(nowTimeLabel())} style={{
               padding: "10px 16px", fontSize: 13, fontWeight: 600,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10,
+              border: "1px solid var(--bg-hairline)", borderRadius: 8,
               background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
               whiteSpace: "nowrap",
             }}>Just now</button>
@@ -3393,7 +3393,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={submit} disabled={!amount} style={{
@@ -3482,7 +3482,7 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 380,
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "hyModalPop 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -3514,12 +3514,12 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={onSave} style={{
             padding: "10px 20px", fontSize: 14, fontWeight: 600,
-            border: "none", borderRadius: 10, cursor: "pointer",
+            border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)",
             background: "var(--accent-cobalt)",
             boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
@@ -3696,9 +3696,9 @@ function WaterHero({ onClick }) {
           </div>
 
           {/* progress bar — blue fill, rainbow OUTLINE, with sip dots over it */}
-          <div style={{ position: "relative", height: 16, borderRadius: 980 }}>
+          <div style={{ position: "relative", height: 16, borderRadius: 999 }}>
             <div style={{
-              position: "absolute", inset: 0, borderRadius: 980,
+              position: "absolute", inset: 0, borderRadius: 999,
               padding: 1.5,
               background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
               WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
@@ -3708,7 +3708,7 @@ function WaterHero({ onClick }) {
             }}></div>
             <div style={{
               position: "absolute", left: 2, top: 2, bottom: 2,
-              width: `calc(${pct}% - 4px)`, borderRadius: 980,
+              width: `calc(${pct}% - 4px)`, borderRadius: 999,
               background: pct >= 100
                 ? "linear-gradient(180deg, #4ed7a8 0%, #2cc296 50%, #19a07a 100%)"
                 : "linear-gradient(180deg, var(--accent-cobalt) 0%, var(--accent-cobalt) 50%, var(--accent-oxblood) 100%)",
@@ -3749,7 +3749,7 @@ function WaterHero({ onClick }) {
                 }}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "9px 14px", borderRadius: 980,
+                  padding: "9px 14px", borderRadius: 999,
                   fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                   color: "var(--ink-muted)",
                   background: "transparent",
@@ -3769,7 +3769,7 @@ function WaterHero({ onClick }) {
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "9px 14px", borderRadius: 980,
+                  padding: "9px 14px", borderRadius: 999,
                   fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                   color: "var(--fg-5)",
                   background: "transparent",
@@ -3963,7 +3963,7 @@ function CalorieTile({ total, goal, lastMeal, lastMealCal, lastMealTime, onClick
         </div>
         <div style={{
           flexShrink: 0,
-          padding: "5px 12px", borderRadius: 980,
+          padding: "5px 12px", borderRadius: 999,
           fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 600,
           letterSpacing: "-0.01em", color: "var(--accent-cobalt)",
           background: "rgba(28,44,90,0.08)",
@@ -4287,7 +4287,7 @@ function MicroInjuriesCard({ onClick }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
                   <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em", color: "var(--ink)" }}>{inj.name}</span>
                   <span style={{
-                    padding: "3px 9px", borderRadius: 980,
+                    padding: "3px 9px", borderRadius: 999,
                     fontSize: 11, fontWeight: 600, letterSpacing: "0.02em",
                     background: t.bg, color: t.fg,
                   }}>{t.label}</span>
@@ -4810,7 +4810,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
         <div style={{
           maxWidth: "min(70%, 460px)",
           padding: "14px 20px",
-          borderRadius: 22,
+          borderRadius: 20,
           background: "rgba(28,44,90,0.07)",
           border: "1px solid rgba(28,44,90,0.14)",
           color: "var(--ink)",
@@ -5214,7 +5214,7 @@ function Editor() {
                   scrollSnapAlign: "start",
                   padding: "9px 16px",
                   minHeight: 36,
-                  borderRadius: 980,
+                  borderRadius: 999,
                   background: "rgba(28,44,90,0.06)",
                   border: "1px solid rgba(28,44,90,0.22)",
                   fontSize: 14,
@@ -5452,7 +5452,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
         style={{
           width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "blPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -5523,13 +5523,13 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {summary.trim() ? (
             <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
-                border: "none", borderRadius: 10, cursor: "pointer",
+                border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
                 boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
@@ -5538,7 +5538,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10, cursor: "not-allowed",
+              border: "1px solid var(--bg-hairline)", borderRadius: 8, cursor: "not-allowed",
               color: "var(--fg-4)",
               background: "transparent",
             }}>{mode === "edit" ? "Save" : "Add lesson"}</button>
@@ -5555,7 +5555,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
 
 const inputStyle = {
   width: "100%", padding: "11px 14px", fontSize: 16,
-  border: "1px solid rgba(0,0,0,0.12)", borderRadius: 10,
+  border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8,
   outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
   color: "var(--ink)",
   background: "var(--bg-paper)",
@@ -5603,7 +5603,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
         style={{
           width: 420, maxWidth: "100%",
           background: "var(--bg-paper)",
-          borderRadius: 22,
+          borderRadius: 20,
           padding: "28px 28px 22px",
           border: "1px solid var(--bg-hairline)",
           boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
@@ -5635,7 +5635,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 20px", borderRadius: 980,
+            padding: "10px 20px", borderRadius: 999,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
             color: "var(--ink)", background: "transparent",
             border: "1px solid rgba(0,0,0,0.12)",
@@ -5643,7 +5643,7 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
             transition: "all 160ms ease",
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
-            padding: "10px 20px", borderRadius: 980,
+            padding: "10px 20px", borderRadius: 999,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 700,
             color: "var(--fg-on-gradient)",
             background: "#6e1320",
@@ -5723,7 +5723,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               <span style={{
                 fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
                 textTransform: "uppercase",
-                padding: "2px 8px", borderRadius: 980,
+                padding: "2px 8px", borderRadius: 999,
                 color: "var(--accent-gold)",
                 background: "rgba(255,159,28,0.10)",
                 border: "1px solid rgba(255,159,28,0.30)",
@@ -5915,7 +5915,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
         {/* Notes card */}
         <div style={{
           background: "var(--bg-paper)",
-          borderRadius: 24,
+          borderRadius: 20,
           padding: "28px 32px",
           border: "1px solid var(--bg-hairline)",
           boxShadow: "var(--shadow-card)",
@@ -6059,7 +6059,7 @@ function Schedule({ onBack }) {
         {/* Schedule list */}
         <div style={{
           background: "var(--bg-paper)",
-          borderRadius: 24,
+          borderRadius: 20,
           padding: "10px 8px",
           border: "1px solid var(--bg-hairline)",
           boxShadow: "var(--shadow-card)",
@@ -6150,7 +6150,7 @@ function ScheduleRow({ item, isPast, isNext }) {
               marginLeft: 10,
               fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
               textTransform: "uppercase", color: "var(--accent-oxblood)",
-              padding: "2px 8px", borderRadius: 980,
+              padding: "2px 8px", borderRadius: 999,
               border: "1px solid rgba(110,19,32,0.40)",
               background: "transparent",
               verticalAlign: "middle",
@@ -6519,7 +6519,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
           }}>{meal.label}</div>
           <div style={{
             flexShrink: 0,
-            padding: "6px 14px", borderRadius: 980,
+            padding: "6px 14px", borderRadius: 999,
             fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
             letterSpacing: "-0.01em", color: "var(--accent-cobalt)",
             background: "rgba(28,44,90,0.08)",
@@ -6579,7 +6579,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         style={{
           width: "100%", maxWidth: 540, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "var(--bg-paper)", borderRadius: 24, padding: "28px 32px 24px",
+          background: "var(--bg-paper)", borderRadius: 20, padding: "28px 32px 24px",
           border: "1px solid var(--bg-hairline)",
           boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
@@ -6627,7 +6627,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         {macroTotal > 0 && (
           <div style={{ marginTop: 14, marginBottom: 4 }}>
             <div style={{
-              display: "flex", height: 10, borderRadius: 980, overflow: "hidden",
+              display: "flex", height: 10, borderRadius: 999, overflow: "hidden",
               border: "1px solid rgba(0,0,0,0.05)",
             }}>
               <div style={{ width: `${pPct}%`, background: "#6e1320" }} />
@@ -6667,7 +6667,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
             marginTop: 22, padding: "14px 16px",
             background: "rgba(28,44,90,0.05)",
             border: "1px solid rgba(28,44,90,0.14)",
-            borderRadius: 14,
+            borderRadius: 12,
             fontSize: 14.5, color: "var(--fg-2)", lineHeight: 1.55,
           }}>
             {meal.notes}
@@ -6677,7 +6677,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         {/* Actions */}
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}>
           <button onClick={onDelete} style={{
-            padding: "10px 18px", borderRadius: 980,
+            padding: "10px 18px", borderRadius: 999,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
             color: "var(--accent-danger-bright)",
             background: "transparent",
@@ -6686,12 +6686,12 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
             transition: "all 160ms ease",
           }}>Delete</button>
           <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 980,
+            display: "inline-block", padding: 1.5, borderRadius: 999,
             background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onEdit} style={{
-              padding: "8.5px 18.5px", borderRadius: 978.5,
+              padding: "8.5px 18.5px", borderRadius: 999,
               fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
               color: "var(--accent-cobalt)",
               background: "var(--bg-paper)",
@@ -6767,7 +6767,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         style={{
           width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -6854,13 +6854,13 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {label.trim() ? (
             <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
-                border: "none", borderRadius: 10, cursor: "pointer",
+                border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
                 boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
@@ -6869,7 +6869,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10, cursor: "not-allowed",
+              border: "1px solid var(--bg-hairline)", borderRadius: 8, cursor: "not-allowed",
               color: "var(--fg-4)",
               background: "transparent",
             }}>{mode === "edit" ? "Save" : "Add meal"}</button>
@@ -6882,7 +6882,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
 
 const mealInputStyle = {
   width: "100%", padding: "11px 14px", fontSize: 16,
-  border: "1px solid rgba(0,0,0,0.12)", borderRadius: 10,
+  border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8,
   outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
   color: "var(--ink)",
   background: "var(--bg-paper)",
@@ -6960,7 +6960,7 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
         style={{
           width: 420, maxWidth: "100%",
           background: "var(--bg-paper)",
-          borderRadius: 22,
+          borderRadius: 20,
           padding: "28px 28px 22px",
           border: "1px solid var(--bg-hairline)",
           boxShadow: "0 24px 80px -16px rgba(60,60,90,0.35), 0 8px 24px rgba(0,0,0,0.08)",
@@ -6994,7 +6994,7 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
           <button
             onClick={onCancel}
             style={{
-              padding: "10px 20px", borderRadius: 980,
+              padding: "10px 20px", borderRadius: 999,
               fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
               color: "var(--ink)",
               background: "transparent",
@@ -7005,7 +7005,7 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
           <button
               onClick={onConfirm}
               style={{
-                padding: "10px 20px", borderRadius: 980,
+                padding: "10px 20px", borderRadius: 999,
                 fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 700,
                 color: "var(--fg-on-gradient)",
                 background: "#6e1320",
@@ -7226,7 +7226,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
       onMouseLeave={() => setHover(false)}
       style={{
         position: "relative", cursor: "pointer",
-        borderRadius: 18,
+        borderRadius: 16,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
           ? "var(--ai-gradient)"
@@ -7297,7 +7297,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 540,
-          background: "var(--bg-paper)", borderRadius: 24, padding: 32,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 32,
           position: "relative",
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
@@ -7360,7 +7360,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
               flex: "0 0 auto",
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10,
+              border: "1px solid var(--bg-hairline)", borderRadius: 8,
               background: "var(--bg-paper)",
               color: isPinned ? "var(--accent-gold)" : "var(--fg-2)",
               cursor: "pointer",
@@ -7379,7 +7379,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
               flex: "0 0 auto",
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10,
+              border: "1px solid var(--bg-hairline)", borderRadius: 8,
               background: "var(--bg-paper)", color: "var(--accent-danger-bright)", cursor: "pointer",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -7392,7 +7392,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
           <div style={{ flex: 1 }}></div>
 
           <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 10,
+            display: "inline-block", padding: 1.5, borderRadius: 8,
             background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
@@ -7445,7 +7445,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -7497,7 +7497,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
                   flex: 1, padding: "8px 4px", fontSize: 12, fontWeight: 600,
                   letterSpacing: "0.04em", textTransform: "uppercase",
                   border: active ? `1.5px solid ${problemsTierColor(t.id)}` : "1px solid var(--bg-hairline)",
-                  borderRadius: 10,
+                  borderRadius: 8,
                   background: "transparent",
                   color: active ? problemsTierColor(t.id) : "var(--ink-faint)",
                   cursor: "pointer",
@@ -7510,13 +7510,13 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {name.trim() ? (
             <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
-                border: "none", borderRadius: 10, cursor: "pointer",
+                border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
                 boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
@@ -7525,7 +7525,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10, cursor: "not-allowed",
+              border: "1px solid var(--bg-hairline)", borderRadius: 8, cursor: "not-allowed",
               color: "var(--fg-4)",
               background: "transparent",
             }}>{mode === "edit" ? "Save" : "Add"}</button>
@@ -7559,7 +7559,7 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 400,
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
@@ -7573,12 +7573,12 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
             padding: "10px 20px", fontSize: 14, fontWeight: 700,
-            border: "none", borderRadius: 10, cursor: "pointer",
+            border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)", background: "#6e1320",
             boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
           }}>Delete</button>
@@ -7662,7 +7662,7 @@ function MicroInjuryMetric({ label, value, tone = "var(--ink)" }) {
     <div style={{
       minWidth: 0,
       padding: "12px 14px",
-      borderRadius: 14,
+      borderRadius: 12,
       background: "rgba(255,255,255,0.72)",
       border: "1px solid rgba(255,255,255,0.72)",
       boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset",
@@ -7681,7 +7681,7 @@ function MicroInjuryBars({ rows, emptyText, color = "var(--accent-critical)" }) 
   if (!rows.length) {
     return (
       <div style={{
-        minHeight: 132, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center",
+        minHeight: 132, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
         background: "repeating-linear-gradient(135deg, rgba(29,29,31,0.035) 0 8px, rgba(29,29,31,0.015) 8px 16px)",
         color: "var(--ink-faint)", fontSize: 13,
       }}>{emptyText}</div>
@@ -7808,7 +7808,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
         style={{
           width: "100%", textAlign: "left", cursor: "pointer",
           border: "1px solid rgba(26,22,19,0.08)",
-          borderRadius: 22, padding: 0, overflow: "hidden",
+          borderRadius: 20, padding: 0, overflow: "hidden",
           background: "rgba(255,252,245,0.78)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
@@ -7876,7 +7876,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
 
       {open && (
         <div style={{
-          marginTop: 12, borderRadius: 22, padding: "18px",
+          marginTop: 12, borderRadius: 20, padding: "18px",
           background: "rgba(255,252,245,0.78)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
@@ -7891,7 +7891,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
             <div style={{
-              padding: 18, borderRadius: 18, background: "rgba(255,252,245,0.6)",
+              padding: 18, borderRadius: 16, background: "rgba(255,252,245,0.6)",
               border: "1px solid rgba(26,22,19,0.05)", minWidth: 0,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
@@ -7902,7 +7902,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             </div>
 
             <div style={{
-              padding: 18, borderRadius: 18, background: "rgba(255,252,245,0.6)",
+              padding: 18, borderRadius: 16, background: "rgba(255,252,245,0.6)",
               border: "1px solid rgba(26,22,19,0.05)", minWidth: 0,
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
@@ -7914,7 +7914,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           </div>
 
           <div style={{
-            marginTop: 16, padding: 18, borderRadius: 18, background: "rgba(255,252,245,0.6)",
+            marginTop: 16, padding: 18, borderRadius: 16, background: "rgba(255,252,245,0.6)",
             border: "1px solid rgba(26,22,19,0.05)",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
@@ -8234,7 +8234,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
       onMouseLeave={() => setHover(false)}
       style={{
         position: "relative", cursor: "pointer",
-        borderRadius: 18,
+        borderRadius: 16,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
           ? "var(--ai-gradient)"
@@ -8322,7 +8322,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 540,
-          background: "var(--bg-paper)", borderRadius: 24, padding: 32,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 32,
           position: "relative",
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
@@ -8408,7 +8408,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
               flex: "0 0 auto",
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10,
+              border: "1px solid var(--bg-hairline)", borderRadius: 8,
               background: "var(--bg-paper)",
               color: isPinned ? "var(--accent-gold)" : "var(--fg-2)",
               cursor: "pointer",
@@ -8427,7 +8427,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
               flex: "0 0 auto",
               display: "inline-flex", alignItems: "center", gap: 6,
               padding: "8px 14px", fontSize: 13, fontWeight: 500,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10,
+              border: "1px solid var(--bg-hairline)", borderRadius: 8,
               background: "var(--bg-paper)", color: "var(--accent-danger-bright)", cursor: "pointer",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -8440,7 +8440,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           <div style={{ flex: 1 }}></div>
 
           <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 10,
+            display: "inline-block", padding: 1.5, borderRadius: 8,
             background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
@@ -8497,7 +8497,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
-          background: "var(--bg-paper)", borderRadius: 22, padding: 28,
+          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
           boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
           maxHeight: "calc(100dvh - 48px)", overflowY: "auto",
@@ -8601,7 +8601,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                   flex: 1, padding: "8px 4px", fontSize: 12, fontWeight: 600,
                   letterSpacing: "0.04em", textTransform: "uppercase",
                   border: active ? `1.5px solid ${microInjuriesTierColor(t.id)}` : "1px solid var(--bg-hairline)",
-                  borderRadius: 10,
+                  borderRadius: 8,
                   background: "transparent",
                   color: active ? microInjuriesTierColor(t.id) : "var(--ink-faint)",
                   cursor: "pointer",
@@ -8648,13 +8648,13 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 10,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           {name.trim() ? (
             <button onClick={submit} style={{
                 padding: "10px 20px", fontSize: 14, fontWeight: 600,
-                border: "none", borderRadius: 10, cursor: "pointer",
+                border: "none", borderRadius: 8, cursor: "pointer",
                 color: "var(--fg-on-gradient)",
                 background: "var(--accent-cobalt)",
                 boxShadow: "0 4px 12px -3px rgba(28,44,90,0.3)",
@@ -8663,7 +8663,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           ) : (
             <button disabled style={{
               padding: "10px 20px", fontSize: 14, fontWeight: 600,
-              border: "1px solid var(--bg-hairline)", borderRadius: 10, cursor: "not-allowed",
+              border: "1px solid var(--bg-hairline)", borderRadius: 8, cursor: "not-allowed",
               color: "var(--fg-4)",
               background: "transparent",
             }}>{mode === "edit" ? "Save" : "Add"}</button>
@@ -8711,12 +8711,12 @@ function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 6,
+            border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
             padding: "10px 18px", fontSize: 14, fontWeight: 600,
-            border: "none", borderRadius: 6, cursor: "pointer",
+            border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)", background: "#6e1320",
             boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)",
           }}>Delete</button>
@@ -8926,7 +8926,7 @@ function Allergies({ onBack }) {
             <AllergyRow key={log.id} log={log} onEdit={() => setEditing(log)} onDelete={() => setConfirm(log)} />
           ))}
           {sorted.length === 0 && (
-            <div style={{ textAlign: "center", padding: "48px 24px", fontSize: 15, color: "var(--ink-faint)", background: "var(--bg-paper)", border: "1px solid var(--bg-hairline)", borderRadius: 18 }}>
+            <div style={{ textAlign: "center", padding: "48px 24px", fontSize: 15, color: "var(--ink-faint)", background: "var(--bg-paper)", border: "1px solid var(--bg-hairline)", borderRadius: 16 }}>
               No allergy logs yet. Tap + to add the first one.
             </div>
           )}
@@ -8950,7 +8950,7 @@ function AllergyStatsPanel({ stats }) {
   const bars = stats.top_triggers && stats.top_triggers.length ? stats.top_triggers : stats.categories || [];
   const maxBar = Math.max(1, ...bars.map((b) => b.count));
   return (
-    <div style={{ background: "var(--bg-paper)", borderRadius: 18, border: "1px solid var(--bg-hairline)", padding: 22, boxShadow: "var(--shadow-card)" }}>
+    <div style={{ background: "var(--bg-paper)", borderRadius: 16, border: "1px solid var(--bg-hairline)", padding: 22, boxShadow: "var(--shadow-card)" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 22 }}>
         <MiniStat label="Total logs" value={stats.total || 0} accent="var(--accent-cobalt)" />
         <MiniStat label="Last 7 days" value={stats.last_7_days || 0} accent="var(--accent-cobalt)" />
@@ -8966,7 +8966,7 @@ function AllergyStatsPanel({ stats }) {
               return (
               <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600, color: "var(--ink-faint)" }}>{count}</div>
-                <div style={{ width: "100%", height: 100, borderRadius: 10, background: "rgba(28,44,90,0.04)", border: "1px solid var(--bg-hairline)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
+                <div style={{ width: "100%", height: 100, borderRadius: 8, background: "rgba(28,44,90,0.04)", border: "1px solid var(--bg-hairline)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
                   <div style={{ width: "100%", height: `${Math.max(6, (count / maxBucket) * 100)}%`, background: "linear-gradient(180deg, var(--accent-cobalt), var(--accent-oxblood))", borderRadius: "10px 10px 0 0" }}></div>
                 </div>
                 <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)" }}>{({ morning: "AM", afternoon: "PM", evening: "EVE", night: "NT" }[key])}</div>
@@ -9008,8 +9008,8 @@ function AllergyRow({ log, onEdit, onDelete }) {
           {log.date} {log.time ? `· ${log.time}` : ""} · {log.training_impact || "no impact"}{log.missed_training ? " · missed class" : ""}{log.symptoms ? ` · ${log.symptoms}` : ""}
         </div>
       </div>
-      <button onClick={onEdit} style={{ border: "1px solid var(--bg-hairline)", background: "var(--bg-paper)", borderRadius: 6, padding: "8px 12px", cursor: "pointer", color: "var(--ink)", fontWeight: 600, fontSize: 13 }}>Edit</button>
-      <button onClick={onDelete} style={{ border: "1px solid rgba(110,19,32,0.20)", background: "var(--bg-paper)", borderRadius: 6, padding: "8px 12px", cursor: "pointer", color: "var(--accent-oxblood)", fontWeight: 600, fontSize: 13 }}>Delete</button>
+      <button onClick={onEdit} style={{ border: "1px solid var(--bg-hairline)", background: "var(--bg-paper)", borderRadius: 8, padding: "8px 12px", cursor: "pointer", color: "var(--ink)", fontWeight: 600, fontSize: 13 }}>Edit</button>
+      <button onClick={onDelete} style={{ border: "1px solid rgba(110,19,32,0.20)", background: "var(--bg-paper)", borderRadius: 8, padding: "8px 12px", cursor: "pointer", color: "var(--accent-oxblood)", fontWeight: 600, fontSize: 13 }}>Delete</button>
     </div>
   );
 }
@@ -9041,7 +9041,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
           <select value={trigger} onChange={(e) => setTrigger(e.target.value)} style={field}>{ALLERGY_CAUSES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
         </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 6, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid rgba(26,22,19,0.12)", background: "var(--bg-paper)", color: severity === s.id ? s.color : "rgba(26,22,19,0.50)", fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", cursor: "pointer", transition: "all 160ms ease" }}>{s.label}</button>)}
+          {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 8, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid rgba(26,22,19,0.12)", background: "var(--bg-paper)", color: severity === s.id ? s.color : "rgba(26,22,19,0.50)", fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", cursor: "pointer", transition: "all 160ms ease" }}>{s.label}</button>)}
         </div>
         <textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Symptoms and what it changed in training" rows={4} style={{ ...field, resize: "vertical", marginBottom: 12 }} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
@@ -9053,8 +9053,8 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
           Missed class or skipped training because of this
         </label>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-          <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 6, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
-          <button onClick={submit} disabled={!canSubmit} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 6, background: canSubmit ? "var(--accent-cobalt)" : "rgba(26,22,19,0.08)", color: canSubmit ? "var(--fg-on-gradient)" : "rgba(26,22,19,0.35)", cursor: canSubmit ? "pointer" : "not-allowed", boxShadow: canSubmit ? "0 4px 12px -3px rgba(28,44,90,0.3)" : "none" }}>{initial ? "Save" : "Add"}</button>
+          <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
+          <button onClick={submit} disabled={!canSubmit} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: canSubmit ? "var(--accent-cobalt)" : "rgba(26,22,19,0.08)", color: canSubmit ? "var(--fg-on-gradient)" : "rgba(26,22,19,0.35)", cursor: canSubmit ? "pointer" : "not-allowed", boxShadow: canSubmit ? "0 4px 12px -3px rgba(28,44,90,0.3)" : "none" }}>{initial ? "Save" : "Add"}</button>
         </div>
       </div>
     </div>
@@ -9069,8 +9069,8 @@ function AllergyDeleteConfirm({ log, onCancel, onConfirm }) {
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink)", marginBottom: 8 }}>Delete this allergy log?</div>
         <div style={{ fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5, marginBottom: 22 }}>{log.date} · {log.trigger || log.category}</div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-          <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 6, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
-          <button onClick={onConfirm} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 6, background: "#6e1320", color: "var(--fg-on-gradient)", cursor: "pointer", boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)" }}>Delete</button>
+          <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
+          <button onClick={onConfirm} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: "#6e1320", color: "var(--fg-on-gradient)", cursor: "pointer", boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)" }}>Delete</button>
         </div>
       </div>
     </div>
@@ -9277,7 +9277,7 @@ function TechniqueLibrary({ onBack }) {
         {listTechniques.length === 0 ? (
           <div style={{
             background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
-            border: "1px solid var(--glass-stroke-2)", borderRadius: 18,
+            border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
             padding: "32px 28px", boxShadow: "var(--shadow-card)",
             color: "var(--ink-faint)", fontSize: 15, lineHeight: 1.6, textAlign: "center",
           }}>
