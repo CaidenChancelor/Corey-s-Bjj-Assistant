@@ -911,9 +911,10 @@ function useModalTrap(active, onClose) {
 // =====================================================
 // GiLogo — based on 🥋 emoji: white kimono, blue belt
 // =====================================================
+let _giLogoCounter = 0;
 function GiLogo({ size = 96 }) {
-  const id = "gi_" + Math.random().toString(36).slice(2, 8);
-  const blueId = "gibelt_" + Math.random().toString(36).slice(2, 8);
+  const [id] = React.useState(() => "gi_" + (++_giLogoCounter));
+  const [blueId] = React.useState(() => "gibelt_" + _giLogoCounter);
   return (
     <svg viewBox="0 0 96 96" width={size} height={size}
          style={{ filter: "drop-shadow(0 10px 28px rgba(60,90,180,0.22)) drop-shadow(0 2px 6px rgba(0,0,0,0.08))" }}>
@@ -1008,8 +1009,9 @@ function GiLogo({ size = 96 }) {
 // =====================================================
 // Karate Gi logo (legacy alias — kept for nav pill etc)
 // =====================================================
+let _sparkleCounter = 0;
 function SparkleLogo({ size = 28, glow = false }) {
-  const id = "g_" + Math.random().toString(36).slice(2, 8);
+  const [id] = React.useState(() => "g_" + (++_sparkleCounter));
   return (
     <svg viewBox="0 0 64 64" width={size} height={size}
          style={glow ? { filter: "drop-shadow(0 0 18px rgba(199,154,58,0.4))" } : null}>
@@ -3092,6 +3094,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
 function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
   const [draft, setDraft] = useStateH(paceTarget || "21:00");
   const presets = ["17:00", "18:00", "20:00", "21:00", "22:00"];
+  const trapRef = useModalTrap(true, onCancel);
 
   // Live preview of what the page will say
   const remaining = Math.max(0, goal - total);
@@ -3107,6 +3110,9 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -4738,10 +4744,11 @@ function renderContent(text) {
           `style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.07);border:none;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;color:#555;font-family:monospace;">Copy</button>` +
         `</div>`;
     } else {
+      // Escape HTML first to prevent XSS
+      let s = part.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       // Inline backticks
-      let s = part.replace(/`([^`]+)`/g, (_, c) => {
-        const esc = c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        return `<code style="background:rgba(0,0,0,0.07);padding:2px 5px;border-radius:4px;font-family:monospace;font-size:13px;">${esc}</code>`;
+      s = s.replace(/`([^`]+)`/g, (_, c) => {
+        return `<code style="background:rgba(0,0,0,0.07);padding:2px 5px;border-radius:4px;font-family:monospace;font-size:13px;">${c}</code>`;
       });
       // Bold
       s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
@@ -4761,8 +4768,8 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           maxWidth: "min(70%, 460px)",
           padding: "14px 20px",
           borderRadius: 22,
-          background: "rgba(0,102,204,0.08)",
-          border: "1px solid rgba(0,102,204,0.18)",
+          background: "rgba(28,44,90,0.07)",
+          border: "1px solid rgba(28,44,90,0.14)",
           color: "#1d1d1f",
           fontSize: 15.5, lineHeight: 1.5,
           letterSpacing: "-0.011em",
@@ -5699,21 +5706,16 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
             cursor: "pointer",
             transition: "all 160ms ease",
           }}>Cancel</button>
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 980,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
-            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
-          }}>
-            <button onClick={onConfirm} style={{
-              padding: "8.5px 18.5px", borderRadius: 978.5,
-              fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
-              color: "#1c2c5a",
-              background: "#fff",
-              border: "none",
-              cursor: "pointer",
-              transition: "all 160ms ease",
-            }}>Delete</button>
-          </span>
+          <button onClick={onConfirm} style={{
+            padding: "10px 20px", borderRadius: 980,
+            fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 700,
+            color: "#fff",
+            background: "#6e1320",
+            border: "none",
+            cursor: "pointer",
+            boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
+            transition: "all 160ms ease",
+          }}>Delete</button>
         </div>
       </div>
     </div>
@@ -7134,23 +7136,18 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
               cursor: "pointer",
               transition: "all 160ms ease",
             }}>Cancel</button>
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 980,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
-            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
-          }}>
-            <button
+          <button
               onClick={onConfirm}
               style={{
-                padding: "8.5px 18.5px", borderRadius: 978.5,
-                fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 600,
-                color: "#1c2c5a",
-                background: "#fff",
+                padding: "10px 20px", borderRadius: 980,
+                fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 700,
+                color: "#fff",
+                background: "#6e1320",
                 border: "none",
                 cursor: "pointer",
+                boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
                 transition: "all 160ms ease",
               }}>Delete</button>
-          </span>
         </div>
       </div>
     </div>
@@ -7586,6 +7583,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
   const [name, setName] = useStateP(initial?.name ?? "");
   const [tier, setTier] = useStateP(initial?.tier ?? "med");
   const [description, setDescription] = useStateP(initial?.description ?? "");
+  const trapRef = useModalTrap(true, onCancel);
 
   const submit = () => {
     if (name.trim()) onSubmit(name.trim(), tier, description.trim());
@@ -7593,6 +7591,9 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -7747,17 +7748,12 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
             border: "1px solid rgba(0,0,0,0.10)", borderRadius: 10,
             background: "#fff", color: "#1d1d1f", cursor: "pointer",
           }}>Cancel</button>
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 11.5,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
-            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
-          }}>
-            <button onClick={onConfirm} style={{
-              padding: "8.5px 18.5px", fontSize: 14, fontWeight: 600,
-              border: "none", borderRadius: 10, cursor: "pointer",
-              color: "#1c2c5a", background: "#fff",
-            }}>Delete</button>
-          </span>
+          <button onClick={onConfirm} style={{
+            padding: "10px 20px", fontSize: 14, fontWeight: 700,
+            border: "none", borderRadius: 10, cursor: "pointer",
+            color: "#fff", background: "#6e1320",
+            boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
+          }}>Delete</button>
         </div>
       </div>
     </div>
@@ -8681,6 +8677,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
   const [description, setDescription] = useStateMI(initial?.description ?? "");
   const [partner, setPartner] = useStateMI(initial?.partner ?? "");
   const [whenHappened, setWhenHappened] = useStateMI(initial?.when_happened ?? "");
+  const trapRef = useModalTrap(true, onCancel);
 
   const submit = () => {
     if (name.trim()) onSubmit(name.trim(), severity, region, rest.trim(), description.trim(), partner.trim(), whenHappened.trim());
@@ -8688,6 +8685,9 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -8952,8 +8952,9 @@ const ALLERGY_SEVERITIES = [
   { id: "severe", label: "Severe", color: "#6e1320" },
   { id: "critical", label: "Critical", color: "#4a1a10" },
 ];
-const ALLERGY_CATEGORIES = ["General", "Seasonal", "Environmental", "Food", "Medication", "Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "All of the Above"];
-const ALLERGY_CAUSES = ["Food", "Pollen", "High Heart Rate", "All of the Above"];
+const ALLERGY_CATEGORIES = ["General", "Seasonal", "Environmental", "Food", "Medication"];
+const ALLERGY_SYMPTOMS_LIST = ["Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "Wheezing", "Sneezing", "Hives", "Swelling"];
+const ALLERGY_CAUSES = ["Food", "Pollen", "Dust", "Mold", "Pet Dander", "High Heart Rate", "Medication", "Other"];
 const ALLERGY_MEDICATIONS = [
   "",
   "Albuterol Inhaler (Red Pumps)",
