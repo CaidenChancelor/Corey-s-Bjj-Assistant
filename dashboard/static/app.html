@@ -1174,7 +1174,7 @@ function BlueButton({ children, onClick, style = {}, fullWidth = false }) {
   const [hover, setHover] = useState(false);
   const [press, setPress] = useState(false);
   const btnStyle = {
-    fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 13, fontWeight: 600,
+    fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 600,
     color: "#fff", border: "none", cursor: "pointer",
     padding: "14px 28px", borderRadius: 6,
     letterSpacing: "0.04em", textTransform: "uppercase",
@@ -1202,7 +1202,7 @@ function RainbowButton({ children, onClick, style = {}, fullWidth = false }) {
   const [hover, setHover] = useState(false);
   const [press, setPress] = useState(false);
   const btnStyle = {
-    fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 13, fontWeight: 600,
+    fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 600,
     color: "var(--accent-gold, #c79a3a)", cursor: "pointer",
     padding: "14px 28px", borderRadius: 6,
     letterSpacing: "0.04em", textTransform: "uppercase",
@@ -2193,7 +2193,7 @@ function Login({ onContinue }) {
         <div style={{ textAlign: "center", width: "100%" }}>
           <div style={{
             fontFamily: "var(--font-text)",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.32em",
+            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
             textTransform: "uppercase", color: "var(--ink-faint)",
             marginBottom: 18,
           }}>Vol. I · {new Date().getFullYear()}</div>
@@ -2375,13 +2375,13 @@ function Hydration({ onBack }) {
           }}>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>The reservoir</div>
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>{(() => {
               const d = new Date();
@@ -3016,7 +3016,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
         <div>
           <div style={{
             fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-            letterSpacing: "0.08em", color: "rgba(29,29,31,0.5)", marginBottom: 10,
+            letterSpacing: "0.06em", color: "rgba(29,29,31,0.5)", marginBottom: 10,
           }}>Sip plan</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {schedule.map((s, i) => (
@@ -3134,7 +3134,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
         }}>
           <div style={{
             fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-            letterSpacing: "0.08em", color: "rgba(29,29,31,0.5)", marginBottom: 6,
+            letterSpacing: "0.06em", color: "rgba(29,29,31,0.5)", marginBottom: 6,
           }}>Preview</div>
           {remaining === 0 ? (
             <div style={{ fontSize: 14, color: "#1d1d1f" }}>Goal already hit. 🎉</div>
@@ -3997,7 +3997,7 @@ function ProblemsTile({ onClick }) {
               }}>{p.name}</div>
               <div style={{
                 flexShrink: 0,
-                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em",
+                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: tierTextColor(p.tier),
                 fontVariantNumeric: "tabular-nums",
@@ -4455,7 +4455,7 @@ function OpsTimeBars({ buckets, keys = ["morning", "afternoon", "evening", "nigh
       </div>
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${keys.length}, 1fr)`, gap: 7, marginTop: 6 }}>
         {keys.map((key) => (
-          <div key={key} className="ops-eyebrow" style={{ fontSize: 9.5, letterSpacing: "0.08em", textAlign: "center" }}>
+          <div key={key} className="ops-eyebrow" style={{ fontSize: 9.5, letterSpacing: "0.06em", textAlign: "center" }}>
             {({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}
           </div>
         ))}
@@ -4498,21 +4498,23 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
     <div className="dash-page" style={{ paddingTop: 96, paddingBottom: 88, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
       <div className="ops-console">
         <div className="ops-topbar">
-          <div className="ops-panel" style={{ padding: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start", marginBottom: 18 }}>
-              <div>
-                <div className="ops-eyebrow" style={{ marginBottom: 10 }}>{todayLabel}</div>
-                <div className="ops-page-title">Training console</div>
+          <div className="ops-panel" style={{ padding: "16px 20px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 16, fontWeight: 500, color: "var(--ink)" }}>
+                  Good {new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening"}, Corey
+                </div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 500, letterSpacing: "0.04em", color: "var(--fg-3)", textTransform: "uppercase" }}>{todayLabel}</div>
               </div>
               <div className="ops-pill" style={{ color: botError ? "var(--accent-danger)" : "var(--accent-success)" }}>
-                {botError ? "Bot data delayed" : "Live data"}
+                {botError ? "Bot data delayed" : "Live"}
               </div>
             </div>
             <div className="ops-pill-row">
-              <button onClick={onOpenHydration} className="ops-pill" style={{ cursor: "pointer" }}>Log water</button>
-              <button onClick={onOpenMeals} className="ops-pill" style={{ cursor: "pointer" }}>Log meal</button>
-              <button onClick={onOpenMicroInjuries} className="ops-pill" style={{ cursor: "pointer" }}>Health check</button>
-              <button onClick={onOpenTechniqueLibrary} className="ops-pill" style={{ cursor: "pointer" }}>Library</button>
+              <button onClick={onOpenHydration} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log water</button>
+              <button onClick={onOpenMeals} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Log meal</button>
+              <button onClick={onOpenMicroInjuries} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Health check</button>
+              <button onClick={onOpenTechniqueLibrary} className="ops-pill" style={{ cursor: "pointer", fontFamily: "var(--font-text)" }}>Library</button>
             </div>
           </div>
 
@@ -5096,7 +5098,7 @@ function Editor() {
             }}>
               <div style={{
                 fontFamily: "var(--font-text)",
-                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
                 textTransform: "uppercase", color: "var(--ink-faint)",
                 whiteSpace: "nowrap",
               }}>Desk · Letters</div>
@@ -5291,7 +5293,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
           }}>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>Section II · Private coaching</div>
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
@@ -5734,7 +5736,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
             }}>{lesson.summary}</div>
             {isPinned && (
               <span style={{
-                fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+                fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 padding: "2px 8px", borderRadius: 980,
                 color: "#ff9f1c",
@@ -6058,7 +6060,7 @@ function Schedule({ onBack }) {
           }}>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>The schedule</div>
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
@@ -6135,7 +6137,7 @@ function NowRule({ time }) {
     }}>
       <div style={{
         fontFamily: "var(--font-display)", fontSize: 12, fontWeight: 600,
-        color: "#6e1320", letterSpacing: "0.08em", textTransform: "uppercase",
+        color: "#6e1320", letterSpacing: "0.06em", textTransform: "uppercase",
         flexShrink: 0,
       }}>now · {time}</div>
       <div style={{
@@ -6186,7 +6188,7 @@ function ScheduleRow({ item, isPast, isNext }) {
           {isNext && (
             <span style={{
               marginLeft: 10,
-              fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "#6e1320",
               padding: "2px 8px", borderRadius: 980,
               border: "1px solid rgba(110,19,32,0.40)",
@@ -6373,7 +6375,7 @@ function Meals({ onBack }) {
           }}>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>The menu · Today</div>
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
@@ -6535,7 +6537,7 @@ function MacroChip({ label, value, unit, color }) {
           fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600,
           letterSpacing: "-0.02em", color: "#1d1d1f", lineHeight: 1.1,
         }}>{value}<span style={{ fontSize: 13, color: "rgba(29,29,31,0.55)", fontWeight: 400, marginLeft: 2 }}>{unit}</span></div>
-        <div style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", textTransform: "uppercase", letterSpacing: "0.08em", marginTop: 2 }}>{label}</div>
+        <div style={{ fontSize: 11, color: "rgba(29,29,31,0.55)", textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 2 }}>{label}</div>
       </div>
     </div>
   );
@@ -7193,7 +7195,7 @@ function Problems({ onBack }) {
           }}>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>The dossier · Problems</div>
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
@@ -7378,7 +7380,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
           top: "50%",
           right: 18,
           transform: "translateY(-50%)",
-          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em",
+          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
           textTransform: "uppercase",
           color: problemsTierColor(problem.tier),
           transition: "right 220ms cubic-bezier(0.32,0.72,0,1)",
@@ -7434,7 +7436,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
         <div style={{
           display: "inline-block",
           padding: "4px 10px",
-          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase",
+          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
           color: problemsTierColor(problem.tier),
           border: `1px solid ${isUrgent ? "rgba(196,50,79,0.55)" : "rgba(0,0,0,0.10)"}`,
           borderRadius: 999,
@@ -7787,7 +7789,7 @@ function MicroInjuryMetric({ label, value, tone = "#1d1d1f" }) {
       boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset",
     }}>
       <div style={{
-        fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em",
+        fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em",
         textTransform: "uppercase", color: "rgba(29,29,31,0.48)", marginBottom: 5,
       }}>{label}</div>
       <div style={{ fontSize: 24, lineHeight: 1, fontWeight: 650, color: tone, fontVariantNumeric: "tabular-nums" }}>{value}</div>
@@ -7888,7 +7890,7 @@ function MicroInjuryTimeChart({ buckets }) {
                 opacity: isZero ? 0.4 : 1,
               }}/>
               <div style={{
-                fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em",
+                fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: isZero ? "rgba(29,29,31,0.38)" : "rgba(29,29,31,0.55)",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
@@ -8038,7 +8040,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#1d1d1f", letterSpacing: "-0.01em" }}>Body parts taking damage</div>
-              <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.08em" }}>frequency</div>
+              <div style={{ fontSize: 11, color: "rgba(29,29,31,0.42)", textTransform: "uppercase", letterSpacing: "0.06em" }}>frequency</div>
             </div>
             <MicroInjuryBars rows={stats.top_body_parts || []} emptyText="No body-part data yet" color="#1c2c5a" />
           </div>
@@ -8230,7 +8232,7 @@ function MicroInjuries({ onBack }) {
           }}>
             <div style={{
               fontFamily: "var(--font-text)",
-              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+              fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "var(--ink-faint)",
             }}>The infirmary</div>
             <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
@@ -8439,7 +8441,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
           top: "50%",
           right: 18,
           transform: "translateY(-50%)",
-          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em",
+          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
           textTransform: "uppercase",
           color: microInjuriesTierColor(injury.severity),
           transition: "right 220ms cubic-bezier(0.32,0.72,0,1)",
@@ -8499,7 +8501,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           <div style={{
             display: "inline-block",
             padding: "4px 10px",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase",
+            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
             color: microInjuriesTierColor(injury.severity),
             border: `1px solid ${isCritical ? "rgba(196,50,79,0.55)" : (isFresh ? "rgba(224,38,74,0.55)" : "rgba(0,0,0,0.10)")}`,
             borderRadius: 999,
@@ -8510,7 +8512,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           <div style={{
             display: "inline-block",
             padding: "4px 10px",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase",
+            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
             color: "rgba(29,29,31,0.55)",
             border: "1px solid rgba(0,0,0,0.10)",
             borderRadius: 999,
@@ -8673,7 +8675,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
           <div>
             <div style={{
-              fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
               marginBottom: 6, paddingLeft: 2,
             }}>Body region</div>
@@ -8698,7 +8700,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           </div>
           <div>
             <div style={{
-              fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
               textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
               marginBottom: 6, paddingLeft: 2,
             }}>Rest plan</div>
@@ -8731,7 +8733,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
         {/* Severity picker */}
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
           textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
           marginBottom: 6, paddingLeft: 2,
         }}>Severity</div>
@@ -8758,7 +8760,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
         {/* Partner */}
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
           textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
           marginBottom: 6, paddingLeft: 2,
         }}>Training partner</div>
@@ -8775,7 +8777,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
         {/* When happened */}
         <div style={{
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.06em",
           textTransform: "uppercase", color: "rgba(29,29,31,0.45)",
           marginBottom: 6, paddingLeft: 2,
         }}>When did it happen</div>
@@ -9111,7 +9113,7 @@ function AllergyStatsPanel({ stats }) {
                 <div style={{ width: "100%", height: 112, borderRadius: 12, background: "rgba(199,154,58,0.06)", border: "1px solid rgba(26,22,19,0.06)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
                   <div style={{ width: "100%", height: `${Math.max(8, ((buckets[key] || 0) / maxBucket) * 100)}%`, background: "linear-gradient(180deg, #c79a3a, #6e1320)", borderRadius: "12px 12px 0 0" }}></div>
                 </div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
+                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.45)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
               </div>
             ))}
           </div>
@@ -9401,7 +9403,7 @@ function TechniqueLibrary({ onBack }) {
         }}>
           <div style={{
             fontFamily: "var(--font-text)",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.28em",
+            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.06em",
             textTransform: "uppercase", color: "var(--ink-faint)",
           }}>Section III · The library</div>
           <div style={{ flex: 1, height: 1, background: "var(--ink-hairline)" }}/>
