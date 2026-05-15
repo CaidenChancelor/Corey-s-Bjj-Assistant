@@ -34,12 +34,12 @@
   --fg-5:           rgba(29, 29, 31, 0.18);
   --fg-on-gradient: #ffffff;
 
-  /* === RAINBOW (Apple Intelligence / Siri halo) === */
-  --ai-pink:        #ff4f9a;
-  --ai-magenta:     #c862ff;
-  --ai-purple:      #7a5cff;
-  --ai-blue:        #3b82ff;
-  --ai-cyan:        #4cd6ff;
+  /* === Jewel-tone accents === */
+  --ai-pink:        #6e1320;   /* oxblood */
+  --ai-magenta:     #8b1f37;   /* mulled wine */
+  --ai-purple:      #1c2c5a;   /* cobalt */
+  --ai-blue:        #2b3f7a;   /* lighter cobalt */
+  --ai-cyan:        #c79a3a;   /* gold */
 
   --ai-gradient: linear-gradient(
     100deg,
@@ -62,10 +62,10 @@
   );
 
   /* Mesh blobs */
-  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(255, 79, 154, 0.32), transparent 70%);
-  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(122, 92, 255, 0.30), transparent 70%);
+  --mesh-blob-pink:    radial-gradient(60% 50% at 18% 20%, rgba(110, 19, 32, 0.32), transparent 70%);
+  --mesh-blob-purple:  radial-gradient(55% 45% at 78% 30%, rgba(28, 44, 90, 0.30), transparent 70%);
   --mesh-blob-blue:    radial-gradient(50% 50% at 30% 82%, rgba(59, 130, 255, 0.26), transparent 70%);
-  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(76, 214, 255, 0.26), transparent 70%);
+  --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.26), transparent 70%);
 
   /* === SEMANTIC === */
   --accent-blue:    #2997ff;
@@ -595,7 +595,7 @@ body::after {
   width: 9px; height: 9px;
   border-radius: 50%;
   background: var(--ai-gradient);
-  box-shadow: 0 0 12px rgba(122, 92, 255, 0.6);
+  box-shadow: 0 0 12px rgba(28, 44, 90, 0.6);
 }
 .timeline-meta {
   display: flex;
@@ -711,8 +711,8 @@ body.auth-bg {
   font-size: 28px;
   color: white;
   margin: 0 auto var(--s-5);
-  box-shadow: 0 12px 40px -8px rgba(122, 92, 255, 0.45),
-              0 4px 16px -4px rgba(255, 79, 154, 0.32);
+  box-shadow: 0 12px 40px -8px rgba(28, 44, 90, 0.40),
+              0 4px 16px -4px rgba(110, 19, 32, 0.28);
   animation: logo-float 4s ease-in-out infinite;
 }
 @keyframes logo-float {
@@ -752,9 +752,9 @@ input[type="password"], input[type="text"], input[type="email"], textarea {
 input::placeholder, textarea::placeholder { color: var(--fg-4); }
 input:focus, textarea:focus {
   outline: none;
-  border-color: rgba(122, 92, 255, 0.5);
+  border-color: rgba(28, 44, 90, 0.5);
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 0 4px rgba(122, 92, 255, 0.12);
+  box-shadow: 0 0 0 4px rgba(28, 44, 90, 0.12);
 }
 
 /* ─── BUTTONS ─────────────────────────────────────────────── */
@@ -779,13 +779,13 @@ input:focus, textarea:focus {
   background: var(--ai-gradient);
   color: var(--fg-on-gradient);
   border: none;
-  box-shadow: 0 8px 24px -8px rgba(122, 92, 255, 0.4),
-              0 4px 12px -4px rgba(255, 79, 154, 0.3);
+  box-shadow: 0 8px 24px -8px rgba(28, 44, 90, 0.4),
+              0 4px 12px -4px rgba(110, 19, 32, 0.3);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px -8px rgba(122, 92, 255, 0.5),
-              0 6px 16px -4px rgba(255, 79, 154, 0.4);
+  box-shadow: 0 12px 32px -8px rgba(28, 44, 90, 0.5),
+              0 6px 16px -4px rgba(110, 19, 32, 0.4);
 }
 .btn-primary:active { transform: translateY(0); }
 
@@ -860,8 +860,8 @@ input:focus, textarea:focus {
   margin-left: var(--s-5);
 }
 .chat-msg[data-role="assistant"] {
-  border-color: rgba(122, 92, 255, 0.25);
-  background: linear-gradient(135deg, var(--glass-2), rgba(122, 92, 255, 0.04));
+  border-color: rgba(28, 44, 90, 0.25);
+  background: linear-gradient(135deg, var(--glass-2), rgba(28, 44, 90, 0.04));
   margin-right: var(--s-5);
 }
 @media (min-width: 700px) {
@@ -947,7 +947,7 @@ input:focus, textarea:focus {
   background: var(--ai-conic);
   animation: halo-rotate var(--d-halo) linear infinite,
              halo-rotate-fb var(--d-halo) linear infinite;
-  box-shadow: 0 0 32px rgba(122, 92, 255, 0.3);
+  box-shadow: 0 0 32px rgba(28, 44, 90, 0.3);
 }
 .chat-form-inner {
   display: flex;
