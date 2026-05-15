@@ -104,7 +104,12 @@ def fetch_bot_status():
             headers={"Authorization": f"Bearer {API_TOKEN}"},
             timeout=5,
         )
-        return r.json() if r.ok else {"error": f"Bot returned {r.status_code}"}
+        if not r.ok:
+            return {"error": f"Bot returned {r.status_code}"}
+        try:
+            return r.json()
+        except ValueError:
+            return {"error": "Bot returned non-JSON response"}
     except Exception as e:
         return {"error": f"Couldn't reach bot: {e}"}
 
