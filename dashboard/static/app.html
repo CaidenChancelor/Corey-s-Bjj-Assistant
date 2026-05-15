@@ -866,6 +866,13 @@ html, body {
   <script>
   (function() {
 
+    // Global error handler — log to console, don't crash silently
+    window.onerror = function(msg, src, line, col, err) {
+      console.error("[BJJ Dashboard Error]", msg, "at", src + ":" + line + ":" + col, err);
+    };
+    window.onunhandledrejection = function(e) {
+      console.error("[BJJ Dashboard Unhandled Promise]", e.reason);
+    };
 
     // Scroll reveal — auto-tag direct children of common page wrappers and
     // observe them with IntersectionObserver.
