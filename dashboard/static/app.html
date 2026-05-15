@@ -4480,7 +4480,7 @@ function MessageRow({ role, body, time }) {
       <div style={{ paddingTop: 2, flexShrink: 0 }}>
         {role === "claude" ? <ClaudePill /> : <StatusPill tone="you">You</StatusPill>}
       </div>
-      <div style={{ flex: 1, fontSize: 14.5, color: "rgba(26,22,19,0.78)", lineHeight: 1.5 }}>{body}</div>
+      <div style={{ flex: 1, fontSize: 14.5, color: "var(--fg-2)", lineHeight: 1.5 }}>{body}</div>
       <div style={{ fontSize: 12, color: "var(--ink-faint)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
     </div>
   );
@@ -8704,7 +8704,7 @@ function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 110,
-        background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)",
+        background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
         animation: "miFadeIn 160ms ease both",
       }}>
@@ -9044,7 +9044,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const trapRef = useModalTrap(true, onCancel);
   const field = { width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid var(--bg-hairline)", borderRadius: 8, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "var(--bg-paper)" };
   return (
-    <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: "var(--bg-paper)", borderRadius: 16, padding: 28, boxShadow: "0 24px 64px -16px rgba(26,22,19,0.25)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink)", marginBottom: 18 }}>{initial ? "Edit allergy log" : "Log allergy symptoms"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
@@ -9079,7 +9079,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
 function AllergyDeleteConfirm({ log, onCancel, onConfirm }) {
   const trapRef = useModalTrap(true, onCancel);
   return (
-    <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 110, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 110, background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 400, background: "var(--bg-paper)", borderRadius: 16, padding: 28, boxShadow: "0 24px 64px -16px rgba(26,22,19,0.25)" }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink)", marginBottom: 8 }}>Delete this allergy log?</div>
         <div style={{ fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5, marginBottom: 22 }}>{log.date} · {log.trigger || log.category}</div>
