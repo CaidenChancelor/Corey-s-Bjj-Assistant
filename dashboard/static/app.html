@@ -1013,13 +1013,13 @@ function GlassCard({ children, padding, radius, style = {}, hero = false, rainbo
       ? "none"
       : rainbow ? "1px solid transparent" : "1px solid rgba(26,22,19,0.07)",
     borderBottom: isInline ? "1px solid var(--bg-hairline)" : undefined,
-    backdropFilter: isInline ? "none" : (isHero ? "blur(48px) saturate(140%)" : "blur(32px) saturate(130%)"),
-    WebkitBackdropFilter: isInline ? "none" : (isHero ? "blur(48px) saturate(140%)" : "blur(32px) saturate(130%)"),
+    backdropFilter: isInline ? "none" : "blur(16px) saturate(140%)",
+    WebkitBackdropFilter: isInline ? "none" : "blur(16px) saturate(140%)",
     borderRadius: resolvedRadius,
     padding: resolvedPadding,
     boxShadow: hover ? shadows.hover : shadows.base,
     // Only hero cards lift on hover
-    transform: (isHero && hover) ? "translateY(-3px)" : "translateY(0)",
+    transform: (isHero && hover) ? "translateY(-2px)" : "translateY(0)",
     transition: "transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1)",
     overflow: isInline ? "visible" : "hidden",
     ...style,
