@@ -4784,7 +4784,7 @@ window.Dashboard = Dashboard;
 
 </script>
   <script type="text/babel">
-// Editor — chat with rotating rainbow halo on the focused composer
+// Editor — chat interface with Claude
 
 const { useState: useStateEd, useRef: useRefEd, useEffect: useEffectEd, useCallback: useCallbackEd } = React;
 
@@ -4956,32 +4956,17 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
 
 function Composer({ focused, setFocused, value, setValue, onSend, listening, onVoice }) {
   return (
-    <div style={{ position: "relative", padding: 4 }}>
-      {/* rotating rainbow halo — only when focused */}
-      {focused && (
-        <div style={{
-          position: "absolute", inset: 0, borderRadius: 26, overflow: "hidden",
-          pointerEvents: "none",
-        }}>
-          <div style={{
-            position: "absolute", inset: -100,
-            background: "conic-gradient(from 0deg, #6e1320, #8b1f37, #1c2c5a, #2b3f7a, #c79a3a, #1c2c5a, #6e1320)",
-            filter: "blur(20px) saturate(180%)",
-            animation: "composer-rot 4s linear infinite",
-          }}></div>
-        </div>
-      )}
+    <div style={{ position: "relative" }}>
       <div style={{
-        position: "relative",
         display: "flex", alignItems: "flex-end", gap: 8,
         background: "var(--bg-paper)",
-        borderRadius: 22,
+        borderRadius: 16,
         padding: "12px 12px 12px 20px",
-        border: focused ? "1px solid transparent" : "1px solid var(--bg-hairline)",
+        border: focused ? "1px solid var(--accent-cobalt)" : "1px solid var(--bg-hairline)",
         boxShadow: focused
-          ? "0 12px 40px -12px rgba(28,44,90,0.35), 0 1px 2px rgba(0,0,0,0.04)"
+          ? "0 0 0 3px rgba(28,44,90,0.08), 0 4px 16px -6px rgba(28,44,90,0.18)"
           : "0 1px 2px rgba(0,0,0,0.04)",
-        transition: "border 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
       }}>
         <textarea
           rows={1}
@@ -5041,7 +5026,6 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
         </button>
       </div>
       <style>{`
-        @keyframes composer-rot { to { transform: rotate(360deg); } }
         @keyframes mic-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.3); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }
       `}</style>
     </div>
