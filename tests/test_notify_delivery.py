@@ -16,7 +16,10 @@ class NotifyDeliveryTests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.bot.scheduler.shutdown(wait=False)
+        try:
+            cls.bot.scheduler.shutdown(wait=False)
+        except Exception:
+            pass  # Scheduler may not be running in test context
         cls.tmpdir.cleanup()
 
     def test_send_reports_missing_twilio_credentials(self):
