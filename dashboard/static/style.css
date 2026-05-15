@@ -1,7 +1,6 @@
 /* ────────────────────────────────────────────────────────────────────────────
-   BJJ Bot Dashboard — mobile-first, Apple Intelligence × Liquid Glass
-   Built from Corey's Claude Design tokens but rebuilt as semantic Jinja
-   templates with proper responsive CSS. Works at every screen size.
+   BJJ Bot Dashboard — Jinja fallback CSS
+   Jewel-tone editorial palette on warm ivory (matches React SPA)
    ──────────────────────────────────────────────────────────────────────────── */
 
 @property --halo-angle {
@@ -11,28 +10,23 @@
 }
 
 :root {
-  /* === SURFACES === */
-  --bg-paper:       #ffffff;
-  --bg-canvas:      #f7f7fa;
-  --bg-parchment:   #f2f2f5;
-  --bg-tint:        #ebebf0;
-  --bg-hairline:    rgba(0, 0, 0, 0.08);
+  /* === SURFACES (warm ivory — matches React SPA) === */
+  --bg-paper:       #f7f1e3;
+  --bg-canvas:      #f3eee5;
+  --bg-parchment:   #ece4d3;
+  --bg-hairline:    rgba(26, 24, 20, 0.10);
 
   /* === GLASS === */
-  --glass-1:        rgba(255, 255, 255, 0.55);
-  --glass-2:        rgba(255, 255, 255, 0.65);
-  --glass-3:        rgba(255, 255, 255, 0.78);
-  --glass-4:        rgba(255, 255, 255, 0.88);
-  --glass-stroke:   rgba(255, 255, 255, 0.7);
-  --glass-stroke-2: rgba(0, 0, 0, 0.06);
+  --glass-2:        rgba(247, 241, 227, 0.66);
+  --glass-stroke-2: rgba(26, 24, 20, 0.08);
 
-  /* === FOREGROUND === */
-  --fg-1:           #1d1d1f;
-  --fg-2:           rgba(29, 29, 31, 0.78);
-  --fg-3:           rgba(29, 29, 31, 0.55);
-  --fg-4:           rgba(29, 29, 31, 0.36);
-  --fg-5:           rgba(29, 29, 31, 0.18);
-  --fg-on-gradient: #ffffff;
+  /* === FOREGROUND (charcoal ink on paper) === */
+  --fg-1:           #1a1814;
+  --fg-2:           rgba(26, 24, 20, 0.78);
+  --fg-3:           rgba(26, 24, 20, 0.55);
+  --fg-4:           rgba(26, 24, 20, 0.36);
+  --fg-5:           rgba(26, 24, 20, 0.18);
+  --fg-on-gradient: #f7f1e3;
 
   /* === Jewel-tone accents === */
   --ai-pink:        #6e1320;   /* oxblood */
