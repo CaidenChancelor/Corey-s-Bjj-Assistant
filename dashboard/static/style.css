@@ -62,8 +62,8 @@
   --mesh-blob-cyan:    radial-gradient(45% 40% at 88% 78%, rgba(199, 154, 58, 0.26), transparent 70%);
 
   /* === SEMANTIC === */
-  --accent-blue:    #2997ff;
-  --accent-blue-2:  #0071e3;
+  --accent-blue:    #2b3f7a;
+  --accent-blue-2:  #1c2c5a;
   --accent-success: #15a86b;
   --accent-warn:    #c97a00;
   --accent-danger:  #e0264a;
