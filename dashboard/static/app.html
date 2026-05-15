@@ -611,17 +611,29 @@ html, body {
 .ops-topbar {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
-  gap: 18px;
+  gap: 16px;
   align-items: stretch;
   margin-bottom: 18px;
 }
 .ops-panel {
-  background: rgba(247, 241, 227, 0.82);
-  border: 1px solid rgba(26, 24, 20, 0.09);
+  background: rgba(255, 252, 245, 0.92);
+  border: 1px solid rgba(26, 24, 20, 0.10);
   border-radius: 18px;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.72) inset, 0 18px 44px -28px rgba(26,24,20,0.26);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.80) inset, 0 24px 52px -28px rgba(26,24,20,0.30);
   backdrop-filter: blur(28px) saturate(145%);
   -webkit-backdrop-filter: blur(28px) saturate(145%);
+  position: relative;
+  overflow: hidden;
+}
+.ops-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ai-gradient);
+  border-radius: 18px 18px 0 0;
 }
 .ops-page-title {
   font-family: var(--font-display);
@@ -632,17 +644,17 @@ html, body {
   color: var(--ink);
 }
 .ops-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(26,24,20,0.44);
 }
 .ops-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
   align-items: stretch;
 }
 .ops-span-3 { grid-column: span 3; }
@@ -653,11 +665,11 @@ html, body {
 .ops-span-8 { grid-column: span 8; }
 .ops-span-12 { grid-column: span 12; }
 .ops-card {
-  background: rgba(255, 252, 245, 0.76);
-  border: 1px solid rgba(26,24,20,0.08);
+  background: rgba(255, 252, 245, 0.52);
+  border: 1px solid rgba(26,24,20,0.06);
   border-radius: 16px;
   min-height: 100%;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.75) inset, 0 12px 30px -24px rgba(26,24,20,0.28);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.50) inset, 0 6px 18px -16px rgba(26,24,20,0.16);
   overflow: hidden;
 }
 .ops-card-click {
@@ -665,17 +677,17 @@ html, body {
   transition: transform 180ms var(--ease-spring), box-shadow 180ms var(--ease-spring), border-color 180ms ease;
 }
 .ops-card-click:hover {
-  transform: translateY(-2px);
-  border-color: rgba(28,44,90,0.20);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.82) inset, 0 18px 42px -26px rgba(28,44,90,0.30);
+  transform: translateY(-1px);
+  border-color: rgba(28,44,90,0.14);
+  box-shadow: 0 0 0 1px rgba(28,44,90,0.12) inset, 0 18px 42px -26px rgba(28,44,90,0.22);
 }
 .ops-card-body { padding: 18px; }
 .ops-value {
   font-family: var(--font-display);
-  font-size: clamp(26px, 4vw, 40px);
+  font-size: clamp(24px, 3.5vw, 36px);
   font-weight: 750;
   letter-spacing: -0.04em;
-  line-height: 1;
+  line-height: 0.95;
   color: var(--ink);
 }
 .ops-muted { color: rgba(26,24,20,0.58); }
@@ -689,17 +701,19 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 9px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: rgba(26,24,20,0.045);
   border: 1px solid rgba(26,24,20,0.07);
   color: rgba(26,24,20,0.70);
-  font-size: 12px;
-  font-weight: 650;
+  font-family: var(--font-text);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 .ops-progress {
-  height: 9px;
+  height: 6px;
   border-radius: 999px;
   background: rgba(26,24,20,0.08);
   overflow: hidden;
@@ -709,11 +723,18 @@ html, body {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, var(--accent-cobalt), var(--accent-gold));
+  transition: width 600ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 .ops-health-grid {
   display: grid;
   grid-template-columns: 1.02fr 0.98fr;
   gap: 14px;
+}
+.ops-health-grid > :first-child {
+  border-left: 2px solid var(--accent-oxblood);
+}
+.ops-health-grid > :last-child {
+  border-left: 2px solid var(--accent-gold);
 }
 .ops-spark-bars {
   display: grid;
@@ -730,6 +751,9 @@ html, body {
 .ops-activity {
   max-height: 360px;
   overflow: auto;
+  border-top: 1px solid rgba(26,24,20,0.06);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(26,24,20,0.15) transparent;
 }
 @media (max-width: 1000px) {
   .ops-topbar { grid-template-columns: 1fr; }
@@ -741,7 +765,7 @@ html, body {
   .ops-span-8 { grid-column: span 6; }
 }
 @media (max-width: 700px) {
-  .ops-grid { grid-template-columns: 1fr; gap: 14px; }
+  .ops-grid { grid-template-columns: 1fr; gap: 12px; }
   .ops-span-3,
   .ops-span-4,
   .ops-span-5,
@@ -750,6 +774,7 @@ html, body {
   .ops-span-8,
   .ops-span-12 { grid-column: 1; }
   .ops-health-grid { grid-template-columns: 1fr; }
+  .ops-card-body { padding: 14px; }
 }
 
 
