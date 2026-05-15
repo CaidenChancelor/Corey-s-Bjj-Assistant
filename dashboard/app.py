@@ -12,6 +12,8 @@ logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("DASHBOARD_SECRET", "dev-secret-change-me")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 DASHBOARD_PASSWORD = os.environ.get("DASHBOARD_PASSWORD", "")
 BOT_URL = os.environ.get("BOT_URL", "https://corey-s-bjj-assistant-production.up.railway.app")
