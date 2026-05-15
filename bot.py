@@ -462,9 +462,9 @@ def get_active_injuries():
     try:
         with sqlite3.connect(DB_PATH) as conn:
             rows = conn.execute(
-                'SELECT body_part, severity, notes, date FROM injuries WHERE resolved = 0 ORDER BY created_at DESC LIMIT 5'
+                'SELECT id, body_part, severity, notes, date, created_at FROM injuries WHERE resolved = 0 ORDER BY created_at DESC LIMIT 5'
             ).fetchall()
-            return [{"body_part": r[0], "severity": r[1], "notes": r[2], "date": r[3]} for r in rows]
+            return [{"id": r[0], "body_part": r[1], "severity": r[2], "notes": r[3], "date": r[4], "created_at": r[5]} for r in rows]
     except Exception:
         return []
 
@@ -647,15 +647,15 @@ def get_allergy_stats():
                 "GROUP BY LOWER(TRIM(trigger_name)) ORDER BY COUNT(*) DESC LIMIT 5"
             ).fetchall()
             category_rows = conn.execute(
-                "SELECT COALESCE(NULLIF(TRIM(category), ''), 'general'), COUNT(*) FROM allergies "
+                "SELECT LOWER(COALESCE(NULLIF(TRIM(category), ''), 'general')), COUNT(*) FROM allergies "
                 "GROUP BY LOWER(COALESCE(NULLIF(TRIM(category), ''), 'general')) ORDER BY COUNT(*) DESC"
             ).fetchall()
             severity_rows = conn.execute(
-                "SELECT COALESCE(NULLIF(TRIM(severity), ''), 'mild'), COUNT(*) FROM allergies "
+                "SELECT LOWER(COALESCE(NULLIF(TRIM(severity), ''), 'mild')), COUNT(*) FROM allergies "
                 "GROUP BY LOWER(COALESCE(NULLIF(TRIM(severity), ''), 'mild'))"
             ).fetchall()
             impact_rows = conn.execute(
-                "SELECT COALESCE(NULLIF(TRIM(training_impact), ''), 'none'), COUNT(*) FROM allergies "
+                "SELECT LOWER(COALESCE(NULLIF(TRIM(training_impact), ''), 'none')), COUNT(*) FROM allergies "
                 "GROUP BY LOWER(COALESCE(NULLIF(TRIM(training_impact), ''), 'none'))"
             ).fetchall()
             time_rows = conn.execute("SELECT time, created_at FROM allergies").fetchall()

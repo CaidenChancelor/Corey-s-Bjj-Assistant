@@ -8254,9 +8254,66 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
   );
 }
 
+// ---------- Sync injury data back to window.__bjjdata ----------
+function injuryStatsFromList(injuries) {
+  const active = injuries.filter((i) => !i.resolved);
+  const resolved = injuries.filter((i) => i.resolved);
+  const countBy = (items, getKey) => {
+    const map = new Map();
+    items.forEach((item) => {
+      const key = String(getKey(item) || "").trim();
+      if (!key || key.toLowerCase() === "solo") return;
+      const canonical = key.toLowerCase();
+      const current = map.get(canonical) || { name: key, count: 0 };
+      current.count += 1;
+      map.set(canonical, current);
+    });
+    return Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 5);
+  };
+  const timeBuckets = { morning: 0, afternoon: 0, evening: 0 };
+  injuries.forEach((inj) => {
+    const bucket = microInjuryTimeBucketFromText(inj.when_happened);
+    if (bucket) timeBuckets[bucket] += 1;
+  });
+  return {
+    total: injuries.length,
+    active: active.length,
+    resolved: resolved.length,
+    top_partners: countBy(injuries, (i) => i.partner),
+    top_body_parts: countBy(injuries, (i) => i.name || i.body_part),
+    time_buckets: timeBuckets,
+  };
+}
+
+function syncInjuryData(injuries) {
+  const uiToBotSev = { watch: "minor", fresh: "moderate", critical: "severe", managing: "managing" };
+  window.__bjjdata = window.__bjjdata || {};
+  const mapped = injuries.map((inj) => ({
+    id: String(inj.id || "").startsWith("bot-injury-") ? parseInt(String(inj.id).replace("bot-injury-", ""), 10) : inj.id,
+    body_part: inj.name || inj.body_part || "",
+    severity: uiToBotSev[inj.severity] || inj.severity || "minor",
+    notes: inj.description || inj.notes || "",
+    date: inj.date || "",
+    resolved: inj.resolved || false,
+    partner: inj.partner || "",
+    when_happened: inj.when_happened || "",
+    created_at: inj.createdAt || inj.created_at || inj.date || "",
+  }));
+  window.__bjjdata.all_injuries = mapped;
+  window.__bjjdata.injuries_active = mapped.filter((inj) => !inj.resolved);
+  window.__bjjdata.injury_stats = injuryStatsFromList(injuries);
+}
+
 // ---------- Page ----------
 function MicroInjuries({ onBack }) {
-  const { injuries, pinned, setInjuries, setPinned } = useMicroInjuriesStore();
+  const { injuries, pinned, setInjuries: setInjuriesRaw, setPinned } = useMicroInjuriesStore();
+  const setInjuries = (next) => {
+    setInjuriesRaw((prev) => {
+      const value = typeof next === "function" ? next(prev) : next;
+      syncInjuryData(value);
+      return value;
+    });
+  };
   const [confirmId, setConfirmId] = useStateMI(null);
   const [adding, setAdding] = useStateMI(false);
   const [editingId, setEditingId] = useStateMI(null);
