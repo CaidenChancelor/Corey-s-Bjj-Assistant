@@ -1350,10 +1350,11 @@ function NavPill({ active, onChange }) {
   };
 
   const tabStyle = (isActive) => ({
-    padding: "8px 14px", borderRadius: 8,
-    fontSize: 12.5, fontWeight: 650,
+    padding: "8px 14px", borderRadius: 8, minHeight: 36,
+    display: "inline-flex", alignItems: "center",
+    fontSize: 13, fontWeight: 600,
     fontFamily: "var(--font-text)",
-    color: isActive ? "var(--ink)" : "rgba(26,22,19,0.55)",
+    color: isActive ? "var(--ink)" : "var(--ink-faint)",
     background: isActive ? "rgba(26,22,19,0.06)" : "transparent",
     border: "none",
     cursor: "pointer",
