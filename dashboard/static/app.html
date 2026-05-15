@@ -3102,7 +3102,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
             <React.Fragment>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600,
-                letterSpacing: "-0.025em", color: "var(--ink)", lineHeight: 1.2,
+                letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2,
               }}>You've hit your goal — nice.</div>
               <div style={{ fontSize: 14, color: "var(--ink-muted)", marginTop: 6 }}>
                 Keep sipping if you're heading to practice.
@@ -3124,7 +3124,7 @@ function PaceCard({ total, goal, paceTarget, onEdit }) {
             <React.Fragment>
               <div style={{
                 fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600,
-                letterSpacing: "-0.025em", color: "var(--ink)", lineHeight: 1.25,
+                letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.25,
               }}>
                 Drink <span style={{ color: "var(--accent-cobalt)" }}>{formatHydrationAmount(remaining)}</span> by <span style={{ color: "var(--accent-cobalt)" }}>{formatTimeFriendly(paceTarget)}</span>
               </div>
@@ -4106,7 +4106,7 @@ function ProblemsTile({ onClick }) {
                 fontSize: 14,
                 fontWeight: isUrgent ? 600 : 500,
                 color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
-                letterSpacing: "-0.005em",
+                letterSpacing: "-0.01em",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>{p.name}</div>
               <div style={{
@@ -4245,7 +4245,7 @@ function MicroInjuriesCard({ onClick }) {
           <div>
             <div style={{
               fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 600,
-              letterSpacing: "-0.025em", lineHeight: 1, color: "var(--ink)",
+              letterSpacing: "-0.02em", lineHeight: 1, color: "var(--ink)",
             }}>{headline}</div>
             <div style={{ fontSize: 13, color: "var(--ink-faint)", marginTop: 8 }}>{sub}</div>
           </div>
@@ -4532,7 +4532,7 @@ function OpsHealthModule({ title, status, statusTone, meta, rows, chart, onClick
         <div style={{ display: "flex", justifyContent: "space-between", gap: 14, alignItems: "flex-start" }}>
           <div>
             <div className="ops-eyebrow" style={{ marginBottom: 7 }}>{title}</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, letterSpacing: "-0.035em", color: statusTone }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: statusTone }}>
               {status}
             </div>
           </div>
@@ -4716,7 +4716,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 14 }}>
                 <div>
                   <div className="ops-eyebrow" style={{ marginBottom: 6 }}>Health intelligence</div>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.035em" }}>Patterns before problems</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, letterSpacing: "-0.03em" }}>Patterns before problems</div>
                 </div>
                 <div className="ops-pill">Decision support</div>
               </div>
@@ -4842,7 +4842,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           border: "1px solid rgba(28,44,90,0.14)",
           color: "var(--ink)",
           fontSize: 15, lineHeight: 1.5,
-          letterSpacing: "-0.011em",
+          letterSpacing: "-0.01em",
         }}>{body}</div>
       </div>
     );
@@ -4859,7 +4859,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
             border: "1px solid var(--bg-hairline)",
             color: "var(--ink-faint)",
             fontSize: 15, lineHeight: 1.6,
-            letterSpacing: "-0.011em",
+            letterSpacing: "-0.01em",
             display: "flex", alignItems: "center", gap: 6,
           }}>
             Claude is working
@@ -4895,7 +4895,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
                 border: "1px solid rgba(28,44,90,0.15)",
                 fontSize: 12,
                 color: "var(--ink-faint)",
-                letterSpacing: "-0.008em",
+                letterSpacing: "-0.01em",
                 fontFamily: "var(--font-text)",
               }}>{label}</div>
             );
@@ -4912,7 +4912,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
             border: "1px solid var(--bg-hairline)",
             color: "var(--ink)",
             fontSize: 15, lineHeight: 1.6,
-            letterSpacing: "-0.011em",
+            letterSpacing: "-0.01em",
           }}
           dangerouslySetInnerHTML={{ __html: renderContent(body || '') }}
         />
@@ -4929,7 +4929,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           border: deployDone ? "1px solid rgba(52,199,89,0.28)" : "1px solid rgba(28,44,90,0.22)",
           fontSize: 12,
           color: deployDone ? "#1a7a35" : "var(--accent-cobalt)",
-          letterSpacing: "-0.008em",
+          letterSpacing: "-0.01em",
           fontFamily: "var(--font-text)",
           transition: "all 0.4s ease",
         }}>
@@ -4971,7 +4971,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
             flex: 1, resize: "none", border: "none", outline: "none",
             background: "transparent",
             fontFamily: "var(--font-text)", fontSize: 16, color: "var(--ink)",
-            letterSpacing: "-0.011em", lineHeight: 1.5,
+            letterSpacing: "-0.01em", lineHeight: 1.5,
             padding: "10px 0",
           }}
         />
@@ -5944,7 +5944,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
               {lesson.notes.map((n, i) => (
                 <div key={i} style={{
                   fontSize: 15, lineHeight: 1.65,
-                  color: "var(--fg-2)", letterSpacing: "-0.005em",
+                  color: "var(--fg-2)", letterSpacing: "-0.01em",
                 }}>{renderInline(n)}</div>
               ))}
             </div>
@@ -6615,7 +6615,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         <Eyebrow style={{ marginBottom: 10 }}>{meal.time} · today</Eyebrow>
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600,
-          letterSpacing: "-0.025em", color: "var(--ink)", lineHeight: 1.15,
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.15,
           marginBottom: 6,
         }}>{meal.label}</div>
 
@@ -7261,7 +7261,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
           fontSize: 15,
           fontWeight: isUrgent ? 600 : 500,
           color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
-          letterSpacing: "-0.005em",
+          letterSpacing: "-0.01em",
           paddingRight: 80,
           whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         }}>{problem.name}</div>
@@ -7343,7 +7343,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
         {/* Title */}
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600,
-          letterSpacing: "-0.025em",
+          letterSpacing: "-0.02em",
           color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
           lineHeight: 1.2, marginBottom: 16, paddingRight: 32,
         }}>{problem.name}</div>
@@ -8275,7 +8275,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
             fontSize: 15,
             fontWeight: (isCritical || isFresh) ? 600 : 500,
             color: isCritical ? "var(--accent-critical)" : (isFresh ? "var(--accent-critical)" : "var(--ink)"),
-            letterSpacing: "-0.005em",
+            letterSpacing: "-0.01em",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             marginBottom: 2,
           }}>{injury.name}</div>
@@ -8377,7 +8377,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         {/* Title */}
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600,
-          letterSpacing: "-0.025em",
+          letterSpacing: "-0.02em",
           color: (isCritical || isFresh) ? "var(--accent-critical)" : "var(--ink)",
           lineHeight: 1.2, marginBottom: 8, paddingRight: 32,
         }}>{injury.name}</div>
@@ -9183,7 +9183,7 @@ function TechniqueLibrary({ onBack }) {
             </svg>
             Back to library
           </button>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600, letterSpacing: "-0.025em", color: "var(--ink)", marginBottom: 6 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6 }}>
             {titleCase(t.name)}
           </div>
           <div style={{ fontSize: 15, color: "var(--ink-faint)", marginBottom: 24 }}>
