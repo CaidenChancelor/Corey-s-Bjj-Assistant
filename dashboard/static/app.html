@@ -2532,7 +2532,7 @@ function Hydration({ onBack }) {
           }}>
             <MiniStat label="Last sip" value={lastSip === "—" ? "—" : formatTimeFriendly(lastSip)} accent="var(--accent-cobalt)" />
             <MiniStat label="Biggest" value={biggest ? formatHydrationAmount(biggest) : "—"} accent="var(--accent-cobalt)" />
-            <MiniStat label="Logs" value={displayLog.length} accent="#8b1f37" />
+            <MiniStat label="Logs" value={displayLog.length} accent="var(--accent-oxblood)" />
             <MiniStat label="7-day avg" value={formatHydrationAmount(avg)} accent="var(--accent-oxblood)" />
           </div>
         </GlassCard>
