@@ -878,6 +878,37 @@ html, body {
 const { useState, useEffect, useRef } = React;
 
 // =====================================================
+// useModalTrap — focus-trap + Escape key for modals
+// =====================================================
+function useModalTrap(active, onClose) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    const el = ref.current;
+    if (!el) return;
+    const focusable = () => el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const first = () => { const f = focusable(); return f.length ? f[0] : el; };
+    const last = () => { const f = focusable(); return f.length ? f[f.length - 1] : el; };
+    const prev = document.activeElement;
+    first().focus();
+    const onKey = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
+      if (e.key !== "Tab") return;
+      const f = focusable();
+      if (!f.length) { e.preventDefault(); return; }
+      if (e.shiftKey) {
+        if (document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      } else {
+        if (document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("keydown", onKey); if (prev && prev.focus) prev.focus(); };
+  }, [active, onClose]);
+  return ref;
+}
+
+// =====================================================
 // GiLogo — based on 🥋 emoji: white kimono, blue belt
 // =====================================================
 function GiLogo({ size = 96 }) {
@@ -3176,6 +3207,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
   const [amount, setAmount] = useStateH(defaultAmount === "" ? "" : String(defaultAmount));
   const [time, setTime] = useStateH(nowTimeLabel());
   const presets = [250, 500, 750, 1000];
+  const trapRef = useModalTrap(true, onCancel);
 
   const submit = () => {
     const n = parseInt(amount, 10);
@@ -3184,6 +3216,9 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -3383,8 +3418,12 @@ function LogRow({ entry, isLast, onDelete }) {
 
 // ---------- Goal edit modal ----------
 function GoalEditModal({ goal, onChange, onCancel, onSave }) {
+  const trapRef = useModalTrap(true, onCancel);
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -5427,6 +5466,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
   const [notesText, setNotesText] = useStateBL(
     initial ? (initial.notes || []).join("\n") : ""
   );
+  const trapRef = useModalTrap(true, onCancel);
 
   const submit = () => {
     if (!summary.trim()) return;
@@ -5442,6 +5482,9 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
@@ -5597,8 +5640,12 @@ function FormField({ label, hint, children, style = {} }) {
 // Delete confirm
 // =====================================================
 function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
+  const trapRef = useModalTrap(true, onCancel);
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 110,
@@ -7025,8 +7072,12 @@ function MacroInput({ color, label, value, onChange }) {
 // Delete confirm
 // =====================================================
 function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
+  const trapRef = useModalTrap(true, onCancel);
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 120,
@@ -7662,8 +7713,12 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
 
 // ---------- Delete confirm ----------
 function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
+  const trapRef = useModalTrap(true, onCancel);
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 110,
@@ -8839,8 +8894,12 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
 // ---------- Delete confirm ----------
 function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
+  const trapRef = useModalTrap(true, onCancel);
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      ref={trapRef}
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 110,
@@ -9170,9 +9229,10 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const [missed, setMissed] = React.useState(!!initial?.missed_training);
   const submit = () => onSubmit({ date, time, severity, category, trigger: trigger.trim(), symptoms: symptoms.trim(), medication: medication.trim(), training_impact: impact, missed_training: missed });
   const canSubmit = !!(trigger.trim() || symptoms.trim());
+  const trapRef = useModalTrap(true, onCancel);
   const field = { width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid rgba(26,22,19,0.12)", borderRadius: 8, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "var(--bg-paper, #FAF5EC)" };
   return (
-    <div onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: "var(--bg-paper, #FAF5EC)", borderRadius: 16, padding: 28, boxShadow: "0 24px 64px -16px rgba(26,22,19,0.25)", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink, #1A1613)", marginBottom: 18 }}>{initial ? "Edit allergy log" : "Log allergy symptoms"}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
@@ -9205,8 +9265,9 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
 }
 
 function AllergyDeleteConfirm({ log, onCancel, onConfirm }) {
+  const trapRef = useModalTrap(true, onCancel);
   return (
-    <div onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 110, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 110, background: "rgba(26,22,19,0.28)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 400, background: "var(--bg-paper, #FAF5EC)", borderRadius: 16, padding: 28, boxShadow: "0 24px 64px -16px rgba(26,22,19,0.25)" }}>
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink, #1A1613)", marginBottom: 8 }}>Delete this allergy log?</div>
         <div style={{ fontSize: 15, color: "rgba(26,22,19,0.60)", lineHeight: 1.5, marginBottom: 22 }}>{log.date} · {log.trigger || log.category}</div>
