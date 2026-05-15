@@ -1615,7 +1615,7 @@ function SortMenu({ value, onChange, options }) {
                 style={{
                   display: "flex", alignItems: "center", gap: 8, width: "100%",
                   padding: "9px 12px", borderRadius: 8,
-                  fontSize: 13.5, fontWeight: active ? 600 : 500,
+                  fontSize: 14, fontWeight: active ? 600 : 500,
                   fontFamily: "var(--font-text)",
                   color: active ? "var(--accent-oxblood)" : "var(--ink)",
                   background: active ? "rgba(110,19,32,0.06)" : "transparent",
@@ -2362,7 +2362,7 @@ function Login({ onContinue }) {
         <div style={{ textAlign: "center", width: "100%" }}>
           <div style={{
             fontFamily: "var(--font-text)",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em",
+            fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
             textTransform: "uppercase", color: "var(--ink-faint)",
             marginBottom: 18,
           }}>Vol. I · {new Date().getFullYear()}</div>
@@ -2384,7 +2384,7 @@ function Login({ onContinue }) {
             <div style={{ height: 1, width: 36, background: "var(--ink-hairline)" }}/>
             <div style={{
               fontFamily: "var(--font-display)",
-              fontSize: 17, fontStyle: "normal",
+              fontSize: 16, fontStyle: "normal",
               color: "var(--ink-muted)", letterSpacing: "0.02em",
             }}>a training journal</div>
             <div style={{ height: 1, width: 36, background: "var(--ink-hairline)" }}/>
@@ -4111,7 +4111,7 @@ function ProblemsTile({ onClick }) {
               }}>{p.name}</div>
               <div style={{
                 flexShrink: 0,
-                fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em",
+                fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 color: tierTextColor(p.tier),
                 fontVariantNumeric: "tabular-nums",
@@ -4320,7 +4320,7 @@ function MicroInjuriesCard({ onClick }) {
                   }}>{t.label}</span>
                 </div>
                 <div style={{
-                  fontSize: 13.5, color: "var(--ink-muted)", lineHeight: 1.45,
+                  fontSize: 14, color: "var(--ink-muted)", lineHeight: 1.45,
                   display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2,
                   overflow: "hidden",
                 }}>{inj.description}</div>
@@ -4471,7 +4471,7 @@ function AllergyTrackerCard({ onClick }) {
                   borderRadius: "12px 12px 0 0",
                 }}></div>
               </div>
-              <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)" }}>
                 {({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}
               </div>
             </div>
@@ -4492,7 +4492,7 @@ function MessageRow({ role, body, time }) {
       <div style={{ paddingTop: 2, flexShrink: 0 }}>
         {role === "claude" ? <ClaudePill /> : <StatusPill tone="you">You</StatusPill>}
       </div>
-      <div style={{ flex: 1, fontSize: 14.5, color: "var(--fg-2)", lineHeight: 1.5 }}>{body}</div>
+      <div style={{ flex: 1, fontSize: 15, color: "var(--fg-2)", lineHeight: 1.5 }}>{body}</div>
       <div style={{ fontSize: 12, color: "var(--ink-faint)", flexShrink: 0, paddingTop: 4 }}>{time}</div>
     </div>
   );
@@ -4540,7 +4540,7 @@ function OpsHealthModule({ title, status, statusTone, meta, rows, chart, onClick
             View
           </div>
         </div>
-        <div className="ops-muted" style={{ fontSize: 13.5, lineHeight: 1.45 }}>{meta}</div>
+        <div className="ops-muted" style={{ fontSize: 14, lineHeight: 1.45 }}>{meta}</div>
         {chart}
         {rows && rows.length > 0 && (
           <div style={{ display: "grid", gap: 8 }}>
@@ -4841,7 +4841,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           background: "rgba(28,44,90,0.07)",
           border: "1px solid rgba(28,44,90,0.14)",
           color: "var(--ink)",
-          fontSize: 15.5, lineHeight: 1.5,
+          fontSize: 15, lineHeight: 1.5,
           letterSpacing: "-0.011em",
         }}>{body}</div>
       </div>
@@ -5749,7 +5749,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               }}>pinned</span>
             )}
           </div>
-          <div style={{ fontSize: 14.5, color: "var(--ink-muted)", lineHeight: 1.5 }}>
+          <div style={{ fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5 }}>
             {lesson.description}
           </div>
         </div>
@@ -5925,7 +5925,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
             letterSpacing: "-0.03em", color: "var(--ink)", lineHeight: 1.15,
             marginBottom: 14,
           }}>{lesson.summary}</div>
-          <div style={{ fontSize: 17, color: "var(--ink-muted)", lineHeight: 1.55, maxWidth: 600 }}>
+          <div style={{ fontSize: 16, color: "var(--ink-muted)", lineHeight: 1.55, maxWidth: 600 }}>
             {lesson.description}
           </div>
         </div>
@@ -5943,7 +5943,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {lesson.notes.map((n, i) => (
                 <div key={i} style={{
-                  fontSize: 15.5, lineHeight: 1.65,
+                  fontSize: 15, lineHeight: 1.65,
                   color: "var(--fg-2)", letterSpacing: "-0.005em",
                 }}>{renderInline(n)}</div>
               ))}
@@ -6176,7 +6176,7 @@ function ScheduleRow({ item, isPast, isNext }) {
           )}
         </div>
         <div style={{
-          fontSize: 13.5, color: "var(--ink-muted)", lineHeight: 1.5,
+          fontSize: 14, color: "var(--ink-muted)", lineHeight: 1.5,
         }}>{item.meta}</div>
       </div>
     </div>
@@ -6524,7 +6524,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
           gap: 12, marginBottom: 8,
         }}>
           <div style={{
-            fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600,
+            fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600,
             letterSpacing: "-0.02em", color: "var(--ink)", minWidth: 0,
           }}>{meal.label}</div>
           <div style={{
@@ -6540,7 +6540,7 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {(meal.items || []).map((it, i) => (
             <li key={i} style={{
-              fontSize: 14.5, color: "var(--ink-muted)", lineHeight: 1.55,
+              fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.55,
               paddingLeft: 14, position: "relative",
             }}>
               <span style={{
@@ -6678,7 +6678,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
             background: "rgba(28,44,90,0.05)",
             border: "1px solid rgba(28,44,90,0.14)",
             borderRadius: 12,
-            fontSize: 14.5, color: "var(--fg-2)", lineHeight: 1.55,
+            fontSize: 15, color: "var(--fg-2)", lineHeight: 1.55,
           }}>
             {meal.notes}
           </div>
@@ -7258,7 +7258,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         {/* Name */}
         <div style={{
           flex: 1, minWidth: 0,
-          fontSize: 15.5,
+          fontSize: 15,
           fontWeight: isUrgent ? 600 : 500,
           color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
           letterSpacing: "-0.005em",
@@ -7272,7 +7272,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
           top: "50%",
           right: 18,
           transform: "translateY(-50%)",
-          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
           textTransform: "uppercase",
           color: problemsTierColor(problem.tier),
           transition: "right 220ms cubic-bezier(0.32,0.72,0,1)",
@@ -7332,7 +7332,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
         <div style={{
           display: "inline-block",
           padding: "4px 10px",
-          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
           color: problemsTierColor(problem.tier),
           border: `1px solid ${isUrgent ? "rgba(196,50,79,0.55)" : "rgba(0,0,0,0.10)"}`,
           borderRadius: 999,
@@ -7350,7 +7350,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
 
         {/* Description */}
         <div style={{
-          fontSize: 15.5, color: "var(--fg-2)", lineHeight: 1.6,
+          fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6,
           marginBottom: 24, whiteSpace: "pre-wrap",
         }}>
           {problem.description || (
@@ -7676,7 +7676,7 @@ function MicroInjuryMetric({ label, value, tone = "var(--ink)" }) {
       boxShadow: "0 1px 0 rgba(255,255,255,0.8) inset",
     }}>
       <div style={{
-        fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em",
+        fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
         textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: 5,
       }}>{label}</div>
       <div style={{ fontSize: 24, lineHeight: 1, fontWeight: 650, color: tone, fontVariantNumeric: "tabular-nums" }}>{value}</div>
@@ -7777,7 +7777,7 @@ function MicroInjuryTimeChart({ buckets }) {
                 opacity: isZero ? 0.4 : 1,
               }}/>
               <div style={{
-                fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em",
+                fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
                 textTransform: "uppercase",
                 color: isZero ? "var(--fg-4)" : "var(--ink-faint)",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
@@ -7870,9 +7870,9 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
                 borderRight: i < arr.length - 1 ? "1px solid rgba(26,22,19,0.06)" : "none",
                 minWidth: 0,
               }}>
-                <div style={{ fontFamily: "var(--font-text)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--ink-faint)", marginBottom: 4 }}>{item.label}</div>
                 <div style={{
-                  fontSize: 13.5, fontWeight: 600, color: "var(--ink)",
+                  fontSize: 14, fontWeight: 600, color: "var(--ink)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                   textTransform: item.label === "Hot spot" || item.label === "Top partner" ? "capitalize" : "none",
                 }}>{item.value}</div>
@@ -8272,7 +8272,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
           paddingRight: 100,
         }}>
           <div style={{
-            fontSize: 15.5,
+            fontSize: 15,
             fontWeight: (isCritical || isFresh) ? 600 : 500,
             color: isCritical ? "var(--accent-critical)" : (isFresh ? "var(--accent-critical)" : "var(--ink)"),
             letterSpacing: "-0.005em",
@@ -8292,7 +8292,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
           top: "50%",
           right: 18,
           transform: "translateY(-50%)",
-          fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
           textTransform: "uppercase",
           color: microInjuriesTierColor(injury.severity),
           transition: "right 220ms cubic-bezier(0.32,0.72,0,1)",
@@ -8356,7 +8356,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           <div style={{
             display: "inline-block",
             padding: "4px 10px",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
+            fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
             color: microInjuriesTierColor(injury.severity),
             border: `1px solid ${isCritical ? "rgba(196,50,79,0.55)" : (isFresh ? "rgba(224,38,74,0.55)" : "rgba(0,0,0,0.10)")}`,
             borderRadius: 999,
@@ -8367,7 +8367,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
           <div style={{
             display: "inline-block",
             padding: "4px 10px",
-            fontSize: 10.5, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
+            fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
             color: "var(--ink-faint)",
             border: "1px solid var(--bg-hairline)",
             borderRadius: 999,
@@ -8393,7 +8393,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
 
         {/* Description */}
         <div style={{
-          fontSize: 15.5, color: "var(--fg-2)", lineHeight: 1.6,
+          fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6,
           marginBottom: (injury.partner || injury.when_happened) ? 10 : 24, whiteSpace: "pre-wrap",
         }}>
           {injury.description || (
@@ -9007,7 +9007,7 @@ function AllergyRow({ log, onEdit, onDelete }) {
     <div style={{ background: "var(--bg-paper)", border: "1px solid var(--bg-hairline)", borderRadius: 12, padding: "16px 18px", display: "flex", alignItems: "center", gap: 14 }}>
       <div style={{ width: 4, height: 42, borderRadius: 999, background: allergyColor(log.severity), flexShrink: 0 }}></div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 15.5, fontWeight: 650, color: "var(--ink)", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <div style={{ fontSize: 15, fontWeight: 650, color: "var(--ink)", marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {log.trigger || log.category || "Allergy log"} <span style={{ color: "var(--ink-faint)", fontWeight: 500 }}>· {sev.label}</span>
         </div>
         <div style={{ fontSize: 13, color: "var(--ink-faint)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
