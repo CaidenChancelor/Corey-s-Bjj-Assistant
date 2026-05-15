@@ -1509,7 +1509,7 @@ function Rainbow({ children, style = {} }) {
 // =====================================================
 function Eyebrow({ children, style = {} }) {
   return <div style={{
-    fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+    fontFamily: "var(--font-text)",
     fontSize: 12, fontWeight: 500, letterSpacing: "0.06em",
     textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)",
     ...style,
@@ -1544,7 +1544,7 @@ function SortMenu({ value, onChange, options }) {
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "8px 14px", borderRadius: 6,
           fontSize: 11, fontWeight: 600,
-          fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+          fontFamily: "var(--font-text)",
           letterSpacing: "0.06em", textTransform: "uppercase",
           color: "var(--ink, #1A1613)",
           background: "var(--bg-paper, #FAF5EC)",
@@ -2100,6 +2100,8 @@ window.useHydrationStore = useHydrationStore;
 window.formatHydrationAmount = formatHydrationAmount;
 window.formatTimeFriendly = formatTimeFriendly;
 window.nowTimeLabel = nowTimeLabel;
+window.apiCall = apiCall;
+window.isBotEntry = isBotEntry;
 
 </script>
   <script type="text/babel">
@@ -2964,7 +2966,7 @@ function MiniStat({ label, value, accent }) {
   return (
     <div>
       <div style={{
-        fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+        fontFamily: "var(--font-text)",
         fontSize: 10, fontWeight: 600, textTransform: "uppercase",
         letterSpacing: "0.06em", color: "rgba(26,22,19,0.5)", marginBottom: 4,
       }}>{label}</div>
@@ -3689,6 +3691,7 @@ function WaterHero({ onClick }) {
     e.stopPropagation();
     const id = "log-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     setLog((prev) => [...prev, { id, amount: ml, time: nowTimeLabel() }]);
+    apiCall("POST", "/api/water/add", { amount_l: ml / 1000 });
   };
 
   const openCustom = (e) => {
@@ -3699,6 +3702,7 @@ function WaterHero({ onClick }) {
   const submitCustom = ({ amount, time }) => {
     const id = "log-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     setLog((prev) => [...prev, { id, amount, time }]);
+    apiCall("POST", "/api/water/add", { amount_l: amount / 1000 });
     setCustomOpen(false);
   };
 
@@ -3808,7 +3812,11 @@ function WaterHero({ onClick }) {
                   e.stopPropagation();
                   const sorted = [...log].sort((a, b) => (b.time || "").localeCompare(a.time || ""));
                   const last = sorted[0];
-                  if (last) setLog((prev) => prev.filter((x) => x.id !== last.id));
+                  if (last) {
+                    setLog((prev) => prev.filter((x) => x.id !== last.id));
+                    const entryId = parseInt(last.id, 10);
+                    if (!isNaN(entryId)) apiCall("DELETE", \`/api/water/entry/\${entryId}\`);
+                  }
                 }}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
@@ -3951,7 +3959,7 @@ function MiniStatHero({ label, value, accent }) {
   return (
     <div>
       <div style={{
-        fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+        fontFamily: "var(--font-text)",
         fontSize: 10, fontWeight: 600, textTransform: "uppercase",
         letterSpacing: "0.06em", color: "rgba(26,22,19,0.5)", marginBottom: 3,
       }}>{label}</div>
@@ -4403,7 +4411,7 @@ function MiniStat({ label, value, accent }) {
         background: accent,
       }}></div>
       <div style={{
-        fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+        fontFamily: "var(--font-text)",
         fontSize: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
         color: "rgba(26,22,19,0.55)", marginBottom: 3, paddingLeft: 6,
       }}>{label}</div>
@@ -4947,24 +4955,15 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
         </div>
       )}
 
-      {/* Message bubble */}
-      <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
-        <div style={{
-          position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
-          background: "linear-gradient(120deg, #6e1320, #8b1f37, #1c2c5a, #2b3f7a, #c79a3a)",
-          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          WebkitMaskComposite: "xor", maskComposite: "exclude",
-          pointerEvents: "none",
-        }}></div>
+      {/* Message bubble — clean solid card */}
+      <div style={{ maxWidth: "min(75%, 520px)" }}>
         <div
           style={{
-            padding: "14px 20px", borderRadius: 22,
-            background: "rgba(255,255,255,0.85)",
-            backdropFilter: "blur(40px) saturate(180%)",
-            WebkitBackdropFilter: "blur(40px) saturate(180%)",
-            color: "#1d1d1f",
-            fontSize: 15.5, lineHeight: 1.5,
+            padding: "14px 20px", borderRadius: 16,
+            background: "var(--bg-paper)",
+            border: "1px solid var(--bg-hairline)",
+            color: "var(--ink)",
+            fontSize: 15, lineHeight: 1.6,
             letterSpacing: "-0.011em",
           }}
           dangerouslySetInnerHTML={{ __html: renderContent(body || '') }}
@@ -8090,7 +8089,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
           <div style={{ minWidth: 0, paddingLeft: 8 }}>
             <div style={{
               fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
-              fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+              fontFamily: "var(--font-text)",
               color: "var(--accent-gold, #c79a3a)", marginBottom: 6,
             }}>Injury Statistics</div>
             <div style={{
@@ -8124,7 +8123,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
                 borderRight: i < arr.length - 1 ? "1px solid rgba(26,22,19,0.06)" : "none",
                 minWidth: 0,
               }}>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)", marginBottom: 4 }}>{item.label}</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)", marginBottom: 4 }}>{item.label}</div>
                 <div style={{
                   fontSize: 13.5, fontWeight: 600, color: "var(--ink, #1A1613)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
@@ -8158,7 +8157,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 16 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>Who it happens with</div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>partner</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, color: "rgba(26,22,19,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>partner</div>
               </div>
               <MicroInjuryBars rows={stats.top_partners || []} emptyText="Add partner names to unlock this chart" color="#6e1320" />
             </div>
@@ -8169,7 +8168,7 @@ function MicroInjuryStatsPanel({ stats, open, onToggle }) {
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", marginBottom: 8 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink, #1A1613)", letterSpacing: "-0.01em" }}>When it happens</div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, color: "rgba(26,22,19,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>by session</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 11, color: "rgba(26,22,19,0.55)", textTransform: "uppercase", letterSpacing: "0.06em" }}>by session</div>
               </div>
               <MicroInjuryTimeChart buckets={buckets} />
             </div>
@@ -9256,20 +9255,20 @@ function AllergyStatsPanel({ stats }) {
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
         <div>
-          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Time pattern</div>
+          <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Time pattern</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, height: 150, alignItems: "end" }}>
             {["morning", "afternoon", "evening", "night"].map((key) => (
               <div key={key} style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
                 <div style={{ width: "100%", height: 112, borderRadius: 12, background: "rgba(199,154,58,0.06)", border: "1px solid rgba(26,22,19,0.06)", display: "flex", alignItems: "flex-end", overflow: "hidden" }}>
                   <div style={{ width: "100%", height: `${Math.max(8, ((buckets[key] || 0) / maxBucket) * 100)}%`, background: "linear-gradient(180deg, #c79a3a, #6e1320)", borderRadius: "12px 12px 0 0" }}></div>
                 </div>
-                <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
+                <div style={{ fontFamily: "var(--font-text)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(26,22,19,0.55)" }}>{({ morning: "mor", afternoon: "aft", evening: "eve", night: "ngt" }[key])}</div>
               </div>
             ))}
           </div>
         </div>
         <div>
-          <div style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Top Causes</div>
+          <div style={{ fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-gold, #c79a3a)", marginBottom: 10 }}>Top Causes</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {bars.slice(0, 5).map((bar) => (
               <div key={bar.name}>
@@ -9335,7 +9334,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
           <select value={trigger} onChange={(e) => setTrigger(e.target.value)} style={field}>{ALLERGY_CAUSES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
         </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 6, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid rgba(26,22,19,0.12)", background: "var(--bg-paper, #FAF5EC)", color: severity === s.id ? s.color : "rgba(26,22,19,0.50)", fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", cursor: "pointer", transition: "all 160ms ease" }}>{s.label}</button>)}
+          {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 6, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid rgba(26,22,19,0.12)", background: "var(--bg-paper, #FAF5EC)", color: severity === s.id ? s.color : "rgba(26,22,19,0.50)", fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", cursor: "pointer", transition: "all 160ms ease" }}>{s.label}</button>)}
         </div>
         <textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Symptoms and what it changed in training" rows={4} style={{ ...field, resize: "vertical", marginBottom: 12 }} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
