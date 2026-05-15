@@ -1305,14 +1305,12 @@ function GlassButton({ children, onClick, style = {} }) {
       style={{
         fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
         color: "var(--ink)", cursor: "pointer",
-        padding: "10px 18px", borderRadius: 6,
-        background: hover ? "rgba(255,252,245,0.95)" : "rgba(255,252,245,0.85)",
-        border: "1px solid rgba(26,22,19,0.10)",
-        backdropFilter: "blur(40px)",
-        WebkitBackdropFilter: "blur(40px)",
-        boxShadow: "0 1px 3px rgba(26,22,19,0.08)",
+        padding: "10px 18px", borderRadius: 8,
+        background: hover ? "var(--bg-paper)" : "rgba(255,252,245,0.85)",
+        border: "1px solid var(--bg-hairline)",
+        boxShadow: hover ? "0 2px 8px rgba(26,22,19,0.10)" : "0 1px 3px rgba(26,22,19,0.06)",
         transform: press ? "scale(0.97)" : "scale(1)",
-        transition: "all 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        transition: "all 160ms cubic-bezier(0.32, 0.72, 0, 1)",
         ...style,
       }}>{children}</button>
   );
