@@ -4328,7 +4328,7 @@ function LegendDot({ color, label }) {
     }}>
       <span style={{
         width: 6, height: 6, borderRadius: "50%",
-        background: color, boxShadow: `0 0 6px ${color}66`,
+        background: color,
       }}></span>
       {label}
     </div>
@@ -4390,7 +4390,7 @@ function BodySilhouette({ injuries }) {
         <g key={inj.id}>
           <circle cx={inj.x} cy={inj.y} r="4.5" fill={inj.color} opacity="0.18"/>
           <circle cx={inj.x} cy={inj.y} r="2.6" fill={inj.color}/>
-          <circle cx={inj.x} cy={inj.y} r="2.6" fill="none" stroke="#fff" strokeWidth="0.6"/>
+          <circle cx={inj.x} cy={inj.y} r="2.6" fill="none" stroke="var(--bg-paper)" strokeWidth="0.6"/>
         </g>
       ))}
     </svg>
