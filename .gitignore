@@ -1,7 +1,13 @@
 .claude-tower/
+.claude-*.md
+.claude-*.log
+.claude/
 .env
 __pycache__/
 *.pyc
 *.db
 *.sqlite
 .DS_Store
+.pytest_cache/
+sample_report.*
+make_sample_pdf.py
