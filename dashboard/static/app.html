@@ -3278,7 +3278,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={() => onSave(draft)} style={{
@@ -3430,7 +3430,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
             background: "var(--bg-paper)",
             border: "none",
             backgroundImage: amount
-              ? "linear-gradient(#fff, #fff), linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)"
+              ? "linear-gradient(var(--bg-paper), var(--bg-paper)), var(--ai-gradient)"
               : "linear-gradient(#fff, #fff), linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12))",
             backgroundOrigin: "border-box",
             backgroundClip: "padding-box, border-box",
@@ -3443,7 +3443,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
               <span style={{
                 position: "absolute", inset: 0, borderRadius: 12,
                 padding: 1.5,
-                background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+                background: "var(--ai-gradient)",
                 WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -3564,7 +3564,7 @@ function GoalEditModal({ goal, onChange, onCancel, onSave }) {
           }}>Cancel</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onSave} style={{
@@ -4878,7 +4878,7 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
         <div style={{ position: "relative", maxWidth: "min(70%, 460px)" }}>
           <div style={{
             position: "absolute", inset: 0, borderRadius: 22, padding: 1.5,
-            background: "linear-gradient(120deg, #6e1320, #8b1f37, #1c2c5a, #2b3f7a, #c79a3a)",
+            background: "var(--ai-gradient)",
             WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             WebkitMaskComposite: "xor", maskComposite: "exclude",
@@ -5779,7 +5779,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         borderRadius: 20,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
-          ? "linear-gradient(120deg, #6e1320 0%, #8b1f37 28%, #1c2c5a 52%, #2b3f7a 76%, #c79a3a 100%)"
+          ? "var(--ai-gradient)"
           : "transparent",
         boxShadow: hover
           ? "0 1px 2px rgba(0,0,0,0.03)," +
@@ -6797,7 +6797,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
           }}>Delete</button>
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 980,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button onClick={onEdit} style={{
@@ -7290,7 +7290,7 @@ function Problems({ onBack }) {
         <span aria-hidden="true" style={{
           position: "absolute", inset: 0, borderRadius: "50%",
           padding: 1.5,
-          background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+          background: "var(--ai-gradient)",
           WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
           WebkitMaskComposite: "xor",
           maskComposite: "exclude",
@@ -7360,7 +7360,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
         borderRadius: 18,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
-          ? "linear-gradient(120deg, #6e1320 0%, #8b1f37 28%, #1c2c5a 52%, #2b3f7a 76%, #c79a3a 100%)"
+          ? "var(--ai-gradient)"
           : "transparent",
         boxShadow: hover
           ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(28,44,90,0.20), 0 12px 32px -12px rgba(110,19,32,0.18)"
@@ -7524,7 +7524,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
 
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button
@@ -8380,7 +8380,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
         borderRadius: 18,
         padding: isPinned ? 1.5 : 0,
         background: isPinned
-          ? "linear-gradient(120deg, #6e1320 0%, #8b1f37 28%, #1c2c5a 52%, #2b3f7a 76%, #c79a3a 100%)"
+          ? "var(--ai-gradient)"
           : "transparent",
         boxShadow: hover
           ? "0 1px 2px rgba(0,0,0,0.03), 0 10px 28px -10px rgba(28,44,90,0.20), 0 12px 32px -12px rgba(110,19,32,0.18)"
@@ -8584,7 +8584,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
 
           <span style={{
             display: "inline-block", padding: 1.5, borderRadius: 10,
-            background: "linear-gradient(120deg, #6e1320 0%, #8b1f37 35%, #1c2c5a 65%, #c79a3a 100%)",
+            background: "var(--ai-gradient)",
             boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
           }}>
             <button
