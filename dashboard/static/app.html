@@ -1298,7 +1298,7 @@ function GlassButton({ children, onClick, style = {} }) {
       style={{
         fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
         color: "var(--ink)", cursor: "pointer",
-        padding: "10px 18px", borderRadius: 8,
+        padding: "10px 20px", borderRadius: 8,
         background: hover ? "var(--bg-paper)" : "rgba(255,252,245,0.85)",
         border: "1px solid var(--bg-hairline)",
         boxShadow: hover ? "0 2px 8px rgba(26,22,19,0.10)" : "0 1px 3px rgba(26,22,19,0.06)",
@@ -2660,7 +2660,7 @@ function Hydration({ onBack }) {
                   }}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "9px 14px", borderRadius: 999,
+                    padding: "10px 14px", borderRadius: 999,
                     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                     color: "var(--ink-muted)",
                     background: "transparent",
@@ -2679,7 +2679,7 @@ function Hydration({ onBack }) {
                   disabled={log.length === 0}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "9px 14px", borderRadius: 999,
+                    padding: "10px 14px", borderRadius: 999,
                     fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                     color: log.length === 0
                       ? "rgba(224,38,74,0.45)"
@@ -3277,7 +3277,7 @@ function PaceEditModal({ paceTarget, goal, total, onSave, onCancel }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -3418,7 +3418,7 @@ function AddEntryModal({ onSubmit, onCancel, defaultAmount = "" }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -3540,7 +3540,7 @@ function GoalEditModal({ goal, onChange, onCancel, onSave, error }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -3776,7 +3776,7 @@ function WaterHero({ onClick }) {
                 }}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "9px 14px", borderRadius: 999,
+                  padding: "10px 14px", borderRadius: 999,
                   fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                   color: "var(--ink-muted)",
                   background: "transparent",
@@ -3796,7 +3796,7 @@ function WaterHero({ onClick }) {
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "9px 14px", borderRadius: 999,
+                  padding: "10px 14px", borderRadius: 999,
                   fontFamily: "var(--font-text)", fontSize: 13, fontWeight: 500,
                   color: "var(--fg-5)",
                   background: "transparent",
@@ -5549,7 +5549,7 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -6687,7 +6687,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         {/* Actions */}
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 24 }}>
           <button onClick={onDelete} style={{
-            padding: "10px 18px", borderRadius: 999,
+            padding: "10px 20px", borderRadius: 999,
             fontFamily: "var(--font-text)", fontSize: 14, fontWeight: 500,
             color: "var(--accent-danger-bright)",
             background: "transparent",
@@ -6863,7 +6863,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -7248,7 +7248,7 @@ function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, on
       <div style={{
         background: "var(--bg-paper)",
         borderRadius: isPinned ? 16.5 : 18,
-        padding: "18px 22px",
+        padding: "20px 24px",
         border: isPinned ? "none" : "1px solid var(--bg-hairline)",
         display: "flex", alignItems: "center", gap: 14,
         position: "relative",
@@ -7517,7 +7517,7 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -7580,7 +7580,7 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -8254,7 +8254,7 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
       <div style={{
         background: "var(--bg-paper)",
         borderRadius: isPinned ? 16.5 : 18,
-        padding: "18px 22px",
+        padding: "20px 24px",
         border: isPinned
           ? "none"
           : isCritical
@@ -8653,7 +8653,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
@@ -8716,12 +8716,12 @@ function DeleteMicroInjuryConfirm({ injury, onCancel, onConfirm }) {
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 500,
+            padding: "10px 20px", fontSize: 14, fontWeight: 500,
             border: "1px solid var(--bg-hairline)", borderRadius: 8,
             background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
-            padding: "10px 18px", fontSize: 14, fontWeight: 600,
+            padding: "10px 20px", fontSize: 14, fontWeight: 600,
             border: "none", borderRadius: 8, cursor: "pointer",
             color: "var(--fg-on-gradient)", background: "var(--accent-oxblood)",
             boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)",
@@ -9059,7 +9059,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
           Missed class or skipped training because of this
         </label>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-          <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
+          <button onClick={onCancel} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
           <button onClick={submit} disabled={!canSubmit} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: canSubmit ? "var(--accent-cobalt)" : "rgba(26,22,19,0.08)", color: canSubmit ? "var(--fg-on-gradient)" : "var(--fg-4)", cursor: canSubmit ? "pointer" : "not-allowed", boxShadow: canSubmit ? "0 4px 12px -3px rgba(28,44,90,0.3)" : "none" }}>{initial ? "Save" : "Add"}</button>
         </div>
       </div>
@@ -9075,8 +9075,8 @@ function AllergyDeleteConfirm({ log, onCancel, onConfirm }) {
         <div style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "var(--ink)", marginBottom: 8 }}>Delete this allergy log?</div>
         <div style={{ fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5, marginBottom: 22 }}>{log.date} · {log.trigger || log.category}</div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-          <button onClick={onCancel} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
-          <button onClick={onConfirm} style={{ padding: "10px 18px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: "var(--accent-oxblood)", color: "var(--fg-on-gradient)", cursor: "pointer", boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)" }}>Delete</button>
+          <button onClick={onCancel} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 500, border: "1px solid var(--bg-hairline)", borderRadius: 8, background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer" }}>Cancel</button>
+          <button onClick={onConfirm} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 700, border: "none", borderRadius: 8, background: "var(--accent-oxblood)", color: "var(--fg-on-gradient)", cursor: "pointer", boxShadow: "0 4px 12px -3px rgba(110,19,32,0.3)" }}>Delete</button>
         </div>
       </div>
     </div>
@@ -9224,7 +9224,7 @@ function TechniqueLibrary({ onBack }) {
                 <div key={idx} style={{
                   background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
                   border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
-                  padding: "18px 22px", boxShadow: "var(--shadow-card)",
+                  padding: "20px 24px", boxShadow: "var(--shadow-card)",
                 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-faint)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
                     {formatDate(entry.date)}{entry.session ? ` · ${entry.session}` : ""}
@@ -9301,7 +9301,7 @@ function TechniqueLibrary({ onBack }) {
                 style={{
                   background: "var(--glass-2)", backdropFilter: "var(--blur-sm)",
                   border: "1px solid var(--glass-stroke-2)", borderRadius: 16,
-                  padding: "18px 22px", boxShadow: "var(--shadow-card)",
+                  padding: "20px 24px", boxShadow: "var(--shadow-card)",
                   display: "flex", alignItems: "center", gap: 16,
                   cursor: "pointer", transition: "transform var(--d-fast) var(--ease-out), box-shadow var(--d-fast) var(--ease-out)",
                 }}
