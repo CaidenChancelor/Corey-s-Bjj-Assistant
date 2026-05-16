@@ -7213,7 +7213,7 @@ function renderContent(text) {
       html += `<div style="position:relative;margin:8px 0;">` +
         `<pre id="${id}" style="background:var(--bg-parchment);padding:12px;border-radius:8px;font-family:var(--font-mono);font-size:13px;overflow-x:auto;white-space:pre-wrap;margin:0;">${escaped}</pre>` +
         `<button onclick="(function(){var el=document.getElementById('${id}');navigator.clipboard.writeText(el.innerText);})()" ` +
-          `style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.07);border:none;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--ink-faint);font-family:var(--font-mono);">Copy</button>` +
+          `style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.07);border:none;border-radius:5px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--stripe-faint);font-family:var(--font-mono);">Copy</button>` +
         `</div>`;
     } else {
       // Escape HTML first to prevent XSS
@@ -7327,10 +7327,10 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
           display: "inline-block",
           padding: "3px 12px",
           borderRadius: 20,
-          background: deployDone ? "rgba(52,199,89,0.10)" : "rgba(28,44,90,0.08)",
-          border: deployDone ? "1px solid rgba(52,199,89,0.28)" : "1px solid rgba(28,44,90,0.22)",
+          background: deployDone ? "rgba(52,199,89,0.10)" : "var(--stripe-card)",
+          border: deployDone ? "1px solid rgba(52,199,89,0.28)" : "1px solid var(--stripe-line)",
           fontSize: 12,
-          color: deployDone ? "#1a7a35" : "var(--accent-cobalt)",
+          color: deployDone ? "#1a7a35" : "var(--stripe-blue)",
           letterSpacing: "-0.01em",
           fontFamily: "var(--font-text)",
           transition: "all 0.4s ease",
@@ -7350,12 +7350,12 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
     <div style={{ position: "relative" }}>
       <div style={{
         display: "flex", alignItems: "flex-end", gap: 8,
-        background: "var(--bg-paper)",
+        background: "var(--stripe-card)",
         borderRadius: 16,
         padding: "12px 12px 12px 20px",
-        border: focused ? "1px solid var(--accent-cobalt)" : "1px solid var(--bg-hairline)",
+        border: focused ? "1px solid var(--stripe-blue)" : "1px solid var(--stripe-line)",
         boxShadow: focused
-          ? "0 0 0 3px rgba(28,44,90,0.08), 0 4px 16px -6px rgba(28,44,90,0.18)"
+          ? "0 0 0 3px rgba(0,102,255,0.08), 0 4px 16px -6px rgba(0,102,255,0.18)"
           : "0 1px 2px rgba(0,0,0,0.04)",
         transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
@@ -7372,7 +7372,7 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           style={{
             flex: 1, resize: "none", border: "none", outline: "none",
             background: "transparent",
-            fontFamily: "var(--font-text)", fontSize: 16, color: "var(--ink)",
+            fontFamily: "var(--font-text)", fontSize: 16, color: "var(--stripe-ink)",
             letterSpacing: "-0.01em", lineHeight: 1.5,
             padding: "10px 0",
           }}
@@ -7384,10 +7384,10 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           style={{
             flexShrink: 0,
             width: 40, height: 40, borderRadius: "50%",
-            border: listening ? "none" : "1px solid rgba(28,44,90,0.22)",
+            border: listening ? "none" : "1px solid var(--stripe-line)",
             cursor: "pointer",
-            background: listening ? "rgba(220,38,38,0.10)" : "rgba(28,44,90,0.06)",
-            color: listening ? "var(--accent-danger-bright)" : "var(--accent-cobalt)",
+            background: listening ? "rgba(220,38,38,0.10)" : "var(--stripe-card)",
+            color: listening ? "var(--accent-danger-bright)" : "var(--stripe-blue)",
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "all 0.2s ease",
             animation: listening ? "mic-pulse 1s ease-in-out infinite" : "none",
@@ -7405,8 +7405,8 @@ function Composer({ focused, setFocused, value, setValue, onSend, listening, onV
           style={{
             flexShrink: 0,
             width: 40, height: 40, borderRadius: "50%",
-            border: "1px solid var(--bg-hairline)", cursor: "pointer",
-            background: "var(--accent-cobalt)",
+            border: "1px solid var(--stripe-line)", cursor: "pointer",
+            background: "var(--stripe-blue)",
             color: "var(--fg-on-gradient)",
             display: "flex", alignItems: "center", justifyContent: "center",
             transition: "opacity 0.15s ease",
@@ -7644,10 +7644,10 @@ function Editor() {
                   padding: "9px 16px",
                   minHeight: 36,
                   borderRadius: 999,
-                  background: "rgba(28,44,90,0.06)",
-                  border: "1px solid rgba(28,44,90,0.22)",
+                  background: "var(--stripe-card)",
+                  border: "1px solid var(--stripe-line)",
                   fontSize: 14,
-                  color: "var(--accent-cobalt)",
+                  color: "var(--stripe-blue)",
                   letterSpacing: "-0.01em",
                   cursor: "pointer",
                   fontFamily: "var(--font-text)",
@@ -7670,7 +7670,7 @@ function Editor() {
           listening={listening}
           onVoice={handleVoice}
         />
-        <div style={{ fontSize: 12, color: "var(--ink-faint)", textAlign: "center", marginTop: 12 }}>
+        <div style={{ fontSize: 12, color: "var(--stripe-faint)", textAlign: "center", marginTop: 12 }}>
           Enter to send · Shift + Enter for a new line
         </div>
       </div>
@@ -7775,7 +7775,7 @@ function BrunoLessons({ onBack, onOpenDetail }) {
         {sorted.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "var(--ink-faint)",
+            fontSize: 15, color: "var(--stripe-faint)",
           }}>
             No lessons yet. Tap + to add one.
           </div>
@@ -7789,9 +7789,9 @@ function BrunoLessons({ onBack, onOpenDetail }) {
         style={{
           position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
-          background: "var(--bg-paper)",
-          border: "1px solid var(--bg-hairline)", padding: 0, cursor: "pointer",
-          color: "var(--accent-cobalt)",
+          background: "var(--stripe-card)",
+          border: "1px solid var(--stripe-line)", padding: 0, cursor: "pointer",
+          color: "var(--stripe-blue)",
           boxShadow: "var(--shadow-pop)",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
@@ -7877,8 +7877,9 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
         style={{
           width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
+          background: "var(--stripe-card)", borderRadius: 20, padding: 28,
+          border: "1px solid var(--stripe-line)",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "blPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
@@ -8011,11 +8012,11 @@ function DeleteLessonConfirm({ lesson, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 420, maxWidth: "100%",
-          background: "var(--bg-paper)",
+          background: "var(--stripe-card)",
           borderRadius: 20,
           padding: "28px 28px 22px",
-          border: "1px solid var(--bg-hairline)",
-          boxShadow: "var(--shadow-modal)",
+          border: "1px solid var(--stripe-line)",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "blPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
@@ -8079,7 +8080,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
       <div style={{
-        background: "var(--bg-paper)",
+        background: "var(--stripe-card)",
         borderRadius: isPinned ? 18.5 : 20,
         padding: "22px 24px",
         border: isPinned ? "none" : "1px solid var(--stripe-line)",
@@ -8192,8 +8193,8 @@ function BrunoLessonDetail({ lessonId, onBack }) {
   if (!lesson) {
     return (
       <div style={{ paddingTop: 100, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)", textAlign: "center" }}>
-        <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--ink-muted)" }}>← Back</button>
-        <div style={{ marginTop: 24, fontSize: 16, color: "var(--ink-faint)" }}>This lesson was deleted.</div>
+        <button onClick={onBack} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--stripe-faint)" }}>← Back</button>
+        <div style={{ marginTop: 24, fontSize: 16, color: "var(--stripe-faint)" }}>This lesson was deleted.</div>
       </div>
     );
   }
@@ -8203,7 +8204,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((p, i) =>
       p.startsWith("**") && p.endsWith("**")
-        ? <strong key={i} style={{ color: "var(--ink)", fontWeight: 600 }}>{p.slice(2, -2)}</strong>
+        ? <strong key={i} style={{ color: "var(--stripe-ink)", fontWeight: 600 }}>{p.slice(2, -2)}</strong>
         : <React.Fragment key={i}>{p}</React.Fragment>
     );
   };
@@ -8417,12 +8418,12 @@ function Schedule({ onBack }) {
             }}>
               {nextIdx === -1
                 ? "Done for today."
-                : <>Next: <span style={{ color: "var(--ink)", fontWeight: 500 }}>{TODAY_SCHEDULE[nextIdx].label}</span> at {TODAY_SCHEDULE[nextIdx].time}</>}
+                : <>Next: <span style={{ color: "var(--stripe-ink)", fontWeight: 500 }}>{TODAY_SCHEDULE[nextIdx].label}</span> at {TODAY_SCHEDULE[nextIdx].time}</>}
             </div>
           </div>
           <div style={{
             fontFamily: "var(--font-mono)", fontSize: 13,
-            color: "var(--ink-faint)", fontVariantNumeric: "tabular-nums",
+            color: "var(--stripe-faint)", fontVariantNumeric: "tabular-nums",
           }}>{fmtTime(now)}</div>
         </div>
 
@@ -8446,7 +8447,7 @@ function Schedule({ onBack }) {
                 {i < TODAY_SCHEDULE.length - 1 && (
                   <div style={{
                     height: 1, marginLeft: 96, marginRight: 16,
-                    background: "var(--bg-hairline)",
+                    background: "var(--stripe-line)",
                   }}></div>
                 )}
               </React.Fragment>
@@ -8490,7 +8491,7 @@ function ScheduleRow({ item, isPast, isNext }) {
       <div style={{
         flexShrink: 0, minWidth: 64,
         fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
-        color: isNext ? "var(--ink)" : "var(--ink-muted)",
+        color: isNext ? "var(--stripe-ink)" : "var(--stripe-faint)",
         letterSpacing: "-0.01em", paddingTop: 2,
         fontVariantNumeric: "tabular-nums",
       }}>{item.time}</div>
@@ -8511,7 +8512,7 @@ function ScheduleRow({ item, isPast, isNext }) {
         <div style={{
           fontFamily: "var(--font-display)", fontSize: 16,
           fontWeight: isNext ? 700 : 500,
-          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.3,
+          letterSpacing: "-0.02em", color: "var(--stripe-ink)", lineHeight: 1.3,
           marginBottom: 2,
         }}>
           {item.label}
@@ -8524,7 +8525,7 @@ function ScheduleRow({ item, isPast, isNext }) {
           )}
         </div>
         <div style={{
-          fontSize: 14, color: "var(--ink-muted)", lineHeight: 1.5,
+          fontSize: 14, color: "var(--stripe-faint)", lineHeight: 1.5,
         }}>{item.meta}</div>
       </div>
     </div>
@@ -8743,7 +8744,7 @@ function Meals({ onBack }) {
         {meals.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "var(--ink-faint)",
+            fontSize: 15, color: "var(--stripe-faint)",
           }}>
             No meals logged today. Tap + to add one.
           </div>
@@ -8757,9 +8758,9 @@ function Meals({ onBack }) {
         style={{
           position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
-          background: "var(--bg-paper)",
-          border: "1px solid var(--bg-hairline)", padding: 0, cursor: "pointer",
-          color: "var(--accent-cobalt)",
+          background: "var(--stripe-card)",
+          border: "1px solid var(--stripe-line)", padding: 0, cursor: "pointer",
+          color: "var(--stripe-blue)",
           boxShadow: "var(--shadow-pop)",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
@@ -8931,9 +8932,9 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         style={{
           width: "100%", maxWidth: 540, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "var(--bg-paper)", borderRadius: 20, padding: "28px 32px 24px",
-          border: "1px solid var(--bg-hairline)",
-          boxShadow: "var(--shadow-modal)",
+          background: "var(--stripe-card)", borderRadius: 20, padding: "28px 32px 24px",
+          border: "1px solid var(--stripe-line)",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
           position: "relative",
         }}>
@@ -8946,7 +8947,7 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--ink-faint)",
+            color: "var(--stripe-faint)",
           }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -9098,8 +9099,9 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         style={{
           width: "100%", maxWidth: 520, maxHeight: "calc(100dvh - 48px)",
           overflowY: "auto",
-          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
+          background: "var(--stripe-card)", borderRadius: 20, padding: 28,
+          border: "1px solid var(--stripe-line)",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
@@ -9161,7 +9163,7 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ marginBottom: 12 }}>
           <div style={{
             fontSize: 12, fontWeight: 600, letterSpacing: "0.04em",
-            textTransform: "uppercase", color: "var(--ink-faint)",
+            textTransform: "uppercase", color: "var(--stripe-faint)",
             marginBottom: 6,
           }}>Macros (grams)</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
@@ -9274,11 +9276,11 @@ function MealDeleteConfirm({ meal, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: 420, maxWidth: "100%",
-          background: "var(--bg-paper)",
+          background: "var(--stripe-card)",
           borderRadius: 20,
           padding: "28px 28px 22px",
-          border: "1px solid var(--bg-hairline)",
-          boxShadow: "var(--shadow-modal)",
+          border: "1px solid var(--stripe-line)",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "mealPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
         <div style={{
@@ -10252,7 +10254,7 @@ function MicroInjuries({ onBack }) {
         {sorted.length === 0 && (
           <div style={{
             textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "var(--ink-faint)",
+            fontSize: 15, color: "var(--stripe-faint)",
           }}>
             No injuries tracked. Tap + to log one.
           </div>
@@ -10266,9 +10268,9 @@ function MicroInjuries({ onBack }) {
         style={{
           position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
           width: 56, height: 56, borderRadius: "50%",
-          background: "var(--bg-paper)",
-          border: "1px solid var(--bg-hairline)", padding: 0, cursor: "pointer",
-          color: "var(--accent-cobalt)",
+          background: "var(--stripe-card)",
+          border: "1px solid var(--stripe-line)", padding: 0, cursor: "pointer",
+          color: "var(--stripe-blue)",
           boxShadow: "var(--shadow-pop)",
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
@@ -10348,14 +10350,14 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
         transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
       }}>
       <div style={{
-        background: "var(--bg-paper)",
+        background: "var(--stripe-card)",
         borderRadius: isPinned ? 16.5 : 18,
         padding: "20px 24px",
         border: isPinned
           ? "none"
           : isCritical
             ? "1px solid rgba(196,50,79,0.55)"
-            : "1px solid rgba(0,0,0,0.06)",
+            : "1px solid var(--stripe-line)",
         boxShadow: isCritical && !isPinned ? "0 0 10px rgba(196,50,79,0.18)" : "none",
         display: "flex", alignItems: "center", gap: 16,
         position: "relative",
@@ -10370,13 +10372,13 @@ function MicroInjuryRow({ injury, isPinned, onClick, onTogglePin, onRequestEdit,
           <div style={{
             fontSize: 15,
             fontWeight: (isCritical || isFresh) ? 600 : 500,
-            color: isCritical ? "var(--accent-critical)" : (isFresh ? "var(--accent-critical)" : "var(--ink)"),
+            color: isCritical ? "var(--stripe-pink)" : (isFresh ? "var(--stripe-pink)" : "var(--stripe-ink)"),
             letterSpacing: "-0.01em",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             marginBottom: 2,
           }}>{injury.name}</div>
           <div style={{
-            fontSize: 12.5, color: "var(--ink-faint)",
+            fontSize: 12.5, color: "var(--stripe-faint)",
             fontVariantNumeric: "tabular-nums",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}>{injury.rest || "—"}</div>
@@ -10424,9 +10426,10 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 540,
-          background: "var(--bg-paper)", borderRadius: 20, padding: 32,
+          background: "var(--stripe-card)", borderRadius: 20, padding: 32,
+          border: "1px solid var(--stripe-line)",
           position: "relative",
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
         }}>
 
@@ -10439,7 +10442,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--ink-faint)",
+            color: "var(--stripe-faint)",
           }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -10464,8 +10467,8 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
             display: "inline-block",
             padding: "4px 10px",
             fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
-            color: "var(--ink-faint)",
-            border: "1px solid var(--bg-hairline)",
+            color: "var(--stripe-faint)",
+            border: "1px solid var(--stripe-line)",
             borderRadius: 999,
           }}>{regionLabel}</div>
         </div>
@@ -10481,7 +10484,7 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
         {/* Rest meta */}
         {injury.rest && (
           <div style={{
-            fontSize: 13, color: "var(--ink-faint)",
+            fontSize: 13, color: "var(--stripe-faint)",
             fontVariantNumeric: "tabular-nums",
             marginBottom: 16,
           }}>Rest: {injury.rest}</div>
@@ -10489,17 +10492,17 @@ function MicroInjuryDetailModal({ injury, isPinned, onClose, onTogglePin, onEdit
 
         {/* Description */}
         <div style={{
-          fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6,
+          fontSize: 15, color: "var(--stripe-ink)", lineHeight: 1.6,
           marginBottom: (injury.partner || injury.when_happened) ? 10 : 24, whiteSpace: "pre-wrap",
         }}>
           {injury.description || (
-            <span style={{ color: "var(--ink-faint)", fontStyle: "normal" }}>
+            <span style={{ color: "var(--stripe-faint)", fontStyle: "normal" }}>
               No notes yet — tap edit to add details.
             </span>
           )}
         </div>
-        {injury.partner && <div style={{fontSize: 13, color: "var(--ink-faint)"}}>With: {injury.partner}</div>}
-        {injury.when_happened && <div style={{fontSize: 13, color: "var(--ink-faint)"}}>When: {injury.when_happened}</div>}
+        {injury.partner && <div style={{fontSize: 13, color: "var(--stripe-faint)"}}>With: {injury.partner}</div>}
+        {injury.when_happened && <div style={{fontSize: 13, color: "var(--stripe-faint)"}}>When: {injury.when_happened}</div>}
         {(injury.partner || injury.when_happened) && <div style={{ height: 14 }}/>}
 
         {/* Actions */}
@@ -10573,8 +10576,9 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
-          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
+          background: "var(--stripe-card)", borderRadius: 20, padding: 28,
+          border: "1px solid var(--stripe-line)",
+          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.22), 0 1px 0 rgba(255,255,255,0.6) inset",
           animation: "miPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
           maxHeight: "calc(100dvh - 48px)", overflowY: "auto",
         }}>
@@ -10679,10 +10683,10 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
                 style={{
                   flex: 1, padding: "8px 4px", fontSize: 12, fontWeight: 600,
                   letterSpacing: "0.04em", textTransform: "uppercase",
-                  border: active ? `1.5px solid ${microInjuriesTierColor(t.id)}` : "1px solid var(--bg-hairline)",
+                  border: active ? `1.5px solid ${microInjuriesTierColor(t.id)}` : "1px solid var(--stripe-line)",
                   borderRadius: 8,
                   background: "transparent",
-                  color: active ? microInjuriesTierColor(t.id) : "var(--ink-faint)",
+                  color: active ? microInjuriesTierColor(t.id) : "var(--stripe-faint)",
                   cursor: "pointer",
                   transition: "all 160ms ease",
                 }}>{t.label}</button>
@@ -10983,14 +10987,14 @@ function Allergies({ onBack }) {
             <AllergyRow key={log.id} log={log} onEdit={() => setEditing(log)} onDelete={() => setConfirm(log)} />
           ))}
           {sorted.length === 0 && (
-            <div style={{ textAlign: "center", padding: "48px 24px", fontSize: 15, color: "var(--ink-faint)", background: "var(--bg-paper)", border: "1px solid var(--bg-hairline)", borderRadius: 16 }}>
+            <div style={{ textAlign: "center", padding: "48px 24px", fontSize: 15, color: "var(--stripe-faint)", background: "var(--stripe-card)", border: "1px solid var(--stripe-line)", borderRadius: 16 }}>
               No allergy logs yet. Tap + to add the first one.
             </div>
           )}
         </div>
       </div>
 
-      <button onClick={() => setAdding(true)} aria-label="Add allergy log" style={{ position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50, width: 56, height: 56, borderRadius: "50%", background: "var(--bg-paper)", border: "1px solid var(--bg-hairline)", boxShadow: "var(--shadow-pop)", cursor: "pointer", color: "var(--accent-cobalt)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <button onClick={() => setAdding(true)} aria-label="Add allergy log" style={{ position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50, width: 56, height: 56, borderRadius: "50%", background: "var(--stripe-card)", border: "1px solid var(--stripe-line)", boxShadow: "var(--shadow-pop)", cursor: "pointer", color: "var(--stripe-blue)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
 
@@ -11213,8 +11217,8 @@ function TechniqueLibrary({ onBack }) {
   function sentimentChip(sentiment) {
     const map = {
       learned: { label: "learned", bg: "rgba(46,109,74,0.12)", color: "var(--accent-success)", border: "rgba(46,109,74,0.28)" },
-      struggled: { label: "struggled", bg: "rgba(110,19,32,0.10)", color: "var(--accent-oxblood)", border: "rgba(110,19,32,0.28)" },
-      worked_on: { label: "worked on", bg: "rgba(28,44,90,0.08)", color: "var(--accent-cobalt)", border: "rgba(28,44,90,0.22)" },
+      struggled: { label: "struggled", bg: "rgba(255,92,154,0.10)", color: "var(--stripe-pink)", border: "rgba(255,92,154,0.28)" },
+      worked_on: { label: "worked on", bg: "rgba(0,102,255,0.08)", color: "var(--stripe-blue)", border: "rgba(0,102,255,0.22)" },
     };
     const s = map[sentiment] || map["worked_on"];
     return (
@@ -11244,7 +11248,7 @@ function TechniqueLibrary({ onBack }) {
   const backBtnStyle = {
     display: "inline-flex", alignItems: "center", gap: 8,
     background: "transparent", border: "none", cursor: "pointer",
-    color: "var(--ink-muted)", fontSize: 14, padding: "8px 0",
+    color: "var(--stripe-faint)", fontSize: 14, padding: "8px 0",
     marginBottom: 18, fontFamily: "var(--font-text)",
   };
 
@@ -11414,11 +11418,11 @@ function TechniqueLibrary({ onBack }) {
           <div style={cardSurface({ padding: 24, marginBottom: 18 })}>
             <div style={eyebrowStyle}>Summary</div>
             {t.summary ? (
-              <div style={{ color: "var(--fg-2)", fontSize: 15, lineHeight: 1.65 }}>
+              <div style={{ color: "var(--stripe-ink)", fontSize: 15, lineHeight: 1.65 }}>
                 {t.summary}
               </div>
             ) : (
-              <div style={{ color: "var(--ink-faint)", fontSize: 14, lineHeight: 1.6 }}>
+              <div style={{ color: "var(--stripe-faint)", fontSize: 14, lineHeight: 1.6 }}>
                 No summary yet — keep training this technique.
               </div>
             )}
@@ -11429,7 +11433,7 @@ function TechniqueLibrary({ onBack }) {
             <div style={cardSurface({
               padding: 28,
               textAlign: "center",
-              color: "var(--ink-faint)",
+              color: "var(--stripe-faint)",
               fontSize: 15,
               lineHeight: 1.6,
             })}>
@@ -11498,7 +11502,7 @@ function TechniqueLibrary({ onBack }) {
         {listTechniques.length === 0 ? (
           <div style={cardSurface({
             padding: 28,
-            color: "var(--ink-faint)",
+            color: "var(--stripe-faint)",
             fontSize: 15,
             lineHeight: 1.6,
             textAlign: "center",
