@@ -2805,10 +2805,18 @@ const PROBLEMS_TIERS = [
 ];
 
 const problemsTierColor = (tier) => ({
-  urgent: "var(--accent-critical)",
-  high:   "#8b1f37",
-  med:    "#1c2c5a",
-  low:    "var(--ink-faint)",
+  urgent: "var(--stripe-pink)",
+  high:   "#6b3300",
+  med:    "var(--stripe-blue)",
+  low:    "var(--stripe-faint)",
+}[tier]);
+
+// Tier background tint (for badges / active pills)
+const problemsTierBg = (tier) => ({
+  urgent: "rgba(255, 92, 154, 0.10)",
+  high:   "rgba(255, 184, 108, 0.16)",
+  med:    "rgba(99, 91, 255, 0.10)",
+  low:    "rgba(10, 37, 64, 0.05)",
 }[tier]);
 
 const problemsTierRank = (tier) => ({ urgent: 0, high: 1, med: 2, low: 3 }[tier]);
@@ -5178,12 +5186,7 @@ function ProblemsTile({ onClick }) {
     ? live.slice(0, 4).map((p, i) => ({ id: `bot-problem-${i}`, name: p.name, tier: p.tier || "med" }))
     : sortProblems(problems, pinned).slice(0, 4);
 
-  const tierTextColor = (tier) => ({
-    urgent: "var(--accent-critical)",
-    high:   "#8b1f37",
-    med:    "#1c2c5a",
-    low:    "var(--ink-faint)",
-  }[tier]);
+  const tierTextColor = problemsTierColor;
 
   return (
     <GlassCard tier="primary" style={{
@@ -5213,26 +5216,25 @@ function ProblemsTile({ onClick }) {
             <div key={p.id}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-                padding: isUrgent ? "7px 12px" : "4px 0",
+                padding: isUrgent ? "7px 12px" : "8px 0",
                 borderRadius: isUrgent ? 10 : 0,
-                border: isUrgent ? "1px solid rgba(196,50,79,0.55)" : "none",
-                background: "transparent",
-                boxShadow: isUrgent
-                  ? "0 0 10px rgba(196,50,79,0.18)"
-                  : "none",
+                border: isUrgent ? "1px solid rgba(255,92,154,0.30)" : "none",
+                borderBottom: isUrgent ? undefined : "1px solid var(--stripe-line)",
+                background: isUrgent ? "rgba(255,92,154,0.06)" : "transparent",
+                boxShadow: isUrgent ? "0 0 10px rgba(255,92,154,0.10)" : "none",
                 animation: `ptSlideIn 460ms cubic-bezier(0.32,0.72,0,1) ${i * 70}ms both`,
               }}>
               <div style={{
                 flex: 1, minWidth: 0,
                 fontSize: 14,
                 fontWeight: isUrgent ? 600 : 500,
-                color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
+                color: isUrgent ? "var(--stripe-pink)" : "var(--stripe-ink)",
                 letterSpacing: "-0.01em",
                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               }}>{p.name}</div>
               <div style={{
                 flexShrink: 0,
-                fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+                fontSize: 11, fontWeight: 700, letterSpacing: "0.06em",
                 textTransform: "uppercase",
                 color: tierTextColor(p.tier),
                 fontVariantNumeric: "tabular-nums",
@@ -8485,47 +8487,63 @@ function Problems({ onBack }) {
   const detailProblem  = problems.find((p) => p.id === detailId);
 
   return (
-    <div style={{ minHeight: "100vh", paddingTop: 100, paddingBottom: 120, paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        {/* Compact header */}
-        <div style={{ marginBottom: 24 }}>
-          <button onClick={onBack} style={{
-            border: "none", background: "transparent", padding: 0, cursor: "pointer",
-            fontSize: 14, color: "var(--ink-faint)", marginBottom: 14,
-            display: "inline-flex", alignItems: "center", gap: 6,
-            fontFamily: "var(--font-text)",
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-            Back
-          </button>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <div style={{
-                fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700,
-                letterSpacing: "-0.02em", color: "var(--ink)",
-              }}>Problems</div>
-              <div style={{
-                fontFamily: "var(--font-text)", fontSize: 14,
-                color: "var(--ink-faint)", marginTop: 4,
-              }}>{sorted.length} position{sorted.length !== 1 ? "s" : ""} tracked</div>
-            </div>
+    <div style={{
+      minHeight: "100vh",
+      paddingTop: 96, paddingBottom: 120,
+      paddingLeft: "clamp(16px, 4vw, 24px)", paddingRight: "clamp(16px, 4vw, 24px)",
+      background:
+        "radial-gradient(circle at 15% 10%, rgba(0,212,255,0.10), transparent 26%)," +
+        "radial-gradient(circle at 85% 0%, rgba(255,92,154,0.12), transparent 24%)," +
+        "linear-gradient(180deg, #f6f9fc 0%, #ffffff 44%, #f6f9fc 100%)",
+      position: "relative",
+    }}>
+      <div style={{ maxWidth: 760, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        {/* Back button */}
+        <button onClick={onBack} style={{
+          border: "none", background: "transparent", padding: 0, cursor: "pointer",
+          fontSize: 13, fontWeight: 800, color: "var(--stripe-faint)", marginBottom: 14,
+          display: "inline-flex", alignItems: "center", gap: 6,
+          fontFamily: "var(--font-text)",
+          transition: "color 160ms ease",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.color = "var(--stripe-ink)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.color = "var(--stripe-faint)"; }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Back
+        </button>
+
+        {/* Page header */}
+        <div style={{ marginBottom: 26 }}>
+          <div style={{
+            fontSize: 14, fontWeight: 800, letterSpacing: 0,
+            color: "var(--stripe-blue)", marginBottom: 8,
+          }}>Upcoming problems</div>
+          <h1 style={{
+            fontFamily: "Inter, var(--font-display)",
+            fontSize: "clamp(34px, 5vw, 56px)", fontWeight: 900,
+            letterSpacing: "-0.055em", lineHeight: 1.02,
+            color: "var(--stripe-ink)", margin: 0, textWrap: "balance",
+          }}>Positions to fix</h1>
+          <div style={{ marginTop: 8, fontSize: 17, color: "var(--stripe-slate)", lineHeight: 1.55 }}>
+            {sorted.length} position{sorted.length !== 1 ? "s" : ""} tracked
           </div>
         </div>
 
         {/* Sort */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
           <SortMenu value={sortMode} onChange={updateSort} options={PROBLEMS_SORT_OPTIONS} />
         </div>
 
         {/* List */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {sorted.map((p) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {sorted.map((p, i) => (
             <ProblemRow
               key={p.id}
               problem={p}
               isPinned={pinned.includes(p.id)}
+              index={i}
               onClick={() => setDetailId(p.id)}
               onTogglePin={() => togglePin(p.id)}
               onRequestEdit={() => setEditingId(p.id)}
@@ -8536,31 +8554,44 @@ function Problems({ onBack }) {
 
         {sorted.length === 0 && (
           <div style={{
-            textAlign: "center", padding: "48px 24px",
-            fontSize: 15, color: "var(--ink-faint)",
+            textAlign: "center", padding: "64px 24px",
+            color: "var(--stripe-faint)",
+            background: "var(--stripe-card)",
+            border: "1px dashed rgba(10,37,64,0.18)",
+            borderRadius: 22,
+            boxShadow: "0 20px 50px -38px rgba(10,37,64,0.50)",
           }}>
-            No problems on the list. Tap + to add one.
+            <div style={{ fontSize: 34, marginBottom: 12, opacity: 0.45, color: "var(--stripe-blue)" }}>&#9675;</div>
+            <p style={{ fontSize: 16, color: "var(--stripe-slate)", margin: 0, fontWeight: 700 }}>
+              No problems on the list. Tap + to add one.
+            </p>
           </div>
         )}
       </div>
 
-      {/* Floating + button — fully transparent inside, rainbow ring only */}
+      {/* Floating + button — Stripe navy */}
       <button
         onClick={() => setAdding(true)}
         aria-label="Add problem"
         style={{
           position: "fixed", bottom: "calc(32px + env(safe-area-inset-bottom, 0px))", right: 32, zIndex: 50,
-          width: 56, height: 56, borderRadius: "50%",
-          background: "var(--bg-paper)",
-          border: "1px solid var(--bg-hairline)", padding: 0, cursor: "pointer",
-          color: "var(--accent-cobalt)",
-          boxShadow: "var(--shadow-pop)",
+          width: 60, height: 60, borderRadius: "50%",
+          background: "var(--stripe-ink)",
+          border: "none", padding: 0, cursor: "pointer",
+          color: "#fff",
+          boxShadow: "0 22px 50px -20px rgba(10,37,64,0.72), 0 12px 28px -16px rgba(99,91,255,0.55)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          transition: "transform 160ms cubic-bezier(0.32,0.72,0,1)",
+          transition: "transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease",
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.06)"; }}
-        onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" style={{ position: "relative" }}>
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-2px) scale(1.04)";
+          e.currentTarget.style.boxShadow = "0 30px 60px -22px rgba(10,37,64,0.82), 0 16px 34px -18px rgba(99,91,255,0.70)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0) scale(1)";
+          e.currentTarget.style.boxShadow = "0 22px 50px -20px rgba(10,37,64,0.72), 0 12px 28px -16px rgba(99,91,255,0.55)";
+        }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
@@ -8605,66 +8636,100 @@ function Problems({ onBack }) {
           onConfirm={() => deleteProblem(confirmProblem.id)}
         />
       )}
+
+      {/* Keyframes needed for row entry animation */}
+      <style>{`
+        @keyframes ppFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes ppPopIn  { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes ppRowIn  { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+      `}</style>
     </div>
   );
 }
 
 // ---------- Row ----------
-function ProblemRow({ problem, isPinned, onClick, onTogglePin, onRequestEdit, onRequestDelete }) {
+function ProblemRow({ problem, isPinned, index = 0, onClick, onTogglePin, onRequestEdit, onRequestDelete }) {
   const [hover, setHover] = useStateP(false);
   const isUrgent = problem.tier === "urgent";
+  const rowAnim = { animation: `ppRowIn 380ms cubic-bezier(0.32,0.72,0,1) ${index * 50}ms both` };
+
+  const hoverShadow = "0 38px 90px -40px rgba(10,37,64,0.62), 0 20px 50px -35px rgba(99,91,255,0.58), 0 1px 0 rgba(255,255,255,0.9) inset";
+  const restShadow  = "0 30px 70px -35px rgba(10,37,64,0.45), 0 1px 0 rgba(255,255,255,0.85) inset";
+
+  const inner = (
+    <div style={{
+      background: isPinned ? "#ffffff" : "var(--stripe-card)",
+      borderRadius: isPinned ? 20.5 : 22,
+      padding: "20px 24px",
+      border: isPinned ? "none" : "1px solid rgba(10,37,64,0.08)",
+      boxShadow: isPinned ? undefined : (hover ? hoverShadow : restShadow),
+      display: "flex", alignItems: "center", gap: 16,
+      position: "relative", minHeight: 64, overflow: "hidden",
+      transform: hover && !isPinned ? "translateY(-6px) scale(1.008)" : "translateY(0)",
+      transition: "transform 260ms cubic-bezier(.22,1,.36,1), box-shadow 260ms ease, border-color 260ms ease",
+      borderColor: hover && !isPinned ? "rgba(99,91,255,0.28)" : undefined,
+    }}>
+      {/* Name */}
+      <div style={{
+        flex: 1, minWidth: 0,
+        fontFamily: "Inter, var(--font-display)",
+        fontSize: 17,
+        fontWeight: isUrgent ? 900 : 800,
+        color: "var(--stripe-ink)",
+        letterSpacing: "-0.025em",
+        paddingRight: 110,
+        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+      }}>{problem.name}</div>
+
+      {/* Tier pill — absolute right edge */}
+      <div style={{
+        position: "absolute", top: "50%", right: 18,
+        transform: "translateY(-50%)",
+        display: "inline-flex", alignItems: "center",
+        minHeight: 26, padding: "0 12px",
+        borderRadius: 999,
+        fontSize: 11, fontWeight: 800,
+        letterSpacing: 0, textTransform: "uppercase",
+        pointerEvents: "none", whiteSpace: "nowrap",
+        border: 0,
+        color: isUrgent ? "#fff" : problemsTierColor(problem.tier),
+        background: isUrgent
+          ? "var(--stripe-pink)"
+          : problemsTierBg(problem.tier),
+        boxShadow: isUrgent ? "0 8px 20px -8px rgba(255,92,154,0.65)" : "none",
+      }}>{problem.tier}</div>
+    </div>
+  );
+
+  if (isPinned) {
+    return (
+      <div
+        onClick={onClick}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        style={{
+          ...rowAnim,
+          position: "relative", cursor: "pointer",
+          borderRadius: 24, padding: 1.5,
+          background: "linear-gradient(135deg, var(--stripe-blue) 0%, var(--stripe-pink) 50%, var(--stripe-orange) 100%)",
+          boxShadow: hover
+            ? "0 28px 60px -28px rgba(99,91,255,0.70)"
+            : "0 18px 40px -22px rgba(99,91,255,0.55)",
+          transform: hover ? "translateY(-6px)" : "translateY(0)",
+          transition: "transform 260ms cubic-bezier(.22,1,.36,1), box-shadow 260ms ease",
+        }}>
+        {inner}
+      </div>
+    );
+  }
 
   return (
     <div
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      style={{
-        position: "relative", cursor: "pointer",
-        borderRadius: 16,
-        padding: isPinned ? 1.5 : 0,
-        background: isPinned
-          ? "var(--ai-gradient)"
-          : "transparent",
-        boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
-        transform: hover ? "translateY(-1px)" : "translateY(0)",
-        transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
-      }}>
-      <div style={{
-        background: "var(--bg-paper)",
-        borderRadius: isPinned ? 16.5 : 18,
-        padding: "20px 24px",
-        border: isPinned ? "none" : "1px solid var(--bg-hairline)",
-        display: "flex", alignItems: "center", gap: 16,
-        position: "relative",
-        minHeight: 60,
-        overflow: "hidden",
-      }}>
-        {/* Name */}
-        <div style={{
-          flex: 1, minWidth: 0,
-          fontSize: 15,
-          fontWeight: isUrgent ? 600 : 500,
-          color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
-          letterSpacing: "-0.01em",
-          paddingRight: 80,
-          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-        }}>{problem.name}</div>
-
-        {/* Tier label — sits at the right edge */}
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          right: 18,
-          transform: "translateY(-50%)",
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
-          textTransform: "uppercase",
-          color: problemsTierColor(problem.tier),
-          transition: "right 220ms cubic-bezier(0.32,0.72,0,1)",
-          pointerEvents: "none",
-          whiteSpace: "nowrap",
-        }}>{problem.tier}</div>
-      </div>
+      style={{ cursor: "pointer", ...rowAnim }}>
+      {inner}
     </div>
   );
 }
@@ -8674,6 +8739,16 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
   const trapRef = useModalTrap(true, onClose);
   const isUrgent = problem.tier === "urgent";
 
+  const btnGhost = {
+    display: "inline-flex", alignItems: "center", gap: 6,
+    padding: "9px 16px", fontSize: 13, fontWeight: 500,
+    fontFamily: "inherit", borderRadius: 999, cursor: "pointer",
+    border: "1px solid var(--stripe-line)",
+    background: "rgba(255,255,255,0.72)",
+    color: "var(--stripe-slate)",
+    transition: "all 160ms ease",
+  };
+
   return (
     <div
       ref={trapRef}
@@ -8682,7 +8757,9 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
       onClick={onClose}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
-        background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)",
+        background: "rgba(10,37,64,0.36)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        WebkitBackdropFilter: "blur(16px) saturate(140%)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
         animation: "ppFadeIn 160ms ease both",
       }}>
@@ -8690,10 +8767,15 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 540,
-          background: "var(--bg-paper)", borderRadius: 20, padding: 32,
+          background: "#ffffff",
+          border: "1px solid rgba(10,37,64,0.08)",
+          borderRadius: 24, padding: 32,
           position: "relative",
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
-          animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
+          boxShadow:
+            "0 1px 0 rgba(255,255,255,0.95) inset," +
+            "0 42px 100px -40px rgba(10,37,64,0.55)," +
+            "0 24px 60px -36px rgba(99,91,255,0.42)",
+          animation: "ppPopIn 220ms cubic-bezier(.22,1,.36,1) both",
         }}>
 
         {/* Close */}
@@ -8701,12 +8783,15 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
           onClick={onClose}
           aria-label="Close"
           style={{
-            position: "absolute", top: 16, right: 16,
+            position: "absolute", top: 14, right: 14,
             width: 32, height: 32, borderRadius: "50%",
             border: "none", background: "transparent", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--ink-faint)",
-          }}>
+            color: "var(--stripe-faint)",
+            transition: "background 160ms ease, color 160ms ease",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(10,37,64,0.06)"; e.currentTarget.style.color = "var(--stripe-ink)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--stripe-faint)"; }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"/>
             <line x1="6" y1="6" x2="18" y2="18"/>
@@ -8715,49 +8800,49 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
 
         {/* Tier badge */}
         <div style={{
-          display: "inline-block",
-          padding: "4px 10px",
-          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase",
-          color: problemsTierColor(problem.tier),
-          border: `1px solid ${isUrgent ? "rgba(196,50,79,0.55)" : "rgba(0,0,0,0.10)"}`,
+          display: "inline-block", padding: "4px 12px",
+          fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
           borderRadius: 999,
+          color: problemsTierColor(problem.tier),
+          background: problemsTierBg(problem.tier),
+          border: `1px solid ${problemsTierColor(problem.tier)}`,
           marginBottom: 14,
-          boxShadow: isUrgent ? "0 0 10px rgba(196,50,79,0.18)" : "none",
+          boxShadow: isUrgent ? "0 0 10px rgba(255,92,154,0.18)" : "none",
         }}>{problem.tier}</div>
 
         {/* Title */}
         <div style={{
-          fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600,
-          letterSpacing: "-0.02em",
-          color: isUrgent ? "var(--accent-critical)" : "var(--ink)",
-          lineHeight: 1.2, marginBottom: 16, paddingRight: 32,
+          fontFamily: "Inter, var(--font-display)", fontSize: 30, fontWeight: 900,
+          letterSpacing: "-0.045em",
+          color: "var(--stripe-ink)",
+          lineHeight: 1.1, marginBottom: 10, paddingRight: 36,
         }}>{problem.name}</div>
+
+        {/* Sub */}
+        <div style={{ fontSize: 14, color: "var(--stripe-faint)", fontWeight: 700, marginBottom: 20 }}>
+          {isPinned ? "Pinned" : "Not pinned"} &middot; {problem.tier} priority
+        </div>
 
         {/* Description */}
         <div style={{
-          fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6,
+          fontSize: 15, color: "var(--stripe-slate)", lineHeight: 1.6,
           marginBottom: 24, whiteSpace: "pre-wrap",
         }}>
           {problem.description || (
-            <span style={{ color: "var(--ink-faint)", fontStyle: "normal" }}>
+            <span style={{ color: "var(--stripe-faint)", fontStyle: "italic" }}>
               No description yet — tap edit to add one.
             </span>
           )}
         </div>
 
         {/* Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 16, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 8,
+          paddingTop: 18, borderTop: "1px solid var(--stripe-line)",
+        }}>
           <button
             onClick={onTogglePin}
-            style={{
-              flex: "0 0 auto",
-              display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "8px 14px", fontSize: 13, fontWeight: 500,
-              border: "1px solid var(--bg-hairline)", borderRadius: 8,
-              background: "var(--bg-paper)",
-              color: isPinned ? "var(--accent-gold)" : "var(--fg-2)",
-              cursor: "pointer",
-            }}>
+            style={{ ...btnGhost, color: isPinned ? "var(--stripe-orange)" : "var(--stripe-slate)" }}>
             <svg width="14" height="14" viewBox="0 0 24 24"
                  fill={isPinned ? "currentColor" : "none"}
                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -8768,13 +8853,7 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
 
           <button
             onClick={onRequestDelete}
-            style={{
-              flex: "0 0 auto",
-              display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "8px 14px", fontSize: 13, fontWeight: 500,
-              border: "1px solid var(--bg-hairline)", borderRadius: 8,
-              background: "var(--bg-paper)", color: "var(--accent-danger-bright)", cursor: "pointer",
-            }}>
+            style={{ ...btnGhost, color: "var(--stripe-pink)" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6"/>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -8784,27 +8863,25 @@ function ProblemDetailModal({ problem, isPinned, onClose, onTogglePin, onEdit, o
 
           <div style={{ flex: 1 }}></div>
 
-          <span style={{
-            display: "inline-block", padding: 1.5, borderRadius: 8,
-            background: "var(--ai-gradient)",
-            boxShadow: "0 6px 18px -6px rgba(28,44,90,0.45)",
-          }}>
-            <button
-              onClick={onEdit}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "8.5px 16.5px", fontSize: 13, fontWeight: 600,
-                border: "none", borderRadius: 8.5, cursor: "pointer",
-                color: "var(--accent-cobalt)",
-                background: "var(--bg-paper)",
-              }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-              Edit
-            </button>
-          </span>
+          <button
+            onClick={onEdit}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "10px 20px", fontSize: 13, fontWeight: 700,
+              fontFamily: "inherit", borderRadius: 999, cursor: "pointer",
+              border: "none", color: "#ffffff",
+              background: "var(--stripe-ink)",
+              boxShadow: "0 14px 30px -18px rgba(10,37,64,0.65)",
+              transition: "all 160ms ease",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 22px 45px -28px rgba(10,37,64,0.72)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 14px 30px -18px rgba(10,37,64,0.65)"; }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            Edit
+          </button>
         </div>
       </div>
     </div>
@@ -8822,6 +8899,16 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
     if (name.trim()) onSubmit(name.trim(), tier, description.trim());
   };
 
+  const inputStyle = {
+    width: "100%", padding: "12px 14px", fontSize: 15,
+    fontFamily: "inherit",
+    background: "rgba(255,255,255,0.72)",
+    border: "1px solid var(--stripe-line)",
+    borderRadius: 16, outline: "none", color: "var(--stripe-ink)",
+    boxSizing: "border-box",
+    transition: "all 160ms ease",
+  };
+
   return (
     <div
       role="dialog"
@@ -8830,7 +8917,9 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 100,
-        background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)",
+        background: "rgba(10,37,64,0.36)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        WebkitBackdropFilter: "blur(16px) saturate(140%)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
         animation: "ppFadeIn 160ms ease both",
       }}>
@@ -8838,15 +8927,20 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
-          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
-          animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
+          background: "#ffffff",
+          border: "1px solid rgba(10,37,64,0.08)",
+          borderRadius: 24, padding: 28,
+          boxShadow:
+            "0 1px 0 rgba(255,255,255,0.95) inset," +
+            "0 42px 100px -40px rgba(10,37,64,0.55)," +
+            "0 24px 60px -36px rgba(99,91,255,0.42)",
+          animation: "ppPopIn 220ms cubic-bezier(.22,1,.36,1) both",
         }}>
         <div style={{
-          fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "var(--ink)", marginBottom: 6,
+          fontFamily: "Inter, var(--font-display)", fontSize: 22, fontWeight: 900,
+          letterSpacing: "-0.045em", color: "var(--stripe-ink)", marginBottom: 6,
         }}>{mode === "edit" ? "Edit problem" : "Add a problem"}</div>
-        <div style={{ fontSize: 14, color: "var(--ink-muted)", marginBottom: 18 }}>
+        <div style={{ fontSize: 14, color: "var(--stripe-faint)", fontWeight: 700, marginBottom: 18 }}>
           {mode === "edit" ? "Update the name, priority, or notes." : "What position keeps catching you?"}
         </div>
 
@@ -8857,11 +8951,9 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) submit(); }}
           placeholder="e.g. Half-guard bottom"
-          style={{
-            width: "100%", padding: "12px 14px", fontSize: 16,
-            border: "1px solid var(--bg-hairline)", borderRadius: 12,
-            outline: "none", marginBottom: 14, fontFamily: "inherit", boxSizing: "border-box",
-          }}
+          style={{ ...inputStyle, marginBottom: 12 }}
+          onFocus={(e) => { e.target.style.borderColor = "rgba(99,91,255,0.40)"; e.target.style.background = "#ffffff"; e.target.style.boxShadow = "0 0 0 4px rgba(99,91,255,0.10)"; }}
+          onBlur={(e) => { e.target.style.borderColor = "var(--stripe-line)"; e.target.style.background = "rgba(255,255,255,0.72)"; e.target.style.boxShadow = "none"; }}
         />
 
         {/* Description */}
@@ -8870,12 +8962,9 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="What's the issue? Where does it break down?"
           rows={4}
-          style={{
-            width: "100%", padding: "12px 14px", fontSize: 16, lineHeight: 1.5,
-            border: "1px solid var(--bg-hairline)", borderRadius: 12,
-            outline: "none", marginBottom: 16, fontFamily: "inherit", boxSizing: "border-box",
-            resize: "vertical", minHeight: 80,
-          }}
+          style={{ ...inputStyle, marginBottom: 16, resize: "vertical", minHeight: 88, lineHeight: 1.5 }}
+          onFocus={(e) => { e.target.style.borderColor = "rgba(99,91,255,0.40)"; e.target.style.background = "#ffffff"; e.target.style.boxShadow = "0 0 0 4px rgba(99,91,255,0.10)"; }}
+          onBlur={(e) => { e.target.style.borderColor = "var(--stripe-line)"; e.target.style.background = "rgba(255,255,255,0.72)"; e.target.style.boxShadow = "none"; }}
         />
 
         {/* Tier picker */}
@@ -8887,13 +8976,13 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
                 key={t.id}
                 onClick={() => setTier(t.id)}
                 style={{
-                  flex: 1, padding: "8px 4px", fontSize: 12, fontWeight: 600,
-                  letterSpacing: "0.04em", textTransform: "uppercase",
-                  border: active ? `1.5px solid ${problemsTierColor(t.id)}` : "1px solid var(--bg-hairline)",
-                  borderRadius: 8,
-                  background: "transparent",
-                  color: active ? problemsTierColor(t.id) : "var(--ink-faint)",
-                  cursor: "pointer",
+                  flex: 1, padding: "9px 4px",
+                  fontSize: 11, fontWeight: 600,
+                  letterSpacing: "0.06em", textTransform: "uppercase",
+                  borderRadius: 999, cursor: "pointer", fontFamily: "inherit",
+                  border: active ? `1px solid ${problemsTierColor(t.id)}` : "1px solid var(--stripe-line)",
+                  background: active ? problemsTierBg(t.id) : "rgba(255,255,255,0.44)",
+                  color: active ? problemsTierColor(t.id) : "var(--stripe-faint)",
                   transition: "all 160ms ease",
                 }}>{t.label}</button>
             );
@@ -8902,32 +8991,32 @@ function ProblemFormModal({ mode, initial, onCancel, onSubmit }) {
 
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 20px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 8,
-            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
+            display: "inline-flex", alignItems: "center",
+            padding: "9px 16px", fontSize: 13, fontWeight: 500,
+            fontFamily: "inherit", borderRadius: 999, cursor: "pointer",
+            border: "1px solid var(--stripe-line)",
+            background: "rgba(255,255,255,0.72)",
+            color: "var(--stripe-slate)",
+            transition: "all 160ms ease",
           }}>Cancel</button>
-          {name.trim() ? (
-            <button onClick={submit} style={{
-                padding: "10px 20px", fontSize: 14, fontWeight: 600,
-                border: "none", borderRadius: 8, cursor: "pointer",
-                color: "var(--fg-on-gradient)",
-                background: "var(--accent-cobalt)",
-                boxShadow: "var(--shadow-btn)",
-                transition: "all 160ms ease",
-              }}>{mode === "edit" ? "Save" : "Add"}</button>
-          ) : (
-            <button disabled style={{
-              padding: "10px 20px", fontSize: 14, fontWeight: 600,
-              border: "1px solid var(--bg-hairline)", borderRadius: 8, cursor: "not-allowed",
-              color: "var(--ink-faint)",
-              background: "transparent",
+          <button
+            onClick={name.trim() ? submit : undefined}
+            disabled={!name.trim()}
+            style={{
+              display: "inline-flex", alignItems: "center",
+              padding: "10px 20px", fontSize: 13, fontWeight: 700,
+              fontFamily: "inherit", borderRadius: 999, cursor: name.trim() ? "pointer" : "not-allowed",
+              border: "none", color: name.trim() ? "#ffffff" : "rgba(10,37,64,0.32)",
+              background: name.trim() ? "var(--stripe-ink)" : "rgba(10,37,64,0.08)",
+              boxShadow: name.trim() ? "0 14px 30px -18px rgba(10,37,64,0.65)" : "none",
+              transition: "all 160ms ease",
             }}>{mode === "edit" ? "Save" : "Add"}</button>
-          )}
         </div>
       </div>
       <style>{`
         @keyframes ppFadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes ppPopIn  { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes ppRowIn  { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
       `}</style>
     </div>
   );
@@ -8944,7 +9033,9 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
       onClick={onCancel}
       style={{
         position: "fixed", inset: 0, zIndex: 110,
-        background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)",
+        background: "rgba(10,37,64,0.36)",
+        backdropFilter: "blur(16px) saturate(140%)",
+        WebkitBackdropFilter: "blur(16px) saturate(140%)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
         animation: "ppFadeIn 160ms ease both",
       }}>
@@ -8952,28 +9043,40 @@ function DeleteProblemConfirm({ problem, onCancel, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 400,
-          background: "var(--bg-paper)", borderRadius: 20, padding: 28,
-          boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset",
-          animation: "ppPopIn 220ms cubic-bezier(0.32,0.72,0,1) both",
+          background: "#ffffff",
+          border: "1px solid rgba(10,37,64,0.08)",
+          borderRadius: 24, padding: 28,
+          boxShadow:
+            "0 1px 0 rgba(255,255,255,0.95) inset," +
+            "0 42px 100px -40px rgba(10,37,64,0.55)," +
+            "0 24px 60px -36px rgba(99,91,255,0.42)",
+          animation: "ppPopIn 220ms cubic-bezier(.22,1,.36,1) both",
         }}>
         <div style={{
-          fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2, marginBottom: 8,
+          fontFamily: "Inter, var(--font-display)", fontSize: 22, fontWeight: 900,
+          letterSpacing: "-0.045em", color: "var(--stripe-ink)", lineHeight: 1.2, marginBottom: 8,
         }}>Delete this problem?</div>
-        <div style={{ fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5, marginBottom: 22 }}>
-          <strong style={{ color: "var(--ink)", fontWeight: 600 }}>{problem.name}</strong> will be removed from your list.
+        <div style={{ fontSize: 15, color: "var(--stripe-slate)", lineHeight: 1.5, marginBottom: 22 }}>
+          <strong style={{ color: "var(--stripe-ink)", fontWeight: 700 }}>{problem.name}</strong> will be removed from your list.
         </div>
         <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <button onClick={onCancel} style={{
-            padding: "10px 20px", fontSize: 14, fontWeight: 500,
-            border: "1px solid var(--bg-hairline)", borderRadius: 8,
-            background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
+            display: "inline-flex", alignItems: "center",
+            padding: "9px 16px", fontSize: 13, fontWeight: 500,
+            fontFamily: "inherit", borderRadius: 999, cursor: "pointer",
+            border: "1px solid var(--stripe-line)",
+            background: "rgba(255,255,255,0.72)",
+            color: "var(--stripe-slate)",
+            transition: "all 160ms ease",
           }}>Cancel</button>
           <button onClick={onConfirm} style={{
-            padding: "10px 20px", fontSize: 14, fontWeight: 700,
-            border: "none", borderRadius: 8, cursor: "pointer",
-            color: "var(--fg-on-gradient)", background: "var(--accent-oxblood)",
-            boxShadow: "0 4px 12px -3px rgba(110,19,32,0.4)",
+            display: "inline-flex", alignItems: "center",
+            padding: "10px 20px", fontSize: 13, fontWeight: 700,
+            fontFamily: "inherit", borderRadius: 999, cursor: "pointer",
+            border: "none", color: "#ffffff",
+            background: "var(--stripe-pink)",
+            boxShadow: "0 8px 20px -8px rgba(255,92,154,0.65)",
+            transition: "all 160ms ease",
           }}>Delete</button>
         </div>
       </div>
