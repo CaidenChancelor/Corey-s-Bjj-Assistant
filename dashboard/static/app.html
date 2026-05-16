@@ -2374,20 +2374,20 @@ function NavPill({ active, onChange }) {
   const activeParent = childToParent[active] || active;
 
   const tabs = [
-    { id: "dashboard", label: "Dashboard" },
-    { id: "training", label: "Products", children: [
+    { id: "dashboard", label: "Today" },
+    { id: "training", label: "Next up", children: [
       { id: "bruno", label: "Lessons" },
       { id: "schedule", label: "Schedule" },
       { id: "meals", label: "Meals" },
     ]},
-    { id: "health", label: "Solutions", children: [
+    { id: "health", label: "Health", children: [
       { id: "micro-injuries", label: "Injuries" },
       { id: "allergies", label: "Allergies" },
       { id: "hydration", label: "Hydration" },
     ]},
-    { id: "editor", label: "Developers" },
-    { id: "techniquelibrary", label: "Resources" },
-    { id: "problems", label: "Pricing" },
+    { id: "editor", label: "Messages" },
+    { id: "techniquelibrary", label: "Library" },
+    { id: "problems", label: "Issues" },
   ];
 
   // Close dropdown on outside click
@@ -5715,12 +5715,12 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
       <div className="stripe-wrap">
         <section className="stripe-hero">
           <div>
-            <div className="stripe-kicker">Live bot status · {todayLabel}</div>
+            <div className="stripe-kicker">All your BJJ data · {todayLabel}</div>
             <h1 className="stripe-title">
-              BJJ bot data at a <span>glance.</span>
+              All your BJJ data at a glance.
             </h1>
             <p className="stripe-subtitle">
-              Hydration, fuel, injuries, lessons, and recent messages update here as the bot logs them.
+              Hydration, fuel, injuries, lessons, and messages update here as the bot logs them.
             </p>
             {botError && (
               <p className="stripe-subtitle" style={{ color: "#ffd1dc", marginTop: 14, fontSize: 15 }}>
@@ -5728,8 +5728,9 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               </p>
             )}
             <div className="stripe-actions">
-              <button className="stripe-cta primary" onClick={onOpenEditor}>Open editor <span aria-hidden="true">-&gt;</span></button>
-              <button className="stripe-cta secondary" onClick={onOpenHydration}>Log water</button>
+              <button className="stripe-cta primary" onClick={onOpenHydration}>Log water <span aria-hidden="true">-&gt;</span></button>
+              <button className="stripe-cta secondary" onClick={onOpenSchedule}>Next up</button>
+              <button className="stripe-cta secondary" onClick={onOpenEditor}>Open editor</button>
             </div>
           </div>
 
@@ -5788,14 +5789,14 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <div className="stripe-jumpbar" aria-label="Quick navigation">
           <div>
             <div className="stripe-label" style={{ color: "var(--stripe-blue)" }}>Quick navigation</div>
-            <div className="stripe-jumpbar-title">Jump straight to the live parts of the board.</div>
+            <div className="stripe-jumpbar-title">Jump straight to the parts people use most.</div>
           </div>
           <div className="stripe-jump-actions">
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("live-signals")}>Signals</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-status")}>Status</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-data")}>Current data</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("live-signals")}>Today</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-status")}>Health</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-data")}>Next up</button>
             <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("recent-messages")}>Messages</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("technique-history")}>Techniques</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("technique-history")}>Library</button>
             <button className="stripe-jump-btn primary" type="button" onClick={onOpenEditor}>Editor</button>
           </div>
         </div>
@@ -5812,11 +5813,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-section" id="live-signals">
           <div className="stripe-section-head">
             <div>
-              <div className="stripe-label">Live signals</div>
-              <h2 className="stripe-h2">The bot's latest state, card by card.</h2>
+              <div className="stripe-label">Today</div>
+              <h2 className="stripe-h2">Everything in one place.</h2>
             </div>
             <div className="stripe-copy">
-              Hydration, fuel, health, lessons, and recent messages stay visible together, with nothing in the middle.
+              Hydration, fuel, health, lessons, and recent messages stay visible together at a glance.
             </div>
           </div>
 
@@ -5923,11 +5924,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-backbone" id="current-status">
           <div className="stripe-backbone-grid">
             <div>
-              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Current status</div>
-              <h2>Signals that keep the board live.</h2>
+              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Health</div>
+              <h2>How things are going.</h2>
             </div>
             <p>
-              Water, calories, health flags, lesson notes, and technique history stay in view as operating metrics, not as a guided flow.
+              Water, calories, health flags, lesson notes, and technique history stay in view so the important stuff is easy to spot.
             </p>
           </div>
           <div className="stripe-backbone-stats" style={{ marginTop: 44 }}>
@@ -5953,19 +5954,19 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-section" id="current-data">
           <div className="stripe-section-head">
             <div>
-              <div className="stripe-label">Current data</div>
-              <h2 className="stripe-h2">What the bot knows right now.</h2>
+              <div className="stripe-label">Next up</div>
+              <h2 className="stripe-h2">What's coming next.</h2>
             </div>
             <div className="stripe-copy">
-              This section keeps the live objects visible: the next item, the current risk, and the latest context around each one.
+              The next session, the current risk, and the latest context are grouped here.
             </div>
           </div>
           <div className="stripe-case-grid">
             <article className="stripe-case-card" onClick={onOpenLessons}>
               <div className="stripe-case-art" aria-hidden="true"></div>
               <div className="stripe-case-body">
-                <div className="stripe-card-title">Lesson notes become live context.</div>
-                <div className="stripe-card-text">Coach notes, recurring problems, and technique history stay connected so every logged detail has somewhere to live.</div>
+                <div className="stripe-card-title">Lesson notes</div>
+                <div className="stripe-card-text">Coach notes, recurring problems, and technique history stay connected in one place.</div>
                 <div className="stripe-case-meta">
                   <div className="stripe-case-mini">
                     <strong>{techCount}</strong>
@@ -5980,15 +5981,15 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
             <div className="stripe-side-stack">
               <article className="stripe-side-story" onClick={onOpenSchedule}>
-                <div className="stripe-card-title">Next session.</div>
-                <div className="stripe-card-text">The next scheduled item sits beside the rest of the live readout so the page stays informational, not promotional.</div>
+                <div className="stripe-card-title">Next session</div>
+                <div className="stripe-card-text">See what is coming up next without hunting for it.</div>
                 <div className="stripe-list">
                   <div className="stripe-list-row"><span>Next up</span><strong>{next}</strong></div>
                 </div>
               </article>
               <article className="stripe-side-story" onClick={onOpenMicroInjuries}>
-                <div className="stripe-card-title">Health watch.</div>
-                <div className="stripe-card-text">Health flags stay visible beside hydration and fuel so injury data remains part of the live board.</div>
+                <div className="stripe-card-title">Health watch</div>
+                <div className="stripe-card-text">See the injury and allergy flags that matter right now.</div>
                 <div className="stripe-list">
                   <div className="stripe-list-row"><span>Readiness</span><strong>{readiness.label}</strong></div>
                 </div>
@@ -5999,14 +6000,14 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 
         <section className="stripe-dev">
           <div>
-            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Live data surface</div>
-            <h2>Rendered like a bot console, not a landing page.</h2>
+            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Messages</div>
+            <h2>Recent bot messages.</h2>
             <p>
-              Endpoints, sync state, and training data all sit together so the page reads like an operational console.
+              Endpoints, sync state, and training data all sit together in one readable view.
             </p>
             <div className="stripe-actions" style={{ marginTop: 28 }}>
-              <button className="stripe-cta secondary" onClick={onOpenTechniqueLibrary}>View library</button>
-              <button className="stripe-cta secondary" onClick={onOpenProblems}>View problems</button>
+              <button className="stripe-cta secondary" onClick={onOpenTechniqueLibrary}>Library</button>
+              <button className="stripe-cta secondary" onClick={onOpenProblems}>Issues</button>
             </div>
           </div>
           <div className="stripe-dev-code">
@@ -6032,10 +6033,10 @@ return {
         <section className="stripe-section" id="recent-messages">
           <div className="stripe-section-head">
             <div>
-              <div className="stripe-label">Recent bot messages</div>
+              <div className="stripe-label">Messages</div>
               <h2 className="stripe-h2">The newest updates first.</h2>
             </div>
-            <div className="stripe-copy">Messages come through as a feed, with enough spacing and motion to stay readable.</div>
+            <div className="stripe-copy">Messages come through as a simple feed, with enough spacing to stay readable.</div>
           </div>
           <div className="stripe-news">
             {activityRows.slice(0, 3).map((m, i) => (
