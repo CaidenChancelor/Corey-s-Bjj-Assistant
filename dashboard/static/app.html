@@ -2353,7 +2353,7 @@ function NavPill({ active, onChange }) {
       { id: "schedule", label: "Schedule" },
       { id: "meals", label: "Meals" },
     ]},
-    { id: "health", label: "Health", children: [
+    { id: "health", label: "Allergies", children: [
       { id: "micro-injuries", label: "Injuries" },
       { id: "allergies", label: "Allergies" },
       { id: "hydration", label: "Hydration" },
@@ -5650,17 +5650,19 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
     ? { label: "Modify training", tone: "var(--accent-danger)", meta: `${criticalInjuries} high-risk item${criticalInjuries === 1 ? "" : "s"} active` }
     : moderateInjuries > 0
       ? { label: "Train smart", tone: "var(--accent-warn)", meta: `${moderateInjuries} item${moderateInjuries === 1 ? "" : "s"} need attention` }
-      : { label: "Clear to build", tone: "var(--accent-success)", meta: "No major health blockers logged" };
-  const next = d.next_up || "Open training block";
+      : { label: "Clear to build", tone: "var(--accent-success)", meta: "No major blockers logged" };
+  const next = d.next_up || "Show my next thing that I have for today.";
   const bruno = d.bruno_recent;
+  const brunoSummary = bruno ? (bruno.summary || bruno.notes || "") : "";
   const topPartner = injuryStats.top_partners && injuryStats.top_partners[0] ? injuryStats.top_partners[0].name : "No partner trend";
   const hotSpot = injuryStats.top_body_parts && injuryStats.top_body_parts[0] ? injuryStats.top_body_parts[0].name : (injuries[0]?.body_part || "No hot spot");
   const topTrigger = allergyStats.top_triggers && allergyStats.top_triggers[0] ? allergyStats.top_triggers[0].name : "pollen";
-  const missedAllergy = allergyStats.missed_training || allergies.filter((log) => log.missed_training).length || 0;
+  const missedAllergy = allergyStats.missed_training || allergies.filter((log) => log.missed_training || ["skipped", "left-early"].includes(String(log.training_impact || "").toLowerCase())).length || 0;
   const messages = Array.isArray(d.recent_messages) ? d.recent_messages.slice(-6).reverse() : [];
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
-  const openProblems = Array.isArray(d.problems) ? d.problems.filter((p) => !p.resolved).length : 0;
+  const allProblems = Array.isArray(d.all_problems) ? d.all_problems : (Array.isArray(d.problems) ? d.problems : []);
+  const openProblems = allProblems.filter((p) => !p.resolved).length;
   const techCount = Array.isArray(d.techniques) ? d.techniques.length : 0;
   const mealsToday = Array.isArray(d.meals_today) ? d.meals_today.length : 0;
   const streakDays = typeof d.streak_days === "number" ? d.streak_days : 0;
@@ -5671,7 +5673,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const greeting = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 17 ? "afternoon" : "evening";
   const waterLiters = (animWater / 1000).toFixed(1);
   const safeCalorieRemaining = Math.max(0, calorieGoal - calorieToday);
-  const healthTone = criticalInjuries > 0 ? "Critical" : moderateInjuries > 0 ? "Watch" : "Ready";
   const activityRows = messages.length > 0
     ? messages.slice(0, 4)
     : [
@@ -5705,7 +5706,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           <div className="stripe-visual" aria-label="Training dashboard preview">
             <div className="stripe-orbit" aria-hidden="true"></div>
             <div className="stripe-console">
-              <div className="stripe-console-top">
+            <div className="stripe-console-top">
                 <span className="stripe-dot"></span>
                 <span className="stripe-dot"></span>
                 <span className="stripe-dot"></span>
@@ -5715,7 +5716,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 <div className="stripe-pay-card" onClick={onOpenSchedule} role="button" tabIndex={0}>
                   <div style={{ position: "relative", zIndex: 1, color: "rgba(255,255,255,0.62)", fontSize: 12, fontWeight: 800, marginBottom: 10 }}>NEXT SESSION</div>
                   <div style={{ position: "relative", zIndex: 1, fontSize: 24, lineHeight: 1.15, fontWeight: 900, letterSpacing: "-0.04em" }}>{next}</div>
-                  {bruno && <div style={{ position: "relative", zIndex: 1, marginTop: 10, color: "rgba(255,255,255,0.66)", fontSize: 13, lineHeight: 1.45 }}>Last private: {bruno.summary || bruno.notes || "Logged"}</div>}
+                  {brunoSummary && <div style={{ position: "relative", zIndex: 1, marginTop: 10, color: "rgba(255,255,255,0.66)", fontSize: 13, lineHeight: 1.45 }}>Last Bruno lesson: {brunoSummary}</div>}
                 </div>
                 <div className="stripe-mini-grid">
                   <div className="stripe-mini" onClick={onOpenHydration}>
@@ -5731,9 +5732,9 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                     <div className="stripe-meter" style={{ marginTop: 14 }}><span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--stripe-pink), var(--stripe-orange))" }} /></div>
                   </div>
                   <div className="stripe-mini" onClick={onOpenMicroInjuries}>
-                    <div className="stripe-pill">Health</div>
-                    <div style={{ color: "var(--stripe-ink)", fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em", marginTop: 12 }}>{healthTone}</div>
-                    <div style={{ color: "var(--stripe-faint)", fontSize: 12 }}>{injuries.length} active item{injuries.length === 1 ? "" : "s"}</div>
+                    <div className="stripe-pill">Active injuries</div>
+                    <div style={{ color: "var(--stripe-ink)", fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em", marginTop: 12 }}>{injuries.length}</div>
+                    <div style={{ color: "var(--stripe-faint)", fontSize: 12 }}>active injuries</div>
                   </div>
                   <div className="stripe-mini" onClick={onOpenTechniqueLibrary}>
                     <div className="stripe-pill">Library</div>
@@ -5745,11 +5746,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </div>
             <div className="stripe-floating-row">
               <div className="stripe-floating" onClick={onOpenProblems} role="button" tabIndex={0}>
-                <div className="stripe-card-title" style={{ fontSize: 18 }}>Open problems</div>
+                <div className="stripe-card-title" style={{ fontSize: 18 }}>Upcoming problems</div>
                 <div className="stripe-card-text">{openProblems} open problem{openProblems === 1 ? "" : "s"} ready to review.</div>
               </div>
               <div className="stripe-floating alt" onClick={onOpenAllergies} role="button" tabIndex={0}>
-                <div className="stripe-card-title" style={{ fontSize: 18 }}>Health watch</div>
+                <div className="stripe-card-title" style={{ fontSize: 18 }}>Allergy watch</div>
                 <div className="stripe-card-text">Allergy reactions: {allergyStats.last_7_days || 0}. Missed training: {missedAllergy}.</div>
               </div>
             </div>
@@ -5759,7 +5760,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <div className="stripe-logo-strip" aria-label="Training areas">
           <span>hydration</span>
           <span>fuel</span>
-          <span>health</span>
+          <span>allergies</span>
           <span>lessons</span>
           <span>library</span>
           <span>editor</span>
@@ -5772,7 +5773,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               <h2 className="stripe-h2">Everything in one place.</h2>
             </div>
             <div className="stripe-copy">
-              Hydration, fuel, health, lessons, and recent messages stay visible together at a glance.
+              Hydration, fuel, allergies, lessons, and recent messages stay visible together at a glance.
             </div>
           </div>
 
@@ -5812,8 +5813,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card small" onClick={onOpenMicroInjuries}>
-              <div className="stripe-card-title">Health</div>
-              <div className="stripe-card-text">Hot spot: {hotSpot}. Partner trend: {topPartner}.</div>
+              <div className="stripe-card-title">Active injuries</div>
+              <div className="stripe-card-text">{injuries.length} active injuries right now.</div>
               <div className="stripe-list">
                 {allInjuries.slice(0, 3).map((inj) => (
                   <div className="stripe-list-row" key={inj.body_part || inj.id}>
@@ -5826,16 +5827,16 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card small" onClick={onOpenLessons}>
-              <div className="stripe-card-title">Lesson notes</div>
-              <div className="stripe-card-text">{bruno ? (bruno.summary || bruno.notes || "Recent private lesson logged.") : "No private lesson note logged yet."}</div>
+              <div className="stripe-card-title">Bruno, private lesson, feedback.</div>
+              <div className="stripe-card-text">{brunoSummary || bruno?.notes || "No Bruno lesson logged yet."}</div>
               <div className="stripe-list">
-                <div className="stripe-list-row"><span>Open lesson archive</span><span className="stripe-arrow"></span></div>
+                <div className="stripe-list-row"><span>View Bruno notes</span><span className="stripe-arrow"></span></div>
               </div>
             </article>
 
             <article className="stripe-card small" onClick={onOpenProblems}>
-              <div className="stripe-card-title">Open issues</div>
-              <div className="stripe-card-text">A focused queue for what needs attention before it turns into noise.</div>
+              <div className="stripe-card-title">Upcoming problems</div>
+              <div className="stripe-card-text">{openProblems} item{openProblems === 1 ? "" : "s"} waiting for review.</div>
               <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
                 <div className="stripe-stat">
                   <div className="stripe-stat-value">{openProblems}</div>
@@ -5846,7 +5847,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 
             <article className="stripe-card small" onClick={onOpenTechniqueLibrary} id="technique-history">
               <div className="stripe-card-title">Technique history</div>
-              <div className="stripe-card-text">Your tracked techniques, recency, and training history in one place.</div>
+              <div className="stripe-card-text">Your most recent techniques you've worked on.</div>
               <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
                 <div className="stripe-stat">
                   <div className="stripe-stat-value">{techCount}</div>
@@ -5856,8 +5857,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card summary" onClick={onOpenAllergies}>
-              <div className="stripe-card-title">Health summary</div>
-              <div className="stripe-card-text">Allergy data, missed training, and injury stats sit together in one place.</div>
+              <div className="stripe-card-title">Allergy summary</div>
+              <div className="stripe-card-text">Allergy data, missed training, and your top trigger sit together in one place.</div>
               <div className="stripe-stat-row">
                 <div className="stripe-stat">
                   <div className="stripe-stat-value">{allergyStats.last_7_days || 0}</div>
@@ -5879,11 +5880,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-backbone" id="current-status">
           <div className="stripe-backbone-grid">
             <div>
-              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Health</div>
+              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Today totals</div>
               <h2>How things are going.</h2>
             </div>
             <p>
-              Water, calories, health flags, lesson notes, and technique history stay in view so the important stuff is easy to spot.
+              Water, calories, allergy flags, lesson notes, and technique history stay in view so the important stuff is easy to spot.
             </p>
           </div>
           <div className="stripe-backbone-stats" style={{ marginTop: 44 }}>
@@ -5920,8 +5921,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             <article className="stripe-case-card" onClick={onOpenLessons}>
               <div className="stripe-case-art" aria-hidden="true"></div>
               <div className="stripe-case-body">
-                <div className="stripe-card-title">Lesson notes</div>
-                <div className="stripe-card-text">Coach notes, recurring problems, and technique history stay connected in one place.</div>
+                <div className="stripe-card-title">Bruno, private lesson, feedback.</div>
+                <div className="stripe-card-text">{brunoSummary || bruno?.notes || "No Bruno lesson logged yet."}</div>
                 <div className="stripe-case-meta">
                   <div className="stripe-case-mini">
                     <strong>{techCount}</strong>
@@ -5929,7 +5930,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                   </div>
                   <div className="stripe-case-mini">
                     <strong>{openProblems}</strong>
-                    <span>open problems</span>
+                    <span>upcoming problems</span>
                   </div>
                 </div>
               </div>
@@ -5943,10 +5944,10 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 </div>
               </article>
               <article className="stripe-side-story" onClick={onOpenMicroInjuries}>
-                <div className="stripe-card-title">Health watch</div>
-                <div className="stripe-card-text">See the injury and allergy flags that matter right now.</div>
+                <div className="stripe-card-title">Active injuries</div>
+                <div className="stripe-card-text">{injuries.length} injuries active right now.</div>
                 <div className="stripe-list">
-                  <div className="stripe-list-row"><span>Readiness</span><strong>{readiness.label}</strong></div>
+                  <div className="stripe-list-row"><span>Active injuries</span><strong>{injuries.length}</strong></div>
                 </div>
               </article>
             </div>
@@ -5975,7 +5976,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             <pre>{`const today = await bjj.training.status();
 
 await bjj.water.add({ liters: ${waterToday.toFixed(1)} });
-await bjj.health.watch("${hotSpot}");
+await bjj.allergy.watch("${hotSpot}");
 
 return {
   next: "${String(next).replace(/"/g, '\\"')}",
@@ -10078,7 +10079,7 @@ function allergyStatsFromLogs(logs) {
   return {
     total: logs.length,
     last_7_days: logs.filter((l) => Date.parse(l.date) >= Date.now() - 7 * 86400000).length,
-    missed_training: logs.filter((l) => l.missed_training).length,
+    missed_training: logs.filter((l) => l.missed_training || ["skipped", "left-early"].includes(String(l.training_impact || "").toLowerCase())).length,
     time_buckets: timeBuckets,
     top_triggers: Object.entries(triggerCounts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
     categories: Object.entries(categoryCounts).map(([name, count]) => ({ name, count })),

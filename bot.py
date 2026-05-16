@@ -640,7 +640,10 @@ def get_allergy_stats():
             total = conn.execute("SELECT COUNT(*) FROM allergies").fetchone()[0]
             since_7 = (datetime.now(TZ) - timedelta(days=7)).strftime('%Y-%m-%d')
             last_7_days = conn.execute("SELECT COUNT(*) FROM allergies WHERE date >= ?", (since_7,)).fetchone()[0]
-            missed_training = conn.execute("SELECT COUNT(*) FROM allergies WHERE missed_training = 1").fetchone()[0]
+            missed_training = conn.execute(
+                "SELECT COUNT(*) FROM allergies WHERE missed_training = 1 "
+                "OR LOWER(TRIM(COALESCE(training_impact, ''))) IN ('skipped', 'left-early')"
+            ).fetchone()[0]
             trigger_rows = conn.execute(
                 "SELECT LOWER(TRIM(trigger_name)), COUNT(*) FROM allergies "
                 "WHERE trigger_name IS NOT NULL AND TRIM(trigger_name) != '' "
