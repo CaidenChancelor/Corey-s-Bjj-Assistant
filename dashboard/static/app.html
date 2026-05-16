@@ -6338,7 +6338,7 @@ function ParticleHero() {
   }, []);
 
   return (
-    <section ref={containerRef} aria-hidden="true" style={{
+    <section ref={containerRef} aria-label="Live training intelligence" style={{
       position: "relative",
       width: "100%",
       height: "clamp(260px, 32vw, 380px)",
@@ -6353,7 +6353,7 @@ function ParticleHero() {
       boxShadow: "var(--stripe-shadow)",
       border: "1px solid rgba(10,37,64,0.08)",
     }}>
-      <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
+      <canvas ref={canvasRef} aria-hidden="true" style={{ display: "block", width: "100%", height: "100%" }} />
       <div style={{
         position: "absolute", top: 20, left: 24, right: 24,
         pointerEvents: "none",
