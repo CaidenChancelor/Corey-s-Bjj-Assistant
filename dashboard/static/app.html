@@ -1186,6 +1186,10 @@ body {
 }
 .stripe-visual {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
   min-height: 390px;
   perspective: 1200px;
   animation: stripeFloatIn 900ms cubic-bezier(.22,1,.36,1) 200ms both;
@@ -1200,9 +1204,7 @@ body {
   animation: stripeSpin 16s linear infinite;
 }
 .stripe-console {
-  position: absolute;
-  right: 0;
-  top: 18px;
+  position: relative;
   width: min(100%, 430px);
   border-radius: 24px;
   background: rgba(255,255,255,0.92);
@@ -1278,16 +1280,21 @@ body {
 .stripe-mini:nth-child(3) { animation-delay: 190ms; }
 .stripe-mini:nth-child(4) { animation-delay: 270ms; }
 .stripe-floating {
-  position: absolute;
-  left: -12px;
-  bottom: -12px;
-  width: 230px;
+  position: relative;
+  width: 100%;
   border-radius: 20px;
   background: rgba(255,255,255,0.95);
   border: 1px solid rgba(255,255,255,0.82);
   box-shadow: var(--stripe-shadow);
   padding: 16px;
   animation: stripeFloat 5s ease-in-out infinite;
+}
+.stripe-floating-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: min(100%, 430px);
+  align-self: flex-end;
 }
 .stripe-logo-strip {
   display: grid;
@@ -1309,10 +1316,6 @@ body {
   filter: grayscale(1);
 }
 .stripe-floating.alt {
-  left: auto;
-  right: -10px;
-  bottom: -76px;
-  width: 250px;
   animation-delay: -1.8s;
 }
 .stripe-section {
@@ -1728,12 +1731,14 @@ body {
     min-height: auto;
   }
   .stripe-visual {
-    min-height: 520px;
+    min-height: auto;
   }
   .stripe-console {
-    left: 0;
-    right: auto;
+    width: 100%;
     transform: rotateX(1deg) rotateY(-4deg);
+  }
+  .stripe-floating-row {
+    width: 100%;
   }
   .stripe-card.wide,
   .stripe-card.medium,
@@ -1784,9 +1789,10 @@ body {
     padding: 30px 22px;
   }
   .stripe-visual {
-    min-height: 600px;
+    min-height: auto;
   }
   .stripe-console,
+  .stripe-floating-row,
   .stripe-floating,
   .stripe-floating.alt {
     position: relative;
@@ -1794,6 +1800,9 @@ body {
     width: 100%;
     transform: none;
     margin-top: 16px;
+  }
+  .stripe-floating-row {
+    grid-template-columns: 1fr;
   }
   .stripe-mini-grid,
   .stripe-stat-row {
@@ -5646,12 +5655,14 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const bruno = d.bruno_recent;
   const topPartner = injuryStats.top_partners && injuryStats.top_partners[0] ? injuryStats.top_partners[0].name : "No partner trend";
   const hotSpot = injuryStats.top_body_parts && injuryStats.top_body_parts[0] ? injuryStats.top_body_parts[0].name : (injuries[0]?.body_part || "No hot spot");
+  const topTrigger = allergyStats.top_triggers && allergyStats.top_triggers[0] ? allergyStats.top_triggers[0].name : "pollen";
   const missedAllergy = allergyStats.missed_training || allergies.filter((log) => log.missed_training).length || 0;
   const messages = Array.isArray(d.recent_messages) ? d.recent_messages.slice(-6).reverse() : [];
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   const openProblems = Array.isArray(d.problems) ? d.problems.filter((p) => !p.resolved).length : 0;
   const techCount = Array.isArray(d.techniques) ? d.techniques.length : 0;
+  const mealsToday = Array.isArray(d.meals_today) ? d.meals_today.length : 0;
   const streakDays = typeof d.streak_days === "number" ? d.streak_days : 0;
 
   const animWater = useCountUp(Math.round(waterToday * 1000), 1400);
@@ -5732,13 +5743,15 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 </div>
               </div>
             </div>
-            <div className="stripe-floating" onClick={onOpenProblems} role="button" tabIndex={0}>
-              <div className="stripe-card-title" style={{ fontSize: 18 }}>Open problems</div>
-              <div className="stripe-card-text">{openProblems} open problem{openProblems === 1 ? "" : "s"} ready to review.</div>
-            </div>
-            <div className="stripe-floating alt" onClick={onOpenAllergies} role="button" tabIndex={0}>
-              <div className="stripe-card-title" style={{ fontSize: 18 }}>Health watch</div>
-              <div className="stripe-card-text">Allergy reactions: {allergyStats.last_7_days || 0}. Missed training: {missedAllergy}.</div>
+            <div className="stripe-floating-row">
+              <div className="stripe-floating" onClick={onOpenProblems} role="button" tabIndex={0}>
+                <div className="stripe-card-title" style={{ fontSize: 18 }}>Open problems</div>
+                <div className="stripe-card-text">{openProblems} open problem{openProblems === 1 ? "" : "s"} ready to review.</div>
+              </div>
+              <div className="stripe-floating alt" onClick={onOpenAllergies} role="button" tabIndex={0}>
+                <div className="stripe-card-title" style={{ fontSize: 18 }}>Health watch</div>
+                <div className="stripe-card-text">Allergy reactions: {allergyStats.last_7_days || 0}. Missed training: {missedAllergy}.</div>
+              </div>
             </div>
           </div>
         </section>
@@ -5855,8 +5868,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                   <div className="stripe-stat-label">missed training</div>
                 </div>
                 <div className="stripe-stat">
-                  <div className="stripe-stat-value">{injuries.length}</div>
-                  <div className="stripe-stat-label">active injuries</div>
+                  <div className="stripe-stat-value">{topTrigger}</div>
+                  <div className="stripe-stat-label">top allergen</div>
                 </div>
               </div>
             </article>
@@ -5883,8 +5896,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               <div className="stripe-backbone-label">fuel goal progress today</div>
             </div>
             <div className="stripe-backbone-stat">
-              <div className="stripe-backbone-value">{injuries.length}</div>
-              <div className="stripe-backbone-label">active health items tracked</div>
+              <div className="stripe-backbone-value">{mealsToday}</div>
+              <div className="stripe-backbone-label">meals ate today</div>
             </div>
             <div className="stripe-backbone-stat">
               <div className="stripe-backbone-value">{techCount}</div>
