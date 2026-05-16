@@ -1127,32 +1127,6 @@ body {
   margin-top: 34px;
   animation: stripeRise 800ms cubic-bezier(.22,1,.36,1) 240ms both;
 }
-.stripe-jumpbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin: 22px 0 6px;
-  padding: 18px 20px;
-  border-radius: 22px;
-  border: 1px solid rgba(10,37,64,0.10);
-  background: rgba(255,255,255,0.74);
-  box-shadow: 0 18px 46px -36px rgba(10,37,64,0.38);
-  backdrop-filter: blur(12px);
-}
-.stripe-jumpbar-title {
-  margin-top: 6px;
-  color: var(--stripe-ink);
-  font: 800 18px/1.25 Inter, var(--font-display);
-  letter-spacing: -0.04em;
-  text-wrap: balance;
-}
-.stripe-jump-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
-}
 .stripe-jump-btn {
   display: inline-flex;
   align-items: center;
@@ -1305,8 +1279,8 @@ body {
 .stripe-mini:nth-child(4) { animation-delay: 270ms; }
 .stripe-floating {
   position: absolute;
-  left: -18px;
-  bottom: 54px;
+  left: -12px;
+  bottom: -12px;
   width: 230px;
   border-radius: 20px;
   background: rgba(255,255,255,0.95);
@@ -1336,8 +1310,8 @@ body {
 }
 .stripe-floating.alt {
   left: auto;
-  right: -28px;
-  bottom: -4px;
+  right: -10px;
+  bottom: -76px;
   width: 250px;
   animation-delay: -1.8s;
 }
@@ -1413,6 +1387,7 @@ body {
 .stripe-card.medium { grid-column: span 5; }
 .stripe-card.small { grid-column: span 4; }
 .stripe-card.full { grid-column: span 12; }
+.stripe-card.summary { grid-column: span 8; }
 .stripe-card-title {
   position: relative;
   z-index: 1;
@@ -1749,13 +1724,6 @@ body {
   .stripe-section-head {
     grid-template-columns: 1fr;
   }
-  .stripe-jumpbar {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .stripe-jump-actions {
-    justify-content: flex-start;
-  }
   .stripe-hero {
     min-height: auto;
   }
@@ -1771,6 +1739,9 @@ body {
   .stripe-card.medium,
   .stripe-card.small {
     grid-column: span 6;
+  }
+  .stripe-card.summary {
+    grid-column: span 12;
   }
   .stripe-news {
     grid-template-columns: 1fr;
@@ -1791,13 +1762,6 @@ body {
   }
   .stripe-title {
     font-size: clamp(42px, 13vw, 58px);
-  }
-  .stripe-jumpbar {
-    padding: 16px 16px 14px;
-    border-radius: 18px;
-  }
-  .stripe-jumpbar-title {
-    font-size: 16px;
   }
   .stripe-logo-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5465,7 +5429,6 @@ function AllergyTrackerCard({ onClick }) {
   const total = stats.total || logs.length || 0;
   const missed = stats.missed_training || logs.filter((l) => l.missed_training).length;
   const buckets = stats.time_buckets || { morning: 0, afternoon: 0, evening: 0 };
-  const topTrigger = stats.top_triggers && stats.top_triggers[0] ? stats.top_triggers[0].name : "No cause trend";
   const maxBucket = Math.max(1, ...Object.values(buckets));
 
   return (
@@ -5488,7 +5451,7 @@ function AllergyTrackerCard({ onClick }) {
             {total} logged
           </div>
           <div style={{ fontSize: 13, color: "var(--ink-faint)", lineHeight: 1.5, marginBottom: 14 }}>
-            allergies · {missed} missed training · top cause: {topTrigger}
+            allergies · {missed} missed training
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             <MiniStat label="7 days" value={stats.last_7_days || 0} accent="var(--accent-success)" />
@@ -5683,7 +5646,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const bruno = d.bruno_recent;
   const topPartner = injuryStats.top_partners && injuryStats.top_partners[0] ? injuryStats.top_partners[0].name : "No partner trend";
   const hotSpot = injuryStats.top_body_parts && injuryStats.top_body_parts[0] ? injuryStats.top_body_parts[0].name : (injuries[0]?.body_part || "No hot spot");
-  const topTrigger = allergyStats.top_triggers && allergyStats.top_triggers[0] ? allergyStats.top_triggers[0].name : "No trigger trend";
   const missedAllergy = allergyStats.missed_training || allergies.filter((log) => log.missed_training).length || 0;
   const messages = Array.isArray(d.recent_messages) ? d.recent_messages.slice(-6).reverse() : [];
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
@@ -5705,11 +5667,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         { role: "assistant", content: "No recent bot messages yet." },
         { role: "user", content: "Use the editor to ask Claude for changes." },
       ];
-  const jumpTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <div className="stripe-dash">
       <div className="stripe-wrap">
@@ -5781,25 +5738,10 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </div>
             <div className="stripe-floating alt" onClick={onOpenAllergies} role="button" tabIndex={0}>
               <div className="stripe-card-title" style={{ fontSize: 18 }}>Health watch</div>
-              <div className="stripe-card-text">Top trigger: {topTrigger}. {missedAllergy} missed training.</div>
+              <div className="stripe-card-text">Allergy reactions: {allergyStats.last_7_days || 0}. Missed training: {missedAllergy}.</div>
             </div>
           </div>
         </section>
-
-        <div className="stripe-jumpbar" aria-label="Quick navigation">
-          <div>
-            <div className="stripe-label" style={{ color: "var(--stripe-blue)" }}>Quick navigation</div>
-            <div className="stripe-jumpbar-title">Jump straight to the parts people use most.</div>
-          </div>
-          <div className="stripe-jump-actions">
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("live-signals")}>Today</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-status")}>Health</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-data")}>Next up</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("recent-messages")}>Messages</button>
-            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("technique-history")}>Library</button>
-            <button className="stripe-jump-btn primary" type="button" onClick={onOpenEditor}>Editor</button>
-          </div>
-        </div>
 
         <div className="stripe-logo-strip" aria-label="Training areas">
           <span>hydration</span>
@@ -5900,9 +5842,9 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               </div>
             </article>
 
-            <article className="stripe-card full" onClick={onOpenAllergies}>
-              <div className="stripe-card-title">Live health summary</div>
-              <div className="stripe-card-text">Allergy data, missed training, injury stats, and trend lines sit together so the dashboard feels like a live system feed.</div>
+            <article className="stripe-card summary" onClick={onOpenAllergies}>
+              <div className="stripe-card-title">Health summary</div>
+              <div className="stripe-card-text">Allergy data, missed training, and injury stats sit together in one place.</div>
               <div className="stripe-stat-row">
                 <div className="stripe-stat">
                   <div className="stripe-stat-value">{allergyStats.last_7_days || 0}</div>
@@ -5913,8 +5855,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                   <div className="stripe-stat-label">missed training</div>
                 </div>
                 <div className="stripe-stat">
-                  <div className="stripe-stat-value" style={{ fontSize: 22 }}>{topTrigger}</div>
-                  <div className="stripe-stat-label">top trigger</div>
+                  <div className="stripe-stat-value">{injuries.length}</div>
+                  <div className="stripe-stat-label">active injuries</div>
                 </div>
               </div>
             </article>
