@@ -6376,6 +6376,173 @@ function ParticleHero() {
   );
 }
 
+function SignalFlowHero() {
+  const containerRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext("2d");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // 7 flowing waves, each a stripe accent color
+    const WAVES = [
+      { color: [0, 212, 255],   amp: 22, freq: 0.0042, phase: 0.0,  baseY: 0.32, speed: 0.00018, alpha: 0.32 },
+      { color: [99, 91, 255],   amp: 30, freq: 0.0034, phase: 0.7,  baseY: 0.46, speed: 0.00022, alpha: 0.40 },
+      { color: [255, 92, 154],  amp: 26, freq: 0.0049, phase: 1.4,  baseY: 0.55, speed: 0.00026, alpha: 0.34 },
+      { color: [0, 229, 168],   amp: 18, freq: 0.0062, phase: 2.1,  baseY: 0.62, speed: 0.00020, alpha: 0.28 },
+      { color: [255, 184, 108], amp: 22, freq: 0.0038, phase: 2.8,  baseY: 0.72, speed: 0.00024, alpha: 0.30 },
+      { color: [99, 91, 255],   amp: 12, freq: 0.0078, phase: 3.5,  baseY: 0.83, speed: 0.00030, alpha: 0.22 },
+      { color: [0, 212, 255],   amp: 16, freq: 0.0058, phase: 4.2,  baseY: 0.91, speed: 0.00028, alpha: 0.20 },
+    ];
+
+    const state = { w: 0, h: 0, pulses: [], lastPulseAt: 0 };
+
+    function resize() {
+      if (!canvasRef.current || !containerRef.current) return;
+      const dpr = window.devicePixelRatio || 1;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w <= 0 || h <= 0) return;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      state.w = w;
+      state.h = h;
+    }
+
+    function spawnPulse(now) {
+      const { w, h } = state;
+      const lane = WAVES[Math.floor(Math.random() * WAVES.length)];
+      state.pulses.push({
+        x: -40,
+        baseY: lane.baseY * h,
+        amp: lane.amp,
+        freq: lane.freq,
+        phase: lane.phase,
+        speed: 0.18 + Math.random() * 0.12,
+        color: lane.color,
+        life: 0,
+        maxLife: w + 80,
+      });
+    }
+
+    let raf = 0;
+    function frame(now) {
+      const { w, h } = state;
+      ctx.clearRect(0, 0, w, h);
+
+      // soft horizontal lane glow under each wave
+      for (let i = 0; i < WAVES.length; i++) {
+        const wv = WAVES[i];
+        const t = reduced ? 0 : now * wv.speed;
+        const baseY = wv.baseY * h;
+        const [r, g, b] = wv.color;
+
+        ctx.beginPath();
+        for (let x = -4; x <= w + 4; x += 2) {
+          const y = baseY + Math.sin(x * wv.freq + wv.phase + t) * wv.amp
+                          + Math.sin(x * wv.freq * 0.32 + wv.phase * 0.7 + t * 0.6) * wv.amp * 0.35;
+          if (x === -4) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        // glow stroke (wide, low alpha)
+        ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + (wv.alpha * 0.35) + ")";
+        ctx.lineWidth = 7;
+        ctx.lineCap = "round";
+        ctx.stroke();
+        // crisp stroke
+        ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + wv.alpha + ")";
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      }
+
+      // pulses travelling along waves
+      if (!reduced) {
+        if (now - state.lastPulseAt > 700 + Math.random() * 700 && state.pulses.length < 6) {
+          spawnPulse(now);
+          state.lastPulseAt = now;
+        }
+        for (let i = state.pulses.length - 1; i >= 0; i--) {
+          const p = state.pulses[i];
+          p.x += p.speed * 16;
+          p.life += 16;
+          if (p.x > w + 60) { state.pulses.splice(i, 1); continue; }
+          const t = now * 0.00022;
+          const y = p.baseY + Math.sin(p.x * p.freq + p.phase + t) * p.amp
+                            + Math.sin(p.x * p.freq * 0.32 + p.phase * 0.7 + t * 0.6) * p.amp * 0.35;
+          const [r, g, b] = p.color;
+          const grad = ctx.createRadialGradient(p.x, y, 0, p.x, y, 18);
+          grad.addColorStop(0, "rgba(" + r + "," + g + "," + b + ",0.9)");
+          grad.addColorStop(1, "rgba(" + r + "," + g + "," + b + ",0)");
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(p.x, y, 18, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "rgba(255,255,255,0.95)";
+          ctx.beginPath();
+          ctx.arc(p.x, y, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      raf = requestAnimationFrame(frame);
+    }
+
+    resize();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
+    if (ro && container) ro.observe(container);
+    window.addEventListener("resize", resize);
+    raf = requestAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      if (ro) ro.disconnect();
+    };
+  }, []);
+
+  return (
+    <section ref={containerRef} aria-label="Live signal flow" style={{
+      position: "relative",
+      width: "100%",
+      height: "clamp(220px, 28vw, 320px)",
+      margin: "8px 0 40px",
+      borderRadius: 22,
+      overflow: "hidden",
+      background:
+        "radial-gradient(circle at 15% 90%, rgba(0,229,168,0.16), transparent 38%)," +
+        "radial-gradient(circle at 85% 10%, rgba(255,184,108,0.16), transparent 36%)," +
+        "linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%)",
+      boxShadow: "var(--stripe-shadow)",
+      border: "1px solid rgba(10,37,64,0.08)",
+    }}>
+      <canvas ref={canvasRef} aria-hidden="true" style={{ display: "block", width: "100%", height: "100%" }} />
+      <div style={{
+        position: "absolute", top: 20, left: 24, right: 24,
+        pointerEvents: "none",
+        fontFamily: "Inter, var(--font-text)",
+      }}>
+        <div style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+          textTransform: "uppercase", color: "var(--stripe-faint)",
+        }}>Signals in motion</div>
+        <div style={{
+          marginTop: 6,
+          fontFamily: "Inter, var(--font-display)",
+          fontSize: "clamp(18px, 2.2vw, 26px)",
+          fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1,
+          color: "var(--stripe-ink)",
+          maxWidth: "min(70%, 480px)",
+        }}>The bot is listening, logging, and looking ahead — even when you aren't.</div>
+      </div>
+    </section>
+  );
+}
+
 function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary, onOpenEditor }) {
   const d = window.__bjjdata || {};
   const botError = d && d.error;
@@ -6773,6 +6940,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 }`}</pre>
           </div>
         </section>
+
+        <SignalFlowHero />
 
         <section className="stripe-section" id="recent-messages">
           <div className="stripe-section-head">
