@@ -370,21 +370,21 @@ body::after {
   gap: 4px;
 }
 .tl-stat-value {
-  font-family: Inter, var(--font-display);
+  font-family: var(--font-display);
   font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  color: var(--stripe-ink);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .tl-stat-label {
-  font-family: Inter, var(--font-text);
+  font-family: var(--font-text);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--stripe-faint);
+  color: var(--ink-faint);
 }
 .tl-row {
   position: relative;
@@ -395,19 +395,19 @@ body::after {
   padding: 18px 20px;
   text-align: left;
   cursor: pointer;
-  background: var(--stripe-card);
-  border: 1px solid var(--stripe-line);
+  background: var(--bg-paper);
+  border: 1px solid var(--bg-hairline);
   border-radius: 16px;
-  box-shadow: var(--stripe-shadow);
+  box-shadow: var(--shadow-card);
   transition: transform 200ms cubic-bezier(0.32,0.72,0,1),
               box-shadow 200ms cubic-bezier(0.32,0.72,0,1),
               border-color 200ms ease;
-  font-family: Inter, var(--font-text);
+  font-family: var(--font-text);
 }
 .tl-row:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-pop);
-  border-color: var(--stripe-blue);
+  border-color: rgba(28,44,90,0.18);
 }
 .tl-row:active { transform: translateY(0); }
 .tl-row-dot {
@@ -418,11 +418,11 @@ body::after {
 }
 .tl-row-body { flex: 1; min-width: 0; }
 .tl-row-name {
-  font-family: Inter, var(--font-display);
-  color: var(--stripe-ink);
+  font-family: var(--font-display);
+  color: var(--ink);
   font-size: 16px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
@@ -430,7 +430,7 @@ body::after {
 }
 .tl-row-meta {
   margin-top: 4px;
-  color: var(--stripe-faint);
+  color: var(--ink-faint);
   font-size: 13px;
   line-height: 1.5;
   white-space: nowrap;
@@ -439,11 +439,11 @@ body::after {
 }
 .tl-row-arrow {
   flex-shrink: 0;
-  color: var(--stripe-faint);
+  color: var(--ink-faint);
   transition: transform 200ms cubic-bezier(0.32,0.72,0,1), color 200ms ease;
 }
 .tl-row:hover .tl-row-arrow {
-  color: var(--stripe-blue);
+  color: var(--accent-cobalt);
   transform: translateX(2px);
 }
 
@@ -1870,363 +1870,6 @@ body {
 }
 @keyframes stripeMeter {
   from { width: 0; }
-}
-
-/* =============================================================
-   Stripe-style infographic add-ons (sparklines, flow, donut, ticker)
-   Uses the existing palette: blue / purple / cyan / mint / pink / orange.
-   ============================================================= */
-
-/* --- Animated sparkline trend cards --- */
-.stripe-trends {
-  margin-top: clamp(58px, 9vw, 110px);
-}
-.stripe-trends-grid {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 36px;
-}
-.stripe-trend-card {
-  position: relative;
-  padding: 26px 28px 22px;
-  border-radius: 22px;
-  background: #fff;
-  border: 1px solid var(--stripe-line);
-  box-shadow: var(--stripe-shadow);
-  overflow: hidden;
-  isolation: isolate;
-}
-.stripe-trend-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg, transparent 30%, rgba(99,91,255,0.06) 50%, transparent 70%);
-  transform: translateX(-100%);
-  animation: stripeShimmer 6s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-@keyframes stripeShimmer {
-  0%, 18% { transform: translateX(-100%); }
-  60%, 100% { transform: translateX(100%); }
-}
-.stripe-trend-card > * { position: relative; z-index: 1; }
-.stripe-trend-label {
-  font-size: 11px; font-weight: 800;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--stripe-faint);
-}
-.stripe-trend-value {
-  font: 900 clamp(30px, 3.4vw, 42px)/1 Inter, var(--font-display);
-  letter-spacing: -0.045em;
-  color: var(--stripe-ink);
-  margin-top: 12px;
-}
-.stripe-trend-delta {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px; font-weight: 800;
-  background: rgba(0, 229, 168, 0.14);
-  color: #008566;
-}
-.stripe-trend-delta.down {
-  background: rgba(255, 92, 154, 0.14);
-  color: #c8417a;
-}
-.stripe-spark {
-  display: block;
-  width: 100%;
-  height: 86px;
-  margin-top: 16px;
-  overflow: visible;
-}
-.stripe-spark .spark-line {
-  fill: none;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 900;
-  stroke-dashoffset: 900;
-  animation: stripeDraw 1.9s cubic-bezier(.4,0,.2,1) forwards;
-  filter: drop-shadow(0 6px 10px rgba(99,91,255,0.22));
-}
-.stripe-spark .spark-area {
-  opacity: 0;
-  animation: stripeFadeIn 1.4s ease 0.7s forwards;
-}
-.stripe-spark .spark-pin {
-  opacity: 0;
-  animation: stripeFadeIn 0.5s ease 1.7s forwards;
-}
-.stripe-spark .spark-pulse {
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: stripePulseRing 2.4s ease-in-out infinite;
-}
-@keyframes stripeDraw { to { stroke-dashoffset: 0; } }
-@keyframes stripeFadeIn { to { opacity: 1; } }
-@keyframes stripePulseRing {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(2.2); opacity: 0; }
-}
-
-/* --- Data-in-motion pipeline --- */
-.stripe-flow {
-  position: relative;
-  margin-top: clamp(58px, 9vw, 110px);
-  padding: clamp(34px, 5vw, 56px);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 8% 12%, rgba(0,212,255,0.16), transparent 38%),
-    radial-gradient(circle at 92% 88%, rgba(255,92,154,0.16), transparent 38%),
-    linear-gradient(140deg, #ffffff 0%, #f6f8ff 100%);
-  border: 1px solid var(--stripe-line);
-  box-shadow: var(--stripe-shadow);
-  overflow: hidden;
-}
-.stripe-flow-stage {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 40px;
-  align-items: stretch;
-}
-.stripe-flow-svg {
-  position: absolute;
-  top: 50%;
-  left: 4%;
-  right: 4%;
-  height: 4px;
-  transform: translateY(-50%);
-  z-index: 1;
-  pointer-events: none;
-  overflow: visible;
-}
-.stripe-flow-svg .flow-line {
-  fill: none;
-  stroke-width: 2.4;
-  stroke-dasharray: 8 8;
-  stroke-linecap: round;
-  animation: stripeFlowMove 1.1s linear infinite;
-}
-@keyframes stripeFlowMove { to { stroke-dashoffset: -32; } }
-.stripe-flow-node {
-  position: relative;
-  z-index: 2;
-  padding: 18px 16px 18px;
-  border-radius: 18px;
-  background: #fff;
-  border: 1px solid var(--stripe-line);
-  box-shadow: 0 14px 30px -22px rgba(10,37,64,0.4);
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-.stripe-flow-node:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 22px 44px -22px rgba(10,37,64,0.45);
-}
-.stripe-flow-node .icon {
-  width: 40px; height: 40px;
-  margin: 0 auto 12px;
-  border-radius: 12px;
-  display: grid; place-items: center;
-  color: #fff;
-  font-weight: 900; font-size: 18px;
-  box-shadow: 0 10px 24px -12px rgba(99,91,255,0.6);
-}
-.stripe-flow-node .label {
-  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--stripe-faint); font-weight: 800;
-}
-.stripe-flow-node .value {
-  display: block;
-  font: 900 24px/1 Inter, var(--font-display);
-  letter-spacing: -0.04em;
-  color: var(--stripe-ink);
-  margin-top: 8px;
-}
-.stripe-flow-node .sub {
-  display: block;
-  font-size: 11px;
-  color: var(--stripe-faint);
-  margin-top: 4px;
-}
-
-/* --- Composition donut + animated bars --- */
-.stripe-compose {
-  margin-top: clamp(58px, 9vw, 110px);
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 60px);
-  align-items: center;
-  padding: clamp(34px, 5vw, 56px);
-  border-radius: 28px;
-  background: #fff;
-  border: 1px solid var(--stripe-line);
-  box-shadow: var(--stripe-shadow);
-}
-.stripe-compose-head {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
-  gap: 24px;
-  align-items: end;
-  margin-bottom: 12px;
-}
-.stripe-compose-head h2 {
-  margin: 8px 0 0;
-  font: 900 clamp(30px, 4vw, 46px)/1.04 Inter, var(--font-display);
-  letter-spacing: -0.05em;
-  color: var(--stripe-ink);
-}
-.stripe-compose-head p {
-  color: var(--stripe-slate);
-  font-size: 17px;
-  line-height: 1.6;
-}
-.stripe-ring {
-  width: 280px; height: 280px;
-  margin: 0 auto;
-  position: relative;
-}
-.stripe-ring svg {
-  width: 100%; height: 100%;
-  transform: rotate(-90deg);
-}
-.stripe-ring circle {
-  fill: none;
-  stroke-width: 18;
-  stroke-linecap: round;
-}
-.stripe-ring .ring-bg { stroke: rgba(10, 37, 64, 0.08); }
-.stripe-ring .ring-fill {
-  stroke-dasharray: var(--circ, 690);
-  stroke-dashoffset: var(--circ, 690);
-  animation: stripeRingFill 1.7s cubic-bezier(.4,0,.2,1) forwards;
-  filter: drop-shadow(0 8px 22px rgba(99,91,255,0.35));
-}
-@keyframes stripeRingFill { to { stroke-dashoffset: var(--final, 200); } }
-.stripe-ring-center {
-  position: absolute; inset: 0;
-  display: grid; place-items: center;
-  text-align: center;
-}
-.stripe-ring-center .num {
-  font: 900 clamp(38px, 5vw, 58px)/1 Inter, var(--font-display);
-  letter-spacing: -0.055em;
-  color: var(--stripe-ink);
-}
-.stripe-ring-center .lab {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--stripe-faint);
-  font-weight: 800;
-  margin-top: 6px;
-}
-
-.stripe-bars { display: grid; gap: 18px; }
-.stripe-bars-row {
-  display: grid;
-  grid-template-columns: 140px minmax(0, 1fr) 56px;
-  align-items: center;
-  gap: 18px;
-}
-.stripe-bars-row .name {
-  font-size: 14px; font-weight: 800; color: var(--stripe-ink);
-}
-.stripe-bars-row .num {
-  font: 900 16px/1 Inter, var(--font-display);
-  color: var(--stripe-ink);
-  text-align: right;
-}
-.stripe-bars-track {
-  position: relative;
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(10, 37, 64, 0.06);
-  overflow: hidden;
-}
-.stripe-bars-track span {
-  position: absolute;
-  inset: 0 auto 0 0;
-  height: 100%;
-  width: 0;
-  border-radius: 999px;
-  background-size: 220% 100%;
-  animation:
-    stripeBarGrow 1.5s cubic-bezier(.4,0,.2,1) forwards,
-    stripeBarShine 3.6s linear infinite;
-}
-@keyframes stripeBarGrow { to { width: var(--pct, 50%); } }
-@keyframes stripeBarShine {
-  0% { background-position: 220% 0; }
-  100% { background-position: -220% 0; }
-}
-
-/* --- Live ticker / marquee --- */
-.stripe-ticker {
-  margin-top: clamp(40px, 6vw, 80px);
-  position: relative;
-  border-radius: 18px;
-  background: linear-gradient(90deg, #0a2540 0%, #16315a 50%, #0a2540 100%);
-  color: #fff;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-.stripe-ticker::before, .stripe-ticker::after {
-  content: "";
-  position: absolute; top: 0; bottom: 0;
-  width: 90px; z-index: 2;
-  pointer-events: none;
-}
-.stripe-ticker::before { left: 0; background: linear-gradient(90deg, #0a2540, transparent); }
-.stripe-ticker::after  { right: 0; background: linear-gradient(-90deg, #0a2540, transparent); }
-.stripe-ticker-track {
-  display: inline-flex;
-  gap: 56px;
-  padding: 18px 30px;
-  white-space: nowrap;
-  animation: stripeTickerScroll 36s linear infinite;
-}
-.stripe-ticker-item {
-  display: inline-flex; align-items: center; gap: 12px;
-  font-size: 14px; font-weight: 800;
-  letter-spacing: -0.01em;
-}
-.stripe-ticker-item .dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--stripe-cyan);
-  box-shadow: 0 0 14px var(--stripe-cyan);
-  animation: stripePulse 2s ease infinite;
-}
-.stripe-ticker-item .num {
-  font: 900 16px/1 Inter, var(--font-display);
-  color: #fff;
-  letter-spacing: -0.02em;
-}
-.stripe-ticker-item.b .dot { background: var(--stripe-mint); box-shadow: 0 0 14px var(--stripe-mint); }
-.stripe-ticker-item.c .dot { background: var(--stripe-pink); box-shadow: 0 0 14px var(--stripe-pink); }
-.stripe-ticker-item.d .dot { background: var(--stripe-orange); box-shadow: 0 0 14px var(--stripe-orange); }
-.stripe-ticker-item.e .dot { background: var(--stripe-purple); box-shadow: 0 0 14px var(--stripe-purple); }
-@keyframes stripeTickerScroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-@media (max-width: 980px) {
-  .stripe-trends-grid { grid-template-columns: 1fr; }
-  .stripe-flow-stage { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .stripe-flow-svg { display: none; }
-  .stripe-compose { grid-template-columns: 1fr; }
-  .stripe-compose-head { grid-template-columns: 1fr; }
-  .stripe-bars-row { grid-template-columns: 100px minmax(0, 1fr) 48px; gap: 12px; }
 }
 @media (max-width: 980px) {
   .stripe-hero,
@@ -4386,13 +4029,13 @@ function Login({ onContinue }) {
             marginBottom: 18,
           }}>Live feed · {new Date().getFullYear()}</div>
           <div style={{
-            fontFamily: "Inter, var(--font-display)",
+            fontFamily: "var(--font-display)",
             fontSize: "clamp(72px, 16vw, 132px)",
-            fontWeight: 900, fontStyle: "normal",
-            letterSpacing: "-0.05em",
+            fontWeight: 800, fontStyle: "normal",
+            letterSpacing: "-0.04em",
             lineHeight: 0.95,
-            color: "var(--stripe-ink)",
-            background: "linear-gradient(120deg, var(--stripe-pink) 0%, var(--stripe-blue) 55%, var(--stripe-cyan) 100%)",
+            color: "var(--ink)",
+            background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
             WebkitBackgroundClip: "text", backgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}>BJJ Bot</div>
@@ -4419,11 +4062,11 @@ function Login({ onContinue }) {
           borderRadius: 16,
           padding: 1,
           background: focused
-            ? "linear-gradient(100deg, var(--stripe-pink) 0%, var(--stripe-blue) 50%, var(--stripe-cyan) 100%)"
-            : "var(--stripe-line)",
+            ? "linear-gradient(100deg, rgba(110,19,32,0.70) 0%, rgba(139,31,55,0.70) 28%, rgba(28,44,90,0.70) 52%, rgba(43,63,122,0.70) 76%, rgba(199,154,58,0.70) 100%)"
+            : "linear-gradient(100deg, rgba(110,19,32,0.40) 0%, rgba(139,31,55,0.40) 28%, rgba(28,44,90,0.40) 52%, rgba(43,63,122,0.40) 76%, rgba(199,154,58,0.40) 100%)",
           boxShadow: focused
-            ? "0 0 0 4px rgba(var(--stripe-blue-rgb, 0,66,255),0.10), var(--stripe-shadow)"
-            : "var(--stripe-shadow)",
+            ? "0 0 0 4px rgba(28,44,90,0.10), 0 1px 2px rgba(0,0,0,0.03)"
+            : "0 1px 2px rgba(0,0,0,0.03)",
           transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
         }}>
           <input
@@ -4438,10 +4081,10 @@ function Login({ onContinue }) {
               width: "100%", boxSizing: "border-box",
               padding: "16px 20px",
               borderRadius: 16,
-              background: "var(--stripe-card)",
+              background: "var(--bg-paper)",
               border: "none",
-              color: "var(--stripe-ink)",
-              fontFamily: "Inter, var(--font-text)", fontSize: 16,
+              color: "var(--ink)",
+              fontFamily: "var(--font-text)", fontSize: 16,
               outline: "none",
               display: "block",
             }}
@@ -6789,91 +6432,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <section className="stripe-trends">
-          <div className="stripe-section-head">
-            <div>
-              <div className="stripe-label">Trends</div>
-              <h2 className="stripe-h2">Today across the board.</h2>
-            </div>
-            <div className="stripe-copy">
-              Quick read on where the day is sitting — hydration, fuel, and training in motion.
-            </div>
-          </div>
-          <div className="stripe-trends-grid">
-            <div className="stripe-trend-card" onClick={onOpenHydration} role="button" tabIndex={0}>
-              <div className="stripe-trend-label">Hydration</div>
-              <div className="stripe-trend-value">{waterLiters}L</div>
-              <div className={"stripe-trend-delta" + (waterPct < 50 ? " down" : "")}>{waterPct < 50 ? "▼" : "▲"} {waterPct}% of {waterGoal}L goal</div>
-              <svg className="stripe-spark" viewBox="0 0 280 86" preserveAspectRatio="none" aria-hidden="true">
-                <defs>
-                  <linearGradient id="sparkAline" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="var(--stripe-blue)" />
-                    <stop offset="100%" stopColor="var(--stripe-cyan)" />
-                  </linearGradient>
-                  <linearGradient id="sparkAfill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--stripe-cyan)" stopOpacity="0.32" />
-                    <stop offset="100%" stopColor="var(--stripe-cyan)" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path className="spark-area" fill="url(#sparkAfill)" d="M 0 62 C 30 58, 50 66, 70 54 S 110 48, 140 42 S 180 32, 210 30 S 250 20, 280 14 L 280 86 L 0 86 Z" />
-                <path className="spark-line" stroke="url(#sparkAline)" d="M 0 62 C 30 58, 50 66, 70 54 S 110 48, 140 42 S 180 32, 210 30 S 250 20, 280 14" />
-                <g className="spark-pin">
-                  <circle className="spark-pulse" cx="280" cy="14" r="9" fill="var(--stripe-cyan)" />
-                  <circle cx="280" cy="14" r="5" fill="#fff" stroke="var(--stripe-cyan)" strokeWidth="3" />
-                </g>
-              </svg>
-            </div>
-
-            <div className="stripe-trend-card" onClick={onOpenMeals} role="button" tabIndex={0}>
-              <div className="stripe-trend-label">Fuel</div>
-              <div className="stripe-trend-value">{animCalories.toLocaleString()}</div>
-              <div className={"stripe-trend-delta" + (caloriePct < 50 ? " down" : "")}>{caloriePct < 50 ? "▼" : "▲"} {caloriePct}% of {calorieGoal.toLocaleString()} cal</div>
-              <svg className="stripe-spark" viewBox="0 0 280 86" preserveAspectRatio="none" aria-hidden="true">
-                <defs>
-                  <linearGradient id="sparkBline" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="var(--stripe-pink)" />
-                    <stop offset="100%" stopColor="var(--stripe-orange)" />
-                  </linearGradient>
-                  <linearGradient id="sparkBfill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--stripe-pink)" stopOpacity="0.32" />
-                    <stop offset="100%" stopColor="var(--stripe-orange)" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path className="spark-area" fill="url(#sparkBfill)" d="M 0 70 L 40 64 L 80 58 L 120 62 L 160 46 L 200 38 L 240 24 L 280 18 L 280 86 L 0 86 Z" />
-                <path className="spark-line" stroke="url(#sparkBline)" d="M 0 70 L 40 64 L 80 58 L 120 62 L 160 46 L 200 38 L 240 24 L 280 18" />
-                <g className="spark-pin">
-                  <circle className="spark-pulse" cx="280" cy="18" r="9" fill="var(--stripe-orange)" />
-                  <circle cx="280" cy="18" r="5" fill="#fff" stroke="var(--stripe-orange)" strokeWidth="3" />
-                </g>
-              </svg>
-            </div>
-
-            <div className="stripe-trend-card" onClick={onOpenSchedule} role="button" tabIndex={0}>
-              <div className="stripe-trend-label">Training</div>
-              <div className="stripe-trend-value">{completedSessions}{totalSessionsToday > 0 ? "/" + totalSessionsToday : ""}</div>
-              <div className={"stripe-trend-delta" + (sessionProgressPct < 50 ? " down" : "")}>{sessionProgressPct < 50 ? "▼" : "▲"} {sessionProgressPct}% complete</div>
-              <svg className="stripe-spark" viewBox="0 0 280 86" preserveAspectRatio="none" aria-hidden="true">
-                <defs>
-                  <linearGradient id="sparkCline" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="var(--stripe-purple)" />
-                    <stop offset="100%" stopColor="var(--stripe-mint)" />
-                  </linearGradient>
-                  <linearGradient id="sparkCfill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--stripe-purple)" stopOpacity="0.30" />
-                    <stop offset="100%" stopColor="var(--stripe-mint)" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path className="spark-area" fill="url(#sparkCfill)" d="M 0 68 L 40 68 L 80 54 L 120 54 L 160 40 L 200 40 L 240 24 L 280 22 L 280 86 L 0 86 Z" />
-                <path className="spark-line" stroke="url(#sparkCline)" d="M 0 68 L 40 68 L 80 54 L 120 54 L 160 40 L 200 40 L 240 24 L 280 22" />
-                <g className="spark-pin">
-                  <circle className="spark-pulse" cx="280" cy="22" r="9" fill="var(--stripe-mint)" />
-                  <circle cx="280" cy="22" r="5" fill="#fff" stroke="var(--stripe-mint)" strokeWidth="3" />
-                </g>
-              </svg>
-            </div>
-          </div>
-        </section>
-
         <section className="stripe-backbone" id="current-status">
           <div className="stripe-backbone-grid">
             <div>
@@ -6921,61 +6479,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 </svg>
               </div>
               <div className="stripe-backbone-value">{techCount}</div>
-            </div>
-          </div>
-        </section>
-
-        <section className="stripe-flow">
-          <div className="stripe-section-head">
-            <div>
-              <div className="stripe-label">Data in motion</div>
-              <h2 className="stripe-h2">How the day flows through.</h2>
-            </div>
-            <div className="stripe-copy">
-              Every signal connects — intake feeds training, training feeds recovery, recovery feeds the library.
-            </div>
-          </div>
-          <div className="stripe-flow-stage">
-            <svg className="stripe-flow-svg" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="stripeFlowGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="var(--stripe-blue)" />
-                  <stop offset="40%" stopColor="var(--stripe-pink)" />
-                  <stop offset="80%" stopColor="var(--stripe-orange)" />
-                  <stop offset="100%" stopColor="var(--stripe-mint)" />
-                </linearGradient>
-              </defs>
-              <line className="flow-line" x1="0" y1="2" x2="100" y2="2" stroke="url(#stripeFlowGrad)" />
-            </svg>
-            <div className="stripe-flow-node" onClick={onOpenHydration} role="button" tabIndex={0}>
-              <div className="icon" style={{ background: "linear-gradient(135deg, var(--stripe-blue), var(--stripe-cyan))" }}>H</div>
-              <div className="label">Hydration</div>
-              <span className="value">{waterPct}%</span>
-              <span className="sub">{waterLiters}L of {waterGoal}L</span>
-            </div>
-            <div className="stripe-flow-node" onClick={onOpenMeals} role="button" tabIndex={0}>
-              <div className="icon" style={{ background: "linear-gradient(135deg, var(--stripe-pink), var(--stripe-orange))" }}>F</div>
-              <div className="label">Fuel</div>
-              <span className="value">{mealsToday}</span>
-              <span className="sub">meals today</span>
-            </div>
-            <div className="stripe-flow-node" onClick={onOpenSchedule} role="button" tabIndex={0}>
-              <div className="icon" style={{ background: "linear-gradient(135deg, var(--stripe-mint), var(--stripe-cyan))" }}>T</div>
-              <div className="label">Training</div>
-              <span className="value">{completedSessions}</span>
-              <span className="sub">{totalSessionsToday > 0 ? "of " + totalSessionsToday : "sessions"}</span>
-            </div>
-            <div className="stripe-flow-node" onClick={onOpenMicroInjuries} role="button" tabIndex={0}>
-              <div className="icon" style={{ background: "linear-gradient(135deg, var(--stripe-purple), var(--stripe-pink))" }}>R</div>
-              <div className="label">Recovery</div>
-              <span className="value">{injuries.length}</span>
-              <span className="sub">open injuries</span>
-            </div>
-            <div className="stripe-flow-node" onClick={onOpenTechniqueLibrary} role="button" tabIndex={0}>
-              <div className="icon" style={{ background: "linear-gradient(135deg, var(--stripe-blue), var(--stripe-purple))" }}>L</div>
-              <div className="label">Library</div>
-              <span className="value">{techCount}</span>
-              <span className="sub">techniques</span>
             </div>
           </div>
         </section>
@@ -7035,69 +6538,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <section className="stripe-compose">
-          <div className="stripe-compose-head">
-            <div>
-              <div className="stripe-label">Composition</div>
-              <h2>Where things stand today.</h2>
-            </div>
-            <p>One composite score across hydration, fuel, training, recovery, and the library — with the breakdown alongside.</p>
-          </div>
-          {(() => {
-            const c = 2 * Math.PI * 100;
-            const composite = Math.round((waterPct + caloriePct + sessionProgressPct) / 3);
-            const finalOffset = c - (c * Math.max(0, Math.min(100, composite))) / 100;
-            return (
-              <div className="stripe-ring">
-                <svg viewBox="0 0 240 240" aria-hidden="true">
-                  <defs>
-                    <linearGradient id="stripeRingGrad" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="var(--stripe-blue)" />
-                      <stop offset="50%" stopColor="var(--stripe-pink)" />
-                      <stop offset="100%" stopColor="var(--stripe-orange)" />
-                    </linearGradient>
-                  </defs>
-                  <circle className="ring-bg" cx="120" cy="120" r="100" />
-                  <circle className="ring-fill" cx="120" cy="120" r="100" stroke="url(#stripeRingGrad)" style={{ "--circ": c, "--final": finalOffset }} />
-                </svg>
-                <div className="stripe-ring-center">
-                  <div>
-                    <div className="num">{composite}%</div>
-                    <div className="lab">Composite</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-          <div className="stripe-bars">
-            <div className="stripe-bars-row">
-              <div className="name">Hydration</div>
-              <div className="stripe-bars-track"><span style={{ "--pct": waterPct + "%", background: "linear-gradient(90deg, var(--stripe-blue), var(--stripe-cyan), var(--stripe-blue))" }} /></div>
-              <div className="num">{waterPct}%</div>
-            </div>
-            <div className="stripe-bars-row">
-              <div className="name">Fuel</div>
-              <div className="stripe-bars-track"><span style={{ "--pct": caloriePct + "%", background: "linear-gradient(90deg, var(--stripe-pink), var(--stripe-orange), var(--stripe-pink))" }} /></div>
-              <div className="num">{caloriePct}%</div>
-            </div>
-            <div className="stripe-bars-row">
-              <div className="name">Training</div>
-              <div className="stripe-bars-track"><span style={{ "--pct": sessionProgressPct + "%", background: "linear-gradient(90deg, var(--stripe-mint), var(--stripe-cyan), var(--stripe-mint))" }} /></div>
-              <div className="num">{sessionProgressPct}%</div>
-            </div>
-            <div className="stripe-bars-row">
-              <div className="name">Recovery</div>
-              <div className="stripe-bars-track"><span style={{ "--pct": Math.max(0, 100 - injuries.length * 20) + "%", background: "linear-gradient(90deg, var(--stripe-purple), var(--stripe-pink), var(--stripe-purple))" }} /></div>
-              <div className="num">{Math.max(0, 100 - injuries.length * 20)}%</div>
-            </div>
-            <div className="stripe-bars-row">
-              <div className="name">Library</div>
-              <div className="stripe-bars-track"><span style={{ "--pct": Math.min(100, techCount * 5) + "%", background: "linear-gradient(90deg, var(--stripe-blue), var(--stripe-purple), var(--stripe-blue))" }} /></div>
-              <div className="num">{techCount}</div>
-            </div>
-          </div>
-        </section>
-
         <section className="stripe-dev">
           <div>
             <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Live activity</div>
@@ -7127,25 +6567,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 }`}</pre>
           </div>
         </section>
-
-        <div className="stripe-ticker" aria-hidden="true">
-          <div className="stripe-ticker-track">
-            <div className="stripe-ticker-item"><span className="dot"></span><span>Hydration</span><span className="num">{waterPct}%</span></div>
-            <div className="stripe-ticker-item b"><span className="dot"></span><span>Fuel</span><span className="num">{animCalories.toLocaleString()} cal</span></div>
-            <div className="stripe-ticker-item c"><span className="dot"></span><span>Sessions</span><span className="num">{completedSessions}{totalSessionsToday > 0 ? "/" + totalSessionsToday : ""}</span></div>
-            <div className="stripe-ticker-item d"><span className="dot"></span><span>Library</span><span className="num">{techCount}</span></div>
-            <div className="stripe-ticker-item e"><span className="dot"></span><span>Active injuries</span><span className="num">{injuries.length}</span></div>
-            <div className="stripe-ticker-item b"><span className="dot"></span><span>Day streak</span><span className="num">{streakDays}</span></div>
-            <div className="stripe-ticker-item c"><span className="dot"></span><span>Open problems</span><span className="num">{openProblems}</span></div>
-            <div className="stripe-ticker-item"><span className="dot"></span><span>Hydration</span><span className="num">{waterPct}%</span></div>
-            <div className="stripe-ticker-item b"><span className="dot"></span><span>Fuel</span><span className="num">{animCalories.toLocaleString()} cal</span></div>
-            <div className="stripe-ticker-item c"><span className="dot"></span><span>Sessions</span><span className="num">{completedSessions}{totalSessionsToday > 0 ? "/" + totalSessionsToday : ""}</span></div>
-            <div className="stripe-ticker-item d"><span className="dot"></span><span>Library</span><span className="num">{techCount}</span></div>
-            <div className="stripe-ticker-item e"><span className="dot"></span><span>Active injuries</span><span className="num">{injuries.length}</span></div>
-            <div className="stripe-ticker-item b"><span className="dot"></span><span>Day streak</span><span className="num">{streakDays}</span></div>
-            <div className="stripe-ticker-item c"><span className="dot"></span><span>Open problems</span><span className="num">{openProblems}</span></div>
-          </div>
-        </div>
 
         <section className="stripe-section" id="recent-messages">
           <div className="stripe-section-head">
@@ -7257,9 +6678,9 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
         <div style={{ maxWidth: "min(75%, 520px)" }}>
           <div style={{
             padding: "14px 20px", borderRadius: 16,
-            background: "var(--stripe-card)",
-            border: "1px solid var(--stripe-line)",
-            color: "var(--stripe-faint)",
+            background: "var(--bg-paper)",
+            border: "1px solid var(--bg-hairline)",
+            color: "var(--ink-faint)",
             fontSize: 15, lineHeight: 1.6,
             letterSpacing: "-0.01em",
             display: "flex", alignItems: "center", gap: 6,
@@ -7293,10 +6714,10 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
                 display: "inline-block",
                 padding: "3px 10px",
                 borderRadius: 20,
-                background: "var(--stripe-card)",
-                border: "1px solid var(--stripe-line)",
+                background: "rgba(28,44,90,0.07)",
+                border: "1px solid rgba(28,44,90,0.15)",
                 fontSize: 12,
-                color: "var(--stripe-faint)",
+                color: "var(--ink-faint)",
                 letterSpacing: "-0.01em",
                 fontFamily: "var(--font-text)",
               }}>{label}</div>
@@ -7310,8 +6731,8 @@ function ChatMessage({ role, body, toolEvents, loading, deployDone }) {
         <div
           style={{
             padding: "14px 20px", borderRadius: 16,
-            background: "var(--stripe-card)",
-            border: "1px solid var(--stripe-line)",
+            background: "var(--bg-paper)",
+            border: "1px solid var(--bg-hairline)",
             color: "var(--ink)",
             fontSize: 15, lineHeight: 1.6,
             letterSpacing: "-0.01em",
@@ -7574,9 +6995,9 @@ function Editor() {
           </div>
           {messages.length > 0 && (
             <button onClick={clearHistory} style={{
-              background: "none", border: "1px solid var(--stripe-line)", borderRadius: 8,
+              background: "none", border: "1px solid var(--bg-hairline)", borderRadius: 8,
               padding: "6px 14px", fontSize: 12, fontFamily: "var(--font-text)", fontWeight: 500,
-              color: "var(--stripe-faint)", cursor: "pointer", letterSpacing: "0.02em",
+              color: "var(--ink-faint)", cursor: "pointer", letterSpacing: "0.02em",
               transition: "all 0.15s ease",
             }}>Clear</button>
           )}
@@ -7596,7 +7017,7 @@ function Editor() {
               }}>What's on your mind?</div>
               <div style={{
                 fontFamily: "var(--font-text)", fontSize: 14,
-                color: "var(--stripe-faint)", maxWidth: 340, textAlign: "center",
+                color: "var(--ink-faint)", maxWidth: 340, textAlign: "center",
                 lineHeight: 1.5,
               }}>Ask about your schedule, log injuries, review training notes, or chat about anything.</div>
             </div>
@@ -7631,7 +7052,7 @@ function Editor() {
             <style>{`
               .editor-chips::-webkit-scrollbar { display: none; }
               .editor-chips { -ms-overflow-style: none; scrollbar-width: none; }
-              .quick-chip:hover { background: var(--stripe-card) !important; border-color: var(--stripe-blue) !important; }
+              .quick-chip:hover { background: rgba(28,44,90,0.12) !important; border-color: rgba(28,44,90,0.4) !important; }
             `}</style>
             {QUICK_ACTIONS.map((action) => (
               <button
@@ -7965,23 +7386,23 @@ function LessonFormModal({ mode, initial, onCancel, onSubmit }) {
 
 const inputStyle = {
   width: "100%", padding: "11px 14px", fontSize: 16,
-  border: "1px solid var(--stripe-line)", borderRadius: 8,
-  outline: "none", fontFamily: "Inter, var(--font-text)", boxSizing: "border-box",
-  color: "var(--stripe-ink)",
-  background: "var(--stripe-card)",
+  border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8,
+  outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
+  color: "var(--ink)",
+  background: "var(--bg-paper)",
 };
 
 function FormField({ label, hint, children, style = {} }) {
   return (
     <div style={style}>
       <div style={{
-        fontFamily: "Inter, var(--font-text)", fontSize: 12, fontWeight: 700,
+        fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600,
         letterSpacing: "0.04em", textTransform: "uppercase",
-        color: "var(--stripe-faint)", marginBottom: 6,
+        color: "var(--ink-faint)", marginBottom: 6,
       }}>{label}</div>
       {children}
       {hint && (
-        <div style={{ fontSize: 12, color: "var(--stripe-faint)", marginTop: 6, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: "var(--ink-faint)", marginTop: 6, lineHeight: 1.4 }}>
           {hint}
         </div>
       )}
@@ -8083,17 +7504,17 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
         background: "var(--stripe-card)",
         borderRadius: isPinned ? 18.5 : 20,
         padding: "22px 24px",
-        border: isPinned ? "none" : "1px solid var(--stripe-line)",
+        border: isPinned ? "none" : "1px solid var(--bg-hairline)",
         display: "flex", alignItems: "flex-start", gap: 16,
         position: "relative",
       }}>
         {/* Date column */}
         <div style={{ flexShrink: 0, paddingTop: 2, minWidth: 88 }}>
           <div style={{
-            fontFamily: "Inter, var(--font-display)", fontSize: 15, fontWeight: 600,
-            letterSpacing: "-0.02em", color: "var(--stripe-ink)",
+            fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
+            letterSpacing: "-0.02em", color: "var(--ink)",
           }}>{lesson.week}</div>
-          <div style={{ fontSize: 13, color: "var(--stripe-faint)", marginTop: 2 }}>{lesson.date}</div>
+          <div style={{ fontSize: 13, color: "var(--ink-faint)", marginTop: 2 }}>{lesson.date}</div>
         </div>
 
         {/* Body column */}
@@ -8102,17 +7523,21 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
             display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap",
           }}>
             <div style={{
-              fontFamily: "Inter, var(--font-display)", fontSize: 20, fontWeight: 600,
-              letterSpacing: "-0.02em", color: "var(--stripe-ink)", lineHeight: 1.3,
+              fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 600,
+              letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.3,
             }}>{lesson.summary}</div>
             {isPinned && (
-              <span className="stripe-pill" style={{
+              <span style={{
                 fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
                 textTransform: "uppercase",
+                padding: "2px 8px", borderRadius: 999,
+                color: "var(--accent-gold)",
+                background: "rgba(255,159,28,0.10)",
+                border: "1px solid rgba(255,159,28,0.30)",
               }}>pinned</span>
             )}
           </div>
-          <div style={{ fontSize: 15, color: "var(--stripe-faint)", lineHeight: 1.5 }}>
+          <div style={{ fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5 }}>
             {lesson.description}
           </div>
         </div>
@@ -8130,7 +7555,7 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
               background: isPinned ? "rgba(255,159,28,0.12)" : "transparent",
               display: "flex", alignItems: "center", justifyContent: "center",
-              color: isPinned ? "var(--stripe-cyan)" : "var(--stripe-faint)",
+              color: isPinned ? "var(--accent-gold)" : "var(--ink-faint)",
               transition: "all 160ms ease",
             }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill={isPinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -8141,9 +7566,9 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               aria-label="Edit lesson"
               style={{
                 width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
-                background: editHover ? "var(--stripe-line)" : "transparent",
+                background: editHover ? "rgba(0,0,0,0.05)" : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--stripe-faint)",
+                color: "var(--ink-faint)",
               }}
               onMouseEnter={() => setEditHover(true)} onMouseLeave={() => setEditHover(false)}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -8153,9 +7578,9 @@ function LessonRow({ lesson, isPinned, onClick, onTogglePin, onRequestEdit, onRe
               aria-label="Delete lesson"
               style={{
                 width: 32, height: 32, borderRadius: "50%", border: "none", cursor: "pointer",
-                background: trashHover ? "rgba(255,92,154,0.08)" : "transparent",
+                background: trashHover ? "rgba(224,38,74,0.08)" : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--stripe-pink)",
+                color: "var(--accent-danger-bright)",
               }}
               onMouseEnter={() => setTrashHover(true)} onMouseLeave={() => setTrashHover(false)}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
@@ -8232,12 +7657,13 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: isPinned ? "rgba(255,159,28,0.10)" : "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: isPinned ? "var(--stripe-cyan)" : "var(--stripe-faint)",
+                color: isPinned ? "var(--accent-gold)" : "var(--ink-faint)",
                 transition: "all 160ms ease",
               }}>
               <svg width="20" height="20" viewBox="0 0 24 24"
                    fill={isPinned ? "currentColor" : "none"}
-                   stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                   stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                   style={{ filter: isPinned ? "drop-shadow(0 2px 6px rgba(255,159,28,0.55))" : "none" }}>
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             </button>
@@ -8248,7 +7674,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--stripe-faint)",
+                color: "var(--ink-faint)",
                 transition: "all 160ms ease",
               }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -8262,7 +7688,7 @@ function BrunoLessonDetail({ lessonId, onBack }) {
                 width: 40, height: 40, borderRadius: "50%", border: "none",
                 background: "transparent",
                 cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                color: "var(--stripe-pink)",
+                color: "var(--ink-faint)",
                 transition: "all 160ms ease",
               }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -8301,12 +7727,12 @@ function BrunoLessonDetail({ lessonId, onBack }) {
               {lesson.notes.map((n, i) => (
                 <div key={i} style={{
                   fontSize: 15, lineHeight: 1.6,
-                  color: "var(--stripe-ink)", letterSpacing: "-0.01em",
+                  color: "var(--fg-2)", letterSpacing: "-0.01em",
                 }}>{renderInline(n)}</div>
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 15, color: "var(--stripe-faint)", fontStyle: "normal" }}>
+            <div style={{ fontSize: 15, color: "var(--ink-faint)", fontStyle: "normal" }}>
               No detailed notes yet — tap edit to add some.
             </div>
           )}
@@ -8467,13 +7893,13 @@ function NowRule({ time }) {
       position: "relative",
     }}>
       <div style={{
-        fontFamily: "Inter, var(--font-display)", fontSize: 12, fontWeight: 700,
-        color: "var(--stripe-pink)", letterSpacing: "0.04em", textTransform: "uppercase",
+        fontFamily: "var(--font-display)", fontSize: 12, fontWeight: 600,
+        color: "var(--accent-oxblood)", letterSpacing: "0.04em", textTransform: "uppercase",
         flexShrink: 0,
       }}>now · {time}</div>
       <div style={{
         flex: 1, height: 2, borderRadius: 2,
-        background: "linear-gradient(90deg, var(--stripe-pink) 0%, var(--stripe-blue) 60%, transparent 100%)",
+        background: "linear-gradient(90deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 60%, transparent 100%)",
       }}></div>
     </div>
   );
@@ -8711,20 +8137,20 @@ function Meals({ onBack }) {
             }}>{total}<span style={{ color: "var(--stripe-faint)", fontWeight: 400, fontSize: 14, marginLeft: 4 }}>/ {CAL_GOAL}</span></div>
           </div>
 
-          {/* Calorie progress bar — stripe meter */}
-          <div className="stripe-meter" style={{ marginTop: 16, marginBottom: 18, maxWidth: 520 }}>
-            <span style={{
-              width: `${pct}%`,
-              background: pct >= 75 ? "var(--stripe-mint)" : "linear-gradient(90deg, var(--stripe-pink), var(--stripe-orange))",
+          {/* Calorie progress bar — clean, minimal */}
+          <div style={{ height: 6, borderRadius: 999, background: "var(--glass-stroke-2)", marginTop: 16, marginBottom: 18, maxWidth: 520, overflow: "hidden" }}>
+            <div style={{
+              width: `${pct}%`, height: "100%", borderRadius: 999,
+              background: pct >= 75 ? "var(--accent-success)" : "var(--accent-cobalt)",
               transition: "width 0.4s cubic-bezier(0.32,0.72,0,1)",
-            }} />
+            }}></div>
           </div>
 
           {/* Macros row */}
           <div style={{ display: "flex", gap: 24, fontVariantNumeric: "tabular-nums" }}>
-            <MacroChip label="protein" value={totalP} unit="g" color="var(--stripe-pink)" />
-            <MacroChip label="carbs"   value={totalC} unit="g" color="var(--stripe-blue)" />
-            <MacroChip label="fat"     value={totalF} unit="g" color="var(--stripe-cyan)" />
+            <MacroChip label="protein" value={totalP} unit="g" color="var(--accent-oxblood)" />
+            <MacroChip label="carbs"   value={totalC} unit="g" color="var(--accent-cobalt)" />
+            <MacroChip label="fat"     value={totalF} unit="g" color="var(--accent-gold)" />
           </div>
         </div>
 
@@ -8817,13 +8243,13 @@ function Meals({ onBack }) {
 function MacroChip({ label, value, unit, color }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0 }}></div>
+      <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, boxShadow: `0 0 8px ${color}80` }}></div>
       <div>
         <div style={{
-          fontFamily: "Inter, var(--font-display)", fontSize: 18, fontWeight: 900,
-          letterSpacing: "-0.05em", color: "var(--stripe-ink)", lineHeight: 1.2,
-        }}>{value}<span style={{ fontSize: 13, color: "var(--stripe-faint)", fontWeight: 400, marginLeft: 2 }}>{unit}</span></div>
-        <div style={{ fontSize: 12, color: "var(--stripe-faint)", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: 2 }}>{label}</div>
+          fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600,
+          letterSpacing: "-0.02em", color: "var(--ink)", lineHeight: 1.2,
+        }}>{value}<span style={{ fontSize: 13, color: "var(--ink-faint)", fontWeight: 400, marginLeft: 2 }}>{unit}</span></div>
+        <div style={{ fontSize: 12, color: "var(--ink-faint)", textTransform: "uppercase", letterSpacing: "0.04em", marginTop: 2 }}>{label}</div>
       </div>
     </div>
   );
@@ -8844,10 +8270,10 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
         position: "relative",
         cursor: "pointer",
         borderRadius: 20,
-        background: "var(--stripe-card)",
+        background: "var(--bg-paper)",
         padding: "20px 24px",
-        border: "1px solid var(--stripe-line)",
-        boxShadow: hover ? "var(--shadow-pop)" : "var(--stripe-shadow)",
+        border: "1px solid var(--bg-hairline)",
+        boxShadow: hover ? "var(--shadow-pop)" : "var(--shadow-card)",
         transform: hover ? "translateY(-1px)" : "translateY(0)",
         transition: "all 200ms cubic-bezier(0.32,0.72,0,1)",
         display: "flex", alignItems: "flex-start", gap: 16,
@@ -8856,8 +8282,8 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
       {/* Time */}
       <div style={{ flexShrink: 0, minWidth: 64, paddingTop: 2 }}>
         <div style={{
-          fontFamily: "Inter, var(--font-display)", fontSize: 15, fontWeight: 600,
-          letterSpacing: "-0.02em", color: "var(--stripe-ink)",
+          fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
+          letterSpacing: "-0.01em", color: "var(--ink)",
           fontVariantNumeric: "tabular-nums",
         }}>{meal.time}</div>
       </div>
@@ -8869,32 +8295,34 @@ function MealRow({ meal, onClick, onRequestEdit, onRequestDelete }) {
           gap: 12, marginBottom: 8,
         }}>
           <div style={{
-            fontFamily: "Inter, var(--font-display)", fontSize: 16, fontWeight: 600,
-            letterSpacing: "-0.02em", color: "var(--stripe-ink)", minWidth: 0,
+            fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 600,
+            letterSpacing: "-0.02em", color: "var(--ink)", minWidth: 0,
           }}>{meal.label}</div>
-          <div className="stripe-pill" style={{
+          <div style={{
             flexShrink: 0,
-            padding: "6px 14px",
-            fontFamily: "Inter, var(--font-display)", fontSize: 15, fontWeight: 600,
-            letterSpacing: "-0.01em", color: "var(--stripe-blue)",
+            padding: "6px 14px", borderRadius: 999,
+            fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 600,
+            letterSpacing: "-0.01em", color: "var(--accent-cobalt)",
+            background: "rgba(28,44,90,0.08)",
+            border: "1px solid rgba(28,44,90,0.22)",
             fontVariantNumeric: "tabular-nums",
           }}>{meal.calories} cal</div>
         </div>
         <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
           {(meal.items || []).map((it, i) => (
             <li key={i} style={{
-              fontSize: 15, color: "var(--stripe-faint)", lineHeight: 1.5,
+              fontSize: 15, color: "var(--ink-muted)", lineHeight: 1.5,
               paddingLeft: 14, position: "relative",
             }}>
               <span style={{
                 position: "absolute", left: 0, top: 9, width: 4, height: 4, borderRadius: "50%",
-                background: "var(--stripe-line)",
+                background: "var(--fg-5)",
               }}></span>
               {it}
             </li>
           ))}
         </ul>
-        <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 12, color: "var(--stripe-faint)", fontVariantNumeric: "tabular-nums" }}>
+        <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 12, color: "var(--ink-faint)", fontVariantNumeric: "tabular-nums" }}>
           <span>P {meal.macros?.p ?? 0}g</span>
           <span>C {meal.macros?.c ?? 0}g</span>
           <span>F {meal.macros?.f ?? 0}g</span>
@@ -8981,16 +8409,16 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
           <div style={{ marginTop: 14, marginBottom: 4 }}>
             <div style={{
               display: "flex", height: 10, borderRadius: 999, overflow: "hidden",
-              border: "1px solid var(--stripe-line)",
+              border: "1px solid rgba(0,0,0,0.05)",
             }}>
-              <div style={{ width: `${pPct}%`, background: "var(--stripe-pink)" }} />
-              <div style={{ width: `${cPct}%`, background: "var(--stripe-blue)" }} />
-              <div style={{ width: `${fPct}%`, background: "var(--stripe-cyan)" }} />
+              <div style={{ width: `${pPct}%`, background: "var(--accent-oxblood)" }} />
+              <div style={{ width: `${cPct}%`, background: "var(--accent-cobalt)" }} />
+              <div style={{ width: `${fPct}%`, background: "var(--accent-gold)" }} />
             </div>
             <div style={{ display: "flex", gap: 16, marginTop: 10, fontVariantNumeric: "tabular-nums" }}>
-              <MacroLegend color="var(--stripe-pink)" label="protein" value={meal.macros?.p || 0} pct={pPct} />
-              <MacroLegend color="var(--stripe-blue)" label="carbs"   value={meal.macros?.c || 0} pct={cPct} />
-              <MacroLegend color="var(--stripe-cyan)" label="fat"     value={meal.macros?.f || 0} pct={fPct} />
+              <MacroLegend color="var(--accent-oxblood)" label="protein" value={meal.macros?.p || 0} pct={pPct} />
+              <MacroLegend color="var(--accent-cobalt)" label="carbs"   value={meal.macros?.c || 0} pct={cPct} />
+              <MacroLegend color="var(--accent-gold)" label="fat"     value={meal.macros?.f || 0} pct={fPct} />
             </div>
           </div>
         )}
@@ -9001,12 +8429,12 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
           <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
             {(meal.items || []).map((it, i) => (
               <li key={i} style={{
-                fontSize: 15, color: "var(--stripe-ink)", lineHeight: 1.5,
+                fontSize: 15, color: "var(--fg-2)", lineHeight: 1.5,
                 paddingLeft: 18, position: "relative",
               }}>
                 <span style={{
                   position: "absolute", left: 2, top: 9, width: 5, height: 5, borderRadius: "50%",
-                  background: "linear-gradient(135deg, var(--stripe-blue), var(--stripe-cyan))",
+                  background: "linear-gradient(135deg, #1c2c5a, #c79a3a)",
                 }}></span>
                 {it}
               </li>
@@ -9018,10 +8446,10 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
         {meal.notes && meal.notes.trim() && (
           <div style={{
             marginTop: 22, padding: "14px 16px",
-            background: "var(--stripe-card)",
-            border: "1px solid var(--stripe-line)",
+            background: "rgba(28,44,90,0.05)",
+            border: "1px solid rgba(28,44,90,0.14)",
             borderRadius: 12,
-            fontSize: 15, color: "var(--stripe-ink)", lineHeight: 1.5,
+            fontSize: 15, color: "var(--fg-2)", lineHeight: 1.5,
           }}>
             {meal.notes}
           </div>
@@ -9044,10 +8472,10 @@ function MealDetailModal({ meal, onClose, onEdit, onDelete }) {
 function MacroLegend({ color, label, value, pct }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: 13, color: "var(--stripe-faint)" }}>
-        <span style={{ fontWeight: 700, color: "var(--stripe-ink)" }}>{value}g</span>
-        <span style={{ marginLeft: 4, color: "var(--stripe-faint)" }}>{label} · {pct}%</span>
+      <div style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
+      <div style={{ fontSize: 13, color: "var(--fg-2)" }}>
+        <span style={{ fontWeight: 600, color: "var(--ink)" }}>{value}g</span>
+        <span style={{ marginLeft: 4, color: "var(--ink-faint)" }}>{label} · {pct}%</span>
       </div>
     </div>
   );
@@ -9167,9 +8595,9 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
             marginBottom: 6,
           }}>Macros (grams)</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            <MacroInput color="var(--stripe-pink)" label="protein" value={protein} onChange={setProtein} />
-            <MacroInput color="var(--stripe-blue)" label="carbs"   value={carbs}   onChange={setCarbs}   />
-            <MacroInput color="var(--stripe-cyan)" label="fat"     value={fat}     onChange={setFat}     />
+            <MacroInput color="var(--accent-oxblood)" label="protein" value={protein} onChange={setProtein} />
+            <MacroInput color="var(--accent-cobalt)" label="carbs"   value={carbs}   onChange={setCarbs}   />
+            <MacroInput color="var(--accent-gold)" label="fat"     value={fat}     onChange={setFat}     />
           </div>
         </div>
 
@@ -9199,23 +8627,23 @@ function MealFormModal({ mode, initial, onCancel, onSubmit }) {
 
 const mealInputStyle = {
   width: "100%", padding: "11px 14px", fontSize: 16,
-  border: "1px solid var(--stripe-line)", borderRadius: 8,
-  outline: "none", fontFamily: "Inter, var(--font-text)", boxSizing: "border-box",
-  color: "var(--stripe-ink)",
-  background: "var(--stripe-card)",
+  border: "1px solid rgba(0,0,0,0.12)", borderRadius: 8,
+  outline: "none", fontFamily: "var(--font-text)", boxSizing: "border-box",
+  color: "var(--ink)",
+  background: "var(--bg-paper)",
 };
 
 function MealField({ label, hint, children, style = {} }) {
   return (
     <div style={style}>
       <div style={{
-        fontFamily: "Inter, var(--font-text)", fontSize: 12, fontWeight: 700,
+        fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600,
         letterSpacing: "0.04em", textTransform: "uppercase",
-        color: "var(--stripe-faint)", marginBottom: 6,
+        color: "var(--ink-faint)", marginBottom: 6,
       }}>{label}</div>
       {children}
       {hint && (
-        <div style={{ fontSize: 12, color: "var(--stripe-faint)", marginTop: 6, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 12, color: "var(--ink-faint)", marginTop: 6, lineHeight: 1.4 }}>
           {hint}
         </div>
       )}
@@ -9228,8 +8656,8 @@ function MacroInput({ color, label, value, onChange }) {
     <div>
       <div style={{
         display: "flex", alignItems: "center", gap: 6,
-        fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
-        color: "var(--stripe-faint)",
+        fontSize: 11, fontWeight: 500, letterSpacing: "0.04em",
+        color: "var(--ink-muted)",
         marginBottom: 4,
       }}>
         <span style={{ width: 6, height: 6, borderRadius: "50%", background: color }} />
@@ -9246,7 +8674,7 @@ function MacroInput({ color, label, value, onChange }) {
         />
         <span style={{
           position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-          fontSize: 12, color: "var(--stripe-faint)", pointerEvents: "none",
+          fontSize: 12, color: "var(--ink-faint)", pointerEvents: "none",
         }}>g</span>
       </div>
     </div>
@@ -9844,10 +9272,11 @@ const MICRO_INJURY_TIME_LABELS = {
 
 function MicroInjuryTimeChart({ buckets }) {
   // Three buckets only: morning / afternoon / evening (night folds in).
+  // Colors map to oxblood / cobalt / gold instead of the old rainbow.
   const rows = [
-    { key: "morning",   color: "var(--stripe-pink)" },
-    { key: "afternoon", color: "var(--stripe-blue)" },
-    { key: "evening",   color: "var(--stripe-cyan)" },
+    { key: "morning",   color: "var(--accent-oxblood)" },  // oxblood
+    { key: "afternoon", color: "var(--accent-cobalt)" },  // cobalt
+    { key: "evening",   color: "var(--accent-gold)" },  // gold
   ];
   const counts = rows.map((r) => buckets[r.key] || 0);
   const maxCount = Math.max(...counts);
@@ -10599,8 +10028,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           placeholder="e.g. Right knee"
           style={{
             width: "100%", padding: "12px 14px", fontSize: 15,
-            border: "1px solid var(--stripe-line)", borderRadius: 12,
-            background: "var(--stripe-card)", color: "var(--stripe-ink)",
+            border: "1px solid var(--bg-hairline)", borderRadius: 12,
             outline: "none", marginBottom: 12, fontFamily: "inherit", boxSizing: "border-box",
           }}
         />
@@ -10609,8 +10037,8 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
           <div>
             <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-              textTransform: "uppercase", color: "var(--stripe-faint)",
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+              textTransform: "uppercase", color: "var(--ink-faint)",
               marginBottom: 6, paddingLeft: 2,
             }}>Body region</div>
             <select
@@ -10618,9 +10046,9 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
               onChange={(e) => setRegion(e.target.value)}
               style={{
                 width: "100%", padding: "11px 12px", fontSize: 16,
-                border: "1px solid var(--stripe-line)", borderRadius: 12,
+                border: "1px solid var(--bg-hairline)", borderRadius: 12,
                 outline: "none", fontFamily: "inherit", boxSizing: "border-box",
-                background: "var(--stripe-card)", color: "var(--stripe-ink)", cursor: "pointer",
+                background: "var(--bg-paper)", color: "var(--ink)", cursor: "pointer",
                 appearance: "none",
                 backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231d1d1f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")",
                 backgroundRepeat: "no-repeat",
@@ -10634,8 +10062,8 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           </div>
           <div>
             <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-              textTransform: "uppercase", color: "var(--stripe-faint)",
+              fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+              textTransform: "uppercase", color: "var(--ink-faint)",
               marginBottom: 6, paddingLeft: 2,
             }}>Rest plan</div>
             <input
@@ -10644,8 +10072,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
               placeholder="e.g. 2 more rest days"
               style={{
                 width: "100%", padding: "11px 12px", fontSize: 16,
-                border: "1px solid var(--stripe-line)", borderRadius: 12,
-                background: "var(--stripe-card)", color: "var(--stripe-ink)",
+                border: "1px solid var(--bg-hairline)", borderRadius: 12,
                 outline: "none", fontFamily: "inherit", boxSizing: "border-box",
               }}
             />
@@ -10660,8 +10087,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           rows={4}
           style={{
             width: "100%", padding: "12px 14px", fontSize: 16, lineHeight: 1.5,
-            border: "1px solid var(--stripe-line)", borderRadius: 12,
-            background: "var(--stripe-card)", color: "var(--stripe-ink)",
+            border: "1px solid var(--bg-hairline)", borderRadius: 12,
             outline: "none", marginBottom: 16, fontFamily: "inherit", boxSizing: "border-box",
             resize: "vertical", minHeight: 80,
           }}
@@ -10669,8 +10095,8 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
         {/* Severity picker */}
         <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-          textTransform: "uppercase", color: "var(--stripe-faint)",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+          textTransform: "uppercase", color: "var(--ink-faint)",
           marginBottom: 6, paddingLeft: 2,
         }}>Severity</div>
         <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
@@ -10696,8 +10122,8 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
 
         {/* Partner */}
         <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-          textTransform: "uppercase", color: "var(--stripe-faint)",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+          textTransform: "uppercase", color: "var(--ink-faint)",
           marginBottom: 6, paddingLeft: 2,
         }}>Training partner</div>
         <input
@@ -10706,16 +10132,15 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           placeholder="e.g. Marcus, or 'solo'"
           style={{
             width: "100%", padding: "12px 14px", fontSize: 16,
-            border: "1px solid var(--stripe-line)", borderRadius: 12,
-            background: "var(--stripe-card)", color: "var(--stripe-ink)",
+            border: "1px solid var(--bg-hairline)", borderRadius: 12,
             outline: "none", marginBottom: 12, fontFamily: "inherit", boxSizing: "border-box",
           }}
         />
 
         {/* When happened */}
         <div style={{
-          fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-          textTransform: "uppercase", color: "var(--stripe-faint)",
+          fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+          textTransform: "uppercase", color: "var(--ink-faint)",
           marginBottom: 6, paddingLeft: 2,
         }}>When did it happen</div>
         <input
@@ -10724,8 +10149,7 @@ function MicroInjuryFormModal({ mode, initial, onCancel, onSubmit }) {
           placeholder="e.g. today during drilling, last private"
           style={{
             width: "100%", padding: "12px 14px", fontSize: 16,
-            border: "1px solid var(--stripe-line)", borderRadius: 12,
-            background: "var(--stripe-card)", color: "var(--stripe-ink)",
+            border: "1px solid var(--bg-hairline)", borderRadius: 12,
             outline: "none", marginBottom: 22, fontFamily: "inherit", boxSizing: "border-box",
           }}
         />
@@ -10794,10 +10218,10 @@ window.MicroInjuries = MicroInjuries;
 // Allergy tracker — symptom logs, training impact, and readable statistics.
 
 const ALLERGY_SEVERITIES = [
-  { id: "mild", label: "Mild", color: "var(--stripe-mint)" },
-  { id: "moderate", label: "Moderate", color: "var(--stripe-cyan)" },
-  { id: "severe", label: "Severe", color: "var(--stripe-pink)" },
-  { id: "critical", label: "Critical", color: "var(--stripe-pink)" },
+  { id: "mild", label: "Mild", color: "#4a7a3a" },
+  { id: "moderate", label: "Moderate", color: "var(--accent-gold)" },
+  { id: "severe", label: "Severe", color: "var(--accent-oxblood)" },
+  { id: "critical", label: "Critical", color: "#4a1a10" },
 ];
 const ALLERGY_CATEGORIES = ["General", "Seasonal", "Environmental", "Food", "Medication"];
 const ALLERGY_SYMPTOMS_LIST = ["Shortness of Breath", "Coughing", "Chest Tightness", "Lightheaded", "Wheezing", "Sneezing", "Hives", "Swelling"];
@@ -11088,7 +10512,7 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
   const submit = () => onSubmit({ date, time, severity, category, trigger: trigger.trim(), symptoms: symptoms.trim(), medication: medication.trim(), training_impact: impact, missed_training: missed });
   const canSubmit = !!(trigger.trim() || symptoms.trim());
   const trapRef = useModalTrap(true, onCancel);
-  const field = { width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid var(--stripe-line)", borderRadius: 8, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "var(--stripe-card)", color: "var(--stripe-ink)" };
+  const field = { width: "100%", padding: "11px 12px", fontSize: 15, border: "1px solid var(--bg-hairline)", borderRadius: 8, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "var(--bg-paper)" };
   return (
     <div role="dialog" aria-modal="true" ref={trapRef} onClick={onCancel} style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(20,20,30,0.32)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: "var(--stripe-card)", borderRadius: 20, padding: 28, border: "1px solid var(--stripe-line)", boxShadow: "0 24px 64px -16px rgba(20,20,40,0.30), 0 1px 0 rgba(255,255,255,0.9) inset", maxHeight: "calc(100dvh - 48px)", overflowY: "auto" }}>
@@ -11102,14 +10526,14 @@ function AllergyFormModal({ initial, onCancel, onSubmit }) {
           <select value={trigger} onChange={(e) => setTrigger(e.target.value)} style={field}>{ALLERGY_CAUSES.map((c) => <option key={c} value={c}>{c}</option>)}</select>
         </div>
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 8, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid var(--stripe-line)", background: "var(--stripe-card)", color: severity === s.id ? s.color : "var(--stripe-faint)", fontFamily: "Inter, var(--font-text)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", cursor: "pointer", transition: "all 160ms ease" }}>{s.label}</button>)}
+          {ALLERGY_SEVERITIES.map((s) => <button key={s.id} onClick={() => setSeverity(s.id)} style={{ flex: 1, padding: "9px 4px", borderRadius: 8, border: severity === s.id ? `1.5px solid ${s.color}` : "1px solid rgba(26,22,19,0.12)", background: "var(--bg-paper)", color: severity === s.id ? s.color : "rgba(26,22,19,0.50)", fontFamily: "var(--font-text)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", cursor: "pointer", transition: "all 160ms ease" }}>{s.label}</button>)}
         </div>
         <textarea value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="Symptoms and what it changed in training" rows={4} style={{ ...field, resize: "vertical", marginBottom: 12 }} />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
           <select value={medication} onChange={(e) => setMedication(e.target.value)} style={field}>{ALLERGY_MEDICATIONS.map((m) => <option key={m || "none"} value={m}>{m || "No medication"}</option>)}</select>
           <select value={impact} onChange={(e) => setImpact(e.target.value)} style={field}>{ALLERGY_IMPACTS.map((i) => <option key={i.id} value={i.id}>{i.label}</option>)}</select>
         </div>
-        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "var(--stripe-faint)", marginBottom: 22 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "var(--ink-muted)", marginBottom: 22 }}>
           <input type="checkbox" checked={missed} onChange={(e) => setMissed(e.target.checked)} />
           Missed class or skipped training because of this
         </label>
@@ -11284,20 +10708,19 @@ function TechniqueLibrary({ onBack }) {
         gap: 12,
         padding: "16px 18px",
         marginBottom: 18,
-        color: "var(--stripe-faint)",
+        color: "var(--ink-muted)",
         fontSize: 14,
         fontWeight: 500,
-        background: "var(--stripe-card)",
-        border: "1px solid var(--stripe-line)",
+        background: "var(--bg-paper)",
+        border: "1px solid var(--bg-hairline)",
         borderRadius: 12,
-        boxShadow: "var(--stripe-shadow)",
       }}>
         <span style={{
           display: "inline-block",
           width: 14,
           height: 14,
-          border: "2px solid var(--stripe-line)",
-          borderTopColor: "var(--stripe-blue)",
+          border: "2px solid rgba(26,24,20,0.10)",
+          borderTopColor: "var(--accent-cobalt)",
           borderRadius: "50%",
           animation: "gc-spin 0.8s linear infinite",
         }} />
@@ -11309,18 +10732,16 @@ function TechniqueLibrary({ onBack }) {
   function errorRow() {
     if (!loadError) return null;
     return (
-      <div style={{
+      <div style={cardSurface({
         minHeight: "auto",
         padding: "16px 18px",
         marginBottom: 18,
-        borderRadius: 12,
-        background: "var(--stripe-card)",
-        border: "1px solid var(--stripe-line)",
+        background: "rgba(139,31,31,0.06)",
+        border: "1px solid rgba(139,31,31,0.20)",
         color: "var(--stripe-pink)",
         fontSize: 14,
         lineHeight: 1.6,
-        boxShadow: "var(--stripe-shadow)",
-      }}>
+      })}>
         Couldn't load technique history. The list below may be incomplete.
       </div>
     );
@@ -11444,13 +10865,13 @@ function TechniqueLibrary({ onBack }) {
               {entries.map((entry, idx) => (
                 <article key={idx} style={cardSurface({ padding: 22 })}>
                   <div style={{
-                    fontFamily: "Inter, var(--font-text)", fontSize: 12, fontWeight: 700,
-                    color: "var(--stripe-faint)", letterSpacing: "0.04em", textTransform: "uppercase",
+                    fontFamily: "var(--font-text)", fontSize: 12, fontWeight: 600,
+                    color: "var(--ink-faint)", letterSpacing: "0.04em", textTransform: "uppercase",
                     marginBottom: 10,
                   }}>
                     {formatDate(entry.date)}{entry.session ? ` · ${entry.session}` : ""}
                   </div>
-                  <div style={{ color: "var(--stripe-ink)", fontSize: 15, lineHeight: 1.65 }}>
+                  <div style={{ color: "var(--ink)", fontSize: 15, lineHeight: 1.65 }}>
                     {entry.notes}
                   </div>
                   {entry.sentiment && sentimentChip(entry.sentiment)}
@@ -11463,7 +10884,7 @@ function TechniqueLibrary({ onBack }) {
                         marginTop: 14,
                         maxHeight: 320,
                         background: "#000",
-                        border: "1px solid var(--stripe-line)",
+                        border: "1px solid var(--bg-hairline)",
                       }}
                       src={entry.video_url}
                     />
