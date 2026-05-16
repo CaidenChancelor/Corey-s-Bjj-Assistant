@@ -2452,8 +2452,8 @@ function NavPill({ active, onChange }) {
           })}
         </div>
         <div className="stripe-nav-actions">
-          <button type="button" className="stripe-nav-action signin" onClick={() => onChange("editor")}>Sign in</button>
-          <button type="button" className="stripe-nav-action primary" onClick={() => onChange("schedule")}>Contact coach &gt;</button>
+          <button type="button" className="stripe-nav-action signin" onClick={() => onChange("editor")}>Editor</button>
+          <button type="button" className="stripe-nav-action primary" onClick={() => onChange("editor")}>Live feed</button>
         </div>
       </nav>
       <style>{`
@@ -3343,7 +3343,7 @@ function Login({ onContinue }) {
             fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
             textTransform: "uppercase", color: "var(--ink-faint)",
             marginBottom: 18,
-          }}>Vol. I · {new Date().getFullYear()}</div>
+          }}>Live feed · {new Date().getFullYear()}</div>
           <div style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(72px, 16vw, 132px)",
@@ -3354,7 +3354,7 @@ function Login({ onContinue }) {
             background: "linear-gradient(120deg, var(--accent-oxblood) 0%, var(--accent-cobalt) 55%, var(--accent-gold) 100%)",
             WebkitBackgroundClip: "text", backgroundClip: "text",
             WebkitTextFillColor: "transparent",
-          }}>BJJ</div>
+          }}>BJJ Bot</div>
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
             justifyContent: "center", marginTop: 8,
@@ -3364,13 +3364,13 @@ function Login({ onContinue }) {
               fontFamily: "var(--font-display)",
               fontSize: 16, fontStyle: "normal",
               color: "var(--ink-muted)", letterSpacing: "0.02em",
-            }}>a training journal</div>
+            }}>live dashboard</div>
             <div style={{ height: 1, width: 36, background: "var(--bg-hairline)" }}/>
           </div>
           <div style={{
             fontFamily: "var(--font-text)", fontSize: 14,
             color: "var(--ink-muted)", marginTop: 22, lineHeight: 1.5,
-          }}>Sign in to your dossier.</div>
+          }}>Open the dashboard to view live bot data.</div>
         </div>
 
         <div style={{
@@ -3722,7 +3722,7 @@ function Hydration({ onBack }) {
 
               {displayLog.length === 0 ? (
                 <div style={{ padding: "20px 0", fontSize: 14, color: "var(--ink-faint)" }}>
-                  Nothing logged yet — tap a quick-add button to start.
+                  Nothing logged yet — add an entry to show today's totals.
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", maxHeight: 360, overflowY: "auto" }}>
@@ -3970,8 +3970,8 @@ function InsightsTile({ total, goal, avg, streak }) {
           <path d="M8 2v4M16 2v4M3 10h18M5 6h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
         </svg>
       ),
-      title: streak > 0 ? `${streak} day${streak === 1 ? "" : "s"} on streak` : "Start a streak today",
-      detail: streak > 0 ? "Hit your goal again to keep it going." : "Hit your goal to start counting.",
+      title: streak > 0 ? `${streak} day${streak === 1 ? "" : "s"} on streak` : "No streak yet",
+      detail: streak > 0 ? "Hit your goal again to keep it moving." : "Reach your goal to activate tracking.",
     },
     {
       icon: (
@@ -5591,7 +5591,7 @@ function ProgressRing({ radius, stroke, progress, color }) {
   );
 }
 
-function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary }) {
+function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary, onOpenEditor }) {
   const d = window.__bjjdata || {};
   const botError = d && d.error;
   const waterGoal = typeof d.water_goal === "number" ? d.water_goal : 3;
@@ -5644,20 +5644,20 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
       <div className="stripe-wrap">
         <section className="stripe-hero">
           <div>
-            <div className="stripe-kicker">Training system running on BJJ Bot: {waterPct}.{caloriePct}%</div>
+            <div className="stripe-kicker">Live bot status · {todayLabel}</div>
             <h1 className="stripe-title">
-              Training infrastructure to grow your <span>game.</span>
+              BJJ bot data at a <span>glance.</span>
             </h1>
             <p className="stripe-subtitle">
-              Track hydration, fuel, injuries, lessons, and daily training signals from your first check-in to your next breakthrough.
+              Hydration, fuel, injuries, lessons, and recent messages update here as the bot logs them.
             </p>
             {botError && (
               <p className="stripe-subtitle" style={{ color: "#ffd1dc", marginTop: 14, fontSize: 15 }}>
-                Bot data is temporarily unavailable. Live stats may be stale.
+                Bot data is temporarily unavailable. Displayed values may be stale.
               </p>
             )}
             <div className="stripe-actions">
-              <button className="stripe-cta primary" onClick={onOpenSchedule}>Get started <span aria-hidden="true">-&gt;</span></button>
+              <button className="stripe-cta primary" onClick={onOpenEditor}>Open editor <span aria-hidden="true">-&gt;</span></button>
               <button className="stripe-cta secondary" onClick={onOpenHydration}>Log water</button>
             </div>
           </div>
@@ -5673,7 +5673,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               </div>
               <div className="stripe-console-body">
                 <div className="stripe-pay-card" onClick={onOpenSchedule} role="button" tabIndex={0}>
-                  <div style={{ position: "relative", zIndex: 1, color: "rgba(255,255,255,0.62)", fontSize: 12, fontWeight: 800, marginBottom: 10 }}>NEXT UP</div>
+                  <div style={{ position: "relative", zIndex: 1, color: "rgba(255,255,255,0.62)", fontSize: 12, fontWeight: 800, marginBottom: 10 }}>NEXT SESSION</div>
                   <div style={{ position: "relative", zIndex: 1, fontSize: 24, lineHeight: 1.15, fontWeight: 900, letterSpacing: "-0.04em" }}>{next}</div>
                   {bruno && <div style={{ position: "relative", zIndex: 1, marginTop: 10, color: "rgba(255,255,255,0.66)", fontSize: 13, lineHeight: 1.45 }}>Last private: {bruno.summary || bruno.notes || "Logged"}</div>}
                 </div>
@@ -5704,11 +5704,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               </div>
             </div>
             <div className="stripe-floating" onClick={onOpenProblems} role="button" tabIndex={0}>
-              <div className="stripe-card-title" style={{ fontSize: 18 }}>Problem queue</div>
+              <div className="stripe-card-title" style={{ fontSize: 18 }}>Open problems</div>
               <div className="stripe-card-text">{openProblems} open problem{openProblems === 1 ? "" : "s"} ready to review.</div>
             </div>
             <div className="stripe-floating alt" onClick={onOpenAllergies} role="button" tabIndex={0}>
-              <div className="stripe-card-title" style={{ fontSize: 18 }}>Allergy signal</div>
+              <div className="stripe-card-title" style={{ fontSize: 18 }}>Health watch</div>
               <div className="stripe-card-text">Top trigger: {topTrigger}. {missedAllergy} missed training.</div>
             </div>
           </div>
@@ -5726,18 +5726,18 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-section">
           <div className="stripe-section-head">
             <div>
-              <div className="stripe-label">Training operations</div>
-              <h2 className="stripe-h2">Every important signal shaped into a card.</h2>
+              <div className="stripe-label">Live signals</div>
+              <h2 className="stripe-h2">The bot's latest state, card by card.</h2>
             </div>
             <div className="stripe-copy">
-              The page now behaves like a product dashboard: hoverable cards, animated fills, staggered entrances, and clear click targets into each workflow.
+              Hydration, fuel, health, lessons, and recent messages stay visible together, with nothing in the middle.
             </div>
           </div>
 
           <div className="stripe-bento">
             <article className="stripe-card wide" onClick={onOpenHydration}>
-              <div className="stripe-card-title">Hydration pipeline</div>
-              <div className="stripe-card-text">Track today's intake, pacing, and streak without losing sight of the bigger training day.</div>
+              <div className="stripe-card-title">Hydration</div>
+              <div className="stripe-card-text">Today's intake, pacing, and streak without losing the live readout.</div>
               <div className="stripe-stat-row">
                 <div className="stripe-stat">
                   <div className="stripe-stat-value">{waterLiters}L</div>
@@ -5760,7 +5760,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card medium" onClick={onOpenMeals}>
-              <div className="stripe-card-title">Fuel and recovery</div>
+              <div className="stripe-card-title">Fuel</div>
               <div className="stripe-card-text">{animCalories.toLocaleString()} calories logged. {safeCalorieRemaining > 0 ? `${safeCalorieRemaining.toLocaleString()} left for the day.` : "Goal hit."}</div>
               <div className="stripe-meter" style={{ marginTop: 24 }}><span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--stripe-pink), var(--stripe-orange))" }} /></div>
               <div className="stripe-list">
@@ -5770,7 +5770,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card small" onClick={onOpenMicroInjuries}>
-              <div className="stripe-card-title">Health layer</div>
+              <div className="stripe-card-title">Health</div>
               <div className="stripe-card-text">Hot spot: {hotSpot}. Partner trend: {topPartner}.</div>
               <div className="stripe-list">
                 {allInjuries.slice(0, 3).map((inj) => (
@@ -5784,7 +5784,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card small" onClick={onOpenLessons}>
-              <div className="stripe-card-title">Coach notes</div>
+              <div className="stripe-card-title">Lesson notes</div>
               <div className="stripe-card-text">{bruno ? (bruno.summary || bruno.notes || "Recent private lesson logged.") : "No private lesson note logged yet."}</div>
               <div className="stripe-list">
                 <div className="stripe-list-row"><span>Open lesson archive</span><span className="stripe-arrow"></span></div>
@@ -5792,7 +5792,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card small" onClick={onOpenProblems}>
-              <div className="stripe-card-title">Problems</div>
+              <div className="stripe-card-title">Open issues</div>
               <div className="stripe-card-text">A focused queue for what needs attention before it turns into noise.</div>
               <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
                 <div className="stripe-stat">
@@ -5803,7 +5803,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card small" onClick={onOpenTechniqueLibrary}>
-              <div className="stripe-card-title">Technique library</div>
+              <div className="stripe-card-title">Technique history</div>
               <div className="stripe-card-text">Your tracked techniques, recency, and training history in one place.</div>
               <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
                 <div className="stripe-stat">
@@ -5814,8 +5814,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
 
             <article className="stripe-card full" onClick={onOpenAllergies}>
-              <div className="stripe-card-title">Health intelligence</div>
-              <div className="stripe-card-text">Allergy data, missed training, injury stats, and trend lines sit together so the dashboard feels like an operating system.</div>
+              <div className="stripe-card-title">Live health summary</div>
+              <div className="stripe-card-text">Allergy data, missed training, injury stats, and trend lines sit together so the dashboard feels like a live system feed.</div>
               <div className="stripe-stat-row">
                 <div className="stripe-stat">
                   <div className="stripe-stat-value">{allergyStats.last_7_days || 0}</div>
@@ -5837,11 +5837,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-backbone">
           <div className="stripe-backbone-grid">
             <div>
-              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>The backbone of training consistency</div>
-              <h2>Signals that keep the whole system moving.</h2>
+              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Current status</div>
+              <h2>Signals that keep the board live.</h2>
             </div>
             <p>
-              Your dashboard turns the daily stuff into infrastructure: water, calories, health flags, coach notes, and technique history all become visible operating metrics.
+              Water, calories, health flags, lesson notes, and technique history stay in view as operating metrics, not as a guided flow.
             </p>
           </div>
           <div className="stripe-backbone-stats" style={{ marginTop: 44 }}>
@@ -5867,19 +5867,19 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         <section className="stripe-section">
           <div className="stripe-section-head">
             <div>
-              <div className="stripe-label">Powering training of every size</div>
-              <h2 className="stripe-h2">A system that adapts from one session to the whole season.</h2>
+              <div className="stripe-label">Current data</div>
+              <h2 className="stripe-h2">What the bot knows right now.</h2>
             </div>
             <div className="stripe-copy">
-              Stripe’s homepage shifts from product modules into customer proof. This section does the same for your training system: big story card, supporting workflows, and concrete stats.
+              This section keeps the live objects visible: the next item, the current risk, and the latest context around each one.
             </div>
           </div>
           <div className="stripe-case-grid">
             <article className="stripe-case-card" onClick={onOpenLessons}>
               <div className="stripe-case-art" aria-hidden="true"></div>
               <div className="stripe-case-body">
-                <div className="stripe-card-title">Private lessons become a training roadmap.</div>
-                <div className="stripe-card-text">Coach notes, recurring problems, and technique history stay connected so every logged detail can shape the next block.</div>
+                <div className="stripe-card-title">Lesson notes become live context.</div>
+                <div className="stripe-card-text">Coach notes, recurring problems, and technique history stay connected so every logged detail has somewhere to live.</div>
                 <div className="stripe-case-meta">
                   <div className="stripe-case-mini">
                     <strong>{techCount}</strong>
@@ -5894,15 +5894,15 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </article>
             <div className="stripe-side-stack">
               <article className="stripe-side-story" onClick={onOpenSchedule}>
-                <div className="stripe-card-title">Get to the next block faster.</div>
-                <div className="stripe-card-text">Jump straight from the hero into the schedule, just like Stripe routes users from the first viewport into the main conversion path.</div>
+                <div className="stripe-card-title">Next session.</div>
+                <div className="stripe-card-text">The next scheduled item sits beside the rest of the live readout so the page stays informational, not promotional.</div>
                 <div className="stripe-list">
                   <div className="stripe-list-row"><span>Next up</span><strong>{next}</strong></div>
                 </div>
               </article>
               <article className="stripe-side-story" onClick={onOpenMicroInjuries}>
-                <div className="stripe-card-title">Manage training risk.</div>
-                <div className="stripe-card-text">Health flags stay visible beside hydration and fuel so injury data is part of the operating layer, not an afterthought.</div>
+                <div className="stripe-card-title">Health watch.</div>
+                <div className="stripe-card-text">Health flags stay visible beside hydration and fuel so injury data remains part of the live board.</div>
                 <div className="stripe-list">
                   <div className="stripe-list-row"><span>Readiness</span><strong>{readiness.label}</strong></div>
                 </div>
@@ -5913,10 +5913,10 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 
         <section className="stripe-dev">
           <div>
-            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Reliable, extensible infrastructure</div>
-            <h2>Built like a developer surface, not a static dashboard.</h2>
+            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Live data surface</div>
+            <h2>Rendered like a bot console, not a landing page.</h2>
             <p>
-              Stripe’s developer section makes APIs feel tangible with code, status, and system language. This mirrors that pattern for your bot: endpoints, sync state, and training data all read like infrastructure.
+              Endpoints, sync state, and training data all sit together so the page reads like an operational console.
             </p>
             <div className="stripe-actions" style={{ marginTop: 28 }}>
               <button className="stripe-cta secondary" onClick={onOpenTechniqueLibrary}>View library</button>
@@ -5946,10 +5946,10 @@ return {
         <section className="stripe-section">
           <div className="stripe-section-head">
             <div>
-              <div className="stripe-label">Recent activity</div>
-              <h2 className="stripe-h2">A fast feed instead of a dead list.</h2>
+              <div className="stripe-label">Recent bot messages</div>
+              <h2 className="stripe-h2">The newest updates first.</h2>
             </div>
-            <div className="stripe-copy">Recent messages are now carded like updates, with enough spacing and motion to feel alive without becoming clutter.</div>
+            <div className="stripe-copy">Messages come through as a feed, with enough spacing and motion to stay readable.</div>
           </div>
           <div className="stripe-news">
             {activityRows.slice(0, 3).map((m, i) => (
@@ -10564,6 +10564,7 @@ function App() {
                 onOpenMicroInjuries={() => setScreen("micro-injuries")}
                 onOpenAllergies={() => setScreen("allergies")}
                 onOpenTechniqueLibrary={() => setScreen("techniquelibrary")}
+                onOpenEditor={() => setScreen("editor")}
               />
             </div>
           )}
