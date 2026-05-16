@@ -2751,24 +2751,24 @@ body {
       display: flex; align-items: center;
       justify-content: space-between; gap: 10px;
       padding: 8px 0;
-      border-bottom: 1px solid rgba(26, 24, 20, 0.08);
+      border-bottom: 1px solid var(--stripe-line);
     }
     .upcoming-tile-row:last-child { border-bottom: none; }
     .upcoming-tile-row.urgent {
       padding: 8px 12px; margin: 0 -4px;
       border-radius: 12px;
-      border: 1px solid rgba(110, 19, 32, 0.35);
-      background: rgba(110, 19, 32, 0.05);
-      box-shadow: 0 0 10px rgba(110, 19, 32, 0.10);
+      border: 1px solid rgba(255, 92, 154, 0.30);
+      background: rgba(255, 92, 154, 0.06);
+      box-shadow: 0 0 10px rgba(255, 92, 154, 0.10);
     }
     .upcoming-tile-name {
       flex: 1; min-width: 0;
-      font-size: 14px; font-weight: 500; color: #1a1814;
+      font-size: 14px; font-weight: 500; color: var(--stripe-ink);
       letter-spacing: -0.01em;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .upcoming-tile-row.urgent .upcoming-tile-name {
-      font-weight: 600; color: #6e1320;
+      font-weight: 600; color: var(--stripe-pink);
     }
     .upcoming-tile-tier {
       flex-shrink: 0;
@@ -2776,13 +2776,13 @@ body {
       letter-spacing: 0.08em; text-transform: uppercase;
       font-variant-numeric: tabular-nums;
     }
-    .upcoming-tile-tier.urgent { color: #6e1320; }
-    .upcoming-tile-tier.high   { color: #8b1f37; }
-    .upcoming-tile-tier.med    { color: #1c2c5a; }
-    .upcoming-tile-tier.low    { color: rgba(26, 24, 20, 0.36); }
+    .upcoming-tile-tier.urgent { color: var(--stripe-pink); }
+    .upcoming-tile-tier.high   { color: #6b3300; }
+    .upcoming-tile-tier.med    { color: var(--stripe-blue); }
+    .upcoming-tile-tier.low    { color: var(--stripe-faint); }
     .upcoming-tile-empty {
       padding: 24px 0 12px; text-align: center;
-      font-size: 14px; color: rgba(26, 24, 20, 0.36);
+      font-size: 14px; color: var(--stripe-faint);
     }
 
     @keyframes upcomingScrimFade {
