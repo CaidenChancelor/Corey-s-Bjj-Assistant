@@ -1637,6 +1637,22 @@ body {
   padding-top: 14px;
   border-top: 1px solid var(--stripe-line);
 }
+.stripe-case-mini-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+.stripe-case-mini-link:hover {
+  transform: translateY(-1px);
+}
+.stripe-case-mini-link:focus-visible {
+  outline: 2px solid rgba(10,37,64,0.18);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
 .stripe-case-mini strong {
   display: block;
   color: var(--stripe-ink);
@@ -1649,6 +1665,17 @@ body {
   color: var(--stripe-faint);
   font-size: 12px;
   font-weight: 700;
+}
+.stripe-case-mini-arrow {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  color: var(--stripe-faint);
+  transition: transform 160ms ease, color 160ms ease;
+}
+.stripe-case-mini-link:hover .stripe-case-mini-arrow {
+  transform: translateX(2px);
+  color: var(--stripe-ink);
 }
 .stripe-side-stack {
   display: grid;
@@ -6035,13 +6062,19 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 <div className="stripe-card-title">Bruno, private lesson, feedback.</div>
                 <div className="stripe-card-text">{brunoSummary || bruno?.notes || "Nothing logged yet."}</div>
                 <div className="stripe-case-meta">
-                  <div className="stripe-case-mini">
-                    <strong>{techCount}</strong>
-                    <span>techniques tracked</span>
+                  <div className="stripe-case-mini stripe-case-mini-link" role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); onOpenTechniqueLibrary(); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onOpenTechniqueLibrary(); } }}>
+                    <div>
+                      <strong>{techCount}</strong>
+                      <span>techniques tracked</span>
+                    </div>
+                    <svg className="stripe-case-mini-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
                   </div>
-                  <div className="stripe-case-mini">
-                    <strong>{openProblems}</strong>
-                    <span>upcoming problems</span>
+                  <div className="stripe-case-mini stripe-case-mini-link" role="button" tabIndex={0} onClick={(e) => { e.stopPropagation(); onOpenProblems(); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onOpenProblems(); } }}>
+                    <div>
+                      <strong>{openProblems}</strong>
+                      <span>upcoming problems</span>
+                    </div>
+                    <svg className="stripe-case-mini-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
                   </div>
                 </div>
               </div>
@@ -6057,10 +6090,10 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
                 </div>
               </article>
               <article className="stripe-side-story" onClick={onOpenMicroInjuries}>
-                <div className="stripe-card-title">Active injuries</div>
+                <div className="stripe-card-title">My injuries</div>
                 <div className="stripe-card-text">{injuries.length} injuries active right now.</div>
                 <div className="stripe-list">
-                  <div className="stripe-list-row"><span>Active injuries</span><strong>{injuries.length}</strong></div>
+                  <div className="stripe-list-row"><span>My injuries</span><strong>{injuries.length}</strong></div>
                 </div>
               </article>
             </div>
@@ -6069,10 +6102,10 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 
         <section className="stripe-dev">
           <div>
-            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Messages</div>
-            <h2>Recent bot messages.</h2>
+            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Live activity</div>
+            <h2>Live updates and sync status.</h2>
             <p>
-              Endpoints, sync state, and training data all sit together in one readable view.
+              Water, meals, injuries, sessions, and recent messages stay readable in one live panel.
             </p>
             <div className="stripe-actions" style={{ marginTop: 28 }}>
               <button className="stripe-cta secondary" onClick={onOpenTechniqueLibrary}>Library</button>
@@ -6084,18 +6117,16 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               <span className="stripe-dot"></span>
               <span className="stripe-dot"></span>
               <span className="stripe-dot"></span>
-              <span style={{ marginLeft: 8 }}>training-sync.js</span>
+              <span style={{ marginLeft: 8 }}>live-dashboard.json</span>
             </div>
-            <pre>{`const today = await bjj.training.status();
-
-await bjj.water.add({ liters: ${waterToday.toFixed(1)} });
-await bjj.allergy.watch("${hotSpot}");
-
-return {
-  next: "${String(next).replace(/"/g, '\\"')}",
-  readiness: "${readiness.label}",
-  techniques: ${techCount}
-};`}</pre>
+            <pre>{`{
+  "hydration": "${waterPct}%",
+  "meals_today": ${mealsToday},
+  "sessions_done": ${completedSessions},
+  "sessions_total": ${totalSessionsToday},
+  "next": "${String(next).replace(/"/g, '\\"')}",
+  "techniques": ${techCount}
+}`}</pre>
           </div>
         </section>
 
