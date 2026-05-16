@@ -410,7 +410,7 @@ def save_meal(name, calories, kind="other", notes=""):
             )
             conn.commit()
             at_sync('meals', cur.lastrowid, {
-                'Name': name, 'Calories': int(calories or 0), 'Kind': kind,
+                'Name': name, 'Calories': int(calories or 0), 'Category': kind,
                 'Notes': notes, 'Date': now.strftime('%Y-%m-%d'), 'Time': now.strftime('%H:%M'),
             })
         logging.info(f"MEAL: {name} ({calories} cal, {kind})")
@@ -465,7 +465,7 @@ def save_injury(body_part, severity, notes):
             )
             conn.commit()
             at_sync('injuries', cur.lastrowid, {
-                'Body Part': body_part, 'Severity': severity, 'Notes': notes,
+                'Body Part': body_part, 'Severity Level': severity, 'Notes': notes,
                 'Date': now.strftime('%Y-%m-%d'),
             })
         logging.info(f"INJURY: {body_part} ({severity})")
@@ -498,9 +498,9 @@ def save_allergy(trigger, symptoms, severity="mild", category="general",
             )
             conn.commit()
             at_sync('allergies', cur.lastrowid, {
-                'Trigger': (trigger or '').strip(), 'Severity': (severity or 'mild').strip().lower(),
+                'Trigger': (trigger or '').strip(), 'Risk Level': (severity or 'mild').strip().lower(),
                 'Symptoms': (symptoms or '').strip(), 'Medication': (medication or '').strip(),
-                'Training Impact': (training_impact or 'none').strip().lower(),
+                'Impact': (training_impact or 'none').strip().lower(),
                 'Date': now.strftime('%Y-%m-%d'),
             })
             if missed_training:
@@ -2000,7 +2000,7 @@ def webhook():
                         )
                         conn.commit()
                         at_sync('injuries', cur.lastrowid, {
-                            'Body Part': body_part, 'Severity': severity, 'Notes': notes,
+                            'Body Part': body_part, 'Severity Level': severity, 'Notes': notes,
                             'Partner': state.get("_injury_partner") or '',
                             'When': state.get("_injury_when") or '',
                             'Date': datetime.now(TZ).strftime('%Y-%m-%d'),
@@ -2096,7 +2096,7 @@ def webhook():
                         )
                         conn.commit()
                         at_sync('problems', cur.lastrowid, {
-                            'Name': position, 'Tier': tier, 'Description': description,
+                            'Name': position, 'Priority': tier, 'Description': description,
                         })
                 except Exception as e:
                     logging.error(f"Problem save error: {e}")
@@ -2583,7 +2583,7 @@ def api_injuries_create():
             )
             conn.commit()
             at_sync('injuries', cursor.lastrowid, {
-                'Body Part': body_part, 'Severity': severity, 'Notes': notes,
+                'Body Part': body_part, 'Severity Level': severity, 'Notes': notes,
                 'Partner': partner or '', 'When': when_happened or '',
                 'Date': now.strftime('%Y-%m-%d'),
             })
@@ -2611,7 +2611,7 @@ def api_injuries_update(injury_id):
             conn.commit()
         # Sync updated fields to Airtable
         at_fields = {}
-        field_map = {'body_part': 'Body Part', 'severity': 'Severity', 'notes': 'Notes',
+        field_map = {'body_part': 'Body Part', 'severity': 'Severity Level', 'notes': 'Notes',
                      'partner': 'Partner', 'when_happened': 'When'}
         for k, v in field_map.items():
             if k in data:
@@ -2675,7 +2675,7 @@ def api_allergies_create():
             )
             conn.commit()
         at_sync('allergies', cursor.lastrowid, {
-            'Trigger': trigger_name, 'Severity': (data.get('severity') or 'mild').strip(),
+            'Trigger': trigger_name, 'Risk Level': (data.get('severity') or 'mild').strip(),
             'Symptoms': symptoms, 'Medication': (data.get('medication') or '').strip(),
             'Training Impact': (data.get('training_impact') or 'none').strip(),
             'Date': date,
@@ -2709,8 +2709,8 @@ def api_allergies_update(allergy_id):
                 changed += conn.execute('UPDATE allergies SET missed_training=? WHERE id=?', (1 if data['missed_training'] else 0, allergy_id)).rowcount
             conn.commit()
         at_fields = {}
-        field_map = {'severity': 'Severity', 'symptoms': 'Symptoms', 'medication': 'Medication',
-                     'training_impact': 'Training Impact'}
+        field_map = {'severity': 'Risk Level', 'symptoms': 'Symptoms', 'medication': 'Medication',
+                     'training_impact': 'Impact'}
         for k, v in field_map.items():
             if k in data:
                 at_fields[v] = (data.get(k) or '').strip()
@@ -2755,7 +2755,7 @@ def api_problems_create():
             )
             conn.commit()
             at_sync('problems', cur.lastrowid, {
-                'Name': data.get('name', ''), 'Tier': data.get('tier', 'med'),
+                'Name': data.get('name', ''), 'Priority': data.get('tier', 'med'),
                 'Description': data.get('description', ''),
             })
         return {"ok": True}
@@ -2777,7 +2777,7 @@ def api_problems_update(problem_id):
                 conn.execute('UPDATE problems SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, problem_id))
             conn.commit()
         at_fields = {}
-        field_map = {'name': 'Name', 'tier': 'Tier', 'description': 'Description'}
+        field_map = {'name': 'Name', 'tier': 'Priority', 'description': 'Description'}
         for k, v in field_map.items():
             if k in data:
                 at_fields[v] = data[k]
