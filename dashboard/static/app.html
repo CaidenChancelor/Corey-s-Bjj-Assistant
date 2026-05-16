@@ -1806,6 +1806,248 @@ body {
   }
 }
 
+/* =============================================================
+   OPERATIONAL DASHBOARD — data-first layout
+   ============================================================= */
+.dash-op {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 94px clamp(18px, 4vw, 42px) 64px;
+}
+.dash-op-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.dash-greeting {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.dash-date {
+  font-size: 14px;
+  color: var(--ink-faint);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.dash-readiness {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(247,241,227,0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(26,24,20,0.08);
+  color: var(--ink);
+}
+.dash-readiness-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.dash-updated {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.dash-metric {
+  background: rgba(255,252,245,0.82);
+  border: 1px solid rgba(26,24,20,0.07);
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring);
+}
+.dash-metric:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -10px rgba(28,44,90,0.18);
+}
+.dash-metric-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.dash-metric-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+.dash-metric-sub {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+@media (max-width: 800px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .dash-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+.dash-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.dash-card {
+  background: rgba(255,252,245,0.82);
+  border: 1px solid rgba(26,24,20,0.07);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-spring);
+}
+.dash-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -14px rgba(28,44,90,0.2);
+}
+.dash-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.dash-card-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.dash-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(28,44,90,0.08);
+  color: var(--accent-cobalt);
+}
+.dash-progress {
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(26,24,20,0.06);
+  overflow: hidden;
+  margin: 10px 0;
+}
+.dash-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s var(--ease-spring);
+}
+.dash-inline-stats {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.dash-inline-stat strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+.dash-inline-stat span {
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.dash-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(26,24,20,0.05);
+}
+.dash-item-row:last-child { border-bottom: 0; }
+.dash-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.dash-item-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.dash-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dash-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(26,24,20,0.04);
+}
+.dash-msg-role {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.dash-msg-role.bot {
+  background: rgba(28,44,90,0.1);
+  color: var(--accent-cobalt);
+}
+.dash-msg-role.user {
+  background: rgba(110,19,32,0.08);
+  color: var(--accent-oxblood);
+}
+.dash-msg-text {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.dash-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 </style>
   <style>
     html, body, #root { min-height: 100%; height: auto; margin: 0; }
@@ -5640,328 +5882,205 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
       ];
 
   return (
-    <div className="stripe-dash">
-      <div className="stripe-wrap">
-        <section className="stripe-hero">
+    <div className="dash-op">
+      <div className="dash-op-wrap">
+
+        <header className="dash-header">
           <div>
-            <div className="stripe-kicker">Live bot status · {todayLabel}</div>
-            <h1 className="stripe-title">
-              BJJ bot data at a <span>glance.</span>
-            </h1>
-            <p className="stripe-subtitle">
-              Hydration, fuel, injuries, lessons, and recent messages update here as the bot logs them.
-            </p>
-            {botError && (
-              <p className="stripe-subtitle" style={{ color: "#ffd1dc", marginTop: 14, fontSize: 15 }}>
-                Bot data is temporarily unavailable. Displayed values may be stale.
-              </p>
-            )}
-            <div className="stripe-actions">
-              <button className="stripe-cta primary" onClick={onOpenEditor}>Open editor <span aria-hidden="true">-&gt;</span></button>
-              <button className="stripe-cta secondary" onClick={onOpenHydration}>Log water</button>
-            </div>
+            <div className="dash-greeting">Good {greeting}, Corey</div>
+            <div className="dash-date">{todayLabel}</div>
           </div>
-
-          <div className="stripe-visual" aria-label="Training dashboard preview">
-            <div className="stripe-orbit" aria-hidden="true"></div>
-            <div className="stripe-console">
-              <div className="stripe-console-top">
-                <span className="stripe-dot"></span>
-                <span className="stripe-dot"></span>
-                <span className="stripe-dot"></span>
-                <span style={{ marginLeft: 8, color: "var(--stripe-faint)", fontSize: 12, fontWeight: 700 }}>bjj-bot/live</span>
-              </div>
-              <div className="stripe-console-body">
-                <div className="stripe-pay-card" onClick={onOpenSchedule} role="button" tabIndex={0}>
-                  <div style={{ position: "relative", zIndex: 1, color: "rgba(255,255,255,0.62)", fontSize: 12, fontWeight: 800, marginBottom: 10 }}>NEXT SESSION</div>
-                  <div style={{ position: "relative", zIndex: 1, fontSize: 24, lineHeight: 1.15, fontWeight: 900, letterSpacing: "-0.04em" }}>{next}</div>
-                  {bruno && <div style={{ position: "relative", zIndex: 1, marginTop: 10, color: "rgba(255,255,255,0.66)", fontSize: 13, lineHeight: 1.45 }}>Last private: {bruno.summary || bruno.notes || "Logged"}</div>}
-                </div>
-                <div className="stripe-mini-grid">
-                  <div className="stripe-mini" onClick={onOpenHydration}>
-                    <div className="stripe-pill">Hydration</div>
-                    <div style={{ color: "var(--stripe-ink)", fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em", marginTop: 12 }}>{waterLiters}L</div>
-                    <div style={{ color: "var(--stripe-faint)", fontSize: 12 }}>{waterPct}% of {waterGoal}L</div>
-                    <div className="stripe-meter" style={{ marginTop: 14 }}><span style={{ width: `${waterPct}%` }} /></div>
-                  </div>
-                  <div className="stripe-mini" onClick={onOpenMeals}>
-                    <div className="stripe-pill">Fuel</div>
-                    <div style={{ color: "var(--stripe-ink)", fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em", marginTop: 12 }}>{animCalories}</div>
-                    <div style={{ color: "var(--stripe-faint)", fontSize: 12 }}>{safeCalorieRemaining} cal left</div>
-                    <div className="stripe-meter" style={{ marginTop: 14 }}><span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--stripe-pink), var(--stripe-orange))" }} /></div>
-                  </div>
-                  <div className="stripe-mini" onClick={onOpenMicroInjuries}>
-                    <div className="stripe-pill">Health</div>
-                    <div style={{ color: "var(--stripe-ink)", fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em", marginTop: 12 }}>{healthTone}</div>
-                    <div style={{ color: "var(--stripe-faint)", fontSize: 12 }}>{injuries.length} active item{injuries.length === 1 ? "" : "s"}</div>
-                  </div>
-                  <div className="stripe-mini" onClick={onOpenTechniqueLibrary}>
-                    <div className="stripe-pill">Library</div>
-                    <div style={{ color: "var(--stripe-ink)", fontSize: 28, fontWeight: 900, letterSpacing: "-0.05em", marginTop: 12 }}>{techCount}</div>
-                    <div style={{ color: "var(--stripe-faint)", fontSize: 12 }}>techniques tracked</div>
-                  </div>
-                </div>
-              </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div className="dash-readiness">
+              <span className="dash-readiness-dot" style={{ background: readiness.tone }} />
+              {readiness.label}
             </div>
-            <div className="stripe-floating" onClick={onOpenProblems} role="button" tabIndex={0}>
-              <div className="stripe-card-title" style={{ fontSize: 18 }}>Open problems</div>
-              <div className="stripe-card-text">{openProblems} open problem{openProblems === 1 ? "" : "s"} ready to review.</div>
-            </div>
-            <div className="stripe-floating alt" onClick={onOpenAllergies} role="button" tabIndex={0}>
-              <div className="stripe-card-title" style={{ fontSize: 18 }}>Health watch</div>
-              <div className="stripe-card-text">Top trigger: {topTrigger}. {missedAllergy} missed training.</div>
-            </div>
+            <div className="dash-updated">Live</div>
           </div>
-        </section>
+        </header>
 
-        <div className="stripe-logo-strip" aria-label="Training areas">
-          <span>hydration</span>
-          <span>fuel</span>
-          <span>health</span>
-          <span>lessons</span>
-          <span>library</span>
-          <span>editor</span>
+        {botError && (
+          <div style={{ background: "rgba(139,31,31,0.06)", border: "1px solid rgba(139,31,31,0.15)", borderRadius: 12, padding: "12px 18px", marginBottom: 20, fontSize: 14, color: "var(--accent-danger)" }}>
+            Bot data temporarily unavailable. Values may be stale.
+          </div>
+        )}
+
+        <div className="dash-metrics">
+          <div className="dash-metric" onClick={onOpenHydration}>
+            <div className="dash-metric-value">{waterLiters}L</div>
+            <div className="dash-metric-label">Water today</div>
+            <div className="dash-metric-sub">{waterPct}% of {waterGoal}L goal</div>
+          </div>
+          <div className="dash-metric" onClick={onOpenMeals}>
+            <div className="dash-metric-value">{animCalories.toLocaleString()}</div>
+            <div className="dash-metric-label">Calories</div>
+            <div className="dash-metric-sub">{safeCalorieRemaining.toLocaleString()} remaining</div>
+          </div>
+          <div className="dash-metric" onClick={onOpenMicroInjuries}>
+            <div className="dash-metric-value">{healthTone}</div>
+            <div className="dash-metric-label">Health</div>
+            <div className="dash-metric-sub">{injuries.length} active item{injuries.length !== 1 ? "s" : ""}</div>
+          </div>
+          <div className="dash-metric" onClick={onOpenHydration}>
+            <div className="dash-metric-value">{streakDays}</div>
+            <div className="dash-metric-label">Day streak</div>
+            <div className="dash-metric-sub">Consecutive days</div>
+          </div>
+          <div className="dash-metric" onClick={onOpenSchedule}>
+            <div className="dash-metric-value" style={{ fontSize: 18 }}>{next}</div>
+            <div className="dash-metric-label">Next session</div>
+          </div>
         </div>
 
-        <section className="stripe-section">
-          <div className="stripe-section-head">
-            <div>
-              <div className="stripe-label">Live signals</div>
-              <h2 className="stripe-h2">The bot's latest state, card by card.</h2>
-            </div>
-            <div className="stripe-copy">
-              Hydration, fuel, health, lessons, and recent messages stay visible together, with nothing in the middle.
-            </div>
-          </div>
+        <div className="dash-grid">
+          <div className="dash-col">
 
-          <div className="stripe-bento">
-            <article className="stripe-card wide" onClick={onOpenHydration}>
-              <div className="stripe-card-title">Hydration</div>
-              <div className="stripe-card-text">Today's intake, pacing, and streak without losing the live readout.</div>
-              <div className="stripe-stat-row">
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{waterLiters}L</div>
-                  <div className="stripe-stat-label">today</div>
-                </div>
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{waterPct}%</div>
-                  <div className="stripe-stat-label">goal</div>
-                </div>
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{streakDays}</div>
-                  <div className="stripe-stat-label">day streak</div>
-                </div>
+            <article className="dash-card" onClick={onOpenHydration}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Hydration</div>
+                <div className="dash-card-badge">{waterPct}%</div>
               </div>
-              <div className="stripe-code">
-                POST /api/water/add<br/>
-                status: synced<br/>
-                target: {waterGoal}L daily
+              <div className="dash-progress">
+                <span style={{ width: `${waterPct}%`, background: "linear-gradient(90deg, var(--accent-cobalt), var(--accent-success))" }} />
+              </div>
+              <div className="dash-inline-stats">
+                <div className="dash-inline-stat">
+                  <strong>{waterLiters}L</strong>
+                  <span>Today</span>
+                </div>
+                <div className="dash-inline-stat">
+                  <strong>{waterGoal}L</strong>
+                  <span>Goal</span>
+                </div>
+                <div className="dash-inline-stat">
+                  <strong>{streakDays}</strong>
+                  <span>Streak</span>
+                </div>
               </div>
             </article>
 
-            <article className="stripe-card medium" onClick={onOpenMeals}>
-              <div className="stripe-card-title">Fuel</div>
-              <div className="stripe-card-text">{animCalories.toLocaleString()} calories logged. {safeCalorieRemaining > 0 ? `${safeCalorieRemaining.toLocaleString()} left for the day.` : "Goal hit."}</div>
-              <div className="stripe-meter" style={{ marginTop: 24 }}><span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--stripe-pink), var(--stripe-orange))" }} /></div>
-              <div className="stripe-list">
-                <div className="stripe-list-row"><span>Daily target</span><strong>{calorieGoal.toLocaleString()} cal</strong></div>
-                <div className="stripe-list-row"><span>Progress</span><strong>{caloriePct}%</strong></div>
+            <article className="dash-card" onClick={onOpenMeals}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Nutrition</div>
+                <div className="dash-card-badge">{caloriePct}%</div>
+              </div>
+              <div className="dash-progress">
+                <span style={{ width: `${caloriePct}%`, background: "linear-gradient(90deg, var(--accent-oxblood), var(--accent-gold))" }} />
+              </div>
+              <div className="dash-inline-stats">
+                <div className="dash-inline-stat">
+                  <strong>{animCalories.toLocaleString()}</strong>
+                  <span>Consumed</span>
+                </div>
+                <div className="dash-inline-stat">
+                  <strong>{calorieGoal.toLocaleString()}</strong>
+                  <span>Target</span>
+                </div>
+                <div className="dash-inline-stat">
+                  <strong>{safeCalorieRemaining.toLocaleString()}</strong>
+                  <span>Remaining</span>
+                </div>
               </div>
             </article>
 
-            <article className="stripe-card small" onClick={onOpenMicroInjuries}>
-              <div className="stripe-card-title">Health</div>
-              <div className="stripe-card-text">Hot spot: {hotSpot}. Partner trend: {topPartner}.</div>
-              <div className="stripe-list">
-                {allInjuries.slice(0, 3).map((inj) => (
-                  <div className="stripe-list-row" key={inj.body_part || inj.id}>
-                    <span>{inj.body_part || "Injury"}</span>
-                    <span className="stripe-pill">{inj.severity || "watch"}</span>
+            <article className="dash-card" style={{ cursor: "default" }}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Recent messages</div>
+                <div className="dash-card-badge">{messages.length} latest</div>
+              </div>
+              <div className="dash-feed">
+                {(messages.length > 0 ? messages.slice(0, 8) : [{ role: "assistant", content: "No recent bot messages yet." }]).map((m, i) => (
+                  <div className="dash-msg" key={i}>
+                    <span className={`dash-msg-role ${m.role === "assistant" ? "bot" : "user"}`}>
+                      {m.role === "assistant" ? "Bot" : "You"}
+                    </span>
+                    <span className="dash-msg-text">
+                      {String(m.content || "").slice(0, 180)}{String(m.content || "").length > 180 ? "..." : ""}
+                    </span>
                   </div>
                 ))}
-                {allInjuries.length === 0 && <div className="stripe-list-row"><span>No active injuries</span><span className="stripe-pill">clear</span></div>}
-              </div>
-            </article>
-
-            <article className="stripe-card small" onClick={onOpenLessons}>
-              <div className="stripe-card-title">Lesson notes</div>
-              <div className="stripe-card-text">{bruno ? (bruno.summary || bruno.notes || "Recent private lesson logged.") : "No private lesson note logged yet."}</div>
-              <div className="stripe-list">
-                <div className="stripe-list-row"><span>Open lesson archive</span><span className="stripe-arrow"></span></div>
-              </div>
-            </article>
-
-            <article className="stripe-card small" onClick={onOpenProblems}>
-              <div className="stripe-card-title">Open issues</div>
-              <div className="stripe-card-text">A focused queue for what needs attention before it turns into noise.</div>
-              <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{openProblems}</div>
-                  <div className="stripe-stat-label">open</div>
-                </div>
-              </div>
-            </article>
-
-            <article className="stripe-card small" onClick={onOpenTechniqueLibrary}>
-              <div className="stripe-card-title">Technique history</div>
-              <div className="stripe-card-text">Your tracked techniques, recency, and training history in one place.</div>
-              <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{techCount}</div>
-                  <div className="stripe-stat-label">items</div>
-                </div>
-              </div>
-            </article>
-
-            <article className="stripe-card full" onClick={onOpenAllergies}>
-              <div className="stripe-card-title">Live health summary</div>
-              <div className="stripe-card-text">Allergy data, missed training, injury stats, and trend lines sit together so the dashboard feels like a live system feed.</div>
-              <div className="stripe-stat-row">
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{allergyStats.last_7_days || 0}</div>
-                  <div className="stripe-stat-label">reactions in 7 days</div>
-                </div>
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value">{missedAllergy}</div>
-                  <div className="stripe-stat-label">missed training</div>
-                </div>
-                <div className="stripe-stat">
-                  <div className="stripe-stat-value" style={{ fontSize: 22 }}>{topTrigger}</div>
-                  <div className="stripe-stat-label">top trigger</div>
-                </div>
               </div>
             </article>
           </div>
-        </section>
 
-        <section className="stripe-backbone">
-          <div className="stripe-backbone-grid">
-            <div>
-              <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Current status</div>
-              <h2>Signals that keep the board live.</h2>
-            </div>
-            <p>
-              Water, calories, health flags, lesson notes, and technique history stay in view as operating metrics, not as a guided flow.
-            </p>
-          </div>
-          <div className="stripe-backbone-stats" style={{ marginTop: 44 }}>
-            <div className="stripe-backbone-stat">
-              <div className="stripe-backbone-value">{waterPct}%</div>
-              <div className="stripe-backbone-label">hydration goal progress today</div>
-            </div>
-            <div className="stripe-backbone-stat">
-              <div className="stripe-backbone-value">{caloriePct}%</div>
-              <div className="stripe-backbone-label">fuel goal progress today</div>
-            </div>
-            <div className="stripe-backbone-stat">
-              <div className="stripe-backbone-value">{injuries.length}</div>
-              <div className="stripe-backbone-label">active health items tracked</div>
-            </div>
-            <div className="stripe-backbone-stat">
-              <div className="stripe-backbone-value">{techCount}</div>
-              <div className="stripe-backbone-label">techniques in the library</div>
-            </div>
-          </div>
-        </section>
+          <div className="dash-col">
 
-        <section className="stripe-section">
-          <div className="stripe-section-head">
-            <div>
-              <div className="stripe-label">Current data</div>
-              <h2 className="stripe-h2">What the bot knows right now.</h2>
-            </div>
-            <div className="stripe-copy">
-              This section keeps the live objects visible: the next item, the current risk, and the latest context around each one.
-            </div>
-          </div>
-          <div className="stripe-case-grid">
-            <article className="stripe-case-card" onClick={onOpenLessons}>
-              <div className="stripe-case-art" aria-hidden="true"></div>
-              <div className="stripe-case-body">
-                <div className="stripe-card-title">Lesson notes become live context.</div>
-                <div className="stripe-card-text">Coach notes, recurring problems, and technique history stay connected so every logged detail has somewhere to live.</div>
-                <div className="stripe-case-meta">
-                  <div className="stripe-case-mini">
-                    <strong>{techCount}</strong>
-                    <span>techniques tracked</span>
-                  </div>
-                  <div className="stripe-case-mini">
-                    <strong>{openProblems}</strong>
-                    <span>open problems</span>
-                  </div>
+            <article className="dash-card" onClick={onOpenMicroInjuries}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Injuries</div>
+                <div className="dash-card-badge" style={ criticalInjuries > 0 ? { background: "rgba(139,31,31,0.08)", color: "var(--accent-danger)" } : undefined }>
+                  {injuries.length} active
+                </div>
+              </div>
+              {allInjuries.slice(0, 5).map((inj, i) => (
+                <div className="dash-item-row" key={inj.id || inj.body_part || i}>
+                  <span className="dash-item-name">{inj.body_part || "Injury"}</span>
+                  <span className="dash-item-tag" style={{
+                    background: ["severe","critical"].includes(String(inj.severity||"").toLowerCase()) ? "rgba(139,31,31,0.08)" : "rgba(28,44,90,0.06)",
+                    color: ["severe","critical"].includes(String(inj.severity||"").toLowerCase()) ? "var(--accent-danger)" : "var(--accent-cobalt)"
+                  }}>{inj.severity || "watch"}</span>
+                </div>
+              ))}
+              {allInjuries.length === 0 && (
+                <div style={{ fontSize: 14, color: "var(--ink-faint)", padding: "8px 0" }}>No active injuries</div>
+              )}
+              <div style={{ marginTop: 12, fontSize: 12, color: "var(--ink-faint)" }}>
+                Hot spot: {hotSpot} &middot; Partner trend: {topPartner}
+              </div>
+            </article>
+
+            <article className="dash-card" onClick={onOpenAllergies}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Health watch</div>
+              </div>
+              <div className="dash-inline-stats">
+                <div className="dash-inline-stat">
+                  <strong>{allergyStats.last_7_days || 0}</strong>
+                  <span>Reactions 7d</span>
+                </div>
+                <div className="dash-inline-stat">
+                  <strong>{missedAllergy}</strong>
+                  <span>Missed training</span>
+                </div>
+              </div>
+              <div style={{ marginTop: 12, fontSize: 13, color: "var(--ink-muted)" }}>
+                Top trigger: {topTrigger}
+              </div>
+            </article>
+
+            <article className="dash-card" onClick={onOpenTechniqueLibrary}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Techniques</div>
+                <div className="dash-card-badge">{techCount} total</div>
+              </div>
+              <div className="dash-inline-stats">
+                <div className="dash-inline-stat">
+                  <strong>{openProblems}</strong>
+                  <span>Open problems</span>
+                </div>
+                <div className="dash-inline-stat">
+                  <strong>{techCount}</strong>
+                  <span>In library</span>
                 </div>
               </div>
             </article>
-            <div className="stripe-side-stack">
-              <article className="stripe-side-story" onClick={onOpenSchedule}>
-                <div className="stripe-card-title">Next session.</div>
-                <div className="stripe-card-text">The next scheduled item sits beside the rest of the live readout so the page stays informational, not promotional.</div>
-                <div className="stripe-list">
-                  <div className="stripe-list-row"><span>Next up</span><strong>{next}</strong></div>
-                </div>
-              </article>
-              <article className="stripe-side-story" onClick={onOpenMicroInjuries}>
-                <div className="stripe-card-title">Health watch.</div>
-                <div className="stripe-card-text">Health flags stay visible beside hydration and fuel so injury data remains part of the live board.</div>
-                <div className="stripe-list">
-                  <div className="stripe-list-row"><span>Readiness</span><strong>{readiness.label}</strong></div>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
 
-        <section className="stripe-dev">
-          <div>
-            <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Live data surface</div>
-            <h2>Rendered like a bot console, not a landing page.</h2>
-            <p>
-              Endpoints, sync state, and training data all sit together so the page reads like an operational console.
-            </p>
-            <div className="stripe-actions" style={{ marginTop: 28 }}>
-              <button className="stripe-cta secondary" onClick={onOpenTechniqueLibrary}>View library</button>
-              <button className="stripe-cta secondary" onClick={onOpenProblems}>View problems</button>
-            </div>
-          </div>
-          <div className="stripe-dev-code">
-            <div className="stripe-dev-code-head">
-              <span className="stripe-dot"></span>
-              <span className="stripe-dot"></span>
-              <span className="stripe-dot"></span>
-              <span style={{ marginLeft: 8 }}>training-sync.js</span>
-            </div>
-            <pre>{`const today = await bjj.training.status();
-
-await bjj.water.add({ liters: ${waterToday.toFixed(1)} });
-await bjj.health.watch("${hotSpot}");
-
-return {
-  next: "${String(next).replace(/"/g, '\\"')}",
-  readiness: "${readiness.label}",
-  techniques: ${techCount}
-};`}</pre>
-          </div>
-        </section>
-
-        <section className="stripe-section">
-          <div className="stripe-section-head">
-            <div>
-              <div className="stripe-label">Recent bot messages</div>
-              <h2 className="stripe-h2">The newest updates first.</h2>
-            </div>
-            <div className="stripe-copy">Messages come through as a feed, with enough spacing and motion to stay readable.</div>
-          </div>
-          <div className="stripe-news">
-            {activityRows.slice(0, 3).map((m, i) => (
-              <div className="stripe-news-item" key={i}>
-                <div className="stripe-pill">{m.role === "assistant" ? "Bot" : "You"}</div>
-                <div style={{ marginTop: 16, color: "var(--stripe-ink)", fontWeight: 800, lineHeight: 1.35, letterSpacing: "-0.02em" }}>
-                  {String(m.content || "").slice(0, 140)}{String(m.content || "").length > 140 ? "..." : ""}
-                </div>
+            <article className="dash-card" onClick={onOpenLessons}>
+              <div className="dash-card-head">
+                <div className="dash-card-title">Lesson notes</div>
               </div>
-            ))}
+              <div style={{ fontSize: 14, color: "var(--ink)", lineHeight: 1.5 }}>
+                {bruno ? (bruno.summary || bruno.notes || "Recent private lesson logged.") : "No private lesson note logged yet."}
+              </div>
+            </article>
+
+            <div className="dash-actions">
+              <button className="stripe-cta primary" onClick={onOpenEditor} style={{ flex: 1 }}>Open editor</button>
+              <button className="stripe-cta secondary" onClick={onOpenHydration} style={{ flex: 1 }}>Log water</button>
+            </div>
           </div>
-        </section>
+        </div>
+
       </div>
     </div>
   );
