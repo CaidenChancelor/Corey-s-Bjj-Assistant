@@ -2337,7 +2337,9 @@ function GlassButton({ children, onClick, style = {} }) {
 // =====================================================
 function NavPill({ active, onChange }) {
   const [openMenu, setOpenMenu] = useState(null);
+  const [menuPos, setMenuPos] = useState(null);
   const navRef = useRef(null);
+  const menuRef = useRef(null);
 
   // Map child screens to parent group
   const childToParent = {
@@ -2367,7 +2369,12 @@ function NavPill({ active, onChange }) {
   useEffect(() => {
     if (!openMenu) return;
     const close = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) setOpenMenu(null);
+      const clickedNav = navRef.current && navRef.current.contains(e.target);
+      const clickedMenu = menuRef.current && menuRef.current.contains(e.target);
+      if (!clickedNav && !clickedMenu) {
+        setOpenMenu(null);
+        setMenuPos(null);
+      }
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -2430,11 +2437,36 @@ function NavPill({ active, onChange }) {
                     aria-selected={isActive}
                     aria-expanded={isOpen}
                     aria-haspopup="true"
-                    tabIndex={isActive ? 0 : -1}
+                    tabIndex={0}
                     className="nav-pill-tab"
-                    onClick={() => setOpenMenu(isOpen ? null : t.id)}
+                    onClick={(e) => {
+                      if (isOpen) {
+                        setOpenMenu(null);
+                        setMenuPos(null);
+                        return;
+                      }
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setMenuPos({
+                        left: rect.left + rect.width / 2,
+                        top: rect.bottom + 10,
+                      });
+                      setOpenMenu(t.id);
+                    }}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenMenu(isOpen ? null : t.id); }
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        if (isOpen) {
+                          setOpenMenu(null);
+                          setMenuPos(null);
+                          return;
+                        }
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setMenuPos({
+                          left: rect.left + rect.width / 2,
+                          top: rect.bottom + 10,
+                        });
+                        setOpenMenu(t.id);
+                      }
                       else handleTabKeyDown(e, idx);
                     }}
                     style={tabStyle(isActive)}>
@@ -2443,37 +2475,6 @@ function NavPill({ active, onChange }) {
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
                   </button>
-                  {isOpen && (
-                    <div role="menu" style={{
-                      position: "absolute", top: "calc(100% + 8px)", left: "50%", transform: "translateX(-50%)",
-                      background: "rgba(255,252,245,0.96)",
-                      border: "1px solid var(--glass-stroke-2)",
-                      backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                      borderRadius: 12, padding: 4, minWidth: 160,
-                      boxShadow: "0 8px 24px -6px rgba(26,22,19,0.18), 0 1px 0 rgba(255,252,245,0.9) inset",
-                      animation: "navDropIn 120ms cubic-bezier(0.32,0.72,0,1) both",
-                    }}>
-                      {t.children.map(child => {
-                        const childActive = active === child.id;
-                        return (
-                          <button key={child.id} role="menuitem"
-                            onClick={() => { onChange(child.id); setOpenMenu(null); }}
-                            style={{
-                              display: "block", width: "100%", textAlign: "left",
-                              padding: "10px 14px", borderRadius: 8,
-                              fontSize: 13, fontWeight: childActive ? 650 : 500,
-                              fontFamily: "var(--font-text)",
-                              color: childActive ? "var(--ink)" : "var(--ink-muted)",
-                              background: childActive ? "rgba(26,22,19,0.06)" : "transparent",
-                              border: "none", cursor: "pointer",
-                              transition: "all 160ms ease",
-                            }}>
-                            {child.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
               );
             }
@@ -2481,11 +2482,11 @@ function NavPill({ active, onChange }) {
             return (
               <button key={t.id}
                 onClick={() => { onChange(t.id); setOpenMenu(null); }}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                tabIndex={isActive ? 0 : -1}
-                className="nav-pill-tab"
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              tabIndex={0}
+              className="nav-pill-tab"
                 onKeyDown={(e) => handleTabKeyDown(e, idx)}
                 style={tabStyle(isActive)}>{t.label}</button>
             );
@@ -2496,6 +2497,55 @@ function NavPill({ active, onChange }) {
           <button type="button" className="stripe-nav-action primary" onClick={() => onChange("editor")}>Live feed</button>
         </div>
       </nav>
+      {openMenu && menuPos && (
+        <div
+          ref={menuRef}
+          role="menu"
+          style={{
+            position: "fixed",
+            left: menuPos.left,
+            top: menuPos.top,
+            transform: "translateX(-50%)",
+            background: "rgba(255,252,245,0.96)",
+            border: "1px solid var(--glass-stroke-2)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            borderRadius: 12,
+            padding: 4,
+            minWidth: 160,
+            boxShadow: "0 8px 24px -6px rgba(26,22,19,0.18), 0 1px 0 rgba(255,252,245,0.9) inset",
+            animation: "navDropIn 120ms cubic-bezier(0.32,0.72,0,1) both",
+            zIndex: 60,
+          }}
+        >
+          {(tabs.find((t) => t.id === openMenu)?.children || []).map((child) => {
+            const childActive = active === child.id;
+            return (
+              <button
+                key={child.id}
+                role="menuitem"
+                onClick={() => {
+                  onChange(child.id);
+                  setOpenMenu(null);
+                  setMenuPos(null);
+                }}
+                style={{
+                  display: "block", width: "100%", textAlign: "left",
+                  padding: "10px 14px", borderRadius: 8,
+                  fontSize: 13, fontWeight: childActive ? 650 : 500,
+                  fontFamily: "var(--font-text)",
+                  color: childActive ? "var(--ink)" : "var(--ink-muted)",
+                  background: childActive ? "rgba(26,22,19,0.06)" : "transparent",
+                  border: "none", cursor: "pointer",
+                  transition: "all 160ms ease",
+                }}
+              >
+                {child.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <style>{`
         @keyframes navDropIn {
           from { opacity: 0; transform: translateX(-50%) translateY(-4px) scale(0.96); }
@@ -5656,7 +5706,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const brunoSummary = bruno ? (bruno.summary || bruno.notes || "") : "";
   const topPartner = injuryStats.top_partners && injuryStats.top_partners[0] ? injuryStats.top_partners[0].name : "No partner trend";
   const hotSpot = injuryStats.top_body_parts && injuryStats.top_body_parts[0] ? injuryStats.top_body_parts[0].name : (injuries[0]?.body_part || "No hot spot");
-  const topTrigger = allergyStats.top_triggers && allergyStats.top_triggers[0] ? allergyStats.top_triggers[0].name : "pollen";
+  const topTrigger = allergyStats.top_triggers && allergyStats.top_triggers[0] ? allergyStats.top_triggers[0].name : "none logged";
   const missedAllergy = allergyStats.missed_training || allergies.filter((log) => log.missed_training || ["skipped", "left-early"].includes(String(log.training_impact || "").toLowerCase())).length || 0;
   const messages = Array.isArray(d.recent_messages) ? d.recent_messages.slice(-6).reverse() : [];
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
