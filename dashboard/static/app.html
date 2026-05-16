@@ -1543,6 +1543,22 @@ body {
 .stripe-backbone-stat {
   padding-top: 18px;
   border-top: 1px solid rgba(255,255,255,0.22);
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.stripe-backbone-stat:hover {
+  transform: translateY(-1px);
+}
+.stripe-backbone-stat:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.48);
+  outline-offset: 6px;
+  border-radius: 16px;
+}
+.stripe-backbone-stat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 .stripe-backbone-value {
   font: 900 clamp(34px, 5vw, 56px)/1 Inter, var(--font-display);
@@ -1553,6 +1569,17 @@ body {
   color: rgba(255,255,255,0.68);
   font-size: 14px;
   line-height: 1.45;
+}
+.stripe-backbone-arrow {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  opacity: 0.72;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.stripe-backbone-stat:hover .stripe-backbone-arrow {
+  transform: translateX(2px);
+  opacity: 0.9;
 }
 .stripe-case-grid {
   display: grid;
@@ -5689,6 +5716,18 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const calorieGoal = typeof d.calorie_goal === "number" ? d.calorie_goal : 2800;
   const calorieToday = typeof d.calorie_today === "number" ? d.calorie_today : 0;
   const caloriePct = Math.max(0, Math.min(100, Math.round((calorieToday / Math.max(1, calorieGoal)) * 100)));
+  const todaySchedule = Array.isArray(d.today_schedule) ? d.today_schedule : [];
+  const journalEntries = Array.isArray(d.journal) ? d.journal : [];
+  const todayDateKey = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  const todayJournal = journalEntries.filter((entry) => entry && entry.date === todayDateKey);
+  const completedSessions = todayJournal.filter((entry) => {
+    const text = `${entry.session || ""} ${entry.notes || ""}`.toLowerCase();
+    return !/(skip|skipp|missed|left early|left-early|couldn't|could not)/.test(text);
+  }).length;
+  const totalSessionsToday = todaySchedule.length;
+  const sessionProgressPct = totalSessionsToday > 0
+    ? Math.max(0, Math.min(100, Math.round((completedSessions / totalSessionsToday) * 100)))
+    : 100;
   const injuries = Array.isArray(d.injuries_active) ? d.injuries_active : [];
   const allInjuries = Array.isArray(d.all_injuries) ? d.all_injuries : injuries;
   const allergies = Array.isArray(d.allergies) ? d.allergies : [];
@@ -5701,7 +5740,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
     : moderateInjuries > 0
       ? { label: "Train smart", tone: "var(--accent-warn)", meta: `${moderateInjuries} item${moderateInjuries === 1 ? "" : "s"} need attention` }
       : { label: "Clear to build", tone: "var(--accent-success)", meta: "No major blockers logged" };
-  const next = d.next_up || "Show my next thing that I have for today.";
+  const next = d.next_up || "Nothing else for today.";
+  const nextSessionLabel = d.next_up || "Nothing else for today.";
   const bruno = d.bruno_recent;
   const brunoSummary = bruno ? (bruno.summary || bruno.notes || "") : "";
   const topPartner = injuryStats.top_partners && injuryStats.top_partners[0] ? injuryStats.top_partners[0].name : "No partner trend";
@@ -5726,7 +5766,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
   const activityRows = messages.length > 0
     ? messages.slice(0, 4)
     : [
-        { role: "assistant", content: "No recent bot messages yet." },
+        { role: "assistant", content: "Waiting for the next bot message." },
         { role: "user", content: "Use the editor to ask Claude for changes." },
       ];
   return (
@@ -5878,7 +5918,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
 
             <article className="stripe-card small" onClick={onOpenLessons}>
               <div className="stripe-card-title">Bruno, private lesson, feedback.</div>
-              <div className="stripe-card-text">{brunoSummary || bruno?.notes || "No Bruno lesson logged yet."}</div>
+                <div className="stripe-card-text">{brunoSummary || bruno?.notes || "Nothing logged yet."}</div>
               <div className="stripe-list">
                 <div className="stripe-list-row"><span>View Bruno notes</span><span className="stripe-arrow"></span></div>
               </div>
@@ -5938,21 +5978,42 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </p>
           </div>
           <div className="stripe-backbone-stats" style={{ marginTop: 44 }}>
-            <div className="stripe-backbone-stat">
+            <div className="stripe-backbone-stat" role="button" tabIndex={0} onClick={onOpenHydration} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenHydration(); } }}>
+              <div className="stripe-backbone-stat-head">
+                <div className="stripe-backbone-label" style={{ marginTop: 0 }}>hydration goal progress today</div>
+                <svg className="stripe-backbone-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="9 6 15 12 9 18"/>
+                </svg>
+              </div>
               <div className="stripe-backbone-value">{waterPct}%</div>
-              <div className="stripe-backbone-label">hydration goal progress today</div>
             </div>
-            <div className="stripe-backbone-stat">
-              <div className="stripe-backbone-value">{caloriePct}%</div>
-              <div className="stripe-backbone-label">fuel goal progress today</div>
-            </div>
-            <div className="stripe-backbone-stat">
+            <div className="stripe-backbone-stat" role="button" tabIndex={0} onClick={onOpenMeals} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenMeals(); } }}>
+              <div className="stripe-backbone-stat-head">
+                <div className="stripe-backbone-label" style={{ marginTop: 0 }}>meals ate today</div>
+                <svg className="stripe-backbone-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="9 6 15 12 9 18"/>
+                </svg>
+              </div>
               <div className="stripe-backbone-value">{mealsToday}</div>
-              <div className="stripe-backbone-label">meals ate today</div>
             </div>
-            <div className="stripe-backbone-stat">
+            <div className="stripe-backbone-stat" role="button" tabIndex={0} onClick={onOpenSchedule} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenSchedule(); } }}>
+              <div className="stripe-backbone-stat-head">
+                <div className="stripe-backbone-label" style={{ marginTop: 0 }}>sessions done today</div>
+                <svg className="stripe-backbone-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="9 6 15 12 9 18"/>
+                </svg>
+              </div>
+              <div className="stripe-backbone-value">{completedSessions}</div>
+              <div className="stripe-backbone-label">{totalSessionsToday > 0 ? `${completedSessions}/${totalSessionsToday} scheduled` : "Nothing else for today."}</div>
+            </div>
+            <div className="stripe-backbone-stat" role="button" tabIndex={0} onClick={onOpenTechniqueLibrary} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpenTechniqueLibrary(); } }}>
+              <div className="stripe-backbone-stat-head">
+                <div className="stripe-backbone-label" style={{ marginTop: 0 }}>techniques in the library</div>
+                <svg className="stripe-backbone-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="9 6 15 12 9 18"/>
+                </svg>
+              </div>
               <div className="stripe-backbone-value">{techCount}</div>
-              <div className="stripe-backbone-label">techniques in the library</div>
             </div>
           </div>
         </section>
@@ -5972,7 +6033,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               <div className="stripe-case-art" aria-hidden="true"></div>
               <div className="stripe-case-body">
                 <div className="stripe-card-title">Bruno, private lesson, feedback.</div>
-                <div className="stripe-card-text">{brunoSummary || bruno?.notes || "No Bruno lesson logged yet."}</div>
+                <div className="stripe-card-text">{brunoSummary || bruno?.notes || "Nothing logged yet."}</div>
                 <div className="stripe-case-meta">
                   <div className="stripe-case-mini">
                     <strong>{techCount}</strong>
@@ -5988,9 +6049,11 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             <div className="stripe-side-stack">
               <article className="stripe-side-story" onClick={onOpenSchedule}>
                 <div className="stripe-card-title">Next session</div>
-                <div className="stripe-card-text">See what is coming up next without hunting for it.</div>
+                <div className="stripe-card-text">{nextSessionLabel}</div>
+                <div className="stripe-meter" style={{ marginTop: 16 }}><span style={{ width: `${sessionProgressPct}%` }} /></div>
                 <div className="stripe-list">
-                  <div className="stripe-list-row"><span>Next up</span><strong>{next}</strong></div>
+                  <div className="stripe-list-row"><span>Progress</span><strong>{sessionProgressPct}%</strong></div>
+                  <div className="stripe-list-row"><span>Done today</span><strong>{totalSessionsToday > 0 ? `${completedSessions}/${totalSessionsToday}` : "none"}</strong></div>
                 </div>
               </article>
               <article className="stripe-side-story" onClick={onOpenMicroInjuries}>
