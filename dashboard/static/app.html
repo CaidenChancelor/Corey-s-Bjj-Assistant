@@ -1127,6 +1127,59 @@ body {
   margin-top: 34px;
   animation: stripeRise 800ms cubic-bezier(.22,1,.36,1) 240ms both;
 }
+.stripe-jumpbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 22px 0 6px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(10,37,64,0.10);
+  background: rgba(255,255,255,0.74);
+  box-shadow: 0 18px 46px -36px rgba(10,37,64,0.38);
+  backdrop-filter: blur(12px);
+}
+.stripe-jumpbar-title {
+  margin-top: 6px;
+  color: var(--stripe-ink);
+  font: 800 18px/1.25 Inter, var(--font-display);
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.stripe-jump-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.stripe-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--stripe-line);
+  background: rgba(255,255,255,0.96);
+  color: #0a2540;
+  font: 700 14px/1 var(--font-text);
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease, border-color 180ms ease;
+}
+.stripe-jump-btn.primary {
+  background: #0a2540;
+  border-color: #0a2540;
+  color: #fff;
+}
+.stripe-jump-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(10,37,64,0.24);
+  box-shadow: 0 18px 34px -26px rgba(10,37,64,0.48);
+}
+.stripe-jump-btn.primary:hover {
+  border-color: #0a2540;
+}
 .stripe-cta {
   display: inline-flex;
   align-items: center;
@@ -1696,6 +1749,13 @@ body {
   .stripe-section-head {
     grid-template-columns: 1fr;
   }
+  .stripe-jumpbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .stripe-jump-actions {
+    justify-content: flex-start;
+  }
   .stripe-hero {
     min-height: auto;
   }
@@ -1731,6 +1791,13 @@ body {
   }
   .stripe-title {
     font-size: clamp(42px, 13vw, 58px);
+  }
+  .stripe-jumpbar {
+    padding: 16px 16px 14px;
+    border-radius: 18px;
+  }
+  .stripe-jumpbar-title {
+    font-size: 16px;
   }
   .stripe-logo-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5638,6 +5705,10 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
         { role: "assistant", content: "No recent bot messages yet." },
         { role: "user", content: "Use the editor to ask Claude for changes." },
       ];
+  const jumpTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <div className="stripe-dash">
@@ -5714,6 +5785,21 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
+        <div className="stripe-jumpbar" aria-label="Quick navigation">
+          <div>
+            <div className="stripe-label" style={{ color: "var(--stripe-blue)" }}>Quick navigation</div>
+            <div className="stripe-jumpbar-title">Jump straight to the live parts of the board.</div>
+          </div>
+          <div className="stripe-jump-actions">
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("live-signals")}>Signals</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-status")}>Status</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("current-data")}>Current data</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("recent-messages")}>Messages</button>
+            <button className="stripe-jump-btn" type="button" onClick={() => jumpTo("technique-history")}>Techniques</button>
+            <button className="stripe-jump-btn primary" type="button" onClick={onOpenEditor}>Editor</button>
+          </div>
+        </div>
+
         <div className="stripe-logo-strip" aria-label="Training areas">
           <span>hydration</span>
           <span>fuel</span>
@@ -5723,7 +5809,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           <span>editor</span>
         </div>
 
-        <section className="stripe-section">
+        <section className="stripe-section" id="live-signals">
           <div className="stripe-section-head">
             <div>
               <div className="stripe-label">Live signals</div>
@@ -5802,7 +5888,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
               </div>
             </article>
 
-            <article className="stripe-card small" onClick={onOpenTechniqueLibrary}>
+            <article className="stripe-card small" onClick={onOpenTechniqueLibrary} id="technique-history">
               <div className="stripe-card-title">Technique history</div>
               <div className="stripe-card-text">Your tracked techniques, recency, and training history in one place.</div>
               <div className="stripe-stat-row" style={{ gridTemplateColumns: "1fr" }}>
@@ -5834,7 +5920,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <section className="stripe-backbone">
+        <section className="stripe-backbone" id="current-status">
           <div className="stripe-backbone-grid">
             <div>
               <div className="stripe-label" style={{ color: "rgba(255,255,255,0.76)" }}>Current status</div>
@@ -5864,7 +5950,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <section className="stripe-section">
+        <section className="stripe-section" id="current-data">
           <div className="stripe-section-head">
             <div>
               <div className="stripe-label">Current data</div>
@@ -5943,7 +6029,7 @@ return {
           </div>
         </section>
 
-        <section className="stripe-section">
+        <section className="stripe-section" id="recent-messages">
           <div className="stripe-section-head">
             <div>
               <div className="stripe-label">Recent bot messages</div>
