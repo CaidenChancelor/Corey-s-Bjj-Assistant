@@ -44,6 +44,68 @@ DB_PATH = os.environ.get('DB_PATH', '/data/bjj.db')
 # Chat history for conversational context
 chat_history = []
 
+# ── AIRTABLE SYNC ─────────────────────────────────────────────────────────────
+
+AIRTABLE_PAT = os.environ.get('AIRTABLE_PAT', '')
+AIRTABLE_BASE = os.environ.get('AIRTABLE_BASE', '')
+AIRTABLE_TABLES = {
+    'injuries':  os.environ.get('AT_TBL_INJURIES', ''),
+    'allergies': os.environ.get('AT_TBL_ALLERGIES', ''),
+    'techniques': os.environ.get('AT_TBL_TECHNIQUES', ''),
+    'problems':  os.environ.get('AT_TBL_PROBLEMS', ''),
+    'journal':   os.environ.get('AT_TBL_JOURNAL', ''),
+    'meals':     os.environ.get('AT_TBL_MEALS', ''),
+    'water_log': os.environ.get('AT_TBL_WATER_LOG', ''),
+}
+
+def _at_headers():
+    return {'Authorization': f'Bearer {AIRTABLE_PAT}', 'Content-Type': 'application/json'}
+
+def at_sync(table_key, bot_id, fields):
+    """Create or update an Airtable record matched by Bot ID."""
+    if not AIRTABLE_PAT or not AIRTABLE_BASE:
+        return
+    tbl = AIRTABLE_TABLES.get(table_key, '')
+    if not tbl:
+        return
+    def _do():
+        try:
+            url = f'https://api.airtable.com/v0/{AIRTABLE_BASE}/{tbl}'
+            # Search for existing record by Bot ID
+            find = req.get(url, headers=_at_headers(),
+                           params={'filterByFormula': f'{{Bot ID}}={bot_id}', 'maxRecords': 1})
+            existing = find.json().get('records', [])
+            fields['Bot ID'] = bot_id
+            if existing:
+                rec_id = existing[0]['id']
+                req.patch(f'{url}/{rec_id}', headers=_at_headers(),
+                          json={'fields': fields})
+            else:
+                req.post(url, headers=_at_headers(),
+                         json={'records': [{'fields': fields}]})
+        except Exception as e:
+            logging.warning(f'Airtable sync error ({table_key}): {e}')
+    threading.Thread(target=_do, daemon=True).start()
+
+def at_delete(table_key, bot_id):
+    """Delete an Airtable record matched by Bot ID."""
+    if not AIRTABLE_PAT or not AIRTABLE_BASE:
+        return
+    tbl = AIRTABLE_TABLES.get(table_key, '')
+    if not tbl:
+        return
+    def _do():
+        try:
+            url = f'https://api.airtable.com/v0/{AIRTABLE_BASE}/{tbl}'
+            find = req.get(url, headers=_at_headers(),
+                           params={'filterByFormula': f'{{Bot ID}}={bot_id}', 'maxRecords': 1})
+            existing = find.json().get('records', [])
+            if existing:
+                req.delete(f'{url}/{existing[0]["id"]}', headers=_at_headers())
+        except Exception as e:
+            logging.warning(f'Airtable delete error ({table_key}): {e}')
+    threading.Thread(target=_do, daemon=True).start()
+
 # ── JOURNAL (SQLite) ───────────────────────────────────────────────────────────
 
 def init_db():
@@ -210,11 +272,15 @@ def load_water_from_db():
 def save_journal_entry(session, notes):
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cur = conn.execute(
                 'INSERT INTO journal (date, session, notes, created_at) VALUES (?,?,?,?)',
                 (datetime.now(TZ).strftime('%Y-%m-%d'), session, notes, datetime.now(TZ).isoformat())
             )
             conn.commit()
+            at_sync('journal', cur.lastrowid, {
+                'Date': datetime.now(TZ).strftime('%Y-%m-%d'),
+                'Session': session, 'Notes': notes,
+            })
         logging.info(f"JOURNAL [{session}]: {notes[:80]}")
     except Exception as e:
         logging.error(f"Journal save error: {e}")
@@ -338,11 +404,15 @@ def save_meal(name, calories, kind="other", notes=""):
     now = datetime.now(TZ)
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cur = conn.execute(
                 'INSERT INTO meals (date, time, name, calories, kind, notes, created_at) VALUES (?,?,?,?,?,?,?)',
                 (now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), name, int(calories or 0), kind, notes, now.isoformat()),
             )
             conn.commit()
+            at_sync('meals', cur.lastrowid, {
+                'Name': name, 'Calories': int(calories or 0), 'Kind': kind,
+                'Notes': notes, 'Date': now.strftime('%Y-%m-%d'), 'Time': now.strftime('%H:%M'),
+            })
         logging.info(f"MEAL: {name} ({calories} cal, {kind})")
     except Exception as e:
         logging.error(f"Meal save error: {e}")
@@ -389,11 +459,15 @@ def save_injury(body_part, severity, notes):
     now = datetime.now(TZ)
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cur = conn.execute(
                 'INSERT INTO injuries (date, body_part, severity, notes, created_at) VALUES (?,?,?,?,?)',
                 (now.strftime('%Y-%m-%d'), body_part, severity, notes, now.isoformat()),
             )
             conn.commit()
+            at_sync('injuries', cur.lastrowid, {
+                'Body Part': body_part, 'Severity': severity, 'Notes': notes,
+                'Date': now.strftime('%Y-%m-%d'),
+            })
         logging.info(f"INJURY: {body_part} ({severity})")
     except Exception as e:
         logging.error(f"Injury save error: {e}")
@@ -405,7 +479,7 @@ def save_allergy(trigger, symptoms, severity="mild", category="general",
     now = datetime.now(TZ)
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cur = conn.execute(
                 'INSERT INTO allergies (date, time, severity, category, trigger_name, symptoms, medication, training_impact, missed_training, notes, created_at) '
                 'VALUES (?,?,?,?,?,?,?,?,?,?,?)',
                 (
@@ -423,6 +497,14 @@ def save_allergy(trigger, symptoms, severity="mild", category="general",
                 ),
             )
             conn.commit()
+            at_sync('allergies', cur.lastrowid, {
+                'Trigger': (trigger or '').strip(), 'Severity': (severity or 'mild').strip().lower(),
+                'Symptoms': (symptoms or '').strip(), 'Medication': (medication or '').strip(),
+                'Training Impact': (training_impact or 'none').strip().lower(),
+                'Date': now.strftime('%Y-%m-%d'),
+            })
+            if missed_training:
+                at_sync('allergies', cur.lastrowid, {'Missed Training': True})
         logging.info(f"ALLERGY: {trigger} ({severity})")
     except Exception as e:
         logging.error(f"Allergy save error: {e}")
@@ -1245,6 +1327,7 @@ def get_or_create_technique(name):
                 (normalized, datetime.now(TZ).isoformat())
             )
             conn.commit()
+            at_sync('techniques', cursor.lastrowid, {'Name': normalized, 'Summary': ''})
             return cursor.lastrowid, True
     except Exception as e:
         logging.error(f"get_or_create_technique error: {e}")
@@ -1910,12 +1993,18 @@ def webhook():
                 notes = f"Description: {description}\nRest plan: {rest_plan}\nRegion: {region}"
                 try:
                     with sqlite3.connect(DB_PATH) as conn:
-                        conn.execute(
+                        cur = conn.execute(
                             'INSERT INTO injuries (date, body_part, severity, notes, partner, when_happened, created_at) VALUES (?,?,?,?,?,?,?)',
                             (datetime.now(TZ).strftime('%Y-%m-%d'), body_part, severity, notes,
                              state.get("_injury_partner"), state.get("_injury_when"), datetime.now(TZ).isoformat())
                         )
                         conn.commit()
+                        at_sync('injuries', cur.lastrowid, {
+                            'Body Part': body_part, 'Severity': severity, 'Notes': notes,
+                            'Partner': state.get("_injury_partner") or '',
+                            'When': state.get("_injury_when") or '',
+                            'Date': datetime.now(TZ).strftime('%Y-%m-%d'),
+                        })
                     logging.info(f"INJURY logged: {body_part} ({severity})")
                 except Exception as e:
                     logging.error(f"Injury log error: {e}")
@@ -2001,11 +2090,14 @@ def webhook():
                 description = issue
                 try:
                     with sqlite3.connect(DB_PATH) as conn:
-                        conn.execute(
+                        cur = conn.execute(
                             'INSERT INTO problems (name, tier, description, created_at) VALUES (?,?,?,?)',
                             (position, tier, description, datetime.now(TZ).isoformat())
                         )
                         conn.commit()
+                        at_sync('problems', cur.lastrowid, {
+                            'Name': position, 'Tier': tier, 'Description': description,
+                        })
                 except Exception as e:
                     logging.error(f"Problem save error: {e}")
                 state["_problem_position"] = None
@@ -2163,11 +2255,16 @@ def webhook():
                 maybe_increment_streak(liters)
                 try:
                     with sqlite3.connect(DB_PATH) as conn:
-                        conn.execute(
+                        cur = conn.execute(
                             'INSERT INTO water_log (date, time, amount_l, created_at) VALUES (?,?,?,?)',
                             (datetime.now(TZ).strftime('%Y-%m-%d'), datetime.now(TZ).strftime('%H:%M'), liters, datetime.now(TZ).isoformat())
                         )
                         conn.commit()
+                        at_sync('water_log', cur.lastrowid, {
+                            'Date': datetime.now(TZ).strftime('%Y-%m-%d'),
+                            'Time': datetime.now(TZ).strftime('%H:%M'),
+                            'Amount (L)': liters,
+                        })
                 except Exception as e:
                     logging.error(f"water_log insert error: {e}")
                 remaining = round(WATER_GOAL_L - state["water_today"], 2)
@@ -2459,6 +2556,7 @@ def api_meals_delete(meal_id):
         with sqlite3.connect(DB_PATH) as conn:
             conn.execute('DELETE FROM meals WHERE id=?', (meal_id,))
             conn.commit()
+        at_delete('meals', meal_id)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2484,6 +2582,11 @@ def api_injuries_create():
                 (now.strftime('%Y-%m-%d'), body_part, severity, notes, partner, when_happened, now.isoformat())
             )
             conn.commit()
+            at_sync('injuries', cursor.lastrowid, {
+                'Body Part': body_part, 'Severity': severity, 'Notes': notes,
+                'Partner': partner or '', 'When': when_happened or '',
+                'Date': now.strftime('%Y-%m-%d'),
+            })
         return {"ok": True, "id": cursor.lastrowid, "date": now.strftime('%Y-%m-%d'), "created_at": now.isoformat()}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2506,6 +2609,17 @@ def api_injuries_update(injury_id):
             if 'resolved' in data:
                 changed += conn.execute('UPDATE injuries SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, injury_id)).rowcount
             conn.commit()
+        # Sync updated fields to Airtable
+        at_fields = {}
+        field_map = {'body_part': 'Body Part', 'severity': 'Severity', 'notes': 'Notes',
+                     'partner': 'Partner', 'when_happened': 'When'}
+        for k, v in field_map.items():
+            if k in data:
+                at_fields[v] = data[k] or ''
+        if 'resolved' in data:
+            at_fields['Resolved'] = bool(data['resolved'])
+        if at_fields:
+            at_sync('injuries', injury_id, at_fields)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2521,6 +2635,7 @@ def api_injuries_delete(injury_id):
             conn.commit()
         if changed == 0:
             return {"error": "injury not found"}, 404
+        at_delete('injuries', injury_id)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2559,6 +2674,14 @@ def api_allergies_create():
                 )
             )
             conn.commit()
+        at_sync('allergies', cursor.lastrowid, {
+            'Trigger': trigger_name, 'Severity': (data.get('severity') or 'mild').strip(),
+            'Symptoms': symptoms, 'Medication': (data.get('medication') or '').strip(),
+            'Training Impact': (data.get('training_impact') or 'none').strip(),
+            'Date': date,
+        })
+        if data.get('missed_training'):
+            at_sync('allergies', cursor.lastrowid, {'Missed Training': True})
         return {"ok": True, "id": cursor.lastrowid, "date": date, "created_at": now.isoformat()}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2585,6 +2708,18 @@ def api_allergies_update(allergy_id):
             if 'missed_training' in data:
                 changed += conn.execute('UPDATE allergies SET missed_training=? WHERE id=?', (1 if data['missed_training'] else 0, allergy_id)).rowcount
             conn.commit()
+        at_fields = {}
+        field_map = {'severity': 'Severity', 'symptoms': 'Symptoms', 'medication': 'Medication',
+                     'training_impact': 'Training Impact'}
+        for k, v in field_map.items():
+            if k in data:
+                at_fields[v] = (data.get(k) or '').strip()
+        if 'trigger' in data:
+            at_fields['Trigger'] = (data.get('trigger') or '').strip()
+        if 'missed_training' in data:
+            at_fields['Missed Training'] = bool(data['missed_training'])
+        if at_fields:
+            at_sync('allergies', allergy_id, at_fields)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2601,6 +2736,7 @@ def api_allergies_delete(allergy_id):
             conn.commit()
         if changed == 0:
             return {"error": "allergy log not found"}, 404
+        at_delete('allergies', allergy_id)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2613,11 +2749,15 @@ def api_problems_create():
     data = request.get_json(force=True) or {}
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cur = conn.execute(
                 'INSERT INTO problems (name, tier, description, created_at) VALUES (?,?,?,?)',
                 (data.get('name', ''), data.get('tier', 'med'), data.get('description', ''), datetime.now(TZ).isoformat())
             )
             conn.commit()
+            at_sync('problems', cur.lastrowid, {
+                'Name': data.get('name', ''), 'Tier': data.get('tier', 'med'),
+                'Description': data.get('description', ''),
+            })
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2636,6 +2776,15 @@ def api_problems_update(problem_id):
             if 'resolved' in data:
                 conn.execute('UPDATE problems SET resolved=? WHERE id=?', (1 if data['resolved'] else 0, problem_id))
             conn.commit()
+        at_fields = {}
+        field_map = {'name': 'Name', 'tier': 'Tier', 'description': 'Description'}
+        for k, v in field_map.items():
+            if k in data:
+                at_fields[v] = data[k]
+        if 'resolved' in data:
+            at_fields['Resolved'] = bool(data['resolved'])
+        if at_fields:
+            at_sync('problems', problem_id, at_fields)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2649,6 +2798,7 @@ def api_problems_delete(problem_id):
         with sqlite3.connect(DB_PATH) as conn:
             conn.execute('DELETE FROM problems WHERE id=?', (problem_id,))
             conn.commit()
+        at_delete('problems', problem_id)
         return {"ok": True}
     except Exception as e:
         return {"error": str(e)}, 500
@@ -2669,11 +2819,15 @@ def api_water_add():
     check_and_reset_water()
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
+            cur = conn.execute(
                 'INSERT INTO water_log (date, time, amount_l, created_at) VALUES (?,?,?,?)',
                 (now.strftime('%Y-%m-%d'), now.strftime('%H:%M'), liters, now.isoformat())
             )
             conn.commit()
+            at_sync('water_log', cur.lastrowid, {
+                'Date': now.strftime('%Y-%m-%d'), 'Time': now.strftime('%H:%M'),
+                'Amount (L)': liters,
+            })
         state["water_today"] = round(state["water_today"] + liters, 2)
         save_water_to_db()
         maybe_increment_streak(liters)
@@ -2693,6 +2847,7 @@ def api_water_delete(entry_id):
                 return {"error": "not found"}, 404
             conn.execute('DELETE FROM water_log WHERE id=?', (entry_id,))
             conn.commit()
+        at_delete('water_log', entry_id)
         state["water_today"] = round(max(0.0, state["water_today"] - row[0]), 2)
         save_water_to_db()
         return {"ok": True, "water_today": state["water_today"]}
