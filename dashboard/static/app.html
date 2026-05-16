@@ -6172,6 +6172,184 @@ function ProgressRing({ radius, stroke, progress, color }) {
   );
 }
 
+function ParticleHero() {
+  const containerRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext("2d");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const STRIPES = [
+      [0, 212, 255],    // cyan
+      [99, 91, 255],    // blue
+      [255, 92, 154],   // pink
+      [0, 229, 168],    // mint
+    ];
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function lerpRGB(a, b, t) {
+      return [Math.round(lerp(a[0], b[0], t)), Math.round(lerp(a[1], b[1], t)), Math.round(lerp(a[2], b[2], t))];
+    }
+    function paletteAt(t) {
+      const stops = STRIPES;
+      const seg = 1 / (stops.length - 1);
+      const i = Math.min(stops.length - 2, Math.floor(t / seg));
+      const local = (t - i * seg) / seg;
+      return lerpRGB(stops[i], stops[i + 1], local);
+    }
+
+    const state = { w: 0, h: 0, particles: [], arcs: [], lastArcAt: 0 };
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      state.w = w;
+      state.h = h;
+      const target = Math.min(1100, Math.max(280, Math.floor((w * h) / 950)));
+      state.particles = [];
+      for (let i = 0; i < target; i++) {
+        const nx = Math.random();
+        const ny = Math.random();
+        const x = nx * w;
+        const y = ny * h;
+        const dy = (ny - 0.5) * 2;
+        const fade = 1 - Math.min(1, Math.abs(dy) * 0.9);
+        state.particles.push({
+          x, y, baseX: x, baseY: y,
+          r: 0.5 + Math.random() * 1.8,
+          color: paletteAt(nx),
+          alpha: (0.18 + Math.random() * 0.55) * fade,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.0004 + Math.random() * 0.0009,
+          amp: 4 + Math.random() * 16,
+        });
+      }
+    }
+
+    function spawnArc(now) {
+      const { w, h } = state;
+      const fromLeft = Math.random() < 0.5;
+      const sx = fromLeft ? -20 : w + 20;
+      const ex = fromLeft ? w + 20 : -20;
+      const sy = h * (0.25 + Math.random() * 0.55);
+      const ey = h * (0.25 + Math.random() * 0.55);
+      const cpx = (sx + ex) / 2 + (Math.random() - 0.5) * 80;
+      const cpy = Math.min(sy, ey) - (60 + Math.random() * 90);
+      state.arcs.push({
+        sx, sy, ex, ey, cpx, cpy,
+        t: 0,
+        speed: 0.0028 + Math.random() * 0.0024,
+        color: paletteAt(0.15 + Math.random() * 0.7),
+      });
+    }
+
+    function bezier(x0, y0, cx, cy, x1, y1, t) {
+      const mt = 1 - t;
+      return { x: mt * mt * x0 + 2 * mt * t * cx + t * t * x1, y: mt * mt * y0 + 2 * mt * t * cy + t * t * y1 };
+    }
+
+    let raf = 0;
+    function frame(now) {
+      const { w, h, particles, arcs } = state;
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        if (!reduced) {
+          const wave = Math.sin(p.phase + now * p.speed);
+          p.x = p.baseX + Math.cos(p.phase * 0.7) * wave * p.amp * 0.35;
+          p.y = p.baseY + wave * p.amp * 0.65;
+        }
+        const [r, g, b] = p.color;
+        ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + p.alpha + ")";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (!reduced) {
+        if (now - state.lastArcAt > 1600 + Math.random() * 1200 && arcs.length < 4) {
+          spawnArc(now);
+          state.lastArcAt = now;
+        }
+        for (let i = arcs.length - 1; i >= 0; i--) {
+          const a = arcs[i];
+          a.t += a.speed;
+          if (a.t > 1.18) { arcs.splice(i, 1); continue; }
+          const [ar, ag, ab] = a.color;
+          const segs = 28;
+          const trailStart = Math.max(0, a.t - 0.32);
+          for (let s = 0; s < segs; s++) {
+            const u0 = trailStart + (a.t - trailStart) * (s / segs);
+            const u1 = trailStart + (a.t - trailStart) * ((s + 1) / segs);
+            if (u1 > 1) break;
+            const p0 = bezier(a.sx, a.sy, a.cpx, a.cpy, a.ex, a.ey, u0);
+            const p1 = bezier(a.sx, a.sy, a.cpx, a.cpy, a.ex, a.ey, u1);
+            const headFade = a.t > 1 ? Math.max(0, 1 - (a.t - 1) * 5) : 1;
+            const segAlpha = (s / segs) * 0.55 * headFade;
+            ctx.strokeStyle = "rgba(" + ar + "," + ag + "," + ab + "," + segAlpha + ")";
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+          if (a.t < 1) {
+            const head = bezier(a.sx, a.sy, a.cpx, a.cpy, a.ex, a.ey, a.t);
+            const grad = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 16);
+            grad.addColorStop(0, "rgba(" + ar + "," + ag + "," + ab + ",0.85)");
+            grad.addColorStop(1, "rgba(" + ar + "," + ag + "," + ab + ",0)");
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(head.x, head.y, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.beginPath();
+            ctx.arc(head.x, head.y, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      raf = requestAnimationFrame(frame);
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+    raf = requestAnimationFrame(frame);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+  }, []);
+
+  return (
+    <section ref={containerRef} aria-hidden="true" style={{
+      position: "relative",
+      width: "100%",
+      height: "clamp(260px, 32vw, 380px)",
+      margin: "0 0 40px",
+      borderRadius: 28,
+      overflow: "hidden",
+      background:
+        "radial-gradient(circle at 18% 22%, rgba(0,212,255,0.18), transparent 42%)," +
+        "radial-gradient(circle at 78% 18%, rgba(255,92,154,0.20), transparent 38%)," +
+        "radial-gradient(circle at 50% 110%, rgba(99,91,255,0.18), transparent 50%)," +
+        "linear-gradient(180deg, #f6f9fc 0%, #ffffff 60%, #f6f9fc 100%)",
+      boxShadow: "0 30px 80px -50px rgba(10,37,64,0.45)",
+      border: "1px solid rgba(10,37,64,0.06)",
+    }}>
+      <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
+    </section>
+  );
+}
+
 function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary, onOpenEditor }) {
   const d = window.__bjjdata || {};
   const botError = d && d.error;
@@ -6311,6 +6489,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
             </div>
           </div>
         </section>
+
+        <ParticleHero />
 
         <div className="stripe-logo-strip" aria-label="Training areas">
           <span>hydration</span>
@@ -9149,6 +9329,247 @@ window.Problems = Problems;
 
 const { useState: useStateMI, useEffect: useEffectMI } = React;
 
+// ─── ParticleBodySilhouette ───────────────────────────────────────────────────
+// Canvas particle figure: ~2500 dots forming a body silhouette, gradient
+// stripe-blue → stripe-pink, with sinusoidal ambient drift and per-injury
+// glowing pulse markers. Honors prefers-reduced-motion.
+// Reads injuries from useMicroInjuriesStore() via the MicroInjuries page.
+// ─────────────────────────────────────────────────────────────────────────────
+function ParticleBodySilhouette({ injuries }) {
+  var canvasRef = React.useRef(null);
+  var rafRef = React.useRef(null);
+
+  var STRIPE_BLUE = "#635bff";
+  var STRIPE_PINK = "#ff5c9a";
+  var STRIPE_CYAN = "#00d4ff";
+  var STRIPE_MINT = "#00e5a8";
+
+  var reducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function inSilhouette(nx, ny) {
+    var x = nx * 100;
+    var y = ny * 200;
+    // Head
+    if ((x-50)*(x-50)/81 + (y-14)*(y-14)/100 <= 1) return true;
+    // Neck
+    if (x >= 45 && x <= 55 && y >= 22 && y <= 29) return true;
+    // Torso (trapezoidal)
+    if (y >= 26 && y <= 98) {
+      var t0 = (y-26)/72, hw0 = 18-t0*5;
+      if (x >= 50-hw0-2 && x <= 50+hw0+2) return true;
+    }
+    // Arms
+    if (y >= 30 && y <= 94) {
+      var t1 = (y-30)/64, hw1 = 4-t1*1.5;
+      var ax1 = 70+t1*8; if (x >= ax1-hw1 && x <= ax1+hw1+2) return true;
+      var ax2 = 30-t1*8; if (x >= ax2-hw1-2 && x <= ax2+hw1) return true;
+    }
+    // Legs
+    if (y >= 98 && y <= 188) {
+      var t2 = (y-98)/90;
+      var lx1 = 58+t2*2; if (x >= lx1-5 && x <= lx1+5) return true;
+      var lx2 = 42-t2*2; if (x >= lx2-5 && x <= lx2+5) return true;
+    }
+    return false;
+  }
+
+  function particleColor(ny, rand) {
+    if (rand < 0.08) return STRIPE_CYAN;
+    var r1=0x63, g1=0x5b, b1=0xff, r2=0xff, g2=0x5c, b2=0x9a;
+    var t = Math.pow(ny, 0.8);
+    return "rgb("+Math.round(r1+(r2-r1)*t)+","+Math.round(g1+(g2-g1)*t)+","+Math.round(b1+(b2-b1)*t)+")";
+  }
+
+  function hexToRgb(h) {
+    return parseInt(h.slice(1,3),16)+","+parseInt(h.slice(3,5),16)+","+parseInt(h.slice(5,7),16);
+  }
+
+  function severityColor(sev) {
+    if (sev === "critical") return STRIPE_PINK;
+    if (sev === "fresh")    return STRIPE_CYAN;
+    if (sev === "watch")    return STRIPE_MINT;
+    return STRIPE_BLUE;
+  }
+
+  React.useEffect(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var dpr = window.devicePixelRatio || 1;
+    var W = canvas.offsetWidth;
+    var H = canvas.offsetHeight;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+
+    var TARGET = 2500;
+    var particles = [];
+    var attempts = 0;
+    while (particles.length < TARGET && attempts < TARGET * 15) {
+      attempts++;
+      var nx = Math.random(), ny = Math.random();
+      if (!inSilhouette(nx, ny)) continue;
+      var rand = Math.random();
+      particles.push({
+        baseX: nx*W, baseY: ny*H,
+        r: 0.7 + Math.random()*1.1,
+        color: particleColor(ny, rand),
+        alpha: 0.45 + Math.random()*0.45,
+        phaseX: Math.random()*Math.PI*2, phaseY: Math.random()*Math.PI*2,
+        freqX: 0.0003+Math.random()*0.0004, freqY: 0.0002+Math.random()*0.0003,
+        ampX: 0.6+Math.random()*1.0, ampY: 0.5+Math.random()*0.9,
+      });
+    }
+
+    var activeInj = Array.isArray(injuries) ? injuries : [];
+    var start = null;
+
+    function draw(ts) {
+      if (!start) start = ts;
+      var elapsed = ts - start;
+      ctx.clearRect(0, 0, W, H);
+
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        var ppx = p.baseX, ppy = p.baseY;
+        if (!reducedMotion) {
+          ppx += Math.sin(elapsed*p.freqX + p.phaseX)*p.ampX;
+          ppy += Math.sin(elapsed*p.freqY + p.phaseY)*p.ampY;
+        }
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(ppx, ppy, p.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      for (var j = 0; j < activeInj.length; j++) {
+        var inj = activeInj[j];
+        var region = MICRO_INJURIES_REGIONS.find(function(r) { return r.id === inj.region; })
+          || MICRO_INJURIES_REGIONS[MICRO_INJURIES_REGIONS.length-1];
+        var mpx = (region.x/100)*W;
+        var mpy = (region.y/200)*H;
+        var color = severityColor(inj.severity);
+        var rgb = hexToRgb(color);
+        var pulseT = reducedMotion ? 0.5 : (0.5 + 0.5*Math.sin(elapsed*0.0025 + j*1.3));
+
+        var haloR = 14 + pulseT*6;
+        var grad = ctx.createRadialGradient(mpx, mpy, 2, mpx, mpy, haloR);
+        grad.addColorStop(0,   "rgba("+rgb+",0.55)");
+        grad.addColorStop(0.5, "rgba("+rgb+",0.20)");
+        grad.addColorStop(1,   "rgba("+rgb+",0)");
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(mpx, mpy, haloR, 0, Math.PI*2);
+        ctx.fill();
+
+        var dotR = 3.5 + pulseT*1.5;
+        ctx.globalAlpha = 0.92;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(mpx, mpy, dotR, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.globalAlpha = 0.80;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(mpx, mpy, 1.4, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.globalAlpha = 0.45 + pulseT*0.40;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(mpx, mpy, dotR+3, 0, Math.PI*2);
+        ctx.stroke();
+      }
+
+      ctx.globalAlpha = 1;
+      rafRef.current = requestAnimationFrame(draw);
+    }
+
+    rafRef.current = requestAnimationFrame(draw);
+    return function() { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [injuries]);
+
+  return React.createElement("canvas", {
+    ref: canvasRef,
+    style: { width: "100%", height: "100%", display: "block" },
+  });
+}
+
+function ParticleBodyHero({ injuries }) {
+  var activeInjuries = React.useMemo(function() {
+    var list = Array.isArray(injuries) ? injuries.filter(function(i) { return !i.resolved; }) : [];
+    var sevRank = { critical:0, fresh:1, watch:2, managing:3 };
+    var byRegion = {};
+    for (var k = 0; k < list.length; k++) {
+      var inj = list[k];
+      var key = inj.region || "other";
+      if (!byRegion[key] || (sevRank[inj.severity]||9) < (sevRank[byRegion[key].severity]||9)) {
+        byRegion[key] = inj;
+      }
+    }
+    return Object.values(byRegion);
+  }, [injuries]);
+
+  var total = Array.isArray(injuries) ? injuries.filter(function(i) { return !i.resolved; }).length : 0;
+  var critCount = activeInjuries.filter(function(i) { return i.severity === "critical"; }).length;
+  var freshCount = activeInjuries.filter(function(i) { return i.severity === "fresh"; }).length;
+
+  return React.createElement("div", {
+    className: "stripe-card",
+    style: { marginBottom: 28, padding: 0, overflow: "hidden", height: 390, position: "relative" },
+  },
+    React.createElement("div", { style: { position: "absolute", inset: 0 } },
+      React.createElement(ParticleBodySilhouette, { injuries: activeInjuries })
+    ),
+    React.createElement("div", {
+      style: {
+        position: "absolute", top: 20, left: 24,
+        fontFamily: "Inter, var(--font-display)", fontSize: 11, fontWeight: 700,
+        letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--stripe-faint)",
+        pointerEvents: "none",
+      }
+    }, "Body Map"),
+    React.createElement("div", {
+      style: {
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        padding: "18px 24px 16px",
+        background: "linear-gradient(0deg,rgba(255,255,255,0.97) 0%,rgba(255,255,255,0) 100%)",
+        display: "flex", alignItems: "center", gap: 14,
+      }
+    },
+      total === 0
+        ? React.createElement("span", { style: { fontSize: 13, color: "var(--stripe-faint)" } },
+            "No active injuries — body clear")
+        : React.createElement(React.Fragment, null,
+            React.createElement("span", {
+              style: { fontSize: 14, fontWeight: 700, color: "var(--stripe-ink)", letterSpacing: "-0.02em" }
+            }, total+" active"),
+            critCount > 0 && React.createElement("span", {
+              style: { fontSize: 12, color: "#ff5c9a", display: "flex", alignItems: "center", gap: 5 }
+            },
+              React.createElement("span", { style: { width:6, height:6, borderRadius:"50%", background:"#ff5c9a", display:"inline-block", flexShrink:0 } }),
+              critCount+" critical"
+            ),
+            freshCount > 0 && React.createElement("span", {
+              style: { fontSize: 12, color: "#00d4ff", display: "flex", alignItems: "center", gap: 5 }
+            },
+              React.createElement("span", { style: { width:6, height:6, borderRadius:"50%", background:"#00d4ff", display:"inline-block", flexShrink:0 } }),
+              freshCount+" fresh"
+            ),
+            React.createElement("span", {
+              style: { marginLeft: "auto", fontSize: 11, color: "var(--stripe-faint)", letterSpacing: "0.05em" }
+            }, "tap row to detail →")
+          )
+    )
+  );
+}
+
 function microInjuryTimeBucketFromText(whenHappened) {
   // Three buckets only: morning / afternoon / evening.
   // Night & late text fold into "evening" (night class window).
@@ -9651,6 +10072,8 @@ function MicroInjuries({ onBack }) {
             }}>Tweaks, strains, and things you're managing</div>
           </div>
         </div>
+
+        <ParticleBodyHero injuries={lookupPool} />
 
         {displayStats.total > 0 && (
           <MicroInjuryStatsPanel
@@ -10569,6 +10992,441 @@ window.Allergies = Allergies;
 // Top-level router — Login → Dashboard / Editor (with floating nav)
 
 // =====================================================
+// TechniqueConstellationHero — canvas-based node graph
+// =====================================================
+function TechniqueConstellationHero({ techniques }) {
+  const canvasRef = React.useRef(null);
+  const stateRef = React.useRef(null);
+  const rafRef = React.useRef(null);
+  const reducedMotion = React.useMemo(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    []
+  );
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    // ── Resolve CSS token colours once ──────────────────────────────
+    const tmpEl = document.createElement("div");
+    tmpEl.style.display = "none";
+    document.body.appendChild(tmpEl);
+    function resolveVar(v) {
+      tmpEl.style.color = v;
+      const c = getComputedStyle(tmpEl).color;
+      tmpEl.style.color = "";
+      return c || "rgb(107,124,147)";
+    }
+    document.body.removeChild(tmpEl);
+
+    const COL_BLUE   = "#635bff";
+    const COL_PINK   = "#ff5c9a";
+    const COL_FAINT  = "#6b7c93";
+    const COL_CYAN   = "#00d4ff";
+    const COL_MINT   = "#00e5a8";
+    const COL_BG     = "rgba(246,249,252,0)"; // transparent — card bg shows through
+
+    // ── Build nodes from techniques ─────────────────────────────────
+    function buildNodes(techs, W, H) {
+      if (!techs || techs.length === 0) {
+        // Placeholder demo nodes when no data yet
+        const demo = [
+          { name: "Guard Pass", sentiment: "worked_on", count: 5 },
+          { name: "Armbar",     sentiment: "worked_on", count: 3 },
+          { name: "Triangle",   sentiment: "struggled",  count: 2 },
+          { name: "Sweep",      sentiment: "worked_on", count: 4 },
+          { name: "Mount",      sentiment: "neutral",   count: 2 },
+          { name: "Takedown",   sentiment: "struggled",  count: 1 },
+          { name: "Back Take",  sentiment: "worked_on", count: 3 },
+          { name: "Choke",      sentiment: "worked_on", count: 4 },
+        ];
+        techs = demo;
+      }
+
+      // Clamp to 32 nodes max for visual clarity
+      const pool = techs.slice(0, 32);
+      const maxCount = Math.max(...pool.map(t => t.count || 1), 1);
+
+      // Spread nodes across the canvas using a relaxed golden-ratio spiral
+      // with slight jitter so it feels organic
+      const cx = W / 2, cy = H / 2;
+      const r = Math.min(W, H) * 0.38;
+      const golden = Math.PI * (3 - Math.sqrt(5));
+
+      return pool.map((t, i) => {
+        const frac = pool.length === 1 ? 0 : i / (pool.length - 1);
+        // Sunflower spiral
+        const angle = i * golden;
+        const dist  = r * Math.sqrt((i + 0.5) / pool.length);
+        const baseX = cx + dist * Math.cos(angle);
+        const baseY = cy + dist * Math.sin(angle);
+
+        // Jitter — seeded by index so it's deterministic across renders
+        const jx = (Math.sin(i * 127.1) * 2 - 1) * 22;
+        const jy = (Math.sin(i * 311.7) * 2 - 1) * 22;
+
+        let color = COL_FAINT;
+        const sent = t.sentiment || "";
+        if (sent === "worked_on")  color = COL_BLUE;
+        if (sent === "struggled")  color = COL_PINK;
+
+        const freq = (t.count || 1) / maxCount; // 0..1
+        const radius = 5 + freq * 9; // 5..14 px
+
+        return {
+          id: t.id || i,
+          name: t.name || "Technique",
+          color,
+          radius,
+          // live position
+          x: baseX + jx,
+          y: baseY + jy,
+          // drift origin
+          ox: baseX + jx,
+          oy: baseY + jy,
+          // drift params — unique per node
+          driftAmpX: 6 + (Math.sin(i * 73.1) * 0.5 + 0.5) * 10,
+          driftAmpY: 6 + (Math.cos(i * 91.3) * 0.5 + 0.5) * 10,
+          driftSpeedX: 0.0004 + (Math.sin(i * 43.7) * 0.5 + 0.5) * 0.0004,
+          driftSpeedY: 0.0004 + (Math.cos(i * 57.2) * 0.5 + 0.5) * 0.0004,
+          driftPhaseX: i * 0.7,
+          driftPhaseY: i * 1.1,
+        };
+      });
+    }
+
+    // ── Build edges: connect each node to its 2 nearest neighbours ──
+    function buildEdges(nodes) {
+      const edges = [];
+      const added = new Set();
+      nodes.forEach((a, i) => {
+        // Sort others by distance
+        const sorted = nodes
+          .map((b, j) => ({ j, d: Math.hypot(b.x - a.x, b.y - a.y) }))
+          .filter(o => o.j !== i)
+          .sort((x, y) => x.d - y.d);
+        // Connect to 2 nearest
+        sorted.slice(0, 2).forEach(({ j }) => {
+          const key = i < j ? `${i}-${j}` : `${j}-${i}`;
+          if (!added.has(key)) {
+            added.add(key);
+            edges.push({ a: i, b: j });
+          }
+        });
+      });
+      return edges;
+    }
+
+    // ── Arc particles: glowing dot travelling along a bezier arc ────
+    function spawnParticle(nodes, edges) {
+      if (!edges.length) return null;
+      const edge = edges[Math.floor(Math.random() * edges.length)];
+      const na = nodes[edge.a];
+      const nb = nodes[edge.b];
+      // Control point: perpendicular bulge
+      const mx = (na.x + nb.x) / 2;
+      const my = (na.y + nb.y) / 2;
+      const dx = nb.x - na.x, dy = nb.y - na.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const bulge = (Math.random() > 0.5 ? 1 : -1) * len * 0.28;
+      const cpx = mx - (dy / len) * bulge;
+      const cpy = my + (dx / len) * bulge;
+
+      // Pick a gradient colour between the two node colours
+      const cols = [COL_BLUE, COL_CYAN, COL_MINT, COL_PINK];
+      const dotCol = cols[Math.floor(Math.random() * cols.length)];
+
+      return {
+        na, nb, cpx, cpy,
+        t: 0,
+        speed: 0.003 + Math.random() * 0.003,
+        color: dotCol,
+        trail: [], // { x, y, alpha }
+        edgeA: edge.a,
+        edgeB: edge.b,
+      };
+    }
+
+    // ── Resize ───────────────────────────────────────────────────────
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.offsetWidth;
+      const H = canvas.offsetHeight;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      ctx.scale(dpr, dpr);
+      return { W, H, dpr };
+    }
+
+    // ── Bezier point helper ──────────────────────────────────────────
+    function bezierPoint(t, ax, ay, cpx, cpy, bx, by) {
+      const mt = 1 - t;
+      return {
+        x: mt * mt * ax + 2 * mt * t * cpx + t * t * bx,
+        y: mt * mt * ay + 2 * mt * t * cpy + t * t * by,
+      };
+    }
+
+    // ── hex / named to rgba helper ───────────────────────────────────
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    // ── Draw edge ────────────────────────────────────────────────────
+    function drawEdge(na, nb, alpha) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(na.x, na.y);
+      ctx.lineTo(nb.x, nb.y);
+      ctx.strokeStyle = `rgba(107,124,147,${alpha})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // ── Draw node ────────────────────────────────────────────────────
+    function drawNode(node, t) {
+      const { x, y, radius, color } = node;
+      // Glow
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, radius * 3.2);
+      glow.addColorStop(0,   hexToRgba(color, 0.18));
+      glow.addColorStop(1,   hexToRgba(color, 0));
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      // Core circle
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = hexToRgba(color, 0.9);
+      ctx.fill();
+
+      // White highlight
+      ctx.beginPath();
+      ctx.arc(x - radius * 0.28, y - radius * 0.28, radius * 0.38, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fill();
+    }
+
+    // ── Draw arc particle ────────────────────────────────────────────
+    function drawParticle(p) {
+      const { na, nb, cpx, cpy, t: pt, color, trail } = p;
+
+      // Draw fading trail segments
+      trail.forEach((seg, i) => {
+        if (i === 0) return;
+        const prev = trail[i - 1];
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(prev.x, prev.y);
+        ctx.lineTo(seg.x, seg.y);
+        ctx.strokeStyle = hexToRgba(color, seg.alpha * 0.6);
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = "round";
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // Draw dot head
+      const pos = bezierPoint(pt, na.x, na.y, cpx, cpy, nb.x, nb.y);
+      const glow = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 10);
+      glow.addColorStop(0, hexToRgba(color, 0.95));
+      glow.addColorStop(1, hexToRgba(color, 0));
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = hexToRgba(color, 1);
+      ctx.fill();
+    }
+
+    // ── Initialise state ─────────────────────────────────────────────
+    let { W, H } = resize();
+    const nodes = buildNodes(techniques, W, H);
+    const edges = buildEdges(nodes);
+    const particles = [];
+    let lastSpawn = 0;
+
+    stateRef.current = { nodes, edges, particles };
+
+    // ── Label draw (deferred — only on static render if reduced) ─────
+    function drawLabels() {
+      nodes.forEach(node => {
+        const { x, y, radius, name, color } = node;
+        ctx.save();
+        ctx.font = "600 10px Inter, system-ui, sans-serif";
+        ctx.fillStyle = hexToRgba(color, 0.75);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        const label = name.length > 14 ? name.slice(0, 13) + "…" : name;
+        ctx.fillText(label, x, y + radius + 5);
+        ctx.restore();
+      });
+    }
+
+    // ── Static render (reduced motion) ──────────────────────────────
+    function renderStatic() {
+      const dpr = window.devicePixelRatio || 1;
+      ctx.clearRect(0, 0, W * dpr, H * dpr);
+      edges.forEach(e => drawEdge(nodes[e.a], nodes[e.b], 0.18));
+      nodes.forEach(n => drawNode(n, 0));
+      drawLabels();
+    }
+
+    // ── Animation loop ───────────────────────────────────────────────
+    function tick(now) {
+      rafRef.current = requestAnimationFrame(tick);
+      const dpr = window.devicePixelRatio || 1;
+      ctx.clearRect(0, 0, W, H);
+
+      // Drift nodes
+      nodes.forEach(n => {
+        n.x = n.ox + Math.sin(now * n.driftSpeedX + n.driftPhaseX) * n.driftAmpX;
+        n.y = n.oy + Math.cos(now * n.driftSpeedY + n.driftPhaseY) * n.driftAmpY;
+      });
+
+      // Draw edges (faint)
+      edges.forEach(e => drawEdge(nodes[e.a], nodes[e.b], 0.13));
+
+      // Spawn particles (~3 at a time, every 2.2s)
+      if (now - lastSpawn > 2200 && particles.length < 4) {
+        const p = spawnParticle(nodes, edges);
+        if (p) { particles.push(p); lastSpawn = now; }
+      }
+
+      // Update + draw particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.t += p.speed;
+
+        // Append trail point
+        const pos = bezierPoint(p.t, p.na.x, p.na.y, p.cpx, p.cpy, p.nb.x, p.nb.y);
+        p.trail.push({ x: pos.x, y: pos.y, alpha: 1 });
+        // Fade + trim trail
+        p.trail.forEach(s => { s.alpha -= 0.035; });
+        while (p.trail.length && p.trail[0].alpha <= 0) p.trail.shift();
+
+        if (p.t >= 1) {
+          particles.splice(i, 1);
+        } else {
+          drawParticle(p);
+        }
+      }
+
+      // Draw nodes on top
+      nodes.forEach(n => drawNode(n, now));
+      drawLabels();
+    }
+
+    if (reducedMotion) {
+      renderStatic();
+    } else {
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    // ── Resize observer ──────────────────────────────────────────────
+    const ro = new ResizeObserver(() => {
+      const dims = resize();
+      W = dims.W; H = dims.H;
+      // Re-spread nodes for new dimensions
+      const fresh = buildNodes(techniques, W, H);
+      nodes.forEach((n, i) => {
+        if (fresh[i]) {
+          n.ox = fresh[i].ox; n.oy = fresh[i].oy;
+          n.x  = fresh[i].x;  n.y  = fresh[i].y;
+        }
+      });
+      if (reducedMotion) renderStatic();
+    });
+    ro.observe(canvas);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+    };
+  }, [techniques, reducedMotion]);
+
+  // Legend items
+  const legend = [
+    { color: "#635bff", label: "worked on" },
+    { color: "#ff5c9a", label: "struggled"  },
+    { color: "#6b7c93", label: "neutral"    },
+  ];
+
+  return (
+    <div style={{
+      position: "relative",
+      borderRadius: 20,
+      border: "1px solid var(--stripe-line)",
+      background: "var(--stripe-card)",
+      boxShadow: "var(--stripe-shadow)",
+      marginBottom: 24,
+      overflow: "hidden",
+    }}>
+      {/* Header row */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "18px 22px 0",
+      }}>
+        <div>
+          <div style={{
+            fontFamily: "Inter, var(--font-text)", fontSize: 11, fontWeight: 700,
+            letterSpacing: "0.07em", textTransform: "uppercase",
+            color: "var(--stripe-faint)", marginBottom: 4,
+          }}>
+            Technique Constellation
+          </div>
+          <div style={{
+            fontFamily: "Inter, var(--font-display)", fontSize: 16, fontWeight: 800,
+            letterSpacing: "-0.04em", color: "var(--stripe-ink)",
+          }}>
+            {techniques && techniques.length > 0
+              ? `${techniques.length} technique${techniques.length !== 1 ? "s" : ""} mapped`
+              : "Building your map…"}
+          </div>
+        </div>
+        {/* Legend */}
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {legend.map(l => (
+            <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: l.color,
+                boxShadow: `0 0 0 3px ${l.color}28`,
+              }} />
+              <span style={{
+                fontFamily: "Inter, var(--font-text)", fontSize: 10, fontWeight: 600,
+                color: "var(--stripe-faint)", letterSpacing: "0.04em",
+              }}>{l.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Canvas */}
+      <canvas
+        ref={canvasRef}
+        aria-label="Technique constellation graph"
+        role="img"
+        style={{
+          display: "block",
+          width: "100%",
+          height: 360,
+        }}
+      />
+    </div>
+  );
+}
+
+// =====================================================
 // TechniqueLibrary — browse all technique folders
 // =====================================================
 function TechniqueLibrary({ onBack }) {
@@ -10916,6 +11774,8 @@ function TechniqueLibrary({ onBack }) {
             Browse the techniques you've worked on. Tap any item for its full session history.
           </div>
         </div>
+
+        <TechniqueConstellationHero techniques={listTechniques} />
 
         {richTechniques === null && !loadError && loadingRow()}
         {errorRow()}
