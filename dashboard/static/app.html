@@ -12560,18 +12560,40 @@ function QuickActionFab() {
                 </div>
               )}
 
-              {result && (
+              {result && (() => {
+                const errorPhrases = [
+                  "rate limited", "rate limit",
+                  "try again", "try again in",
+                  "connection error", "api error",
+                  "unexpected error", "couldn't", "could not",
+                  "not configured", "invalid or expired",
+                ];
+                const replyLower = (result.reply || "").toLowerCase();
+                const replyLooksLikeError = errorPhrases.some(p => replyLower.includes(p));
+                const hasActions = (result.toolEvents || []).length > 0;
+                const status = !result.success ? "failed"
+                  : (replyLooksLikeError && !hasActions) ? "retry"
+                  : hasActions ? "done"
+                  : "replied";
+                const palette = {
+                  failed:  { bg: "rgba(255,92,154,0.10)", border: "rgba(255,92,154,0.35)", color: "var(--stripe-pink)", label: "Failed" },
+                  retry:   { bg: "rgba(255,184,108,0.14)", border: "rgba(255,184,108,0.45)", color: "#a35100", label: "Couldn't act — retry?" },
+                  done:    { bg: "rgba(0,229,168,0.10)", border: "rgba(0,229,168,0.35)", color: "#08915f", label: "Delivered ✓" },
+                  replied: { bg: "rgba(99,91,255,0.10)", border: "rgba(99,91,255,0.30)", color: "var(--stripe-blue)", label: "Replied" },
+                }[status];
+                const showRetry = status === "failed" || status === "retry";
+                return (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{
                     padding: "14px 16px",
                     borderRadius: 14,
-                    background: result.success ? "rgba(0,229,168,0.10)" : "rgba(255,92,154,0.10)",
-                    border: "1px solid " + (result.success ? "rgba(0,229,168,0.35)" : "rgba(255,92,154,0.35)"),
+                    background: palette.bg,
+                    border: "1px solid " + palette.border,
                   }}>
                     <div style={{
                       fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase",
-                      color: result.success ? "#08915f" : "var(--stripe-pink)",
-                    }}>{result.success ? "Delivered ✓" : "Failed"}</div>
+                      color: palette.color,
+                    }}>{palette.label}</div>
                   </div>
 
                   {result.toolEvents && result.toolEvents.length > 0 && (
@@ -12635,11 +12657,23 @@ function QuickActionFab() {
                     </div>
                   </div>
 
-                  <button type="button" onClick={reset} className="stripe-cta secondary" style={{ justifyContent: "center" }}>
-                    Send another
-                  </button>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {showRetry && (
+                      <button
+                        type="button"
+                        onClick={() => { setResult(null); send(); }}
+                        className="stripe-cta primary"
+                        style={{ justifyContent: "center", flex: 1 }}>
+                        Retry
+                      </button>
+                    )}
+                    <button type="button" onClick={reset} className="stripe-cta secondary" style={{ justifyContent: "center", flex: 1 }}>
+                      Send another
+                    </button>
+                  </div>
                 </div>
-              )}
+                );
+              })()}
             </div>
           </aside>
         </React.Fragment>
