@@ -3,5 +3,5 @@ twilio
 apscheduler
 pytz
 gunicorn
-anthropic
+anthropic>=0.40,<1.0
 requests

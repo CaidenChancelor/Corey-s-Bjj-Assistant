@@ -179,44 +179,51 @@ def editor_old():
 @app.route("/editor/send", methods=["POST"])
 @require_login
 def editor_send():
-    if request.is_json:
-        msg = (request.get_json(force=True) or {}).get("message", "").strip()
-    else:
-        msg = request.form.get("message", "").strip()
-
-    if not msg:
+    try:
         if request.is_json:
-            return {"error": "empty"}, 400
+            msg = (request.get_json(force=True) or {}).get("message", "").strip()
+        else:
+            msg = request.form.get("message", "").strip()
+
+        if not msg:
+            if request.is_json:
+                return {"error": "empty"}, 400
+            return redirect(url_for("editor"))
+
+        # Load history from DB
+        history = _load_editor_history(40)
+
+        # Auto-compact if getting long
+        if len(history) >= 30:
+            compacted = compact_editor_history(history)
+            if compacted:
+                _replace_editor_history(compacted)
+                history = compacted
+
+        # Save user message to DB
+        _save_editor_message("user", msg)
+
+        # Call Claude
+        result = handle_chat_message(msg, history)
+        if isinstance(result, dict):
+            reply = result.get("reply", "")
+            tool_events = result.get("tool_events", [])
+        else:
+            reply = result
+            tool_events = []
+
+        # Save assistant reply to DB
+        _save_editor_message("assistant", reply)
+
+        if request.is_json:
+            return {"reply": reply, "tool_events": tool_events}
         return redirect(url_for("editor"))
 
-    # Load history from DB
-    history = _load_editor_history(40)
-
-    # Auto-compact if getting long
-    if len(history) >= 30:
-        compacted = compact_editor_history(history)
-        if compacted:
-            _replace_editor_history(compacted)
-            history = compacted
-
-    # Save user message to DB
-    _save_editor_message("user", msg)
-
-    # Call Claude
-    result = handle_chat_message(msg, history)
-    if isinstance(result, dict):
-        reply = result.get("reply", "")
-        tool_events = result.get("tool_events", [])
-    else:
-        reply = result
-        tool_events = []
-
-    # Save assistant reply to DB
-    _save_editor_message("assistant", reply)
-
-    if request.is_json:
-        return {"reply": reply, "tool_events": tool_events}
-    return redirect(url_for("editor"))
+    except Exception as e:
+        logging.exception("Unhandled error in /editor/send")
+        if request.is_json:
+            return {"error": f"{type(e).__name__}: {e}"}, 500
+        return redirect(url_for("editor"))
 
 
 @app.route("/editor/clear", methods=["POST"])
