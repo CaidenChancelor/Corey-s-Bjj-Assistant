@@ -12288,17 +12288,30 @@ function QuickActionFab() {
     if (!text.trim() || sending) return;
     setSending(true);
     const message = `[${preset.tag}] ${preset.label}\n\n${text.trim()}\n\n(Sent from dashboard quick-action panel.)`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
     try {
       const res = await fetch("/editor/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       const reply = data.reply || data;
-      setResult({ success: true, reply: typeof reply === "string" ? reply : (reply.reply || String(reply)) });
+      const toolEvents = data.tool_events || [];
+      setResult({
+        success: true,
+        reply: typeof reply === "string" ? reply : (reply.reply || String(reply)),
+        toolEvents,
+      });
     } catch (e) {
-      setResult({ success: false, reply: "Failed to reach the bot. Try again in a moment." });
+      clearTimeout(timeoutId);
+      const msg = e.name === "AbortError"
+        ? "Claude took longer than 2 minutes. Try a simpler request or check the Editor chat for the full reply."
+        : "Failed to reach the bot. Try again in a moment.";
+      setResult({ success: false, reply: msg, toolEvents: [] });
     } finally {
       setSending(false);
     }
@@ -12309,6 +12322,7 @@ function QuickActionFab() {
       <style>{`
         @keyframes qaSlide { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes qaFade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes qaSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .qa-fab {
           opacity: 0.78;
           transition: opacity 180ms ease, transform 180ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease;
@@ -12433,7 +12447,7 @@ function QuickActionFab() {
                 </div>
               )}
 
-              {preset && !result && (
+              {preset && !result && !sending && (
                 <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <button onClick={() => setPreset(null)} style={{
                     border: 0, background: "transparent", padding: 0, cursor: "pointer",
@@ -12471,22 +12485,43 @@ function QuickActionFab() {
                   <button
                     type="button"
                     onClick={send}
-                    disabled={!text.trim() || sending}
+                    disabled={!text.trim()}
                     className="stripe-cta primary"
                     style={{
                       justifyContent: "center",
-                      opacity: (!text.trim() || sending) ? 0.5 : 1,
-                      cursor: (!text.trim() || sending) ? "not-allowed" : "pointer",
+                      opacity: !text.trim() ? 0.5 : 1,
+                      cursor: !text.trim() ? "not-allowed" : "pointer",
                     }}>
-                    {sending ? "Sending…" : "Send to the bot"}
+                    Send to the bot
                   </button>
                 </div>
               )}
 
-              {result && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {sending && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "32px 12px", gap: 14 }}>
                   <div style={{
-                    padding: "16px 18px",
+                    width: 44, height: 44, borderRadius: "50%",
+                    border: "3px solid rgba(99,91,255,0.16)",
+                    borderTopColor: "var(--stripe-blue)",
+                    animation: "qaSpin 900ms linear infinite",
+                  }} />
+                  <div>
+                    <div style={{
+                      fontFamily: "Inter, var(--font-display)",
+                      fontSize: 17, fontWeight: 900, letterSpacing: "-0.025em",
+                      color: "var(--stripe-ink)",
+                    }}>Claude is working on it</div>
+                    <div style={{ marginTop: 4, fontSize: 13, color: "var(--stripe-faint)", lineHeight: 1.55, maxWidth: 320 }}>
+                      Reading files, considering the fix, and possibly committing back to GitHub. This can take up to a minute or two.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {result && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{
+                    padding: "14px 16px",
                     borderRadius: 14,
                     background: result.success ? "rgba(0,229,168,0.10)" : "rgba(255,92,154,0.10)",
                     border: "1px solid " + (result.success ? "rgba(0,229,168,0.35)" : "rgba(255,92,154,0.35)"),
@@ -12494,12 +12529,70 @@ function QuickActionFab() {
                     <div style={{
                       fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase",
                       color: result.success ? "#08915f" : "var(--stripe-pink)",
-                      marginBottom: 6,
                     }}>{result.success ? "Delivered ✓" : "Failed"}</div>
+                  </div>
+
+                  {result.toolEvents && result.toolEvents.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div style={{
+                        fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+                        textTransform: "uppercase", color: "var(--stripe-faint)",
+                        marginBottom: 2,
+                      }}>What Claude did</div>
+                      {result.toolEvents.map((ev, i) => {
+                        const labelFn = TOOL_LABELS && TOOL_LABELS[ev.tool];
+                        const label = labelFn ? labelFn(ev.input || {}) : ev.tool;
+                        const isWrite = ev.tool === "write_file";
+                        return (
+                          <div key={i} style={{
+                            display: "inline-flex", alignItems: "center", gap: 8,
+                            padding: "8px 12px",
+                            borderRadius: 10,
+                            background: isWrite ? "rgba(99,91,255,0.08)" : "rgba(10,37,64,0.04)",
+                            border: "1px solid " + (isWrite ? "rgba(99,91,255,0.22)" : "rgba(10,37,64,0.08)"),
+                            fontSize: 12, fontWeight: 600,
+                            color: isWrite ? "var(--stripe-blue)" : "var(--stripe-ink)",
+                            fontFamily: "Inter, var(--font-text)",
+                            letterSpacing: "-0.01em",
+                            alignSelf: "flex-start", maxWidth: "100%",
+                            wordBreak: "break-all",
+                          }}>{label}</div>
+                        );
+                      })}
+                      {result.toolEvents.some(e => e.tool === "write_file") && (
+                        <div style={{
+                          marginTop: 4,
+                          padding: "10px 12px",
+                          borderRadius: 10,
+                          background: "rgba(0,212,255,0.10)",
+                          border: "1px solid rgba(0,212,255,0.30)",
+                          fontSize: 12, fontWeight: 700,
+                          color: "#0a6e88",
+                          display: "flex", alignItems: "center", gap: 8,
+                        }}>
+                          <span>🚀</span>
+                          <span>Railway will redeploy in ~1–2 min. Refresh after that to see the change.</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div style={{
+                    padding: "14px 16px",
+                    borderRadius: 12,
+                    background: "var(--stripe-card)",
+                    border: "1px solid var(--stripe-line)",
+                  }}>
+                    <div style={{
+                      fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+                      textTransform: "uppercase", color: "var(--stripe-faint)",
+                      marginBottom: 6,
+                    }}>Claude's reply</div>
                     <div style={{ fontSize: 14, color: "var(--stripe-ink)", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
                       {result.reply}
                     </div>
                   </div>
+
                   <button type="button" onClick={reset} className="stripe-cta secondary" style={{ justifyContent: "center" }}>
                     Send another
                   </button>
