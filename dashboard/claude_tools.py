@@ -311,23 +311,33 @@ def handle_chat_message(user_message, history):
     if not GITHUB_PAT:
         return {"reply": "GITHUB_PAT not configured — can't read/write the repo.", "tool_events": []}
 
-    try:
-        return _run_agent_loop(user_message, history)
-    except anthropic.APIConnectionError as e:
-        logging.exception("Claude API connection error")
-        return {"reply": f"Connection error reaching Claude: {e}", "tool_events": []}
-    except anthropic.AuthenticationError:
-        logging.exception("Claude API auth error")
-        return {"reply": "Anthropic API key is invalid or expired.", "tool_events": []}
-    except anthropic.RateLimitError:
-        logging.exception("Claude API rate limit")
-        return {"reply": "Rate limited by Anthropic. Try again in a moment.", "tool_events": []}
-    except anthropic.APIStatusError as e:
-        logging.exception("Claude API status error")
-        return {"reply": f"Claude API error ({e.status_code}): {e.message}", "tool_events": []}
-    except Exception as e:
-        logging.exception("Unexpected error in handle_chat_message")
-        return {"reply": f"Unexpected error: {e}", "tool_events": []}
+    import time as _time
+    # Auto-retry on rate limit. Backoffs total 28s, well under our 180s gunicorn timeout.
+    rate_backoffs = (4, 8, 16)
+    for attempt in range(len(rate_backoffs) + 1):
+        try:
+            return _run_agent_loop(user_message, history)
+        except anthropic.APIConnectionError as e:
+            logging.exception("Claude API connection error")
+            return {"reply": f"Connection error reaching Claude: {e}", "tool_events": []}
+        except anthropic.AuthenticationError:
+            logging.exception("Claude API auth error")
+            return {"reply": "Anthropic API key is invalid or expired.", "tool_events": []}
+        except anthropic.RateLimitError:
+            if attempt < len(rate_backoffs):
+                logging.warning("Anthropic rate limit (attempt %d) — sleeping %ds", attempt + 1, rate_backoffs[attempt])
+                _time.sleep(rate_backoffs[attempt])
+                continue
+            logging.exception("Anthropic rate limit — exhausted retries")
+            return {"reply": "Rate limited by Anthropic after several retries. Try again in a minute.", "tool_events": []}
+        except anthropic.APIStatusError as e:
+            logging.exception("Claude API status error")
+            return {"reply": f"Claude API error ({e.status_code}): {e.message}", "tool_events": []}
+        except Exception as e:
+            logging.exception("Unexpected error in handle_chat_message")
+            return {"reply": f"Unexpected error: {e}", "tool_events": []}
+    # Safety net (should not reach here)
+    return {"reply": "Rate limited by Anthropic after several retries. Try again in a minute.", "tool_events": []}
 
 
 def _run_agent_loop(user_message, history):
