@@ -1699,6 +1699,25 @@ body {
   border: 1px solid var(--stripe-line);
   box-shadow: var(--stripe-shadow);
 }
+@keyframes stripeCaseArtShift {
+  0%   { background-position: 0% 50%, 100% 50%, 0% 0%; }
+  50%  { background-position: 100% 50%, 0% 50%, 100% 100%; }
+  100% { background-position: 0% 50%, 100% 50%, 0% 0%; }
+}
+@keyframes stripeCaseArtPillA {
+  0%   { transform: translate(0, 0) rotate(-18deg); }
+  50%  { transform: translate(18px, -10px) rotate(-14deg); }
+  100% { transform: translate(0, 0) rotate(-18deg); }
+}
+@keyframes stripeCaseArtPillB {
+  0%   { transform: translate(0, 0) rotate(-18deg); }
+  50%  { transform: translate(-22px, 12px) rotate(-22deg); }
+  100% { transform: translate(0, 0) rotate(-18deg); }
+}
+@keyframes stripeCaseArtGlow {
+  0%, 100% { opacity: 0.0; transform: translate(0,0) scale(1); }
+  50%      { opacity: 0.55; transform: translate(8%, -4%) scale(1.15); }
+}
 .stripe-case-art {
   position: relative;
   min-height: 250px;
@@ -1706,7 +1725,11 @@ body {
     radial-gradient(circle at 30% 24%, rgba(255,255,255,0.96), transparent 12%),
     radial-gradient(circle at 76% 62%, rgba(0,212,255,0.50), transparent 18%),
     linear-gradient(135deg, rgba(99,91,255,0.96), rgba(255,92,154,0.76) 58%, rgba(255,184,108,0.92));
+  background-size: 180% 180%, 180% 180%, 220% 220%;
+  background-position: 0% 50%, 100% 50%, 0% 0%;
   clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+  animation: stripeCaseArtShift 14s ease-in-out infinite;
+  overflow: hidden;
 }
 .stripe-case-art::before,
 .stripe-case-art::after {
@@ -1718,15 +1741,18 @@ body {
   border: 1px solid rgba(255,255,255,0.44);
   background: rgba(255,255,255,0.16);
   transform: rotate(-18deg);
+  will-change: transform;
 }
 .stripe-case-art::before {
   left: 44px;
   top: 54px;
+  animation: stripeCaseArtPillA 9s ease-in-out infinite;
 }
 .stripe-case-art::after {
   right: -44px;
   bottom: 42px;
   width: 310px;
+  animation: stripeCaseArtPillB 11s ease-in-out infinite;
 }
 .stripe-case-body {
   padding: 28px;
@@ -6604,8 +6630,9 @@ function DataFlowDiagram() {
     <section aria-label="How the bot flows" style={{
       position: "relative",
       width: "100%",
-      margin: "clamp(36px, 8vw, 92px) 0",
-      padding: "32px 28px 36px",
+      maxWidth: 940,
+      margin: "clamp(36px, 8vw, 92px) auto",
+      padding: "24px 22px 28px",
       borderRadius: 22,
       background:
         "radial-gradient(circle at 90% 0%, rgba(99,91,255,0.08), transparent 50%)," +
@@ -6633,16 +6660,16 @@ function DataFlowDiagram() {
         marginBottom: 28,
       }}>From a single text to a logged session — in seconds.</div>
 
-      <div style={{ position: "relative", height: 140 }}>
+      <div style={{ position: "relative", height: 110 }}>
         {/* SVG dashed connectors (drawn under boxes) */}
-        <svg viewBox="0 0 1000 140" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+        <svg viewBox="0 0 1000 110" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
           {[1, 2, 3].map((i) => {
             const x1 = 125 + (i - 1) * 250;
             const x2 = 250 + (i - 1) * 250;
             return (
               <g key={i}>
                 <line
-                  x1={x1} y1={70} x2={x2} y2={70}
+                  x1={x1} y1={55} x2={x2} y2={55}
                   stroke="rgba(99,91,255,0.32)"
                   strokeWidth="1.6"
                   strokeDasharray="6 6"
@@ -6663,9 +6690,9 @@ function DataFlowDiagram() {
           {nodes.map((n, i) => (
             <div key={n.label} className="df-box" style={{
               flex: 1,
-              maxWidth: 180,
-              minHeight: 86,
-              padding: "14px 16px",
+              maxWidth: 156,
+              minHeight: 76,
+              padding: "12px 14px",
               borderRadius: 14,
               background: "#ffffff",
               border: "1px solid rgba(10,37,64,0.08)",
