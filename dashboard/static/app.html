@@ -1700,23 +1700,35 @@ body {
   box-shadow: var(--stripe-shadow);
 }
 @keyframes stripeCaseArtShift {
-  0%   { background-position: 0% 50%, 100% 50%, 0% 0%; }
-  50%  { background-position: 100% 50%, 0% 50%, 100% 100%; }
-  100% { background-position: 0% 50%, 100% 50%, 0% 0%; }
+  0%   { background-position: 0% 50%, 100% 50%, 0% 0%; filter: hue-rotate(0deg) saturate(1.05); }
+  25%  { background-position: 60% 30%, 40% 70%, 50% 50%; filter: hue-rotate(15deg) saturate(1.15); }
+  50%  { background-position: 100% 50%, 0% 50%, 100% 100%; filter: hue-rotate(-10deg) saturate(1.10); }
+  75%  { background-position: 35% 80%, 80% 20%, 70% 30%; filter: hue-rotate(20deg) saturate(1.18); }
+  100% { background-position: 0% 50%, 100% 50%, 0% 0%; filter: hue-rotate(0deg) saturate(1.05); }
 }
 @keyframes stripeCaseArtPillA {
-  0%   { transform: translate(0, 0) rotate(-18deg); }
-  50%  { transform: translate(18px, -10px) rotate(-14deg); }
-  100% { transform: translate(0, 0) rotate(-18deg); }
+  0%   { transform: translate(0, 0) rotate(-18deg) scale(1); }
+  25%  { transform: translate(70px, -28px) rotate(-6deg) scale(1.08); }
+  50%  { transform: translate(120px, 18px) rotate(8deg) scale(0.92); }
+  75%  { transform: translate(40px, 36px) rotate(-12deg) scale(1.04); }
+  100% { transform: translate(0, 0) rotate(-18deg) scale(1); }
 }
 @keyframes stripeCaseArtPillB {
-  0%   { transform: translate(0, 0) rotate(-18deg); }
-  50%  { transform: translate(-22px, 12px) rotate(-22deg); }
-  100% { transform: translate(0, 0) rotate(-18deg); }
+  0%   { transform: translate(0, 0) rotate(-18deg) scale(1); }
+  25%  { transform: translate(-50px, -40px) rotate(-30deg) scale(0.94); }
+  50%  { transform: translate(-110px, 24px) rotate(-44deg) scale(1.10); }
+  75%  { transform: translate(-40px, 50px) rotate(-26deg) scale(1.02); }
+  100% { transform: translate(0, 0) rotate(-18deg) scale(1); }
 }
-@keyframes stripeCaseArtGlow {
-  0%, 100% { opacity: 0.0; transform: translate(0,0) scale(1); }
-  50%      { opacity: 0.55; transform: translate(8%, -4%) scale(1.15); }
+@keyframes stripeCaseArtSweep {
+  0%   { transform: translateX(-100%) skewX(-12deg); opacity: 0; }
+  20%  { opacity: 0.55; }
+  80%  { opacity: 0.55; }
+  100% { transform: translateX(220%) skewX(-12deg); opacity: 0; }
+}
+@keyframes stripeCaseArtSpark {
+  0%, 100% { opacity: 0; transform: scale(0.6); }
+  50%      { opacity: 0.95; transform: scale(1); }
 }
 .stripe-case-art {
   position: relative;
@@ -1725,11 +1737,34 @@ body {
     radial-gradient(circle at 30% 24%, rgba(255,255,255,0.96), transparent 12%),
     radial-gradient(circle at 76% 62%, rgba(0,212,255,0.50), transparent 18%),
     linear-gradient(135deg, rgba(99,91,255,0.96), rgba(255,92,154,0.76) 58%, rgba(255,184,108,0.92));
-  background-size: 180% 180%, 180% 180%, 220% 220%;
+  background-size: 220% 220%, 220% 220%, 280% 280%;
   background-position: 0% 50%, 100% 50%, 0% 0%;
   clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
-  animation: stripeCaseArtShift 14s ease-in-out infinite;
+  animation: stripeCaseArtShift 8s ease-in-out infinite;
   overflow: hidden;
+}
+/* Diagonal light sweep across the gradient */
+.stripe-case-art > .case-art-sweep {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 40%;
+  height: 140%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  pointer-events: none;
+  animation: stripeCaseArtSweep 6s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+/* Tiny twinkling sparks scattered on the gradient */
+.stripe-case-art > .case-art-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.5);
+  pointer-events: none;
+  animation: stripeCaseArtSpark 2.6s ease-in-out infinite;
 }
 .stripe-case-art::before,
 .stripe-case-art::after {
@@ -1738,21 +1773,24 @@ body {
   width: 240px;
   height: 84px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.44);
-  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.50);
+  background: rgba(255,255,255,0.18);
   transform: rotate(-18deg);
   will-change: transform;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  box-shadow: 0 12px 32px -10px rgba(99,91,255,0.45);
 }
 .stripe-case-art::before {
   left: 44px;
   top: 54px;
-  animation: stripeCaseArtPillA 9s ease-in-out infinite;
+  animation: stripeCaseArtPillA 7s ease-in-out infinite;
 }
 .stripe-case-art::after {
   right: -44px;
   bottom: 42px;
   width: 310px;
-  animation: stripeCaseArtPillB 11s ease-in-out infinite;
+  animation: stripeCaseArtPillB 9s ease-in-out infinite;
 }
 .stripe-case-body {
   padding: 28px;
@@ -6630,10 +6668,9 @@ function DataFlowDiagram() {
     <section aria-label="How the bot flows" style={{
       position: "relative",
       width: "100%",
-      maxWidth: 940,
-      margin: "clamp(36px, 8vw, 92px) auto",
-      padding: "24px 22px 28px",
-      borderRadius: 22,
+      margin: "clamp(36px, 8vw, 92px) 0",
+      padding: "36px 36px 40px",
+      borderRadius: 24,
       background:
         "radial-gradient(circle at 90% 0%, rgba(99,91,255,0.08), transparent 50%)," +
         "linear-gradient(180deg, var(--stripe-card) 0%, #f6f9fc 100%)",
@@ -6660,16 +6697,16 @@ function DataFlowDiagram() {
         marginBottom: 28,
       }}>From a single text to a logged session — in seconds.</div>
 
-      <div style={{ position: "relative", height: 110 }}>
+      <div style={{ position: "relative", height: 138 }}>
         {/* SVG dashed connectors (drawn under boxes) */}
-        <svg viewBox="0 0 1000 110" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+        <svg viewBox="0 0 1000 138" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
           {[1, 2, 3].map((i) => {
             const x1 = 125 + (i - 1) * 250;
             const x2 = 250 + (i - 1) * 250;
             return (
               <g key={i}>
                 <line
-                  x1={x1} y1={55} x2={x2} y2={55}
+                  x1={x1} y1={69} x2={x2} y2={69}
                   stroke="rgba(99,91,255,0.32)"
                   strokeWidth="1.6"
                   strokeDasharray="6 6"
@@ -6690,9 +6727,9 @@ function DataFlowDiagram() {
           {nodes.map((n, i) => (
             <div key={n.label} className="df-box" style={{
               flex: 1,
-              maxWidth: 156,
-              minHeight: 76,
-              padding: "12px 14px",
+              maxWidth: 200,
+              minHeight: 96,
+              padding: "16px 18px",
               borderRadius: 14,
               background: "#ffffff",
               border: "1px solid rgba(10,37,64,0.08)",
@@ -7054,7 +7091,15 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
           <div className="stripe-case-grid">
             <article className="stripe-case-card" onClick={onOpenLessons}>
-              <div className="stripe-case-art" aria-hidden="true"></div>
+              <div className="stripe-case-art" aria-hidden="true">
+                <div className="case-art-sweep" />
+                <div className="case-art-spark" style={{ top: "22%", left: "32%", animationDelay: "0s" }} />
+                <div className="case-art-spark" style={{ top: "55%", left: "68%", animationDelay: "0.7s" }} />
+                <div className="case-art-spark" style={{ top: "38%", left: "82%", animationDelay: "1.4s" }} />
+                <div className="case-art-spark" style={{ top: "70%", left: "18%", animationDelay: "2.1s" }} />
+                <div className="case-art-spark" style={{ top: "12%", left: "60%", animationDelay: "1.0s" }} />
+                <div className="case-art-spark" style={{ top: "48%", left: "44%", animationDelay: "1.7s" }} />
+              </div>
               <div className="stripe-case-body">
                 <div className="stripe-card-title">Bruno, private lesson, feedback.</div>
                 <div className="stripe-card-text">{brunoSummary || bruno?.notes || "Nothing logged yet."}</div>
