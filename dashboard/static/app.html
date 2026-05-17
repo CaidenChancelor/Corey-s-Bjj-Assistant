@@ -3673,14 +3673,34 @@ function getHydrationGoal() {
   }
   return _hyGoal;
 }
+function _syncHydrationToBjjData() {
+  if (!window.__bjjdata) window.__bjjdata = {};
+  const log = getHydrationLog();
+  const goal = getHydrationGoal();
+  const totalMl = log.reduce((s, e) => s + (e.amount || 0), 0);
+  window.__bjjdata.water_today = totalMl / 1000;
+  window.__bjjdata.water_goal = goal / 1000;
+  window.__bjjdata.water_log_today = log.map((e) => ({
+    id: e.id,
+    amount_ml: e.amount,
+    time: e.time,
+  }));
+  if (Array.isArray(window.__bjjdata.daily_water_7d) && window.__bjjdata.daily_water_7d.length > 0) {
+    const todayKey = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+    const todayEntry = window.__bjjdata.daily_water_7d.find((d) => d.date === todayKey);
+    if (todayEntry) todayEntry.liters = totalMl / 1000;
+  }
+}
 function setHydrationLog(next) {
   _hyLog = typeof next === "function" ? next(getHydrationLog()) : next;
   _hWriteLS("hydration_log_v2", _hyLog);
+  _syncHydrationToBjjData();
   _hyListeners.forEach((fn) => fn());
 }
 function setHydrationGoal(next) {
   _hyGoal = typeof next === "function" ? next(getHydrationGoal()) : next;
   _hWriteLS("hydration_goal", _hyGoal);
+  _syncHydrationToBjjData();
   _hyListeners.forEach((fn) => fn());
 }
 function subscribeHydration(fn) {
@@ -6682,8 +6702,9 @@ function DataFlowDiagram() {
 function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary, onOpenEditor }) {
   const d = window.__bjjdata || {};
   const botError = d && d.error;
-  const waterGoal = typeof d.water_goal === "number" ? d.water_goal : 3;
-  const waterToday = typeof d.water_today === "number" ? d.water_today : 0;
+  const hydration = useHydrationStore();
+  const waterGoal = (hydration.goal || (typeof d.water_goal === "number" ? d.water_goal * 1000 : 3000)) / 1000;
+  const waterToday = (hydration.total || 0) / 1000;
   const waterPct = Math.max(0, Math.min(100, Math.round((waterToday / Math.max(0.1, waterGoal)) * 100)));
   const calorieGoal = typeof d.calorie_goal === "number" ? d.calorie_goal : 2800;
   const calorieToday = typeof d.calorie_today === "number" ? d.calorie_today : 0;
