@@ -1383,7 +1383,29 @@ body {
   box-shadow: var(--stripe-shadow);
   padding: 16px;
   animation: stripeFloat 5s ease-in-out infinite;
+  overflow: hidden;
+  transition: transform 220ms cubic-bezier(.22,1,.36,1), box-shadow 220ms ease, border-color 220ms ease;
+  isolation: isolate;
 }
+.stripe-floating::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 720ms cubic-bezier(.22,1,.36,1);
+  pointer-events: none;
+  z-index: 1;
+}
+.stripe-floating:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99,91,255,0.30);
+  box-shadow:
+    0 32px 70px -36px rgba(10,37,64,0.55),
+    0 18px 40px -28px rgba(99,91,255,0.55);
+}
+.stripe-floating:hover::after { transform: translateX(120%); }
+.stripe-floating > * { position: relative; z-index: 2; }
 .stripe-floating-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6376,172 +6398,237 @@ function ParticleHero() {
   );
 }
 
-function SignalFlowHero() {
-  const containerRef = React.useRef(null);
-  const canvasRef = React.useRef(null);
-
-  React.useEffect(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-    const ctx = canvas.getContext("2d");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // 7 flowing waves, each a stripe accent color
-    const WAVES = [
-      { color: [0, 212, 255],   amp: 22, freq: 0.0042, phase: 0.0,  baseY: 0.32, speed: 0.00018, alpha: 0.32 },
-      { color: [99, 91, 255],   amp: 30, freq: 0.0034, phase: 0.7,  baseY: 0.46, speed: 0.00022, alpha: 0.40 },
-      { color: [255, 92, 154],  amp: 26, freq: 0.0049, phase: 1.4,  baseY: 0.55, speed: 0.00026, alpha: 0.34 },
-      { color: [0, 229, 168],   amp: 18, freq: 0.0062, phase: 2.1,  baseY: 0.62, speed: 0.00020, alpha: 0.28 },
-      { color: [255, 184, 108], amp: 22, freq: 0.0038, phase: 2.8,  baseY: 0.72, speed: 0.00024, alpha: 0.30 },
-      { color: [99, 91, 255],   amp: 12, freq: 0.0078, phase: 3.5,  baseY: 0.83, speed: 0.00030, alpha: 0.22 },
-      { color: [0, 212, 255],   amp: 16, freq: 0.0058, phase: 4.2,  baseY: 0.91, speed: 0.00028, alpha: 0.20 },
-    ];
-
-    const state = { w: 0, h: 0, pulses: [], lastPulseAt: 0 };
-
-    function resize() {
-      if (!canvasRef.current || !containerRef.current) return;
-      const dpr = window.devicePixelRatio || 1;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      if (w <= 0 || h <= 0) return;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      state.w = w;
-      state.h = h;
-    }
-
-    function spawnPulse(now) {
-      const { w, h } = state;
-      const lane = WAVES[Math.floor(Math.random() * WAVES.length)];
-      state.pulses.push({
-        x: -40,
-        baseY: lane.baseY * h,
-        amp: lane.amp,
-        freq: lane.freq,
-        phase: lane.phase,
-        speed: 0.18 + Math.random() * 0.12,
-        color: lane.color,
-        life: 0,
-        maxLife: w + 80,
-      });
-    }
-
-    let raf = 0;
-    function frame(now) {
-      const { w, h } = state;
-      ctx.clearRect(0, 0, w, h);
-
-      // soft horizontal lane glow under each wave
-      for (let i = 0; i < WAVES.length; i++) {
-        const wv = WAVES[i];
-        const t = reduced ? 0 : now * wv.speed;
-        const baseY = wv.baseY * h;
-        const [r, g, b] = wv.color;
-
-        ctx.beginPath();
-        for (let x = -4; x <= w + 4; x += 2) {
-          const y = baseY + Math.sin(x * wv.freq + wv.phase + t) * wv.amp
-                          + Math.sin(x * wv.freq * 0.32 + wv.phase * 0.7 + t * 0.6) * wv.amp * 0.35;
-          if (x === -4) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        // glow stroke (wide, low alpha)
-        ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + (wv.alpha * 0.35) + ")";
-        ctx.lineWidth = 7;
-        ctx.lineCap = "round";
-        ctx.stroke();
-        // crisp stroke
-        ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + wv.alpha + ")";
-        ctx.lineWidth = 1.6;
-        ctx.stroke();
-      }
-
-      // pulses travelling along waves
-      if (!reduced) {
-        if (now - state.lastPulseAt > 700 + Math.random() * 700 && state.pulses.length < 6) {
-          spawnPulse(now);
-          state.lastPulseAt = now;
-        }
-        for (let i = state.pulses.length - 1; i >= 0; i--) {
-          const p = state.pulses[i];
-          p.x += p.speed * 16;
-          p.life += 16;
-          if (p.x > w + 60) { state.pulses.splice(i, 1); continue; }
-          const t = now * 0.00022;
-          const y = p.baseY + Math.sin(p.x * p.freq + p.phase + t) * p.amp
-                            + Math.sin(p.x * p.freq * 0.32 + p.phase * 0.7 + t * 0.6) * p.amp * 0.35;
-          const [r, g, b] = p.color;
-          const grad = ctx.createRadialGradient(p.x, y, 0, p.x, y, 18);
-          grad.addColorStop(0, "rgba(" + r + "," + g + "," + b + ",0.9)");
-          grad.addColorStop(1, "rgba(" + r + "," + g + "," + b + ",0)");
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(p.x, y, 18, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = "rgba(255,255,255,0.95)";
-          ctx.beginPath();
-          ctx.arc(p.x, y, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      raf = requestAnimationFrame(frame);
-    }
-
-    resize();
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
-    if (ro && container) ro.observe(container);
-    window.addEventListener("resize", resize);
-    raf = requestAnimationFrame(frame);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      if (ro) ro.disconnect();
-    };
-  }, []);
-
+// ─── AuroraHero ────────────────────────────────────────────────
+// Morphing CSS gradient blobs — no particles, no dots, pure flow.
+function AuroraHero() {
   return (
-    <section ref={containerRef} aria-label="Live signal flow" style={{
+    <section aria-label="Live signals" style={{
       position: "relative",
       width: "100%",
       height: "clamp(220px, 28vw, 320px)",
       margin: "8px 0 40px",
       borderRadius: 22,
       overflow: "hidden",
-      background:
-        "radial-gradient(circle at 15% 90%, rgba(0,229,168,0.16), transparent 38%)," +
-        "radial-gradient(circle at 85% 10%, rgba(255,184,108,0.16), transparent 36%)," +
-        "linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%)",
+      background: "linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%)",
       boxShadow: "var(--stripe-shadow)",
       border: "1px solid rgba(10,37,64,0.08)",
     }}>
-      <canvas ref={canvasRef} aria-hidden="true" style={{ display: "block", width: "100%", height: "100%" }} />
+      <style>{`
+        @keyframes auroraFloat1 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(60px,-30px) scale(1.18);} }
+        @keyframes auroraFloat2 { 0%,100%{transform:translate(0,0) scale(1.05);} 50%{transform:translate(-50px,20px) scale(0.92);} }
+        @keyframes auroraFloat3 { 0%,100%{transform:translate(0,0) scale(0.95);} 50%{transform:translate(40px,40px) scale(1.12);} }
+        @keyframes auroraFloat4 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-70px,-25px) scale(1.08);} }
+        @keyframes auroraFloat5 { 0%,100%{transform:translate(0,0) scale(0.88);} 50%{transform:translate(30px,30px) scale(1);} }
+        @media (prefers-reduced-motion: reduce) {
+          .aurora-blob { animation: none !important; }
+        }
+      `}</style>
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, filter: "blur(48px) saturate(140%)", pointerEvents: "none" }}>
+        <div className="aurora-blob" style={{ position: "absolute", top: "10%", left: "8%", width: "44%", height: "70%", borderRadius: "50%", background: "radial-gradient(circle, rgba(99,91,255,0.55), rgba(99,91,255,0) 65%)", animation: "auroraFloat1 14s ease-in-out infinite" }} />
+        <div className="aurora-blob" style={{ position: "absolute", top: "20%", left: "40%", width: "50%", height: "80%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,92,154,0.50), rgba(255,92,154,0) 65%)", animation: "auroraFloat2 17s ease-in-out infinite" }} />
+        <div className="aurora-blob" style={{ position: "absolute", top: "45%", left: "20%", width: "36%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,255,0.55), rgba(0,212,255,0) 65%)", animation: "auroraFloat3 19s ease-in-out infinite" }} />
+        <div className="aurora-blob" style={{ position: "absolute", top: "0%",  left: "65%", width: "32%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,229,168,0.45), rgba(0,229,168,0) 65%)", animation: "auroraFloat4 16s ease-in-out infinite" }} />
+        <div className="aurora-blob" style={{ position: "absolute", top: "55%", left: "55%", width: "40%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,184,108,0.42), rgba(255,184,108,0) 65%)", animation: "auroraFloat5 21s ease-in-out infinite" }} />
+      </div>
+      {/* fine grain — slight noise overlay via repeating gradient for texture */}
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0,
+        background: "repeating-linear-gradient(45deg, transparent 0 8px, rgba(255,255,255,0.012) 8px 9px)",
+        mixBlendMode: "overlay",
+        pointerEvents: "none",
+      }} />
       <div style={{
-        position: "absolute", top: 20, left: 24, right: 24,
+        position: "absolute", bottom: 22, left: 24, right: 24,
         pointerEvents: "none",
         fontFamily: "Inter, var(--font-text)",
       }}>
         <div style={{
           fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
           textTransform: "uppercase", color: "var(--stripe-faint)",
-        }}>Signals in motion</div>
+        }}>Always on</div>
         <div style={{
           marginTop: 6,
           fontFamily: "Inter, var(--font-display)",
-          fontSize: "clamp(18px, 2.2vw, 26px)",
-          fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1,
+          fontSize: "clamp(20px, 2.4vw, 30px)",
+          fontWeight: 900, letterSpacing: "-0.045em", lineHeight: 1.05,
           color: "var(--stripe-ink)",
-          maxWidth: "min(70%, 480px)",
-        }}>The bot is listening, logging, and looking ahead — even when you aren't.</div>
+          maxWidth: "min(72%, 520px)",
+        }}>Built to run while you sleep, train, and live.</div>
       </div>
     </section>
   );
 }
+
+// ─── MarqueeTicker ──────────────────────────────────────────────
+// Thin horizontal scrolling strip of training keywords / stats.
+function MarqueeTicker() {
+  const items = [
+    "Hydration goal", "Sessions logged", "Drilling partners", "Bruno lessons",
+    "Macro targets", "Injury watch", "Allergy log", "Technique library",
+    "Live activity", "Schedule sync", "Bot conversations", "Daily streak",
+  ];
+  const doubled = [...items, ...items];
+  return (
+    <section aria-hidden="true" style={{
+      position: "relative",
+      width: "100%",
+      margin: "0 0 36px",
+      height: 58,
+      borderRadius: 16,
+      overflow: "hidden",
+      background: "var(--stripe-card)",
+      border: "1px solid rgba(10,37,64,0.06)",
+      WebkitMaskImage: "linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%)",
+      maskImage:        "linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%)",
+    }}>
+      <style>{`
+        @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track { animation: none !important; }
+        }
+      `}</style>
+      <div className="marquee-track" style={{
+        display: "flex", alignItems: "center",
+        gap: 40,
+        height: "100%",
+        width: "max-content",
+        animation: "marqueeScroll 38s linear infinite",
+        paddingLeft: 40,
+      }}>
+        {doubled.map((label, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 40, flexShrink: 0 }}>
+            <span style={{
+              fontFamily: "Inter, var(--font-display)",
+              fontSize: 15, fontWeight: 800, letterSpacing: "-0.02em",
+              color: "var(--stripe-ink)",
+              whiteSpace: "nowrap",
+            }}>{label}</span>
+            <span style={{
+              width: 6, height: 6, borderRadius: "50%",
+              background: i % 4 === 0 ? "var(--stripe-pink)"
+                         : i % 4 === 1 ? "var(--stripe-blue)"
+                         : i % 4 === 2 ? "var(--stripe-cyan)"
+                         : "var(--stripe-mint)",
+              flexShrink: 0,
+            }} />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── DataFlowDiagram ────────────────────────────────────────────
+// Animated SVG architecture diagram — boxes connected by dashed lines
+// with traveling dots. Like Stripe's "how it works" sections.
+function DataFlowDiagram() {
+  const nodes = [
+    { label: "WhatsApp",  sub: "you + partners", color: "#00d4ff" },
+    { label: "BJJ Bot",    sub: "Twilio webhook", color: "#635bff" },
+    { label: "Claude",     sub: "reasoning",      color: "#ff5c9a" },
+    { label: "Dashboard",  sub: "live updates",   color: "#00e5a8" },
+  ];
+  return (
+    <section aria-label="How the bot flows" style={{
+      position: "relative",
+      width: "100%",
+      margin: "0 0 40px",
+      padding: "32px 28px 36px",
+      borderRadius: 22,
+      background:
+        "radial-gradient(circle at 90% 0%, rgba(99,91,255,0.08), transparent 50%)," +
+        "linear-gradient(180deg, var(--stripe-card) 0%, #f6f9fc 100%)",
+      boxShadow: "var(--stripe-shadow)",
+      border: "1px solid rgba(10,37,64,0.08)",
+      overflow: "hidden",
+    }}>
+      <style>{`
+        @keyframes dfDashFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -36; } }
+        @keyframes dfDotTravel { 0% { offset-distance: 0%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+        @keyframes dfBoxPulse { 0%,100% { box-shadow: 0 14px 28px -16px rgba(99,91,255,0.20), 0 0 0 1px rgba(10,37,64,0.06); } 50% { box-shadow: 0 18px 36px -14px rgba(99,91,255,0.32), 0 0 0 1px rgba(99,91,255,0.18); } }
+        @media (prefers-reduced-motion: reduce) {
+          .df-dash, .df-travel, .df-box { animation: none !important; }
+        }
+      `}</style>
+      <div style={{
+        fontFamily: "Inter, var(--font-text)",
+        fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+        textTransform: "uppercase", color: "var(--stripe-faint)",
+        marginBottom: 6,
+      }}>How it flows</div>
+      <div style={{
+        fontFamily: "Inter, var(--font-display)",
+        fontSize: "clamp(20px, 2.4vw, 28px)",
+        fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 1.1,
+        color: "var(--stripe-ink)",
+        marginBottom: 28,
+      }}>From a single text to a logged session — in seconds.</div>
+
+      <div style={{ position: "relative", height: 140 }}>
+        {/* SVG dashed connectors (drawn under boxes) */}
+        <svg viewBox="0 0 1000 140" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+          {[1, 2, 3].map((i) => {
+            const x1 = 125 + (i - 1) * 250;
+            const x2 = 250 + (i - 1) * 250;
+            return (
+              <g key={i}>
+                <line
+                  x1={x1} y1={70} x2={x2} y2={70}
+                  stroke="rgba(99,91,255,0.32)"
+                  strokeWidth="1.6"
+                  strokeDasharray="6 6"
+                  className="df-dash"
+                  style={{ animation: `dfDashFlow ${3.6 + i * 0.3}s linear infinite` }}
+                />
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Boxes (positioned with percent) */}
+        <div style={{
+          position: "absolute", inset: 0,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 8,
+        }}>
+          {nodes.map((n, i) => (
+            <div key={n.label} className="df-box" style={{
+              flex: 1,
+              maxWidth: 180,
+              minHeight: 86,
+              padding: "14px 16px",
+              borderRadius: 14,
+              background: "#ffffff",
+              border: "1px solid rgba(10,37,64,0.08)",
+              boxShadow: "0 14px 28px -16px rgba(99,91,255,0.20), 0 0 0 1px rgba(10,37,64,0.06)",
+              position: "relative",
+              animation: `dfBoxPulse ${5 + i * 0.6}s ease-in-out ${i * 0.4}s infinite`,
+            }}>
+              <div style={{
+                position: "absolute", top: 12, right: 12,
+                width: 8, height: 8, borderRadius: "50%",
+                background: n.color,
+                boxShadow: `0 0 0 4px ${n.color}22`,
+              }} />
+              <div style={{
+                fontFamily: "Inter, var(--font-display)",
+                fontSize: 15, fontWeight: 900, letterSpacing: "-0.025em",
+                color: "var(--stripe-ink)",
+              }}>{n.label}</div>
+              <div style={{
+                marginTop: 4,
+                fontSize: 11, fontWeight: 600,
+                color: "var(--stripe-faint)",
+                letterSpacing: "0.02em",
+              }}>{n.sub}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems, onOpenHydration, onOpenMicroInjuries, onOpenAllergies, onOpenTechniqueLibrary, onOpenEditor }) {
   const d = window.__bjjdata || {};
@@ -6856,6 +6943,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
+        <MarqueeTicker />
+
         <section className="stripe-section" id="current-data">
           <div className="stripe-section-head">
             <div>
@@ -6911,6 +7000,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
+        <DataFlowDiagram />
+
         <section className="stripe-dev">
           <div>
             <div className="stripe-label" style={{ color: "rgba(124, 231, 255, 0.88)" }}>Live activity</div>
@@ -6941,7 +7032,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <SignalFlowHero />
+        <AuroraHero />
 
         <section className="stripe-section" id="recent-messages">
           <div className="stripe-section-head">
