@@ -164,9 +164,6 @@ body::after {
   66%  { transform: translate3d(2%, -2%, 0) scale(1.04) rotate(-1deg); }
   100% { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
 }
-@media (prefers-reduced-motion: reduce) {
-  body::before { animation: none; }
-}
 
 /* Subtle page-enter animation */
 @keyframes page-enter {
@@ -175,13 +172,6 @@ body::after {
 }
 [data-screen-label] {
   animation: page-enter 0.28s cubic-bezier(0.32,0.72,0,1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-screen-label] { animation: none; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
 }
 
 /* =============================================================
@@ -1018,9 +1008,6 @@ html, body {
 @keyframes gc-spin { to { --gc-angle: 480deg; } }
 .gc-border-anim {
   animation: gc-spin 14s linear infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .gc-border-anim { animation: none; }
 }
 
 /* =============================================================
@@ -1995,27 +1982,6 @@ body {
     box-sizing: border-box;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .stripe-dash::before,
-  .stripe-orbit,
-  .stripe-floating,
-  .stripe-pay-card::after,
-  .stripe-section,
-  .stripe-card,
-  .stripe-mini,
-  .stripe-title,
-  .stripe-subtitle,
-  .stripe-kicker,
-  .stripe-actions,
-  .stripe-visual {
-    animation: none !important;
-  }
-  .stripe-card,
-  .stripe-cta,
-  .stripe-news-item {
-    transition-duration: 0.01ms !important;
-  }
-}
 
 </style>
   <style>
@@ -2460,16 +2426,6 @@ body {
     @keyframes upcomingRowIn {
       from { opacity: 0; transform: translateX(-12px); }
       to   { opacity: 1; transform: translateX(0); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .upcoming-row,
-      .upcoming-row-pinned,
-      .upcoming-tile-row,
-      .upcoming-modal,
-      .upcoming-modal-scrim {
-        animation: none !important;
-        transition-duration: 0.01ms !important;
-      }
     }
   </style>
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
@@ -6203,7 +6159,6 @@ function ParticleHero() {
     const container = containerRef.current;
     if (!canvas || !container) return;
     const ctx = canvas.getContext("2d");
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const STRIPES = [
       [0, 212, 255],    // cyan
@@ -6288,11 +6243,9 @@ function ParticleHero() {
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
-        if (!reduced) {
-          const wave = Math.sin(p.phase + now * p.speed);
-          p.x = p.baseX + Math.cos(p.phase * 0.7) * wave * p.amp * 0.35;
-          p.y = p.baseY + wave * p.amp * 0.65;
-        }
+        const wave = Math.sin(p.phase + now * p.speed);
+        p.x = p.baseX + Math.cos(p.phase * 0.7) * wave * p.amp * 0.35;
+        p.y = p.baseY + wave * p.amp * 0.65;
         const [r, g, b] = p.color;
         ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + p.alpha + ")";
         ctx.beginPath();
@@ -6300,7 +6253,7 @@ function ParticleHero() {
         ctx.fill();
       }
 
-      if (!reduced) {
+      {
         if (now - state.lastArcAt > 1600 + Math.random() * 1200 && arcs.length < 4) {
           spawnArc(now);
           state.lastArcAt = now;
@@ -6398,45 +6351,147 @@ function ParticleHero() {
   );
 }
 
-// ─── AuroraHero ────────────────────────────────────────────────
-// Morphing CSS gradient blobs — no particles, no dots, pure flow.
-function AuroraHero() {
+// ─── FireflyHero ────────────────────────────────────────────────
+// Vertically rising glowing sparkles that twinkle — distinct from
+// ParticleHero (which uses horizontal drift + sweeping arcs).
+function FireflyHero() {
+  const containerRef = React.useRef(null);
+  const canvasRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext("2d");
+
+    const STRIPES = [
+      [0, 212, 255],    // cyan
+      [99, 91, 255],    // blue
+      [255, 92, 154],   // pink
+      [0, 229, 168],    // mint
+      [255, 184, 108],  // orange
+    ];
+
+    const state = { w: 0, h: 0, fireflies: [] };
+
+    function resize() {
+      if (!canvasRef.current || !containerRef.current) return;
+      const dpr = window.devicePixelRatio || 1;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w <= 0 || h <= 0) return;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      state.w = w;
+      state.h = h;
+
+      const target = Math.min(520, Math.max(200, Math.floor((w * h) / 1700)));
+      state.fireflies = [];
+      for (let i = 0; i < target; i++) {
+        const color = STRIPES[Math.floor(Math.random() * STRIPES.length)];
+        const big = Math.random() < 0.18;
+        state.fireflies.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          baseR: big ? 1.4 + Math.random() * 1.6 : 0.6 + Math.random() * 1.1,
+          color,
+          rise: 0.14 + Math.random() * 0.48,
+          wobblePhase: Math.random() * Math.PI * 2,
+          wobbleFreq: 0.0008 + Math.random() * 0.0014,
+          wobbleAmp: 6 + Math.random() * 22,
+          twinklePhase: Math.random() * Math.PI * 2,
+          twinkleSpeed: 0.0012 + Math.random() * 0.0028,
+          baseAlpha: 0.4 + Math.random() * 0.5,
+          big,
+        });
+      }
+    }
+
+    let raf = 0;
+    function frame(now) {
+      const { w, h, fireflies } = state;
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < fireflies.length; i++) {
+        const f = fireflies[i];
+        f.y -= f.rise;
+        if (f.y < -12) {
+          f.y = h + 12;
+          f.x = Math.random() * w;
+        }
+        const wobble = Math.sin(now * f.wobbleFreq + f.wobblePhase) * f.wobbleAmp;
+        const drawX = f.x + wobble;
+        const twinkle = 0.55 + 0.45 * Math.sin(now * f.twinkleSpeed + f.twinklePhase);
+        const alpha = f.baseAlpha * twinkle;
+        const [r, g, b] = f.color;
+
+        if (f.big) {
+          for (let t = 1; t < 6; t++) {
+            const trailY = f.y + t * 2.5;
+            const trailAlpha = alpha * (1 - t / 6) * 0.35;
+            ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + trailAlpha + ")";
+            ctx.beginPath();
+            ctx.arc(drawX, trailY, f.baseR * (1 - t / 14), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        const haloR = f.baseR * 3.6;
+        const grad = ctx.createRadialGradient(drawX, f.y, 0, drawX, f.y, haloR);
+        grad.addColorStop(0, "rgba(" + r + "," + g + "," + b + "," + (alpha * 0.55) + ")");
+        grad.addColorStop(1, "rgba(" + r + "," + g + "," + b + ",0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(drawX, f.y, haloR, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + Math.min(1, alpha * 1.3) + ")";
+        ctx.beginPath();
+        ctx.arc(drawX, f.y, f.baseR, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (f.big) {
+          ctx.fillStyle = "rgba(255,255,255," + (alpha * 0.9) + ")";
+          ctx.beginPath();
+          ctx.arc(drawX, f.y, f.baseR * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      raf = requestAnimationFrame(frame);
+    }
+
+    resize();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
+    if (ro && container) ro.observe(container);
+    window.addEventListener("resize", resize);
+    raf = requestAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      if (ro) ro.disconnect();
+    };
+  }, []);
+
   return (
-    <section aria-label="Live signals" style={{
+    <section ref={containerRef} aria-label="Always on" style={{
       position: "relative",
       width: "100%",
-      height: "clamp(220px, 28vw, 320px)",
+      height: "clamp(240px, 30vw, 340px)",
       margin: "8px 0 40px",
       borderRadius: 22,
       overflow: "hidden",
-      background: "linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%)",
+      background:
+        "radial-gradient(circle at 25% 80%, rgba(99,91,255,0.12), transparent 50%)," +
+        "radial-gradient(circle at 80% 20%, rgba(0,212,255,0.10), transparent 50%)," +
+        "linear-gradient(180deg, #f6f9fc 0%, #ffffff 60%, #f6f9fc 100%)",
       boxShadow: "var(--stripe-shadow)",
       border: "1px solid rgba(10,37,64,0.08)",
     }}>
-      <style>{`
-        @keyframes auroraFloat1 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(60px,-30px) scale(1.18);} }
-        @keyframes auroraFloat2 { 0%,100%{transform:translate(0,0) scale(1.05);} 50%{transform:translate(-50px,20px) scale(0.92);} }
-        @keyframes auroraFloat3 { 0%,100%{transform:translate(0,0) scale(0.95);} 50%{transform:translate(40px,40px) scale(1.12);} }
-        @keyframes auroraFloat4 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-70px,-25px) scale(1.08);} }
-        @keyframes auroraFloat5 { 0%,100%{transform:translate(0,0) scale(0.88);} 50%{transform:translate(30px,30px) scale(1);} }
-        @media (prefers-reduced-motion: reduce) {
-          .aurora-blob { animation: none !important; }
-        }
-      `}</style>
-      <div aria-hidden="true" style={{ position: "absolute", inset: 0, filter: "blur(48px) saturate(140%)", pointerEvents: "none" }}>
-        <div className="aurora-blob" style={{ position: "absolute", top: "10%", left: "8%", width: "44%", height: "70%", borderRadius: "50%", background: "radial-gradient(circle, rgba(99,91,255,0.55), rgba(99,91,255,0) 65%)", animation: "auroraFloat1 14s ease-in-out infinite" }} />
-        <div className="aurora-blob" style={{ position: "absolute", top: "20%", left: "40%", width: "50%", height: "80%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,92,154,0.50), rgba(255,92,154,0) 65%)", animation: "auroraFloat2 17s ease-in-out infinite" }} />
-        <div className="aurora-blob" style={{ position: "absolute", top: "45%", left: "20%", width: "36%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,212,255,0.55), rgba(0,212,255,0) 65%)", animation: "auroraFloat3 19s ease-in-out infinite" }} />
-        <div className="aurora-blob" style={{ position: "absolute", top: "0%",  left: "65%", width: "32%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(0,229,168,0.45), rgba(0,229,168,0) 65%)", animation: "auroraFloat4 16s ease-in-out infinite" }} />
-        <div className="aurora-blob" style={{ position: "absolute", top: "55%", left: "55%", width: "40%", height: "60%", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,184,108,0.42), rgba(255,184,108,0) 65%)", animation: "auroraFloat5 21s ease-in-out infinite" }} />
-      </div>
-      {/* fine grain — slight noise overlay via repeating gradient for texture */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0,
-        background: "repeating-linear-gradient(45deg, transparent 0 8px, rgba(255,255,255,0.012) 8px 9px)",
-        mixBlendMode: "overlay",
-        pointerEvents: "none",
-      }} />
+      <canvas ref={canvasRef} aria-hidden="true" style={{ display: "block", width: "100%", height: "100%" }} />
       <div style={{
         position: "absolute", bottom: 22, left: 24, right: 24,
         pointerEvents: "none",
@@ -6483,9 +6538,6 @@ function MarqueeTicker() {
     }}>
       <style>{`
         @keyframes marqueeScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @media (prefers-reduced-motion: reduce) {
-          .marquee-track { animation: none !important; }
-        }
       `}</style>
       <div className="marquee-track" style={{
         display: "flex", alignItems: "center",
@@ -6546,9 +6598,6 @@ function DataFlowDiagram() {
         @keyframes dfDashFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -36; } }
         @keyframes dfDotTravel { 0% { offset-distance: 0%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
         @keyframes dfBoxPulse { 0%,100% { box-shadow: 0 14px 28px -16px rgba(99,91,255,0.20), 0 0 0 1px rgba(10,37,64,0.06); } 50% { box-shadow: 0 18px 36px -14px rgba(99,91,255,0.32), 0 0 0 1px rgba(99,91,255,0.18); } }
-        @media (prefers-reduced-motion: reduce) {
-          .df-dash, .df-travel, .df-box { animation: none !important; }
-        }
       `}</style>
       <div style={{
         fontFamily: "Inter, var(--font-text)",
@@ -6781,6 +6830,8 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           <span>editor</span>
         </div>
 
+        <MarqueeTicker />
+
         <section className="stripe-section" id="live-signals">
           <div className="stripe-section-head">
             <div>
@@ -6943,8 +6994,6 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <MarqueeTicker />
-
         <section className="stripe-section" id="current-data">
           <div className="stripe-section-head">
             <div>
@@ -7032,7 +7081,7 @@ function Dashboard({ onOpenLessons, onOpenSchedule, onOpenMeals, onOpenProblems,
           </div>
         </section>
 
-        <AuroraHero />
+        <FireflyHero />
 
         <section className="stripe-section" id="recent-messages">
           <div className="stripe-section-head">
@@ -9618,7 +9667,7 @@ const { useState: useStateMI, useEffect: useEffectMI } = React;
 // ─── ParticleBodySilhouette ───────────────────────────────────────────────────
 // Canvas particle figure: ~2500 dots forming a body silhouette, gradient
 // stripe-blue → stripe-pink, with sinusoidal ambient drift and per-injury
-// glowing pulse markers. Honors prefers-reduced-motion.
+// glowing pulse markers.
 // Reads injuries from useMicroInjuriesStore() via the MicroInjuries page.
 // ─────────────────────────────────────────────────────────────────────────────
 function ParticleBodySilhouette({ injuries }) {
@@ -9629,10 +9678,6 @@ function ParticleBodySilhouette({ injuries }) {
   var STRIPE_PINK = "#ff5c9a";
   var STRIPE_CYAN = "#00d4ff";
   var STRIPE_MINT = "#00e5a8";
-
-  var reducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function inSilhouette(nx, ny) {
     var x = nx * 100;
@@ -9726,11 +9771,8 @@ function ParticleBodySilhouette({ injuries }) {
 
       for (var i = 0; i < particles.length; i++) {
         var p = particles[i];
-        var ppx = p.baseX, ppy = p.baseY;
-        if (!reducedMotion) {
-          ppx += Math.sin(elapsed*p.freqX + p.phaseX)*p.ampX;
-          ppy += Math.sin(elapsed*p.freqY + p.phaseY)*p.ampY;
-        }
+        var ppx = p.baseX + Math.sin(elapsed*p.freqX + p.phaseX)*p.ampX;
+        var ppy = p.baseY + Math.sin(elapsed*p.freqY + p.phaseY)*p.ampY;
         ctx.globalAlpha = p.alpha;
         ctx.fillStyle = p.color;
         ctx.beginPath();
@@ -9746,7 +9788,7 @@ function ParticleBodySilhouette({ injuries }) {
         var mpy = (region.y/200)*H;
         var color = severityColor(inj.severity);
         var rgb = hexToRgb(color);
-        var pulseT = reducedMotion ? 0.5 : (0.5 + 0.5*Math.sin(elapsed*0.0025 + j*1.3));
+        var pulseT = 0.5 + 0.5*Math.sin(elapsed*0.0025 + j*1.3);
 
         var haloR = 14 + pulseT*6;
         var grad = ctx.createRadialGradient(mpx, mpy, 2, mpx, mpy, haloR);
@@ -11302,10 +11344,6 @@ function TechniqueConstellationHero({ techniques }) {
   const canvasRef = React.useRef(null);
   const stateRef = React.useRef(null);
   const rafRef = React.useRef(null);
-  const reducedMotion = React.useMemo(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    []
-  );
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -11630,11 +11668,7 @@ function TechniqueConstellationHero({ techniques }) {
       drawLabels();
     }
 
-    if (reducedMotion) {
-      renderStatic();
-    } else {
-      rafRef.current = requestAnimationFrame(tick);
-    }
+    rafRef.current = requestAnimationFrame(tick);
 
     // ── Resize observer ──────────────────────────────────────────────
     const ro = new ResizeObserver(() => {
@@ -11648,7 +11682,6 @@ function TechniqueConstellationHero({ techniques }) {
           n.x  = fresh[i].x;  n.y  = fresh[i].y;
         }
       });
-      if (reducedMotion) renderStatic();
     });
     ro.observe(canvas);
 
@@ -11656,7 +11689,7 @@ function TechniqueConstellationHero({ techniques }) {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       ro.disconnect();
     };
-  }, [techniques, reducedMotion]);
+  }, [techniques]);
 
   // Legend items
   const legend = [
