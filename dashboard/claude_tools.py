@@ -9,7 +9,7 @@ GITHUB_REPO = os.environ.get("GITHUB_REPO", "CaidenChancelor/Corey-s-Bjj-Assista
 GITHUB_PAT = os.environ.get("GITHUB_PAT", "")
 ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
-claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY, max_retries=5) if ANTHROPIC_KEY else None
+claude = anthropic.Anthropic(api_key=ANTHROPIC_KEY) if ANTHROPIC_KEY else None
 
 GITHUB_API = "https://api.github.com"
 RAILWAY_API = "https://backboard.railway.app/graphql/v2"
