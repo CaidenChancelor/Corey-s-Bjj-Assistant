@@ -12662,9 +12662,10 @@ function QuickActionFab() {
                       <button
                         type="button"
                         onClick={() => { setResult(null); send(); }}
+                        disabled={sending}
                         className="stripe-cta primary"
-                        style={{ justifyContent: "center", flex: 1 }}>
-                        Retry
+                        style={{ justifyContent: "center", flex: 1, opacity: sending ? 0.6 : 1, cursor: sending ? "not-allowed" : "pointer" }}>
+                        {sending ? "Sending…" : "Retry"}
                       </button>
                     )}
                     <button type="button" onClick={reset} className="stripe-cta secondary" style={{ justifyContent: "center", flex: 1 }}>
