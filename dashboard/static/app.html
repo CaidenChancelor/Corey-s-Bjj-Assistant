@@ -12293,12 +12293,50 @@ function QuickActionFab() {
     try {
       const res = await fetch("/editor/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ message }),
         signal: controller.signal,
+        credentials: "same-origin",
       });
       clearTimeout(timeoutId);
-      const data = await res.json();
+
+      // If we got redirected to login, the session expired
+      if (res.redirected && /\/login/.test(res.url)) {
+        setResult({
+          success: false,
+          reply: "Your session expired. Refresh the page, log in again, and try the quick action again.",
+          toolEvents: [],
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        let serverMsg = "";
+        try {
+          const data = await res.json();
+          serverMsg = data.error || data.reply || JSON.stringify(data);
+        } catch {
+          try { serverMsg = (await res.text()).slice(0, 200); } catch {}
+        }
+        setResult({
+          success: false,
+          reply: `Server returned ${res.status} ${res.statusText || ""}${serverMsg ? "\n\n" + serverMsg : ""}`.trim(),
+          toolEvents: [],
+        });
+        return;
+      }
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        setResult({
+          success: false,
+          reply: "Server replied with non-JSON (likely a login page or HTML error). Refresh and log in.",
+          toolEvents: [],
+        });
+        return;
+      }
       const reply = data.reply || data;
       const toolEvents = data.tool_events || [];
       setResult({
@@ -12308,9 +12346,13 @@ function QuickActionFab() {
       });
     } catch (e) {
       clearTimeout(timeoutId);
-      const msg = e.name === "AbortError"
-        ? "Claude took longer than 2 minutes. Try a simpler request or check the Editor chat for the full reply."
-        : "Failed to reach the bot. Try again in a moment.";
+      let msg;
+      if (e.name === "AbortError") {
+        msg = "Claude took longer than 2 minutes. Try a simpler request or check the Editor chat for the full reply.";
+      } else {
+        msg = `Couldn't reach the server: ${e.message || e.name || "unknown error"}.\n\nIf this keeps happening, open the Editor chat directly — same backend.`;
+      }
+      console.error("[QuickAction] send failed:", e);
       setResult({ success: false, reply: msg, toolEvents: [] });
     } finally {
       setSending(false);
